@@ -25,9 +25,9 @@ export function Hero() {
             <Badge tone="live">
               <span
                 aria-hidden
-                className="inline-block size-1.5 rounded-full bg-emerald-500"
+                className="inline-block size-1.5 rounded-full bg-[var(--color-klaro-orange)]"
               />
-              Open testnet · Built for Arc
+              Open testnet · live on Arc
             </Badge>
             <Badge tone="neutral">USDC · EURC · CCTP V2</Badge>
           </div>
@@ -39,10 +39,10 @@ export function Hero() {
             Not weeks.
           </h1>
 
-          <p className="mt-8 max-w-[40rem] text-lg leading-[1.42] text-[var(--color-ink-muted)] md:text-[1.35rem]">
+          <p className="mt-8 max-w-[40rem] text-lg leading-[1.42] text-[var(--color-muted)] md:text-[1.25rem]">
             Klaro helps vendors invoice globally in USDC, prove every payment
-            onchain, build financial reputation, and simulate partner cashout
-            workflows.
+            onchain, build financial reputation, and cash out through verified
+            partners.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -50,20 +50,20 @@ export function Hero() {
               Create your first invoice →
             </Link>
             <Link
-              href="/product"
+              href="/receipt/preview"
               className={buttonVariants({ size: "lg", variant: "secondary" })}
             >
-              See receipt design
+              See a real receipt
             </Link>
           </div>
 
-          <ul className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[var(--color-ink-muted)]">
+          <ul className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[var(--color-muted)]">
             <li className="flex items-center gap-2">
               <span
                 aria-hidden
                 className="inline-block size-1.5 rounded-full bg-emerald-500"
               />
-              Testnet preview
+              All systems operational
             </li>
             <li>Free during testnet</li>
             <li>Arc-native · Circle Wallets</li>
