@@ -101,4 +101,8 @@ internal/
 # from the capture-*.mjs scripts; PNGs would bloat the repo and pollute diffs.
 design-reference/screenshots/
 
+# Claude Code session state (scheduled tasks lock, etc.) is per-machine.
+.claude/scheduled_tasks.lock
+.claude/scheduled_tasks.json
+
 .vercel
