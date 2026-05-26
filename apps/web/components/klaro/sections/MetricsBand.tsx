@@ -7,7 +7,7 @@ import { LANDING_METRICS } from "@/lib/testnetMetrics";
 export function MetricsBand() {
   return (
     <section className="bg-[var(--color-bg)] border-y border-[var(--color-line)]">
-      <div className="mx-auto w-full max-w-[1280px] px-6 py-16 md:py-[clamp(80px,12vw,160px)]">
+      <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-16 md:py-[clamp(80px,12vw,160px)]">
         <p className="text-center text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
           Testnet product preview · illustrative metrics
         </p>

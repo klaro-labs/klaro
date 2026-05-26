@@ -34,7 +34,7 @@ const PILLARS = [
 
 export function Security() {
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-6 py-[clamp(80px,12vw,160px)] md:mt-[26px] md:py-[clamp(80px,12vw,160px)]">
+    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(80px,12vw,160px)]">
       <SectionHeader
         eyebrow="Trust by design"
         title={
