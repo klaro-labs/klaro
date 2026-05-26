@@ -11,7 +11,7 @@ import { buttonVariants } from "@/components/ui/Button";
  */
 export function Hero() {
   return (
-    <section className="relative isolate mx-auto w-full max-w-[1280px] overflow-hidden px-[clamp(20px,4vw,56px)] pt-20 pb-24 md:pt-[120px] md:pb-32">
+    <section className="relative isolate mx-auto w-full max-w-[1280px] overflow-hidden px-[clamp(20px,4vw,56px)] pt-16 pb-12 md:pt-[112px] md:pb-16">
       {/* Subtle warm radial-glow upper-right per brand reference. Absolute,
           decorative (aria-hidden), pointer-events-none, isolated to its own
           stacking context so it can never block CTAs or selection. */}

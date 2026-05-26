@@ -23,6 +23,16 @@ const PAGES = [
 const browser = await chromium.launch({ headless: true });
 for (const p of PAGES) {
   const ctx = await browser.newContext({ viewport: p.viewport });
+  // Pre-seed cookie consent + first-visit toasts so captures don't show the
+  // banner sitting on top of content. Real users only see it once.
+  await ctx.addInitScript(() => {
+    try {
+      localStorage.setItem(
+        "klaro.cookie.consent.v1",
+        JSON.stringify({ d: "essential-only", at: Date.now() }),
+      );
+    } catch {}
+  });
   const page = await ctx.newPage();
   try {
     await page.goto(`${BASE}${p.url}`, { waitUntil: "domcontentloaded", timeout: 60_000 });
