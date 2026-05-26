@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/lifecycle-reminders",
-      "schedule": "7 * * * *"
+      "schedule": "7 9 * * *"
     }
   ]
 }
