@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PULSE_SEED } from "@/lib/testnetMetrics";
 import { buttonVariants } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 /**
  * §16 Final CTA — dark band with dual CTA on the left, live event pulse
@@ -18,7 +19,7 @@ const KIND_COLOR: Record<(typeof PULSE_SEED)[number]["kind"], string> = {
 
 export function FinalCta() {
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-6 py-[clamp(80px,12vw,160px)] md:mt-[107px] md:py-[clamp(80px,12vw,160px)]">
+    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(80px,12vw,160px)]">
       <div className="overflow-hidden rounded-xl bg-[var(--color-ink)] text-white shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
         <div className="grid gap-10 p-8 md:grid-cols-[1.05fr_0.95fr] md:p-12">
           <div>
@@ -45,13 +46,19 @@ export function FinalCta() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/signin"
-                className={`${buttonVariants({ size: "lg" })} bg-white text-[var(--color-ink)] hover:bg-white/90`}
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "bg-white text-[var(--color-ink)] hover:bg-white/90",
+                )}
               >
                 Create your account →
               </Link>
               <a
                 href="mailto:sales@klaro.so"
-                className={`${buttonVariants({ size: "lg", variant: "secondary" })} text-white ring-white/25`}
+                className={cn(
+                  buttonVariants({ size: "lg", variant: "secondary" }),
+                  "border-white/25 text-white hover:bg-white/10",
+                )}
               >
                 Talk to sales
               </a>
