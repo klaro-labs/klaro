@@ -14,7 +14,7 @@ jobs:
         working-directory: packages/contracts
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
       # `version` intentionally omitted — pnpm/action-setup@v4 reads it from
@@ -44,7 +44,7 @@ jobs:
         working-directory: apps/web
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
       - uses: pnpm/action-setup@v4
