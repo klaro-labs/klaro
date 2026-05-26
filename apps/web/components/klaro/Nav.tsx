@@ -49,10 +49,10 @@ export function Nav() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link
             href="/signin"
-            className="hidden text-sm text-[var(--color-ink-muted)] transition-colors hover:text-[var(--color-ink)] md:inline"
+            className={`hidden md:inline-flex ${buttonVariants({ size: "sm", variant: "secondary" })}`}
           >
             Sign in
           </Link>
