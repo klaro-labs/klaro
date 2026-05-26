@@ -18,8 +18,8 @@ export function TrustStrip() {
     // Designer 2026-05-25 parity: section is generously tall (~280px visible),
     // label sits in upper third with breathing room, logos distributed across
     // full width with even gaps. py-20 (was py-12) restores the breathing.
-    <section className="border-y border-[var(--color-line)] bg-[var(--color-bg)] py-20 md:py-24">
-      <div className="mx-auto w-full max-w-[1216px] px-6">
+    <section className="border-y border-[var(--color-line)] bg-[var(--color-bg)] py-[clamp(48px,7vw,96px)]">
+      <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)]">
         <p className="text-center font-mono text-[11px] font-normal tracking-[0.2em] uppercase text-[var(--color-ink-subtle)]">
           Standards and infrastructure we build on
         </p>

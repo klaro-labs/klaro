@@ -11,13 +11,13 @@ import { buttonVariants } from "@/components/ui/Button";
  */
 export function Hero() {
   return (
-    <section className="relative isolate mx-auto w-full max-w-[1216px] overflow-hidden px-6 pt-20 pb-24 md:pt-[140px] md:pb-28">
+    <section className="relative isolate mx-auto w-full max-w-[1280px] overflow-hidden px-[clamp(20px,4vw,56px)] pt-20 pb-24 md:pt-[120px] md:pb-32">
       {/* Subtle warm radial-glow upper-right per brand reference. Absolute,
-          decorative (aria-hidden), pointer-events-none so it never blocks
-          CTAs or selection. */}
+          decorative (aria-hidden), pointer-events-none, isolated to its own
+          stacking context so it can never block CTAs or selection. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 right-[-15%] -z-10 h-[640px] w-[640px] rounded-full bg-[var(--color-brand)] opacity-[0.015] blur-[120px]"
+        className="pointer-events-none absolute -top-40 right-[-25%] -z-10 h-[760px] w-[760px] rounded-full bg-[var(--color-klaro-orange)] opacity-[0.02] blur-[160px]"
       />
       <div className="md:-translate-y-2">
         <div className="max-w-[1000px]">

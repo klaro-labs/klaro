@@ -64,7 +64,7 @@ const SURFACES: Surface[] = [
 
 export function PlatformOS() {
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-6 py-28 md:-mt-[78px] md:py-40">
+    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(80px,12vw,160px)]">
       <SectionHeader
         eyebrow="The platform"
         title={

@@ -5,10 +5,8 @@ export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
 /**
- * Favicon — 3-rect K mark on warm-off-white background.
- * Geometry mirrors `components/klaro/BrandMark.tsx` (source of truth
- * = `designer/brand-kit/index.html`). Viewbox scaled down to 22x22
- * inside the 32x32 canvas so the stem doesn't kiss the edge at tab size.
+ * Favicon. Solid K-arrow on warm-off-white. Geometry mirrors BrandMark.
+ * Transparent-friendly fill so the mark holds on both light + dark tabs.
  */
 export default function Icon() {
   return new ImageResponse(
@@ -23,15 +21,15 @@ export default function Icon() {
       }}
     >
       <svg
-        width="24"
-        height="24"
+        width="26"
+        height="26"
         viewBox="0 0 24 24"
         preserveAspectRatio="xMidYMid meet"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path d="M4 2V22" stroke={INK_HEX} strokeWidth="4" />
-        <path d="M5.5 12L19 2" stroke={BRAND_HEX} strokeWidth="4" />
-        <path d="M5.5 12L19 22" stroke={BRAND_HEX} strokeWidth="4" />
+        <rect x="2" y="2" width="4.5" height="20" rx="0.5" fill={INK_HEX} />
+        <path d="M6.5 12 L20 2 L20 6.5 L11.5 12 Z" fill={BRAND_HEX} />
+        <path d="M6.5 12 L20 22 L20 17.5 L11.5 12 Z" fill={BRAND_HEX} />
       </svg>
     </div>,
     { ...size },

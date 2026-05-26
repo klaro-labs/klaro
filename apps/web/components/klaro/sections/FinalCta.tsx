@@ -18,7 +18,7 @@ const KIND_COLOR: Record<(typeof PULSE_SEED)[number]["kind"], string> = {
 
 export function FinalCta() {
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-6 py-28 md:mt-[107px] md:py-40">
+    <section className="mx-auto w-full max-w-[1280px] px-6 py-[clamp(80px,12vw,160px)] md:mt-[107px] md:py-[clamp(80px,12vw,160px)]">
       <div className="overflow-hidden rounded-xl bg-[var(--color-ink)] text-white shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
         <div className="grid gap-10 p-8 md:grid-cols-[1.05fr_0.95fr] md:p-12">
           <div>

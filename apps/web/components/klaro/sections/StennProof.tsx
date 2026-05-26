@@ -35,7 +35,7 @@ const PILLARS = [
 export function StennProof() {
   return (
     <section className="bg-[var(--color-ink)] text-white md:mt-[161px]">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-28 md:py-40">
+      <div className="mx-auto w-full max-w-[1280px] px-6 py-[clamp(80px,12vw,160px)]">
         <div className="max-w-3xl">
           {/* Designer 2026-05-25 parity: eyebrow is GOLD (Stenn-Proof = gold trust
               mark per brand-kit §07), not brand-blue. Bigger headline to match. */}

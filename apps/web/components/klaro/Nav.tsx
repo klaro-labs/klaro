@@ -30,7 +30,7 @@ export function Nav() {
     <header className="sticky top-0 z-40 w-full border-b border-[var(--color-line)] bg-[color-mix(in_oklab,var(--color-bg)_92%,transparent)] backdrop-blur">
       <nav
         aria-label="Primary"
-        className="mx-auto flex h-16 w-full max-w-[1216px] items-center justify-between px-6"
+        className="mx-auto flex h-16 w-full max-w-[1280px] items-center justify-between px-[clamp(20px,4vw,56px)]"
       >
         <Link href="/" aria-label="Klaro home" className="shrink-0">
           <Logo />

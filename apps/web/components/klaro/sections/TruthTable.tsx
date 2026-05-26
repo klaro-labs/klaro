@@ -141,7 +141,7 @@ const TONES: Record<Tone, { label: string; dot: string; pill: string }> = {
 
 export function TruthTable() {
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-6 py-28 md:mt-[657px] md:py-40">
+    <section className="mx-auto w-full max-w-[1280px] px-6 py-[clamp(80px,12vw,160px)] md:mt-[657px] md:py-[clamp(80px,12vw,160px)]">
       <div className="grid gap-12 md:grid-cols-[1fr_2fr]">
         <div>
           <SectionHeader
