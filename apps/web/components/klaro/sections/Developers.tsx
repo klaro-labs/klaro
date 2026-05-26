@@ -36,7 +36,7 @@ const ok = await klaro.receipts.verify("0x9f8a3c5b…");
 export function Developers() {
   return (
     <section className="bg-[var(--color-ink)] text-white">
-      <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(80px,12vw,160px)]">
+      <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(64px,9vw,120px)]">
         <div className="grid gap-10 md:grid-cols-[1fr_1.4fr] md:items-center">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-gold)]">

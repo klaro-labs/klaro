@@ -31,7 +31,7 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(80px,12vw,160px)]">
+    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(64px,9vw,120px)]">
       <SectionHeader eyebrow="How it works" title="Three steps. One receipt." />
       <ol className="mt-16 grid items-stretch gap-6 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
         {STEPS.map((s, i) => (

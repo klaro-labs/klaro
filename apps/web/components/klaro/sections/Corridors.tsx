@@ -133,7 +133,7 @@ const STATUS_LABEL: Record<Status, string> = {
 
 export function Corridors() {
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(80px,12vw,160px)]">
+    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(64px,9vw,120px)]">
       <SectionHeader
         eyebrow="Corridors"
         title={
