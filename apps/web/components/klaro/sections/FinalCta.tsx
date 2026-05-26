@@ -57,7 +57,7 @@ export function FinalCta() {
                 href="mailto:sales@klaro.so"
                 className={cn(
                   buttonVariants({ size: "lg", variant: "secondary" }),
-                  "border-white/25 text-white hover:bg-white/10",
+                  "text-white ring-white/25 hover:bg-white/10",
                 )}
               >
                 Talk to sales
