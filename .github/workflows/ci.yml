@@ -17,9 +17,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      # `version` intentionally omitted — pnpm/action-setup@v4 reads it from
+      # `version` intentionally omitted — pnpm/action-setup@v6 reads it from
       # `packageManager` in package.json. Specifying it here would conflict.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: foundry-rs/foundry-toolchain@v1
       - name: Install workspace deps
         working-directory: .
@@ -47,7 +47,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - name: Install workspace deps
         working-directory: .
         run: pnpm install --frozen-lockfile
