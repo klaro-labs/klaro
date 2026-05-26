@@ -4,17 +4,17 @@ import { buttonVariants } from "@/components/ui/Button";
 
 /**
  * Hero — one-shot pitch above the fold.
- * Honest labels per : "Open testnet · built for Arc" makes status
- * clear before users scroll. "Free during testnet" sets expectations.
- * Headline structure mirrors the designer mockup verbatim — "Get paid in
- * seconds." with `seconds` in brand blue, then "Not weeks." on its own line.
+ * Honest labels: "Open testnet · Built for Arc" makes status clear before
+ * users scroll. "Free during testnet" sets expectations.
+ * Headline mirrors the brand reference verbatim — "Get paid in seconds."
+ * with `seconds` in brand terracotta, then "Not weeks." on its own line.
  */
 export function Hero() {
   return (
     <section className="relative isolate mx-auto w-full max-w-[1216px] overflow-hidden px-6 pt-20 pb-24 md:pt-[140px] md:pb-28">
-      {/* Subtle blue radial-glow upper-right per designer 2026-05-25 diff D4.
-          Absolute-positioned, decorative (aria-hidden), pointer-events-none so
-          it never blocks the CTAs or selection. */}
+      {/* Subtle warm radial-glow upper-right per brand reference. Absolute,
+          decorative (aria-hidden), pointer-events-none so it never blocks
+          CTAs or selection. */}
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 right-[-15%] -z-10 h-[640px] w-[640px] rounded-full bg-[var(--color-brand)] opacity-[0.015] blur-[120px]"

@@ -13,7 +13,7 @@ export const BRAND_MARK_VIEWBOX = "0 0 24 24";
 /** Tailwind / CSS-var aware fill colors. Hard-coded equivalents in INK_HEX
  * and BRAND_HEX so they can be passed to `ImageResponse` without CSS vars. */
 export const INK_HEX = "#0A0A0A";
-export const BRAND_HEX = "#1B6BFF";
+export const BRAND_HEX = "#C7522A";
 
 export function BrandMark({
   size = 22,

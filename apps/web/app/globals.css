@@ -1,34 +1,71 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Klaro brand tokens — extracted from designer mockups
-   Source: Klaro Brand Kit offline.html · Klaro Landing offline.html
-   Principle 8: tokens labeled by role, not raw hex, so theming stays semantic. */
-@theme inline {
-  /* Palette */
-  --color-bg: #FAFAF7;             /* warm off-white — premium body background */
-  --color-bg-elevated: #FFFFFF;    /* pure white — cards, drawers, modals */
-  --color-ink: #0A0A0A;            /* near-black — primary text + filled CTA */
-  --color-ink-muted: #525252;      /* gray-600 — body copy, secondary text */
-  --color-ink-subtle: #A3A3A3;     /* gray-400 — meta, hints */
-  --color-line: #E5E5E5;           /* gray-200 — borders, dividers */
-  --color-brand: #1B6BFF;          /* Klaro blue — primary accent + links */
-  --color-brand-soft: #EBF2FF;     /* tinted blue for backgrounds */
-  --color-gold: #F5B100;           /* Stenn-Proof verified badge */
-  --color-success: #16A34A;        /* paid · settled · success */
-  --color-warning: #F59E0B;        /* pending · review */
-  --color-danger: #DC2626;         /* failed · dispute · blocked */
+/* Klaro brand tokens. Source: design-reference/klaro-brand-system.md.
+   Extracted from Klaro Brand Kit offline.html (v0.4, 2026-05-19).
 
-  /* Type — Inter Tight for headlines, Inter for body */
+   Naming: the reference file uses `--klaro-blue` for what the eye sees as
+   warm terracotta. Production exposes both names so legacy components keep
+   working; new code uses `--color-klaro-orange`. */
+@theme inline {
+  /* Brand */
+  --color-klaro-orange: #C7522A;
+  --color-klaro-orange-deep: #8E3414;
+  --color-klaro-orange-soft: #FAEDE5;
+  --color-klaro-gold: #F5B100;
+  --color-klaro-gold-soft: #FFF6DD;
+
+  /* Ink (foreground) */
+  --color-ink: #0A0A0A;
+  --color-ink-2: #1A1A1A;
+  --color-ink-3: #2E2E2E;
+  --color-muted: #6B6B6B;
+  --color-muted-2: #8A8A8A;
+
+  /* Lines */
+  --color-line: rgb(10 10 10 / 0.08);
+  --color-line-2: rgb(10 10 10 / 0.14);
+
+  /* Surfaces */
+  --color-bg: #FFFFFF;
+  --color-bg-warm: #FAFAF7;
+  --color-bg-cool: #F4F6FA;
+  --color-bg-dark: #0A0A0A;
+  --color-bg-dark-2: #131313;
+
+  /* Status (semantic) */
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-danger: #DC2626;
+
+  /* Legacy aliases — keep working until every consumer is migrated. */
+  --color-bg-elevated: #FFFFFF;
+  --color-ink-muted: #6B6B6B;
+  --color-ink-subtle: #8A8A8A;
+  --color-brand: #C7522A;
+  --color-brand-soft: #FAEDE5;
+  --color-gold: #F5B100;
+
+  /* Type */
   --font-display: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* Radii */
-  --radius-sm: 6px;
+  /* Radius */
+  --radius-sm: 8px;
+  --radius: 14px;
   --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
   --radius-pill: 9999px;
+
+  /* Layout */
+  --klaro-container: 1280px;
+  --klaro-pad: clamp(20px, 4vw, 56px);
+  --klaro-section-y: clamp(80px, 12vw, 160px);
+
+  /* Motion */
+  --ease-klaro: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @layer base {
@@ -45,15 +82,60 @@
     font-feature-settings: "ss01", "cv11";
   }
 
-  /* Headlines lean on Inter Tight with tight tracking — matches designer's hero */
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     letter-spacing: -0.025em;
   }
 
-  /* Selection picks up brand color subtly */
+  /* Display weight gets tighter tracking for hero impact. */
+  .klaro-display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+
+  .klaro-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-klaro-orange);
+  }
+
+  .klaro-eyebrow-on-dark {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-klaro-gold);
+  }
+
   ::selection {
-    background: color-mix(in oklab, var(--color-brand) 25%, transparent);
+    background: color-mix(in oklab, var(--color-klaro-orange) 25%, transparent);
     color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Container that matches the reference. Use as `.klaro-container`. */
+  .klaro-container {
+    max-width: var(--klaro-container);
+    margin-inline: auto;
+    padding-inline: var(--klaro-pad);
+  }
+  .klaro-section {
+    padding-block: var(--klaro-section-y);
   }
 }

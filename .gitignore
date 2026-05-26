@@ -29,9 +29,12 @@ packages/contracts/lib/
 .env.testnet
 .env.preview
 
-# Cryptographic material (Audit fix loop iter 52): Apple Wallet certs are
-# real config items per .env.example; private keys, PGP, SSH must never
-# enter git.
+# Circle recovery files — entity-secret rotation material. Never commit;
+# move offline immediately after registration.
+circle-recovery-file-*.dat
+
+# Cryptographic material — Apple Wallet certs are real config items per
+# .env.example, but private keys, PGP, SSH must never enter git.
 *.pem
 *.key
 *.crt
@@ -93,3 +96,9 @@ packages/contracts/broadcast/
 # Internal-only documents: planning, iteration logs, build history, design
 # assets. Stay on local machines; not part of the canonical codebase.
 internal/
+
+# Captured screenshots + rendered HTMLs from design-reference/. Regenerable
+# from the capture-*.mjs scripts; PNGs would bloat the repo and pollute diffs.
+design-reference/screenshots/
+
+.vercel

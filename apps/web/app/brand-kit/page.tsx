@@ -297,7 +297,7 @@ function SectionLogo() {
       <figure className="mt-5 overflow-hidden rounded-lg border border-[var(--color-line)]">
         <div className="grid place-items-center bg-[var(--color-ink)] px-6 py-16">
           <span className="inline-flex items-center gap-4">
-            <BrandMark size={80} inkFill="#ffffff" brandFill="#1B6BFF" />
+            <BrandMark size={80} inkFill="#ffffff" brandFill="#C7522A" />
             <span className="font-display text-5xl font-semibold tracking-tight text-white">
               klaro
             </span>
@@ -308,7 +308,7 @@ function SectionLogo() {
             Dark surface lockup
           </span>
           <span className="font-mono text-[var(--color-ink-subtle)]">
-            Stem inverts to white; blue arms unchanged
+            Stem inverts to white; orange arms unchanged
           </span>
         </figcaption>
       </figure>
@@ -324,17 +324,17 @@ function SectionColor() {
       <BkSectionHead
         n="03"
         title="Color"
-        lede="Klaro blue carries the brand. Stenn-Proof gold is reserved exclusively for verified receipts. Everything else is warm graphite or paper."
+        lede="Klaro's terracotta carries the brand. Stenn-Proof gold is reserved exclusively for verified receipts. Everything else is warm graphite or paper."
       />
       <div className="mt-10 space-y-5">
         <ColorCard
-          bg="#1B6BFF"
+          bg="#C7522A"
           fg="#ffffff"
           eyebrow="Primary · Brand"
-          name="Klaro blue"
-          hex="#1B6BFF"
-          rgb="27 107 255"
-          oklch="0.58 0.21 256"
+          name="Klaro terracotta"
+          hex="#C7522A"
+          rgb="199 82 42"
+          oklch="0.58 0.18 38"
           note="Calls to action, links, accents, hero highlights. The brand's load-bearing color."
         />
         <ColorCard
@@ -629,7 +629,7 @@ function SectionComponents() {
 
       <CompGroup
         label="Buttons"
-        note="Primary uses ink fill by default; switches to Klaro blue on hover. Hero CTAs use 48px height."
+        note="Primary uses ink fill by default; switches to Klaro terracotta on hover. Hero CTAs use 48px height."
       >
         <div className="flex flex-wrap items-center gap-3">
           <button

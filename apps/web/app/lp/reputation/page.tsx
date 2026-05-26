@@ -20,7 +20,7 @@ const TIERS = [
     label: "T2 · Medium",
     min: "$25k",
     max: "$5k per claim",
-    color: "#1B6BFF",
+    color: "#C7522A",
   },
   {
     tier: 3,
