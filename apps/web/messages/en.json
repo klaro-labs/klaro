@@ -1,0 +1,100 @@
+{
+  "common": {
+    "klaro": "Klaro",
+    "tagline": "Get paid in seconds. Not weeks.",
+    "ctaPrimary": "Get started",
+    "ctaSecondary": "See how it works",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading…",
+    "error": "Something went wrong"
+  },
+  "nav": {
+    "product": "Product",
+    "developers": "Developers",
+    "pricing": "Pricing",
+    "company": "Company",
+    "signIn": "Sign in",
+    "vendorHome": "Overview",
+    "vendorInvoices": "Invoices",
+    "vendorCashout": "Cashout",
+    "vendorReputation": "Reputation",
+    "vendorSettings": "Settings"
+  },
+  "invoice": {
+    "createTitle": "New invoice",
+    "amountLabel": "Amount",
+    "amountHelp": "USDC on Arc (ERC-20 interface, 6 decimals)",
+    "customerLabel": "Customer email",
+    "dueLabel": "Due",
+    "descriptionLabel": "Description",
+    "createSubmit": "Create invoice",
+    "settled": "Settled",
+    "paid": "Paid",
+    "created": "Awaiting payment",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded"
+  },
+  "checkout": {
+    "title": "Pay {amount} to {vendor}",
+    "connectWallet": "Connect wallet",
+    "switchChain": "Switch to Arc testnet",
+    "signAcceptance": "Sign acceptance",
+    "approveUsdc": "Approve USDC",
+    "payNow": "Pay now",
+    "settled": "Settled — receipt minted",
+    "rejected": "Signature rejected",
+    "notABank": "Klaro is not a bank. Testnet preview — no real money moves."
+  },
+  "receipt": {
+    "verifiedOnArc": "Verified on Arc",
+    "simulated": "Simulated · contracts not deployed",
+    "publicTitle": "Public on-chain receipt",
+    "embedHint": "Drop <KlaroReceiptBadge> on any site to embed."
+  },
+  "cashout": {
+    "title": "Cashout",
+    "quoteTitle": "Live quote",
+    "klaroFee": "Klaro fee",
+    "lpSpread": "LP spread",
+    "etaMinutes": "ETA {minutes} min",
+    "inrPilotBadge": "INR pilot · simulated proof, no real INR moves",
+    "lockUsdc": "Lock USDC",
+    "received": "I received local currency",
+    "openDispute": "Open dispute"
+  },
+  "webhooks": {
+    "title": "Webhook endpoints",
+    "description": "Receive signed POSTs when invoices change state, cashouts settle, or refunds execute.",
+    "addEndpoint": "Add endpoint",
+    "urlLabel": "Endpoint URL",
+    "secretLabel": "Signing secret",
+    "secretHelp": "Verify Klaro-Signature header by recomputing HMAC-SHA256 over `{t}.{rawBody}`",
+    "testPing": "Send test ping",
+    "noEndpoints": "No endpoints configured yet."
+  },
+  "recurring": {
+    "title": "Recurring invoices",
+    "description": "Auto-create invoices on a schedule. Useful for subscriptions, retainers, repeat customers.",
+    "scheduleLabel": "Schedule",
+    "addRecurring": "Add recurring invoice"
+  },
+  "bulk": {
+    "title": "Bulk import",
+    "description": "Upload a CSV to create up to 1,000 invoices at once.",
+    "downloadTemplate": "Download CSV template",
+    "uploadButton": "Upload CSV"
+  },
+  "bills": {
+    "title": "Bills",
+    "description": "Pay incoming USDC bills. Goes live with the bill-pay flow in M9.",
+    "comingSoon": "Bill-pay is wired in M9 — accept-and-pay reverse direction."
+  },
+  "footer": {
+    "disclosure": "Klaro is not a bank. Testnet preview. No real money moves.",
+    "rights": "All rights reserved.",
+    "legal": "Legal",
+    "trust": "Trust"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "Klaro",
+  "short_name": "Klaro",
+  "description": "Arc-native USDC invoicing + Stenn-Proof receipts + INR cashout.",
+  "start_url": "/vendor",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAFAF7",
+  "theme_color": "#1B6BFF",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon", "sizes": "32x32", "type": "image/png", "purpose": "any" },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon0",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "New invoice", "url": "/vendor/invoices/new" },
+    { "name": "Cashout", "url": "/vendor/cashout" },
+    { "name": "Disputes", "url": "/vendor/disputes" }
+  ],
+  "categories": ["finance", "business"],
+  "screenshots": []
+}

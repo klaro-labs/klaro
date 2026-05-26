@@ -1,0 +1,18 @@
+# Echidna config for Klaro money-flow invariants. The 5M-run target is the
+# standard pre-mainnet bar for the conservation properties in Targets.sol.
+# Run with:  echidna test/echidna/Targets.sol --config packages/contracts/echidna.yaml
+testLimit: 5000000
+shrinkLimit: 5000
+seqLen: 100
+contractAddr: "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
+deployer:     "0x10000"
+sender:       ["0x20000", "0x30000", "0x40000"]
+balanceAddr:  0xffffffff
+balanceContract: 0
+testMode: "assertion"
+corpusDir: "echidna-corpus"
+coverage: true
+format: "text"
+allContracts: false
+prefix: "echidna_"
+solcArgs: "--via-ir --optimize --optimize-runs 200"

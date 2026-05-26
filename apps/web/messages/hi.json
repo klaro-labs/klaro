@@ -1,0 +1,56 @@
+{
+  "common": {
+    "klaro": "क्लारो",
+    "tagline": "सेकंडों में भुगतान पाएं। हफ्तों में नहीं।",
+    "ctaPrimary": "शुरू करें",
+    "ctaSecondary": "यह कैसे काम करता है",
+    "back": "वापस",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "loading": "लोड हो रहा है…",
+    "error": "कुछ गलत हो गया"
+  },
+  "nav": {
+    "product": "उत्पाद",
+    "developers": "डेवलपर्स",
+    "pricing": "मूल्य निर्धारण",
+    "company": "कंपनी",
+    "signIn": "साइन इन करें",
+    "vendorHome": "अवलोकन",
+    "vendorInvoices": "चालान",
+    "vendorCashout": "कैशआउट",
+    "vendorReputation": "प्रतिष्ठा",
+    "vendorSettings": "सेटिंग्स"
+  },
+  "invoice": {
+    "createTitle": "नया चालान",
+    "amountLabel": "राशि",
+    "amountHelp": "Arc पर USDC (ERC-20 इंटरफ़ेस, 6 दशमलव)",
+    "customerLabel": "ग्राहक ईमेल",
+    "dueLabel": "देय",
+    "descriptionLabel": "विवरण",
+    "createSubmit": "चालान बनाएं",
+    "settled": "निपटाया गया",
+    "paid": "भुगतान किया गया",
+    "created": "भुगतान की प्रतीक्षा है",
+    "cancelled": "रद्द",
+    "refunded": "धन वापसी"
+  },
+  "checkout": {
+    "title": "{vendor} को {amount} का भुगतान करें",
+    "connectWallet": "वॉलेट कनेक्ट करें",
+    "switchChain": "Arc टेस्टनेट पर स्विच करें",
+    "signAcceptance": "स्वीकृति पर हस्ताक्षर करें",
+    "approveUsdc": "USDC अनुमोदित करें",
+    "payNow": "अभी भुगतान करें",
+    "settled": "निपटा — रसीद मिंट की गई",
+    "rejected": "हस्ताक्षर अस्वीकृत",
+    "notABank": "क्लारो बैंक नहीं है। टेस्टनेट पूर्वावलोकन — कोई वास्तविक धन नहीं चलता।"
+  },
+  "footer": {
+    "disclosure": "क्लारो बैंक नहीं है। टेस्टनेट पूर्वावलोकन। कोई वास्तविक धन नहीं चलता।",
+    "rights": "सभी अधिकार सुरक्षित।",
+    "legal": "क़ानूनी",
+    "trust": "विश्वास"
+  }
+}

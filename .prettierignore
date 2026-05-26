@@ -1,0 +1,41 @@
+# Audit fix (loop iter 45, 2026-05-25): without this file, `pnpm format:check`
+# checked 67 vendored Arc sample files + lockfiles + build outputs, exited
+# non-zero, and would have blocked any CI gate that ran prettier.
+
+# Vendored sample repos (Arc/Circle reference implementations) — owned upstream
+resources/repos/**
+
+# Build + cache outputs
+**/.next/**
+**/.next-*/**
+**/dist/**
+**/.turbo/**
+**/coverage/**
+**/out/**
+
+# Lockfiles
+**/pnpm-lock.yaml
+**/package-lock.json
+**/yarn.lock
+**/foundry.lock
+
+# Dependencies
+**/node_modules/**
+
+# Generated / external assets
+**/*.min.js
+**/*.min.css
+designer/**/index.html
+
+# Foundry artifacts
+packages/contracts/cache/**
+packages/contracts/out/**
+packages/contracts/lib/**
+packages/contracts/broadcast/**
+
+# Iter 48: Solidity formatting is owned by `forge fmt` (Foundry standard),
+# not prettier-plugin-solidity. The two disagree (303 file diffs) and
+# fighting them creates infinite churn. Exclude *.sol so each formatter
+# owns its language.
+**/*.sol
+

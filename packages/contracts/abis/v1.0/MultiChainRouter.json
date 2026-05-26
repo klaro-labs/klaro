@@ -1,0 +1,701 @@
+{
+  "contractName": "MultiChainRouter",
+  "version": "v1.0",
+  "abi": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "policy_",
+          "type": "address",
+          "internalType": "contract RoutePolicyEngine"
+        },
+        {
+          "name": "operator_",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "checkAndDecide",
+      "inputs": [
+        {
+          "name": "sourceChainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "amountUsdc",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "corridor",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "enum MultiChainRouter.RouteKind"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "decide",
+      "inputs": [
+        {
+          "name": "sourceChainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "amountUsdc",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "enum MultiChainRouter.RouteKind"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "evmSourceSupported",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "executions",
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "kind",
+          "type": "uint8",
+          "internalType": "enum MultiChainRouter.RouteKind"
+        },
+        {
+          "name": "sourceChainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "amountUsdc",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "corridor",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "sourceTxHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "attestationHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "recordedAt",
+          "type": "uint64",
+          "internalType": "uint64"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "fastTierMaxUsdc",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "gatewayOnlySource",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getExecution",
+      "inputs": [
+        {
+          "name": "routeId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct MultiChainRouter.Execution",
+          "components": [
+            {
+              "name": "kind",
+              "type": "uint8",
+              "internalType": "enum MultiChainRouter.RouteKind"
+            },
+            {
+              "name": "sourceChainId",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "amountUsdc",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "corridor",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "sourceTxHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "attestationHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "recordedAt",
+              "type": "uint64",
+              "internalType": "uint64"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "initiateBridge",
+      "inputs": [
+        {
+          "name": "invoiceId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "corridor",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "sourceChainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "destChainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "amountUsdc",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "mintRecipient",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "kind",
+          "type": "uint8",
+          "internalType": "enum MultiChainRouter.RouteKind"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "klaroOperator",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "policy",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract RoutePolicyEngine"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "recordExecution",
+      "inputs": [
+        {
+          "name": "routeId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "kind",
+          "type": "uint8",
+          "internalType": "enum MultiChainRouter.RouteKind"
+        },
+        {
+          "name": "sourceChainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "amountUsdc",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "corridor",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "sourceTxHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "attestationHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setFastTierThreshold",
+      "inputs": [
+        {
+          "name": "newThresholdUsdc",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setOperator",
+      "inputs": [
+        {
+          "name": "next",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setSourceChain",
+      "inputs": [
+        {
+          "name": "chainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "evm",
+          "type": "bool",
+          "internalType": "bool"
+        },
+        {
+          "name": "gateway",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "BridgeInitiated",
+      "inputs": [
+        {
+          "name": "invoiceId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "corridor",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "sourceChainId",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "destChainId",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "amountUsdc",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "kind",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum MultiChainRouter.RouteKind"
+        },
+        {
+          "name": "requestedBy",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "mintRecipient",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "FastTierThresholdChanged",
+      "inputs": [
+        {
+          "name": "from",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "to",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "OperatorChanged",
+      "inputs": [
+        {
+          "name": "previous",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "next",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "OwnershipTransferred",
+      "inputs": [
+        {
+          "name": "previousOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "newOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RouteDecided",
+      "inputs": [
+        {
+          "name": "routeId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "kind",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum MultiChainRouter.RouteKind"
+        },
+        {
+          "name": "sourceChainId",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "amountUsdc",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "corridor",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "RouteExecuted",
+      "inputs": [
+        {
+          "name": "routeId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "kind",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum MultiChainRouter.RouteKind"
+        },
+        {
+          "name": "sourceTxHash",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "attestationHash",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "SourceChainConfigured",
+      "inputs": [
+        {
+          "name": "chainId",
+          "type": "uint256",
+          "indexed": true,
+          "internalType": "uint256"
+        },
+        {
+          "name": "evm",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        },
+        {
+          "name": "gateway",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "AlreadyRecorded",
+      "inputs": [
+        {
+          "name": "routeId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "NotOperator",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "OwnableInvalidOwner",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "OwnableUnauthorizedAccount",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "UnsupportedSource",
+      "inputs": [
+        {
+          "name": "chainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "WrongChain",
+      "inputs": [
+        {
+          "name": "expected",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "actual",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "ZeroMintRecipient",
+      "inputs": []
+    }
+  ]
+}

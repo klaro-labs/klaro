@@ -1,0 +1,561 @@
+{
+  "contractName": "ReputationManager",
+  "version": "v1.0",
+  "abi": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "rep_",
+          "type": "address",
+          "internalType": "contract VendorReputation"
+        },
+        {
+          "name": "operator_",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "activeMax",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "computeScore",
+      "inputs": [
+        {
+          "name": "vendorId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "score",
+          "type": "uint16",
+          "internalType": "uint16"
+        },
+        {
+          "name": "tier",
+          "type": "uint8",
+          "internalType": "enum ReputationManager.Tier"
+        },
+        {
+          "name": "rawSum",
+          "type": "int256",
+          "internalType": "int256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "emergingMax",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "establishedMax",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "formulaVersion",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint32",
+          "internalType": "uint32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "kindMultiplier",
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "enum VendorReputation.Kind"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "int16",
+          "internalType": "int16"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "klaroOperator",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "latestSnapshot",
+      "inputs": [
+        {
+          "name": "vendorId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct ReputationManager.Snapshot",
+          "components": [
+            {
+              "name": "at",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "formulaVersion",
+              "type": "uint32",
+              "internalType": "uint32"
+            },
+            {
+              "name": "rawSum",
+              "type": "int256",
+              "internalType": "int256"
+            },
+            {
+              "name": "score",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "tier",
+              "type": "uint8",
+              "internalType": "enum ReputationManager.Tier"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "rep",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract VendorReputation"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "setKindMultiplier",
+      "inputs": [
+        {
+          "name": "kind",
+          "type": "uint8",
+          "internalType": "enum VendorReputation.Kind"
+        },
+        {
+          "name": "m",
+          "type": "int16",
+          "internalType": "int16"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setOperator",
+      "inputs": [
+        {
+          "name": "next",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setTierThresholds",
+      "inputs": [
+        {
+          "name": "emerging",
+          "type": "uint16",
+          "internalType": "uint16"
+        },
+        {
+          "name": "active",
+          "type": "uint16",
+          "internalType": "uint16"
+        },
+        {
+          "name": "established",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "snapshot",
+      "inputs": [
+        {
+          "name": "vendorId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "score",
+          "type": "uint16",
+          "internalType": "uint16"
+        },
+        {
+          "name": "tier",
+          "type": "uint8",
+          "internalType": "enum ReputationManager.Tier"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "snapshotAt",
+      "inputs": [
+        {
+          "name": "vendorId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "index",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct ReputationManager.Snapshot",
+          "components": [
+            {
+              "name": "at",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "formulaVersion",
+              "type": "uint32",
+              "internalType": "uint32"
+            },
+            {
+              "name": "rawSum",
+              "type": "int256",
+              "internalType": "int256"
+            },
+            {
+              "name": "score",
+              "type": "uint16",
+              "internalType": "uint16"
+            },
+            {
+              "name": "tier",
+              "type": "uint8",
+              "internalType": "enum ReputationManager.Tier"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "snapshotCount",
+      "inputs": [
+        {
+          "name": "vendorId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "tierOf",
+      "inputs": [
+        {
+          "name": "vendorId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "enum ReputationManager.Tier"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "KindMultiplierChanged",
+      "inputs": [
+        {
+          "name": "kind",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "enum VendorReputation.Kind"
+        },
+        {
+          "name": "multiplier",
+          "type": "int16",
+          "indexed": false,
+          "internalType": "int16"
+        },
+        {
+          "name": "newFormulaVersion",
+          "type": "uint32",
+          "indexed": false,
+          "internalType": "uint32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "OperatorChanged",
+      "inputs": [
+        {
+          "name": "previous",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "next",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "OwnershipTransferred",
+      "inputs": [
+        {
+          "name": "previousOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "newOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ScoreSnapshotted",
+      "inputs": [
+        {
+          "name": "vendorId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "score",
+          "type": "uint16",
+          "indexed": false,
+          "internalType": "uint16"
+        },
+        {
+          "name": "tier",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum ReputationManager.Tier"
+        },
+        {
+          "name": "formulaVersion",
+          "type": "uint32",
+          "indexed": false,
+          "internalType": "uint32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "TierThresholdsChanged",
+      "inputs": [
+        {
+          "name": "emergingMax",
+          "type": "uint16",
+          "indexed": false,
+          "internalType": "uint16"
+        },
+        {
+          "name": "activeMax",
+          "type": "uint16",
+          "indexed": false,
+          "internalType": "uint16"
+        },
+        {
+          "name": "establishedMax",
+          "type": "uint16",
+          "indexed": false,
+          "internalType": "uint16"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "BadThresholds",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NotOperator",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "OwnableInvalidOwner",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "OwnableUnauthorizedAccount",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "WrongChain",
+      "inputs": [
+        {
+          "name": "expected",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "actual",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    }
+  ]
+}

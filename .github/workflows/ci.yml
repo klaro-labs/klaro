@@ -1,0 +1,108 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  contracts:
+    name: Foundry tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/contracts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # `version` intentionally omitted — pnpm/action-setup@v4 reads it from
+      # `packageManager` in package.json. Specifying it here would conflict.
+      - uses: pnpm/action-setup@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Install workspace deps
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+      - name: Install Foundry dependencies
+        run: |
+          mkdir -p lib
+          git clone --depth 1 --branch v1.9.4 https://github.com/foundry-rs/forge-std lib/forge-std
+          git clone --depth 1 --branch v5.1.0 https://github.com/OpenZeppelin/openzeppelin-contracts lib/openzeppelin-contracts
+      - name: forge test
+        run: forge test --no-match-contract Invariant -q
+      - name: ABI sync (must be no diff)
+        run: |
+          node scripts/sync-abis.mjs
+          git diff --exit-code abis/
+
+  web:
+    name: Web typecheck + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: pnpm/action-setup@v4
+      - name: Install workspace deps
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Next.js build
+        run: pnpm build
+        env:
+          # CI build runs without runtime envs — Next.js compiles fine.
+          NEXT_TELEMETRY_DISABLED: "1"
+
+  drift-check:
+    name: Arc address drift check
+    runs-on: ubuntu-latest
+    # Soft-fail: drift produces warnings + a job-summary line, but does not
+    # red-flag the whole CI run. Live testnet addresses are also covered by
+    # KlaroConfig.t.sol unit tests, so a stale doc index alone should not
+    # block merges. Promote to a hard failure once docs.arc.io's published
+    # llms.txt index reliably surfaces every address we pin.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch arc llms.txt index
+        run: curl -sSfL https://docs.arc.io/llms.txt -o /tmp/arc-llms.txt
+      - name: Fetch every page referenced by the index
+        # The llms.txt index never contains literal addresses, so we follow
+        # every https://docs.arc.io/* link, concatenate the contents into one
+        # corpus, then check every KlaroConfig address appears in the corpus.
+        run: |
+          set -e
+          mkdir -p /tmp/arc-pages
+          grep -Eo 'https?://docs\.arc\.io[^[:space:])"]*' /tmp/arc-llms.txt | sort -u > /tmp/arc-urls.txt
+          : > /tmp/arc-corpus.txt
+          while read -r url; do
+            curl -sSfL --max-time 20 "$url" >> /tmp/arc-corpus.txt || echo "[warn] fetch failed: $url"
+            printf '\n' >> /tmp/arc-corpus.txt
+          done < /tmp/arc-urls.txt
+          echo "[drift-check] corpus size: $(wc -c < /tmp/arc-corpus.txt) bytes from $(wc -l < /tmp/arc-urls.txt) pages"
+      - name: Compare pinned addresses against corpus
+        run: |
+          PINNED=$(grep -Eo '0x[a-fA-F0-9]{40}' packages/contracts/src/KlaroConfig.sol | sort -u)
+          MISSING=""
+          for addr in $PINNED; do
+            if ! grep -qiF "$addr" /tmp/arc-corpus.txt; then
+              echo "::warning::[drift] $addr not present in any linked arc.io page"
+              MISSING="$MISSING $addr"
+            fi
+          done
+          if [ -n "$MISSING" ]; then
+            {
+              echo "## Arc address drift"
+              echo ""
+              echo "The following pinned addresses were not found in the live docs.arc.io corpus:"
+              for a in $MISSING; do echo "- \`$a\`"; done
+              echo ""
+              echo "Re-verify on docs.arc.io and refresh \`packages/contracts/src/KlaroConfig.sol\` if any have moved."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi

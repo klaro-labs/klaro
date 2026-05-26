@@ -1,0 +1,717 @@
+{
+  "contractName": "LPRegistry",
+  "version": "v1.0",
+  "abi": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "operator_",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "admit",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "assertActive",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "assertTierAtLeast",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "minTier",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getLP",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct LPRegistry.LP",
+          "components": [
+            {
+              "name": "wallet",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "tier",
+              "type": "uint8",
+              "internalType": "uint8"
+            },
+            {
+              "name": "status",
+              "type": "uint8",
+              "internalType": "enum LPRegistry.Status"
+            },
+            {
+              "name": "kybRecordHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "payoutAccountHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            },
+            {
+              "name": "registeredAt",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "admittedAt",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "lastStatusChangeAt",
+              "type": "uint64",
+              "internalType": "uint64"
+            },
+            {
+              "name": "lastReasonHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "isActive",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "klaroOperator",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "registerLP",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "wallet",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "tier",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "kybRecordHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "payoutAccountHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "revoke",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "reason",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setOperator",
+      "inputs": [
+        {
+          "name": "next",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setTier",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "tier",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setWallet",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "wallet",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "statusOf",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "enum LPRegistry.Status"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "suspend",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "reason",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "updateKYBHash",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "newHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "updatePayoutAccountHash",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "newHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "walletOf",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "LPAdmitted",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPKYBHashUpdated",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "newHash",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPPayoutAccountUpdated",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "newHash",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPRegistered",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "wallet",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "tier",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "kybHash",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPReinstated",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPRevoked",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "reason",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPSuspended",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "reason",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPTierChanged",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "from",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "to",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LPWalletChanged",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "from",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "OperatorChanged",
+      "inputs": [
+        {
+          "name": "previous",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "next",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "OwnershipTransferred",
+      "inputs": [
+        {
+          "name": "previousOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "newOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "AlreadyRegistered",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "BadTier",
+      "inputs": [
+        {
+          "name": "tier",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "NotActive",
+      "inputs": [
+        {
+          "name": "lpId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "status",
+          "type": "uint8",
+          "internalType": "enum LPRegistry.Status"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "NotOperator",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "OwnableInvalidOwner",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "OwnableUnauthorizedAccount",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address",
+          "internalType": "address"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "UnknownLP",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "UnknownReason",
+      "inputs": [
+        {
+          "name": "reason",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "WrongChain",
+      "inputs": [
+        {
+          "name": "expected",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "actual",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "WrongStateForOp",
+      "inputs": [
+        {
+          "name": "expected",
+          "type": "uint8",
+          "internalType": "enum LPRegistry.Status"
+        },
+        {
+          "name": "actual",
+          "type": "uint8",
+          "internalType": "enum LPRegistry.Status"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "ZeroWallet",
+      "inputs": []
+    }
+  ]
+}

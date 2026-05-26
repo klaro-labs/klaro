@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /vendor/
+Disallow: /admin/
+Disallow: /lp/
+Disallow: /internal/
+Disallow: /api/
+
+# Public payment surfaces ARE allowed (these are the marketing rail):
+Allow: /i/
+Allow: /receipt/
+
+Sitemap: https://klaro.so/sitemap.xml

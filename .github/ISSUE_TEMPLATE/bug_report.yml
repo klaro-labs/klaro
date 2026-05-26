@@ -1,0 +1,61 @@
+name: Bug report
+description: Something broke or behaves wrong on Arc testnet / in the web app / in the daemon.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. **Security issues should NOT be filed here** — see [SECURITY.md](../../SECURITY.md) for private disclosure.
+
+  - type: input
+    id: surface
+    attributes:
+      label: Affected surface
+      description: Which app, route, contract, or worker?
+      placeholder: "apps/web — /vendor/invoices/[id]"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened?
+      description: Include error messages, stack traces, screenshots, transaction hashes — anything that helps reproduce.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Sign in as vendor
+        2. Create an invoice for 50 USDC
+        3. Pay it from /i/[id]
+        4. ...
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Browser + version, network (Arc testnet / local), commit SHA if known.
+      placeholder: "Chrome 131, Arc testnet, commit abc123"
+    validations:
+      required: false
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround
+      description: Have you found a way around this? Helps us prioritise.
+    validations:
+      required: false

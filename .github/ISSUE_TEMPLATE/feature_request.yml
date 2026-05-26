@@ -1,0 +1,50 @@
+name: Feature request
+description: Propose a new capability, surface, or workflow improvement.
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement. Please describe the **problem** first, then your suggested solution. Large changes benefit from an issue conversation before a PR.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What user, contributor, or operator pain are you trying to solve? Cite a real situation rather than a hypothetical when possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should the user-visible behaviour look like? UI sketches, command examples, API shapes — anything concrete.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you weigh? Why this one?
+    validations:
+      required: false
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Who is affected
+      description: Vendors / LPs / agents / operators / contributors — and roughly how many.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: I have searched existing issues and this isn't a duplicate
+          required: true
+        - label: I understand this may be declined or deferred depending on roadmap
+          required: true

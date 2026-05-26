@@ -1,0 +1,30 @@
+{
+  "name": "@klaro/daemon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Klaro operator daemon — Arc event listener + 12 BullMQ workers.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node --enable-source-maps dist/index.js",
+    "build": "tsup src/index.ts --format esm --target node22 --out-dir dist --sourcemap --no-splitting",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.106.1",
+    "bullmq": "^5.77.2",
+    "ioredis": "^5.10.1",
+    "resend": "^6.12.3",
+    "viem": "^2.32.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
+  }
+}

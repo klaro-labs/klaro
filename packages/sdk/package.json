@@ -1,0 +1,51 @@
+{
+  "name": "@klaro/sdk",
+  "version": "1.0.0-rc.1",
+  "description": "Klaro TypeScript SDK — invoices, receipts, cashouts, agent jobs on Arc.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./abis": {
+      "import": "./src/abis.ts",
+      "types": "./src/abis.ts"
+    },
+    "./invoice": {
+      "import": "./src/invoice.ts",
+      "types": "./src/invoice.ts"
+    },
+    "./cashout": {
+      "import": "./src/cashout.ts",
+      "types": "./src/cashout.ts"
+    },
+    "./receipt": {
+      "import": "./src/receipt.ts",
+      "types": "./src/receipt.ts"
+    }
+  },
+  "files": [
+    "src",
+    "abis",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "viem": "^2.20.0"
+  },
+  "keywords": [
+    "klaro",
+    "arc",
+    "usdc",
+    "stablecoin",
+    "invoice",
+    "escrow"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/klaro-protocol/klaro"
+  }
+}

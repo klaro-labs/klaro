@@ -1,0 +1,22 @@
+# Halmos formal verification config.
+# Run with: halmos --config packages/contracts/halmos.toml
+[global]
+contract = "InvoiceEscrow"
+function = "acceptAndPay"
+loop = 32
+depth = 256
+solver-timeout-assertion = 60000
+solver-threads = 4
+print-failed-states = true
+
+[[targets]]
+contract = "AuditReceipt"
+function = "mint"
+
+[[targets]]
+contract = "DisputeManager"
+function = "decide"
+
+[[targets]]
+contract = "RefundProtocol"
+function = "executeRefund"

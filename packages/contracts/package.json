@@ -1,0 +1,19 @@
+{
+  "name": "@klaro/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Klaro smart contracts on Arc — InvoiceEscrow, AuditReceipt (Stenn-Proof), CashoutOrderProcessor, LPStaking, ERC-8004/8183 wrappers.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "forge build && node scripts/sync-abis.mjs",
+    "sync-abis": "node scripts/sync-abis.mjs",
+    "check-abis": "node scripts/sync-abis.mjs && git diff --exit-code abis/v1.0",
+    "test": "forge test -vv",
+    "fmt": "forge fmt",
+    "fmt:check": "forge fmt --check",
+    "snapshot": "forge snapshot",
+    "coverage": "forge coverage",
+    "typecheck": "forge build --sizes",
+    "lint": "forge fmt --check"
+  }
+}

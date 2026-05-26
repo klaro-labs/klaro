@@ -1,0 +1,75 @@
+import { ok, err, publicErrorMessage } from "@/lib/api";
+import { supabaseLive, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/env";
+import { captureError } from "@/lib/sentry";
+import { z } from "zod";
+
+/// `sendEmailMagicLink` in
+/// `lib/auth.ts` used to call Supabase directly from the browser via
+/// `createBrowserClient`. Browser → Supabase bypasses Klaro's edge
+/// middleware entirely — the per-IP rate-limiter (`/api/*` bucket) never
+/// saw the request. An attacker could pound `signInWithOtp` against any
+/// email, triggering Supabase's per-project throttle (project-wide DoS)
+/// or harvesting account-existence signals. This route proxies the call
+/// server-side so the existing limiter catches it; the original helper
+/// now POSTs here instead.
+const Body = z.object({ email: z.string().email(), redirectTo: z.string() });
+
+/// redirectTo was unvalidated.
+/// Attacker POSTs `{ email: "victim@klaro.so", redirectTo: "https://
+/// evil.com/steal" }` → Supabase emails the victim a magic link whose
+/// post-auth handoff lands at evil.com → auth code + session delivered
+/// to attacker. Same defect class as the moonpay open-redirect closed
+/// . Same allowlist pattern: same-origin paths + a curated
+/// trusted-host set. If the supplied target fails the check, fall back
+/// to the request origin so the auth flow still works on the canonical
+/// domain.
+const ALLOWED_REDIRECT_HOSTS = new Set<string>([
+  // klaro.so + subdomains are matched via origin equality below; this
+  // is reserved for explicit partner hosts (none today).
+]);
+
+function safeRedirect(rawRedirect: string, origin: string): string {
+  if (rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) {
+    return new URL(rawRedirect, origin).toString();
+  }
+  try {
+    const u = new URL(rawRedirect);
+    if (u.origin === origin || ALLOWED_REDIRECT_HOSTS.has(u.host)) {
+      return u.toString();
+    }
+  } catch {
+    /* not a URL */
+  }
+  return origin;
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = Body.parse(await req.json());
+    const origin = new URL(req.url).origin;
+    const safeRedirectTo = safeRedirect(body.redirectTo, origin);
+    if (!supabaseLive()) {
+      return ok({ simulated: true });
+    }
+    const { createServerClient } = await import("@supabase/ssr");
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const supabase = createServerClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: () => {
+          /* magic-link issuance doesn't need to mutate cookies */
+        },
+      },
+    });
+    const { error } = await supabase.auth.signInWithOtp({
+      email: body.email,
+      options: { emailRedirectTo: safeRedirectTo },
+    });
+    if (error) return err(400, publicErrorMessage(error, "magic_link_failed"));
+    return ok({ simulated: false });
+  } catch (e) {
+    captureError(e, { route: "api.auth.magic" });
+    return err(400, publicErrorMessage(e, "magic_link_failed"));
+  }
+}

@@ -1,0 +1,19 @@
+# Default reviewer for every change. Add team-specific owners below as the
+# team grows. Lines further down override earlier rules — most specific wins.
+*                                  @Pratiikpy
+
+# Security-sensitive areas demand explicit review.
+/SECURITY.md                       @Pratiikpy
+/THREAT_MODEL.md                   @Pratiikpy
+/packages/contracts/               @Pratiikpy
+/packages/contracts/THREAT_MODEL.md @Pratiikpy
+/apps/web/middleware.ts            @Pratiikpy
+/apps/web/lib/auth.ts              @Pratiikpy
+/apps/web/lib/webhookVerify.ts     @Pratiikpy
+/apps/web/lib/webhookReceiver.ts   @Pratiikpy
+/apps/web/supabase/migrations/     @Pratiikpy
+/apps/daemon/src/                  @Pratiikpy
+
+# CI and deployment plumbing.
+/.github/workflows/                @Pratiikpy
+/DEPLOYMENT.md                     @Pratiikpy

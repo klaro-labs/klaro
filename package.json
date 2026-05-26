@@ -1,0 +1,59 @@
+{
+  "name": "klaro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Arc-native USDC invoicing, on-chain receipts, vendor reputation, and partner cashout.",
+  "homepage": "https://github.com/klaro-labs/klaro",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/klaro-labs/klaro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/klaro-labs/klaro/issues"
+  },
+  "author": "Klaro Labs",
+  "license": "Apache-2.0",
+  "keywords": [
+    "usdc",
+    "arc",
+    "circle",
+    "stablecoin",
+    "payments",
+    "invoicing",
+    "cctp",
+    "solidity",
+    "foundry",
+    "nextjs"
+  ],
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @klaro/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "contracts:build": "pnpm --filter @klaro/contracts build",
+    "contracts:test": "pnpm --filter @klaro/contracts test",
+    "contracts:fmt": "forge fmt --root packages/contracts",
+    "contracts:fmt:check": "forge fmt --check --root packages/contracts",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0",
+    "prettier": "^3.3.3",
+    "prettier-plugin-solidity": "^1.4.1",
+    "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "ws@>=8.0.0 <8.20.1": ">=8.20.1",
+      "uuid@<11.1.1": ">=11.1.1",
+      "next-intl@<=4.9.1": ">=4.9.2",
+      "postcss@<8.5.10": ">=8.5.10"
+    }
+  }
+}

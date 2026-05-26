@@ -1,0 +1,34 @@
+{
+  "name": "@klaro/receipt-badge",
+  "version": "1.0.0-rc.1",
+  "description": "Drop-in <KlaroReceiptBadge> for any site — verifies an on-chain Klaro receipt + renders a Stenn-Proof seal.",
+  "type": "module",
+  "main": "./src/index.tsx",
+  "types": "./src/index.tsx",
+  "exports": {
+    ".": {
+      "import": "./src/index.tsx",
+      "types": "./src/index.tsx"
+    },
+    "./element": {
+      "import": "./src/element.ts",
+      "types": "./src/element.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "keywords": [
+    "klaro",
+    "receipt",
+    "verify",
+    "badge",
+    "stenn-proof"
+  ],
+  "license": "Apache-2.0"
+}

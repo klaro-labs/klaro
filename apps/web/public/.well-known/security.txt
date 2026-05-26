@@ -1,0 +1,6 @@
+Contact: mailto:security@klaro.so
+Contact: https://klaro.so/trust
+Preferred-Languages: en
+Canonical: https://klaro.so/.well-known/security.txt
+Policy: https://klaro.so/trust#security-policy
+Hiring: https://klaro.so/company#careers

@@ -1,0 +1,3 @@
+{
+  "__readme": "Arabic (RTL). Same key shape as en.json. UI must flip dir=rtl when this locale is active."
+}

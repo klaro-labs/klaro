@@ -1,0 +1,25 @@
+{
+  "name": "@klaro/cli",
+  "version": "1.0.0-rc.1",
+  "description": "Klaro command-line — create invoices, verify receipts, run cashouts from your terminal.",
+  "type": "module",
+  "bin": {
+    "klaro": "./src/bin.ts"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "viem": "^2.20.0",
+    "@klaro/sdk": "workspace:*"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "klaro",
+    "cli",
+    "arc",
+    "usdc",
+    "invoice"
+  ]
+}

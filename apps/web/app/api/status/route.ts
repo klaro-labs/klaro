@@ -1,0 +1,54 @@
+import { ok } from "@/lib/api";
+import { tryDb } from "@/lib/db";
+
+/**
+ * Public JSON status feed — drives status.klaro.so + BetterStack heartbeats.
+ * Returns a single rollup the status page renders into operational/degraded/outage tiers.
+ */
+export async function GET() {
+  const t0 = Date.now();
+  const c = await tryDb();
+  let supabaseOk = !c; // if no Supabase configured, treat as "mock OK" so status doesn't go red in dev
+  if (c)
+    // previously `.then(() => true, () => false)` only
+    // caught network rejections — PostgREST resolves `{data, error}`
+    // on RLS denial / 5xx / key rotation, so this swallowed the
+    // error arm and reported supabase=operational to the public
+    // status page. Same defect class as (daemon /status).
+    supabaseOk = await c
+      .from("audit_logs")
+      .select("id", { count: "exact", head: true })
+      .then(
+        (r) => !r.error,
+        () => false,
+      );
+
+  const services = [
+    { name: "klaro.so web", scope: "infra", status: "operational" },
+    { name: "Hosted invoice / receipt", scope: "infra", status: "operational" },
+    {
+      name: "Operator daemon",
+      scope: "infra",
+      status: supabaseOk ? "operational" : "degraded",
+    },
+    { name: "Arc testnet RPC", scope: "onchain", status: "operational" },
+    {
+      name: "Supabase",
+      scope: "infra",
+      status: supabaseOk ? "operational" : "outage",
+    },
+    { name: "Circle Gateway", scope: "integration", status: "operational" },
+    { name: "CCTP V2", scope: "integration", status: "operational" },
+  ];
+  const overall = services.every((s) => s.status === "operational")
+    ? "operational"
+    : services.some((s) => s.status === "outage")
+      ? "outage"
+      : "degraded";
+  return ok({
+    overall,
+    services,
+    fetched_at: new Date().toISOString(),
+    latency_ms: Date.now() - t0,
+  });
+}

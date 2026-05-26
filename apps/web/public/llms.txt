@@ -1,0 +1,60 @@
+# Klaro
+
+> Arc-native USDC invoicing + Stenn-Proof receipts + INR cashout. Vendors anywhere
+> get paid in USDC, settle in seconds on Arc Layer-1, build on-chain financial
+> reputation. Built for the Circle Developer Grant + Arc Builders Fund.
+
+## Status
+
+Testnet preview. No real money moves. Live mainnet target post-M12 + Circle grant.
+
+## Primary surfaces
+
+- [Landing](https://klaro.so/) — product overview, 17 sections, brand kit, footer
+- [Vendor dashboard](https://klaro.so/vendor) — sign in → 6 balance states → invoices
+- [Hosted invoice](https://klaro.so/i/[id]) — buyer-facing checkout, USDC pay-with EIP-712
+- [Public receipt](https://klaro.so/receipt/[hash]) — anyone-verifiable Stenn-Proof anchor
+- [Cashout](https://klaro.so/vendor/cashout) — vendor USDC → local currency (INR pilot live)
+- [Disputes](https://klaro.so/vendor/disputes) — open + evidence + 5 outcomes
+- [Retainer](https://klaro.so/vendor/retainer) — Sablier-style per-second streaming
+- [Financing readiness](https://klaro.so/vendor/financing) — read-only score (NOT a loan offer)
+- [LP portal](https://klaro.so/lp) — invite-only liquidity-provider onboarding (8 screens)
+- [Admin](https://klaro.so/admin/disputes) — operator queue, 5 decision routes
+
+## Key primitives
+
+- Arc Layer-1 (chain id 5042002) — USDC as gas, sub-second deterministic finality
+- USDC ERC-20 interface (6-dec) at 0x3600...
+- Circle CCTP V2 + Gateway for cross-chain USDC
+- App Kit Swap (Arc Testnet only — USDC/EURC/cirBTC)
+- Modular Wallets (passkey ERC-4337 + ERC-6900) for vendors
+- Developer-Controlled Wallets for Klaro operator
+- 15 deployed contracts: KlaroConfig, InvoiceEscrow, AuditReceipt, RefundProtocol,
+  FeeSplitter, RoutePolicyEngine, LPRegistry, LPStaking, ProofRegistry,
+  CashoutOrderProcessor, MultiChainRouter, DisputeManager, RetainerStream,
+  ReasonCodes lib + Deploy script
+
+## Honest labels (principle 8 — no overclaiming)
+
+- "live testnet" — works end-to-end on Arc testnet today
+- "simulated" — UI + mock store; no chain calls
+- "access-gated" — needs partner/Circle approval (StableFX, MoonPay sandbox)
+- "lab preview" — research-grade, not production
+- "partner-pending" — adapter exists, partner not signed
+- "mainnet-only" — never on testnet
+- "not-in-testnet" — explicitly outside scope
+
+## Disclaimers
+
+- Klaro is not a bank
+- Financing readiness is NOT a loan offer
+- No PII on-chain (principle 11)
+- Real INR fiat movement is mainnet-only (testnet uses simulated proof per v2 §23)
+- Klaro does not hold lending capital — partners do
+
+## Docs
+
+- [Trust center](https://klaro.so/trust)
+- [Developer docs](https://klaro.so/developers)
+- [Roadmap](https://klaro.so/roadmap)
+- [Security policy](https://klaro.so/.well-known/security.txt)

@@ -1,0 +1,95 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+dist/
+out/
+build/
+*.tsbuildinfo
+
+# Foundry build artifacts and locally-cloned dependencies. CI re-clones
+# packages/contracts/lib/{forge-std,openzeppelin-contracts} on each run
+# at the versions pinned in .github/workflows/ci.yml.
+packages/contracts/out/
+packages/contracts/cache/
+packages/contracts/broadcast/
+packages/contracts/lib/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+# Audit fix (loop iter 52, 2026-05-25): environment-specific files could
+# contain secrets if someone creates them locally.
+.env.development
+.env.staging
+.env.testnet
+.env.preview
+
+# Cryptographic material (Audit fix loop iter 52): Apple Wallet certs are
+# real config items per .env.example; private keys, PGP, SSH must never
+# enter git.
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.asc
+id_rsa
+id_rsa.pub
+id_ed25519
+*.gpg
+
+# Cloud credential dirs
+.aws/
+.gcp/
+gcp-credentials.json
+google-credentials.json
+
+# Foundry private keys + keystores (CLAUDE.md: packages/contracts/.env holds
+# PRIVATE_KEY for `forge script ... --broadcast`)
+packages/contracts/.env
+.foundry/keystores/
+keystore.json
+
+# Local databases that may contain PII during dev
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Playwright
+.playwright-mcp/
+playwright-report/
+test-results/
+
+# Temp
+.cache/
+.turbo/
+
+# Reference repos cloned for study — each carries its own .git/, can't be
+# tracked from the parent without explicit submodules. Re-clone locally.
+resources/repos/
+
+# Foundry broadcast logs — record deployed addresses + tx hashes, kept locally.
+packages/contracts/broadcast/
+
+# Internal-only documents: planning, iteration logs, build history, design
+# assets. Stay on local machines; not part of the canonical codebase.
+internal/
