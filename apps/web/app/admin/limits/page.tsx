@@ -27,7 +27,7 @@ export default async function AdminLimitsPage() {
         <header className="mb-6 flex items-end justify-between">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Admin · v2 §29.5
+              Admin · Protocol limits
             </p>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Limits & ceilings

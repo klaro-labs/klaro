@@ -73,7 +73,7 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-white/50 md:flex-row md:items-center md:justify-between">
           <p>
-            © 2026 Klaro Labs Inc. · Testnet preview · Klaro is not a bank · No
+            © 2026 Klaro Labs · Testnet preview · Klaro is not a bank · No
             real money moves on testnet
           </p>
           <div className="md:shrink-0">

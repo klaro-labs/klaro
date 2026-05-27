@@ -40,7 +40,7 @@ export default async function FxPage() {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Stablecoin FX · v2 §26
+              Stablecoin FX
             </p>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               USDC ↔ EURC · USYC
@@ -115,7 +115,7 @@ export default async function FxPage() {
 
         <div className="mb-6 mt-3 rounded border border-[var(--color-line)] bg-[var(--color-bg)] p-3 text-xs text-[var(--color-ink-muted)]">
           <p className="font-medium text-[var(--color-ink)]">
-            5 honest-label tones (v2 §26.5)
+            5 honest-label tones
           </p>
           <p className="mt-1">
             <code className="font-mono">simulated</code> ·{" "}

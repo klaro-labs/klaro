@@ -86,7 +86,7 @@ function HeroDemo() {
       {/* Hosted invoice card */}
       <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5 shadow-[0_1px_2px_rgba(10,10,10,0.04)]">
         <div className="flex items-center justify-between text-[11px] tracking-wider text-[var(--color-ink-subtle)] uppercase">
-          <span>Hosted invoice · i.klaro.me</span>
+          <span>Hosted invoice · i.klaro.so</span>
           <Badge tone="sim">Demo preview</Badge>
         </div>
         <p className="mt-3 font-mono text-xs text-[var(--color-ink-muted)]">

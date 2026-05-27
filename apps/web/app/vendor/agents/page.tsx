@@ -58,16 +58,16 @@ export default async function VendorAgentsPage({
         <VendorNav vendorName={session.vendor.displayName} />
         <section className="mx-auto w-full max-w-[760px] px-6 py-16">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Agent jobs · ships M11
+            Agent jobs · coming soon
           </p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             Agent marketplace lands later
           </h1>
           <p className="mt-3 max-w-md text-sm text-[var(--color-ink-muted)]">
-            AgentEscrow wiring and per-job persistence are M11 work. The 6-state
+            AgentEscrow wiring and per-job persistence are coming soon. The 6-state
             lifecycle, ACP hooks, and ERC-8004 agent identity are available in
             dev mode for partner integration — the full flow wires to the live
-            escrow contract in M11.
+            escrow contract soon.
           </p>
           <p className="mt-6 font-mono text-xs text-[var(--color-ink-subtle)]">
             Track on the{" "}

@@ -28,12 +28,12 @@ export default async function BillsPage() {
               {t("bills.description")}
             </p>
           </div>
-          <Badge tone="sim">Live in M9</Badge>
+          <Badge tone="sim">Coming soon</Badge>
         </div>
 
         <div className="rounded-lg border border-[var(--color-line)] bg-white p-6">
           <h2 className="font-display text-lg font-semibold">
-            What ships in M9
+            What ships next
           </h2>
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
             <li>

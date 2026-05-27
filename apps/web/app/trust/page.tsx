@@ -60,14 +60,14 @@ const EXPLANATIONS = [
   },
   {
     id: "bounty",
-    title: "Bug bounty (M12)",
+    title: "Bug bounty (planned)",
     body: "Immunefi program launches at mainnet. Critical USDC-custody vulnerabilities qualify for up to $100k. Coordinated disclosure 90-day clock.",
     tone: "info" as const,
   },
   {
     id: "uptime",
     title: "Uptime + status",
-    body: "BetterStack-powered status.klaro.so (M11). 99.9% uptime SLA target. PagerDuty 24/7 on-call for severity-1 incidents.",
+    body: "BetterStack-powered status.klaro.so. 99.9% uptime objective. PagerDuty 24/7 on-call for severity-1 incidents.",
     tone: "info" as const,
   },
 ];
@@ -79,7 +79,7 @@ export default function TrustPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Trust Center · v2 §4.6
+            Trust Center
           </p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             11 things we promise + prove

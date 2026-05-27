@@ -154,7 +154,7 @@ export default function StatusPage() {
             </span>
           </div>
           <p className="mt-3 text-sm text-[var(--color-ink-muted)]">
-            Live monitoring via BetterStack + Arc RPC health probes (wires M11).
+            Live monitoring via BetterStack + Arc RPC health probes lands soon.
             For incident postmortems see{" "}
             <a
               href="https://github.com/klaro-protocol/incidents"
@@ -202,7 +202,7 @@ export default function StatusPage() {
           <p className="font-medium">Testnet preview — no real money moves.</p>
           <p className="mt-2">
             Klaro is in Arc testnet. Every settlement, cashout, and dispute on
-            this page is for testnet USDC only. Mainnet ships post-M12 after the
+            this page is for testnet USDC only. Mainnet ships after the security audit completes.
             security audit completes.
           </p>
         </div>

@@ -43,7 +43,7 @@ export default function CompanyPage() {
       <Nav />
       <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-16">
         <SectionHeader
-          eyebrow="Klaro Labs Inc."
+          eyebrow="Klaro Labs"
           title={
             <>
               We're building the payment OS

@@ -97,7 +97,7 @@ export default async function AdminQueuesPage() {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Operator console · v2 §29.1
+              Operator console
             </p>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               {QUEUES.length} queues

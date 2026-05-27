@@ -65,7 +65,7 @@ export default function HelpPage() {
             How can we help?
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[var(--color-ink-muted)]">
-            Full-text search via Algolia DocSearch lands at M12 (docs.klaro.so
+            Full-text search via Algolia DocSearch lands soon (docs.klaro.so
             cuts over to Mintlify). For now: jump to the topic that matches your
             question, or email{" "}
             <a
@@ -83,7 +83,7 @@ export default function HelpPage() {
             <span className="sr-only">Search help</span>
             <input
               type="search"
-              placeholder="Search Klaro help (Algolia DocSearch wires in M12)"
+              placeholder="Search Klaro help (coming soon)"
               disabled
               className="w-full rounded-lg border border-[var(--color-line)] bg-white px-4 py-3 text-sm outline-none disabled:opacity-50"
             />

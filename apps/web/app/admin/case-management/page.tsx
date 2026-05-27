@@ -24,7 +24,7 @@ export default async function AdminCaseManagementPage() {
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <header className="mb-6">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Admin · v2 §29.4
+            Admin · Case management
           </p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             Case management

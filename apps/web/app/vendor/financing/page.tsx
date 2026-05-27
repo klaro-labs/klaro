@@ -129,10 +129,10 @@ export default async function FinancingPage() {
           <button
             type="button"
             disabled
-            title="Available in M12 when the PDF export route is live"
+            title="Available soon when the PDF export route is live"
             className="mt-3 cursor-not-allowed rounded border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium text-[var(--color-ink-subtle)] opacity-60"
           >
-            Download PDF preview · ships M12
+            Download PDF preview · coming soon
           </button>
         </div>
       </section>

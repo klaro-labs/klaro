@@ -82,7 +82,7 @@ export default async function LPSettingsPage() {
           {/* Iter 73 honesty: same lp_preferences gap as Notifications below.
               Corridor enable/disable previewed; persistence ships M11. */}
           <p className="border-b border-[var(--color-line)] bg-amber-50 px-6 py-3 text-xs text-amber-900">
-            Corridor enable/disable ships in M11. The list below shows the
+            Corridor enable/disable ships soon. The list below shows the
             corridors Klaro currently allow-lists for LPs at large.
           </p>
           <ul className="divide-y divide-[var(--color-line)]">
@@ -94,7 +94,7 @@ export default async function LPSettingsPage() {
                 <span className="text-sm">{c.label}</span>
                 <Badge tone="sim">no data</Badge>
                 <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900">
-                  Ships M11
+                  Coming soon
                 </span>
               </li>
             ))}
@@ -131,7 +131,7 @@ export default async function LPSettingsPage() {
                   {n.defaultOn ? "On (default)" : "Off (default)"}
                 </span>
                 <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900">
-                  Ships M11
+                  Coming soon
                 </span>
               </div>
             </div>

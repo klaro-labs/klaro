@@ -74,7 +74,7 @@ export default async function ErpIntegrationsPage() {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              v2 §16 · ERP integrations
+              ERP integrations
             </p>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Sync invoices to your accounting stack

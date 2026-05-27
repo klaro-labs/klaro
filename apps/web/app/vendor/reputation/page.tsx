@@ -212,7 +212,7 @@ export default async function ReputationPage() {
           <div className="mb-3 flex items-end justify-between gap-4">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-                Trust Score · v2 §17
+                Trust Score
               </p>
               <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
                 Your reputation
@@ -299,7 +299,7 @@ export default async function ReputationPage() {
           </div>
 
           <h2 className="mb-3 font-display text-xl font-semibold">
-            7 fields (v2 §17.2)
+            7 fields
           </h2>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {Object.entries(score.fields).map(([k, v]) => (

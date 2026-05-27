@@ -59,7 +59,7 @@ export default async function LPDisputesExplainerPage() {
               workflow. It does not move, refund or slash funds.
             </p>
           </div>
-          <Badge tone="info">v2 §25.5</Badge>
+          <Badge tone="info">Dispute resolution</Badge>
         </div>
 
         <h2 className="mt-2 mb-3 font-display text-xl font-semibold">

@@ -71,8 +71,8 @@ export function FinalCta() {
                 />
                 Testnet simulation clearly labelled
               </li>
-              <li>SOC 2 Type II · in progress</li>
-              <li>WCAG 2.2 AAA</li>
+              <li>Security audit planned</li>
+              <li>WCAG 2.1 AA target</li>
             </ul>
           </div>
 

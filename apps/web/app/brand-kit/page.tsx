@@ -85,7 +85,7 @@ function BrandKitHero() {
 
       {/* 4-column meta band, mirrors designer hero bottom */}
       <dl className="mt-16 grid gap-8 border-t border-[var(--color-line)] pt-6 text-sm sm:grid-cols-2 md:grid-cols-4">
-        <BkMeta term="Klaro Labs Inc." def="Brand owner" />
+        <BkMeta term="Klaro Labs" def="Brand owner" />
         <BkMeta term="2026" def="Established" />
         <BkMeta
           term="brand@klaro.so"
@@ -1116,7 +1116,7 @@ function DownloadCard({
         <button
           type="button"
           disabled
-          title="Asset bundles ship M12"
+          title="Asset bundles coming soon"
           className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-pill border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium opacity-60"
         >
           ↓ Download

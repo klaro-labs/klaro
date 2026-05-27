@@ -28,7 +28,7 @@ export default async function RecurringPage() {
               {t("recurring.description")}
             </p>
           </div>
-          <Badge tone="sim">Scheduler runs in M9</Badge>
+          <Badge tone="sim">Scheduling lands soon</Badge>
         </div>
 
         <form
