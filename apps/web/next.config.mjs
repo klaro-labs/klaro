@@ -61,6 +61,7 @@ const nextConfig = {
   async redirects() {
     return [
       { source: "/developers", destination: "/build", permanent: true },
+      { source: "/resources/brand", destination: "/brand-kit", permanent: true },
     ];
   },
   async headers() {
