@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { Home, Receipt, ArrowUpRight, User } from "lucide-react";
 
 /**
  * Mobile PWA app shell — wraps any vendor route content with a bottom nav.
  * Used inside `md:hidden` blocks per page so the desktop layout stays untouched.
- * Matches the bottom-nav in designer/mobile/index.html (Home · Invoices · Cashout · Profile).
  */
 export function MobileShell({
   active,
@@ -25,25 +25,16 @@ function BottomNav({
 }: {
   active: "home" | "invoices" | "cashout" | "profile";
 }) {
-  const items: {
-    key: "home" | "invoices" | "cashout" | "profile";
-    label: string;
-    href:
-      | "/vendor"
-      | "/vendor/invoices"
-      | "/vendor/cashout"
-      | "/vendor/settings";
-    icon: string;
-  }[] = [
-    { key: "home", label: "Home", href: "/vendor", icon: "⌂" },
-    { key: "invoices", label: "Invoices", href: "/vendor/invoices", icon: "▤" },
-    { key: "cashout", label: "Cashout", href: "/vendor/cashout", icon: "↗" },
-    { key: "profile", label: "Profile", href: "/vendor/settings", icon: "◉" },
+  const items = [
+    { key: "home" as const, label: "Home", href: "/vendor" as const, Icon: Home },
+    { key: "invoices" as const, label: "Invoices", href: "/vendor/invoices" as const, Icon: Receipt },
+    { key: "cashout" as const, label: "Cashout", href: "/vendor/cashout" as const, Icon: ArrowUpRight },
+    { key: "profile" as const, label: "Profile", href: "/vendor/settings" as const, Icon: User },
   ];
   return (
     <nav
       aria-label="Mobile vendor"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-line)] bg-white/95 px-2 pt-2 pb-6 backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-line)] bg-[var(--color-bg)]/95 px-2 pt-2 pb-[max(env(safe-area-inset-bottom),12px)] backdrop-blur"
     >
       <ul className="grid grid-cols-4 gap-1">
         {items.map((it) => {
@@ -52,15 +43,13 @@ function BottomNav({
             <li key={it.key}>
               <Link
                 href={it.href}
-                className={`flex flex-col items-center gap-0.5 rounded-md px-2 py-2 text-[10px] font-medium ${
+                className={`flex flex-col items-center gap-0.5 rounded-md px-2 py-3 text-[11px] font-medium ${
                   isActive
                     ? "text-[var(--color-brand)]"
                     : "text-[var(--color-ink-subtle)]"
                 }`}
               >
-                <span aria-hidden className="text-lg leading-none">
-                  {it.icon}
-                </span>
+                <it.Icon aria-hidden className="size-5" strokeWidth={1.75} />
                 <span>{it.label}</span>
               </Link>
             </li>

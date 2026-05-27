@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { Nav } from "@/components/klaro/Nav";
+import { Footer } from "@/components/klaro/Footer";
 
 const TOPICS: { title: string; description: string; href: Route }[] = [
   {
@@ -107,6 +108,7 @@ export default function HelpPage() {
           ))}
         </ul>
       </section>
+      <Footer />
     </main>
   );
 }

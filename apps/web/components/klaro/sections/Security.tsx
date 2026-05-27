@@ -1,9 +1,8 @@
 import { SectionHeader } from "../SectionHeader";
+import { Shield, Lock, Eye, Lightbulb } from "lucide-react";
 
 /**
- * §13 Security — 4 pillars + "All systems operational" status row.
- * Pillar icons are blue squares with single-letter glyphs for now; replace
- * with lucide icons in M3 polish.
+ * §13 Security — 4 pillars + status row.
  */
 
 // Designer 2026-05-25 parity: titles + bodies copied verbatim from
@@ -11,22 +10,22 @@ import { SectionHeader } from "../SectionHeader";
 // don't claim "13 audited / live bounty" because neither is true yet today.
 const PILLARS = [
   {
-    glyph: "🛡",
+    Icon: Shield,
     title: "Audit underway",
     body: "Trail of Bits + NCC Group engagement scoped for testnet phase. Halmos formal verification planned for settlement paths.",
   },
   {
-    glyph: "🔒",
+    Icon: Lock,
     title: "Screening, transparent",
     body: "Live release requires verified screening evidence. The demo shows review-only placeholders that cannot settle funds.",
   },
   {
-    glyph: "👁",
+    Icon: Eye,
     title: "Public audit packs",
     body: "Public evidence packs are a launch requirement. Demo receipts are previews and are not anchored on-chain.",
   },
   {
-    glyph: "💡",
+    Icon: Lightbulb,
     title: "Bounty at mainnet",
     body: "Immunefi-hosted bug bounty launches with mainnet. Pre-mainnet, responsible disclosure goes to security@klaro.so.",
   },
@@ -50,8 +49,8 @@ export function Security() {
       <ul className="mt-12 grid gap-6 md:grid-cols-4">
         {PILLARS.map((p) => (
           <li key={p.title}>
-            <span className="inline-flex size-9 items-center justify-center rounded-md bg-[var(--color-brand-soft)] text-base">
-              {p.glyph}
+            <span className="inline-flex size-9 items-center justify-center rounded-md bg-[var(--color-brand-soft)]">
+              <p.Icon className="size-5 text-[var(--color-brand)]" strokeWidth={1.75} />
             </span>
             <h3 className="mt-4 font-display text-base font-semibold">
               {p.title}

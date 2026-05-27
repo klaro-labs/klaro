@@ -63,15 +63,17 @@ export function Developers() {
               >
                 Read the docs
               </Link>
-              <Link
-                href="/developers"
+              <a
+                href="https://github.com/klaro-labs/klaro"
+                target="_blank"
+                rel="noreferrer"
                 className={cn(
                   buttonVariants({ variant: "secondary", size: "md" }),
                   "border border-white/25 ring-0 text-white hover:bg-white/10",
                 )}
               >
                 View on GitHub
-              </Link>
+              </a>
             </div>
 
             {/* Designer 2026-05-25 parity: 4 cards advertise the open-source

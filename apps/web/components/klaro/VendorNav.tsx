@@ -4,32 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { Logo } from "./Logo";
 
-/**
- * VendorNav — internal nav for /vendor/*. Distinct from the marketing Nav
- * (no Product/Pricing/Company links — those would distract). Vendor-side
- * surfaces share this top bar.
- * P1 (#92): nav was `hidden md:flex` with no fallback
- * — mobile users had no way to navigate. Hamburger panel added.
- */
 const ITEMS = [
-  { label: "Overview", href: "/vendor" as const },
-  { label: "Invoices", href: "/vendor/invoices/new" as const },
-  { label: "Recurring", href: "/vendor/invoices/recurring" as const },
-  { label: "Bulk import", href: "/vendor/invoices/import" as const },
-  { label: "Bills", href: "/vendor/bills" as const },
+  { label: "Home", href: "/vendor" as const },
+  { label: "Invoices", href: "/vendor/invoices" as const },
   { label: "Cashout", href: "/vendor/cashout" as const },
-  { label: "Transit", href: "/vendor/transit" as const },
-  { label: "Retainer", href: "/vendor/retainer" as const },
-  { label: "Financing", href: "/vendor/financing" as const },
-  { label: "Webhooks", href: "/vendor/integrations/webhooks" as const },
-  { label: "ERP", href: "/vendor/integrations/erp" as const },
-  { label: "Disputes", href: "/vendor/disputes" as const },
-  { label: "Agents", href: "/vendor/agents" as const },
   { label: "Reputation", href: "/vendor/reputation" as const },
-  { label: "Exports", href: "/vendor/exports" as const },
   { label: "Settings", href: "/vendor/settings" as const },
-  { label: "Team", href: "/vendor/team" as const },
-  { label: "Delegations", href: "/vendor/delegations" as const },
 ] as const;
 
 export function VendorNav({ vendorName }: { vendorName: string }) {
@@ -41,11 +21,7 @@ export function VendorNav({ vendorName }: { vendorName: string }) {
         aria-label="Vendor"
         className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-6"
       >
-        <Link
-          href="/vendor"
-          aria-label="Klaro vendor home"
-          className="shrink-0"
-        >
+        <Link href="/vendor" aria-label="Klaro vendor home" className="shrink-0">
           <Logo />
         </Link>
 
@@ -84,9 +60,9 @@ export function VendorNav({ vendorName }: { vendorName: string }) {
             className="inline-flex h-9 w-9 items-center justify-center rounded border border-[var(--color-line)] md:hidden"
           >
             <span aria-hidden className="flex flex-col gap-1">
-              <span className="block h-0.5 w-4 bg-current"></span>
-              <span className="block h-0.5 w-4 bg-current"></span>
-              <span className="block h-0.5 w-4 bg-current"></span>
+              <span className="block h-0.5 w-4 bg-current" />
+              <span className="block h-0.5 w-4 bg-current" />
+              <span className="block h-0.5 w-4 bg-current" />
             </span>
           </button>
         </div>
@@ -94,7 +70,7 @@ export function VendorNav({ vendorName }: { vendorName: string }) {
 
       {open && (
         <div className="md:hidden">
-          <ul className="border-t border-[var(--color-line)] bg-white px-6 py-3">
+          <ul className="border-t border-[var(--color-line)] bg-[var(--color-bg)] px-6 py-3">
             {ITEMS.map((item) => (
               <li key={item.label}>
                 <Link

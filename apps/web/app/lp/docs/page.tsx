@@ -115,10 +115,15 @@ export default async function LPDocsPage() {
                 </div>
                 <button
                   type="button"
-                  disabled={docsSubmitted}
-                  className="rounded border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs font-medium hover:border-[var(--color-brand)] disabled:opacity-50"
+                  disabled
+                  aria-disabled="true"
+                  title="Document upload is simulated in testnet mode"
+                  className="rounded border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs font-medium opacity-50 cursor-not-allowed"
                 >
-                  {docsSubmitted ? "Replace" : "Upload"}
+                  {docsSubmitted ? "Uploaded" : "Upload"}{" "}
+                  <span className="font-mono text-[10px] text-[var(--color-ink-subtle)]">
+                    SIM
+                  </span>
                 </button>
               </li>
             ))}

@@ -132,7 +132,7 @@ export default async function VendorOverviewPage({
                 Recent
               </h2>
               <Link
-                href="/vendor/invoices/new"
+                href="/vendor/invoices"
                 className="text-xs font-medium text-[var(--color-brand)]"
               >
                 See all

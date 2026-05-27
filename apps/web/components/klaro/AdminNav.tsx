@@ -24,7 +24,7 @@ export function AdminNav() {
         className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-6"
       >
         <Link
-          href="/admin/disputes"
+          href="/admin"
           aria-label="Klaro admin"
           className="shrink-0 flex items-center gap-2"
         >
@@ -57,18 +57,18 @@ export function AdminNav() {
           >
             OP
           </span>
-          {/* Audit finding #29 (2026-05-25): mobile menu was missing. */}
           <button
             type="button"
-            aria-label="Open admin menu"
+            aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex size-9 items-center justify-center rounded-md border border-[var(--color-line)] bg-white md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded border border-[var(--color-line)] md:hidden"
           >
-            <span
-              aria-hidden
-              className="block h-0.5 w-4 bg-[var(--color-ink)] before:absolute before:mt-[-6px] before:block before:h-0.5 before:w-4 before:bg-[var(--color-ink)] before:content-[''] after:absolute after:mt-[6px] after:block after:h-0.5 after:w-4 after:bg-[var(--color-ink)] after:content-['']"
-            />
+            <span aria-hidden className="flex flex-col gap-1">
+              <span className="block h-0.5 w-4 bg-current" />
+              <span className="block h-0.5 w-4 bg-current" />
+              <span className="block h-0.5 w-4 bg-current" />
+            </span>
           </button>
         </div>
       </nav>

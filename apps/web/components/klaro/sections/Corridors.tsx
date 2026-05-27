@@ -147,7 +147,7 @@ export function Corridors() {
         className="max-w-3xl"
       />
 
-      <div className="mt-12 overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
+      <div className="mt-12 overflow-x-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
         <table className="w-full text-sm">
           <thead className="border-b border-[var(--color-line)] bg-[var(--color-bg)]">
             <tr className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">

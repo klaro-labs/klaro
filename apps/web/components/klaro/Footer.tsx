@@ -37,12 +37,12 @@ const LINKS = {
 
 export function Footer() {
   return (
-    <footer className="mt-32 bg-[var(--color-ink)] text-white">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-16">
+    <footer className="bg-[var(--color-ink)] text-white">
+      <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-16">
         <div className="grid gap-12 md:grid-cols-[1.5fr_repeat(4,1fr)]">
           <div>
             <div className="mb-4 text-white">
-              <Logo size={28} />
+              <Logo size={28} tone="dark" />
             </div>
             <p className="max-w-xs text-sm text-white/60">
               Arc-native payment OS for emerging-market vendors. Invoice
@@ -78,7 +78,7 @@ export function Footer() {
           </p>
           <div className="md:shrink-0">
             <Link href="/" className="font-mono text-white/60 hover:text-white">
-              klaro.me
+              klaro.so
             </Link>
           </div>
         </div>

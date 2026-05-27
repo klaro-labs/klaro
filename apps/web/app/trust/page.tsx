@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Nav } from "@/components/klaro/Nav";
+import { Footer } from "@/components/klaro/Footer";
 import { Badge } from "@/components/ui/Badge";
 
 const EXPLANATIONS = [
@@ -147,6 +148,7 @@ export default function TrustPage() {
           </p>
         </div>
       </section>
+      <Footer />
     </main>
   );
 }

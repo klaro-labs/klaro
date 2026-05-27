@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { Nav } from "./Nav";
+import { Footer } from "./Footer";
 
 const LEGAL: { label: string; href: Route }[] = [
   { label: "Terms", href: "/legal/terms" as Route },
@@ -56,6 +57,7 @@ export function LegalLayout({
           </div>
         </article>
       </section>
+      <Footer />
     </main>
   );
 }

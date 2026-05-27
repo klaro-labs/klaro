@@ -88,7 +88,7 @@ function BrandKitHero() {
         <BkMeta term="Klaro Labs Inc." def="Brand owner" />
         <BkMeta term="2026" def="Established" />
         <BkMeta
-          term="brand@klaro.me"
+          term="brand@klaro.so"
           def="Questions"
           link="mailto:brand@klaro.so"
         />
@@ -254,7 +254,7 @@ function MiniCard({ title, body }: { title: string; body: string }) {
 
 function SectionLogo() {
   return (
-    <section id="logo" className="mt-[210px] scroll-mt-24">
+    <section id="logo" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="02"
         title="Logo"
@@ -320,7 +320,7 @@ function SectionLogo() {
 
 function SectionColor() {
   return (
-    <section id="color" className="mt-[268px] scroll-mt-24">
+    <section id="color" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="03"
         title="Color"
@@ -442,7 +442,7 @@ function Swatch({ hex, label }: { hex: string; label: string }) {
 
 function SectionTypography() {
   return (
-    <section id="typography" className="mt-[431px] scroll-mt-24">
+    <section id="typography" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="04"
         title="Typography"
@@ -512,7 +512,7 @@ function TypeCard({
 
 function SectionVoice() {
   return (
-    <section id="voice" className="mt-[824px] scroll-mt-24">
+    <section id="voice" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="05"
         title="Voice & tone"
@@ -620,7 +620,7 @@ function DoDontBlock({
 
 function SectionComponents() {
   return (
-    <section id="components" className="mt-[315px] scroll-mt-24">
+    <section id="components" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="06"
         title="Components"
@@ -761,7 +761,7 @@ function Chip({
 
 function SectionStennBadge() {
   return (
-    <section id="stenn-proof" className="mt-[267px] scroll-mt-24">
+    <section id="stenn-proof" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="07"
         title="The Stenn-Proof badge"
@@ -850,7 +850,7 @@ function StennBadge({ size }: { size: "sm" | "md" | "lg" | "hero" }) {
 
 function SectionImagery() {
   return (
-    <section id="imagery" className="mt-[361px] scroll-mt-24">
+    <section id="imagery" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="08"
         title="Imagery"
@@ -966,7 +966,7 @@ function DoDontImage({
 
 function SectionUsage() {
   return (
-    <section id="usage" className="mt-[82px] scroll-mt-24">
+    <section id="usage" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="09"
         title="Usage rules"
@@ -1050,7 +1050,7 @@ function UsageCard({
 
 function SectionDownloads() {
   return (
-    <section id="downloads" className="mt-[158px] scroll-mt-24">
+    <section id="downloads" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
       <BkSectionHead
         n="10"
         title="Downloads"
@@ -1147,7 +1147,7 @@ function PressBand() {
           href="mailto:brand@klaro.so"
           className="inline-flex h-11 items-center rounded-pill bg-white px-5 text-sm font-medium text-[var(--color-ink)] hover:bg-[var(--color-gold)]"
         >
-          brand@klaro.me
+          brand@klaro.so
         </a>
       </article>
     </section>

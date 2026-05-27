@@ -167,7 +167,7 @@ export function TruthTable() {
           </ul>
         </div>
 
-        <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] overflow-hidden">
+        <div className="overflow-x-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
           <table className="w-full text-sm">
             <thead className="sr-only">
               <tr>
