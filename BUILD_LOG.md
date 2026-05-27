@@ -10,3 +10,4 @@
 - ✅ Step 6: /build page created + 301 redirect from /developers
 - ✅ Step 7: /resources hub + /resources/flows (8 canonical flows with state machines)
 - ✅ Step 8: /brand-kit alias (/resources/brand → /brand-kit redirect)
+- ✅ Step 9: /company/contact page with form + email directory
