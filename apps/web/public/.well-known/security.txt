@@ -4,3 +4,5 @@ Preferred-Languages: en
 Canonical: https://klaro.so/.well-known/security.txt
 Policy: https://klaro.so/trust#security-policy
 Hiring: https://klaro.so/company#careers
+
+Expires: 2027-05-27T00:00:00.000Z

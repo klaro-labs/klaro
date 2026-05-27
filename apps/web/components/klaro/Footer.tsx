@@ -72,10 +72,15 @@ export function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-white/50 md:flex-row md:items-center md:justify-between">
-          <p>
-            © 2026 Klaro Labs · Testnet preview · Klaro is not a bank · No
-            real money moves on testnet
-          </p>
+          <div>
+            <p>
+              © 2026 Klaro Labs · Testnet preview · Klaro is not a bank · No
+              real money moves on testnet
+            </p>
+            <p className="mt-1 text-white/35">
+              Klaro is not a bank, broker-dealer, or money transmitter. Klaro provides software; partner payout services are operated by licensed partners in each corridor.
+            </p>
+          </div>
           <div className="md:shrink-0">
             <Link href="/" className="font-mono text-white/60 hover:text-white">
               klaro.so
