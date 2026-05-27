@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 import { Logo } from "./Logo";
 
 /**
@@ -15,21 +16,24 @@ import { Logo } from "./Logo";
 const LINKS = {
   Product: [
     { label: "Product overview", href: "/product" as const },
+    { label: "Invoicing", href: "/product/invoicing" as const },
+    { label: "Receipts", href: "/product/receipts" as const },
     { label: "Pricing", href: "/pricing" as const },
   ],
-  Developers: [
-    { label: "Developer docs", href: "/developers" as const },
-    { label: "Documentation hub", href: "/docs" as const },
+  Build: [
+    { label: "Developer docs", href: "/build" as const },
+    { label: "API reference", href: "/docs" as const },
     { label: "Status", href: "/status" as const },
+  ],
+  Resources: [
+    { label: "User flows", href: "/resources/flows" as const },
+    { label: "Brand kit", href: "/brand-kit" as const },
+    { label: "Trust center", href: "/trust" as const },
+    { label: "Roadmap", href: "/roadmap" as const },
   ],
   Company: [
     { label: "About Klaro", href: "/company" as const },
-    { label: "Roadmap", href: "/roadmap" as const },
-    { label: "Brand kit", href: "/brand-kit" as const },
-  ],
-  Trust: [
-    { label: "Trust center", href: "/trust" as const },
-    { label: "Help center", href: "/help" as const },
+    { label: "Contact", href: "/company/contact" as const },
     { label: "Privacy", href: "/legal/privacy" as const },
     { label: "Disclosures", href: "/legal/disclosures" as const },
   ],
@@ -59,7 +63,7 @@ export function Footer() {
                 {items.map((item) => (
                   <li key={item.label}>
                     <Link
-                      href={item.href}
+                      href={item.href as Route}
                       className="text-sm text-white/80 transition-colors hover:text-white"
                     >
                       {item.label}
