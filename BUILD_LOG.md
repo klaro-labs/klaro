@@ -7,3 +7,4 @@
 - ✅ Step 3: /product overview rewrite — 5 surface cards, PageHero, TrustStrip, FinalCta
 - ✅ Step 4: Product sub-pages — /product/invoicing, /product/receipts, /product/cashout, /product/stablefx, /product/reputation
 - ✅ Step 5: /pricing rewrite — 3-tier cards, FAQ, honest values (Free / 1.0% / Custom)
+- ✅ Step 6: /build page created + 301 redirect from /developers

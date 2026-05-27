@@ -56,9 +56,13 @@ const EMBEDDABLE_HEADERS = [
 const nextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
-  // Isolate automated audit/build output from an active local dev server.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   outputFileTracingRoot: new URL("../../", import.meta.url).pathname,
+  async redirects() {
+    return [
+      { source: "/developers", destination: "/build", permanent: true },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
