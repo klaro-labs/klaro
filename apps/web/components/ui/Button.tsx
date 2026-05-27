@@ -11,12 +11,12 @@ import { cn } from "@/lib/cn";
  * always read as an action verb ("Create your first invoice", not "Submit").
  */
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]",
+  "inline-flex items-center justify-center gap-2 rounded-pill font-medium transition-all duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg)]",
   {
     variants: {
       variant: {
         primary:
-          "bg-[var(--color-ink)] text-white hover:bg-[color-mix(in_oklab,var(--color-ink)_88%,white)]",
+          "bg-[var(--color-ink)] text-white hover:bg-black",
         secondary:
           "bg-transparent text-[var(--color-ink)] ring-1 ring-inset ring-[var(--color-line)] hover:bg-[var(--color-bg-elevated)]",
         ghost:

@@ -17,7 +17,7 @@ export function TrustStrip() {
   return (
     <section className="border-y border-[var(--color-line)] bg-[var(--color-bg)] py-[clamp(28px,4vw,52px)]">
       <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)]">
-        <p className="text-center font-mono text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-muted)]">
+        <p className="text-center font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-muted)]">
           Standards and infrastructure we build on
         </p>
         <ul className="mt-6 flex flex-wrap items-center justify-around gap-x-6 gap-y-4">

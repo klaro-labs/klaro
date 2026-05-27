@@ -39,7 +39,7 @@ export function StennProof() {
         <div className="max-w-3xl">
           {/* Designer 2026-05-25 parity: eyebrow is GOLD (Stenn-Proof = gold trust
               mark per brand-kit §07), not brand-blue. Bigger headline to match. */}
-          <p className="font-mono text-[11px] font-normal tracking-[0.2em] uppercase text-[var(--color-gold)]">
+          <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-gold)]">
             Stenn-Proof
           </p>
           <h2 className="mt-4 font-display text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] tracking-tight">

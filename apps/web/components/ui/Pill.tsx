@@ -23,7 +23,7 @@ export const pillVariants = cva(
         warm:
           "bg-[var(--color-klaro-orange-soft)] text-[var(--color-klaro-orange-deep)]",
         gold:
-          "bg-[var(--color-klaro-gold-soft)] text-[#7a5a00]",
+          "bg-[var(--color-klaro-gold-soft)] text-[var(--color-klaro-gold-deep)]",
         dark:
           "bg-[var(--color-bg-dark)] text-white",
         default:

@@ -60,7 +60,7 @@ export default function CompanyPage() {
       <section className="mx-auto w-full max-w-[1200px] px-6 py-12">
         <div className="grid gap-6 rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:grid-cols-[1.2fr_1fr] md:p-12">
           <div>
-            <p className="font-mono text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-brand)]">
+            <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
               Mission
             </p>
             <h2 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight">

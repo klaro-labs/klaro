@@ -45,7 +45,7 @@ export default async function AgentDetailPage({
 
         <div className="mt-6 flex items-start justify-between gap-6">
           <div>
-            <p className="font-mono text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-brand)]">
+            <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
               {agent.category}
             </p>
             <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
