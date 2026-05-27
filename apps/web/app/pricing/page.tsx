@@ -1,207 +1,159 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
-import { SectionHeader } from "@/components/klaro/SectionHeader";
+import { PageHero } from "@/components/ui/PageHero";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
+import { Pill } from "@/components/ui/Pill";
+import { buttonVariants } from "@/components/ui/Button";
+import Link from "next/link";
+import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
   title: "Pricing · Klaro",
-  description:
-    "Klaro is free on Arc testnet. Mainnet pricing is bps-based on settled invoices and cashouts — published before the first mainnet vendor onboards.",
+  description: "Free on testnet. 1% on mainnet. No monthly fee, no setup fee, no per-seat fee.",
 };
 
 const TIERS = [
   {
     name: "Testnet",
-    price: "$0",
-    period: "today",
-    label: "testnet demo",
-    description:
-      "Explore the working demo flow with no fees and no real money movement.",
-    items: [
-      "Demo invoices, cashouts and receipt previews",
-      "Simulated corridors and dispute tooling",
-      "ERP and webhook surfaces shown as pending",
-      "Simulated reputation and screening views",
-      "API design surfaces under verification",
+    price: "Free",
+    sub: "All features. No caps. Testnet tokens only.",
+    features: [
+      "Unlimited invoices",
+      "On-chain receipts",
+      "Cashout simulation",
+      "Reputation scoring",
+      "Multi-chain receive",
+      "Community support",
     ],
-    cta: { label: "Start free", href: "/signin" as const },
+    cta: { label: "Open workspace", href: "/signin" },
+    highlight: false,
   },
   {
-    name: "Mainnet · Standard",
-    price: "TBD",
-    period: "per settled invoice",
-    label: "mainnet-only",
-    description:
-      "Bps fee on settled invoices + fixed cashout spread. Published before first vendor onboards.",
-    items: [
-      "Same product surface as testnet",
-      "Volume tiers + corridor-specific rates",
-      "Dedicated LP capacity for committed flow",
-      "SLA-backed status page integration",
-      "Optional bring-your-own-LP for direct cashout",
+    name: "Standard",
+    price: "1.0%",
+    sub: "Flat on settled volume. No monthly fee. Partner-payout fees passed through.",
+    features: [
+      "Everything in Testnet",
+      "Live USDC settlement",
+      "Partner cashout corridors",
+      "Webhook delivery + retries",
+      "Priority support · 4h SLA",
+      "Audit log retention · 2 years",
     ],
-    cta: { label: "Join waitlist", href: "/company" as const },
+    cta: { label: "Open workspace", href: "/signin" },
+    highlight: true,
   },
   {
-    name: "Mainnet · Platform",
+    name: "Scale",
     price: "Custom",
-    period: "for marketplaces & ERPs",
-    label: "partner-pending",
-    description:
-      "Embed Klaro in your product. White-label receipts, multi-vendor splits, custom corridors.",
-    items: [
-      "Multi-tenant API + RLS hooks",
-      "Per-tenant fee splits via FeeSplitter",
-      "Dedicated subdomain (i.your-domain.com)",
-      "Co-branded receipt + checkout themes",
-      "Quarterly business reviews",
+    sub: "For platforms reselling Klaro or LPs running large payout networks.",
+    features: [
+      "Everything in Standard",
+      "White-label invoicing",
+      "Dedicated infrastructure",
+      "Custom screening rules",
+      "24×7 on-call rotation",
+      "Named CSM + SOC reporting",
     ],
-    cta: { label: "Talk to us", href: "/company" as const },
+    cta: { label: "Talk to sales", href: "mailto:sales@klaro.so" },
+    highlight: false,
   },
-] as const;
+];
 
 const FAQ = [
-  {
-    q: "Why $0 on testnet?",
-    a: "Testnet is for proving the product, the corridors, and the receipts. Charging would defeat that. Fees show up only when real money moves.",
-  },
-  {
-    q: "What does the bps fee actually look like?",
-    a: "We won't quote a final number until we've stress-tested with our first 10 mainnet vendors. The current internal model is 25–80bps on settled invoices, with corridor-specific cashout spreads on top. We'll publish the full schedule before the first mainnet onboard.",
-  },
-  {
-    q: "Are there per-API-call fees?",
-    a: "No. Pricing is per settled invoice and per executed cashout. API calls, webhooks, ERP syncs, and dashboard usage are all included.",
-  },
-  {
-    q: "What about LPs?",
-    a: "LPs earn a spread on each cashout they fulfill, minus a small Klaro routing fee. Onboarding is invite-only today; apply at /lp/apply.",
-  },
-] as const;
+  { q: "When does mainnet pricing start?", a: "After the external security audit completes and mainnet deploys. Until then, testnet is free for everyone." },
+  { q: "What counts as settled volume?", a: "USDC that moves through InvoiceEscrow and reaches the vendor's wallet. Refunded or disputed amounts are excluded." },
+  { q: "Are there per-invoice or per-seat fees?", a: "No. The 1% fee is the only charge. No monthly minimum, no per-user pricing, no hidden FX markup." },
+  { q: "What about cashout fees?", a: "LP spread and Klaro's cashout fee (0.3%) are separate from the 1% invoice fee. Both are shown before you confirm." },
+  { q: "Can I try before committing?", a: "Yes. Testnet is free and unlimited. Create invoices, simulate cashouts, and test the full flow without spending anything." },
+  { q: "Do you offer discounts for high volume?", a: "The Scale tier is custom-priced. Email sales@klaro.so with your expected monthly volume." },
+];
 
 export default function PricingPage() {
   return (
-    <main className="bg-[var(--color-paper)] text-[var(--color-ink)]">
+    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
       <Nav />
-      <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-12">
-        <SectionHeader
-          eyebrow="Pricing"
-          title={
-            <>
-              Free on testnet.
-              <br />
-              <span className="text-[var(--color-brand)]">
-                Transparent on mainnet.
-              </span>
-            </>
-          }
-          lede="No usage meters, no surprise overages, no add-on SKUs. One fee on settled invoices, one spread on cashouts. Published in full before any vendor onboards mainnet."
-        />
-      </section>
+      <PageHero
+        eyebrow="Pricing"
+        chips={["Testnet free forever"]}
+        title="Pay what you actually pay."
+        sub="No monthly fee. No setup fee. No per-seat fee. No FX markup we don't disclose. During testnet every feature is free."
+        ctas={[
+          { label: "Open workspace", href: "/signin" },
+          { label: "Talk to sales", href: "mailto:sales@klaro.so", variant: "secondary" },
+        ]}
+      />
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 pb-20">
-        <div className="grid gap-4 lg:grid-cols-3">
+      <section className="klaro-container pb-20">
+        <div className="grid gap-5 md:grid-cols-3">
           {TIERS.map((t) => (
-            <div
+            <article
               key={t.name}
-              className="flex flex-col rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6"
+              className={cn(
+                "rounded-[var(--klaro-tile-radius)] p-[var(--klaro-tile-pad)]",
+                t.highlight
+                  ? "bg-[var(--color-ink)] text-white"
+                  : "border border-[var(--color-line)] bg-[var(--color-bg-elevated)]",
+              )}
             >
-              <div className="flex items-baseline justify-between">
+              <div className="flex items-center justify-between">
                 <h3 className="font-display text-xl font-semibold">{t.name}</h3>
-                <code className="font-mono text-[11px] font-medium text-[var(--color-brand)]">
-                  {t.label}
-                </code>
+                {t.highlight && <Pill tone="gold" size="sm">Mainnet target</Pill>}
               </div>
-              <div className="mt-4 flex items-baseline gap-2">
-                <span className="font-display text-4xl font-semibold tracking-tight">
-                  {t.price}
-                </span>
-                <span className="text-sm text-[var(--color-ink-muted)]">
-                  {t.period}
-                </span>
-              </div>
-              <p className="mt-3 text-sm text-[var(--color-ink)]/80">
-                {t.description}
+              <p className="mt-6 font-display text-5xl font-semibold tracking-tight">
+                {t.price}
               </p>
-              <ul className="mt-6 flex flex-1 flex-col gap-2.5 text-sm text-[var(--color-ink)]/80">
-                {t.items.map((it) => (
-                  <li key={it} className="flex gap-2">
-                    <span className="text-[var(--color-brand)]">·</span>
-                    <span>{it}</span>
+              <p className={cn("mt-3 text-sm", t.highlight ? "text-white/70" : "text-[var(--color-muted)]")}>
+                {t.sub}
+              </p>
+              <ul className="mt-7 space-y-2.5 text-sm">
+                {t.features.map((f) => (
+                  <li key={f} className={cn("flex items-start gap-2", t.highlight ? "text-white/80" : "text-[var(--color-muted)]")}>
+                    <span className={t.highlight ? "text-[var(--color-klaro-gold)]" : "text-[var(--color-klaro-orange)]"}>✓</span>
+                    {f}
                   </li>
                 ))}
               </ul>
-              <Link
-                href={t.cta.href}
-                className="mt-8 inline-flex items-center justify-center rounded-full border border-[var(--color-ink)] bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
-              >
-                {t.cta.label}
-              </Link>
-            </div>
+              <div className="mt-8">
+                <Link
+                  href={t.cta.href as "/signin"}
+                  className={cn(
+                    buttonVariants({ size: "md", variant: "secondary" }),
+                    "w-full",
+                    t.highlight && "bg-white text-[var(--color-ink)] ring-0 hover:bg-white/90",
+                  )}
+                >
+                  {t.cta.label}
+                </Link>
+              </div>
+            </article>
           ))}
         </div>
+
+        <p className="mt-8 text-center text-xs text-[var(--color-muted)]">
+          Klaro is not a bank. Mainnet payout fees, limits, and settlement times depend on the licensed partner in each corridor.
+        </p>
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-20">
-        <SectionHeader eyebrow="What's included" title="No à-la-carte SKUs." />
-        <div className="mt-10 grid gap-3 md:grid-cols-2">
-          {[
-            ["Unlimited invoices", "No cap on invoice volume or count."],
-            [
-              "Unlimited receipts",
-              "Demo receipts are previews; live minting requires verified deployment.",
-            ],
-            [
-              "Unlimited webhooks",
-              "Planned signed delivery for live integrations.",
-            ],
-            ["ERP sync", "Sandbox/adapter preview pending real connections."],
-            [
-              "Agent rails",
-              "Contract-led agent flow under verification before activation.",
-            ],
-            [
-              "Reputation",
-              "Simulated score preview; on-chain recording is gated.",
-            ],
-            [
-              "Status page",
-              "Status surface preview; SLA and partner feeds are not launched.",
-            ],
-            [
-              "WebAuthn + PWA",
-              "Biometric sign-in, installable on mobile, offline-capable.",
-            ],
-          ].map(([label, body]) => (
-            <div
-              key={label}
-              className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-5"
-            >
-              <h4 className="font-display text-base font-semibold">{label}</h4>
-              <p className="mt-1 text-sm text-[var(--color-ink)]/80">{body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-[800px] px-6 py-20">
-        <SectionHeader eyebrow="FAQ" title="Direct answers." />
-        <dl className="mt-10 divide-y divide-[var(--color-ink)]/10 border-y border-[var(--color-ink)]/10">
-          {FAQ.map((f) => (
-            <div
-              key={f.q}
-              className="grid gap-2 py-6 md:grid-cols-[1fr_2fr] md:gap-8"
-            >
-              <dt className="font-display text-base font-semibold">{f.q}</dt>
-              <dd className="text-sm leading-relaxed text-[var(--color-ink)]/80">
-                {f.a}
-              </dd>
+      <section className="klaro-container pb-20">
+        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)]">
+          FAQ
+        </p>
+        <h2 className="mt-4 font-display text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.1] tracking-tight">
+          Common questions.
+        </h2>
+        <dl className="mt-10 max-w-2xl space-y-6">
+          {FAQ.map((item) => (
+            <div key={item.q}>
+              <dt className="font-display text-base font-semibold">{item.q}</dt>
+              <dd className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]">{item.a}</dd>
             </div>
           ))}
         </dl>
       </section>
 
+      <FinalCta />
       <Footer />
     </main>
   );
