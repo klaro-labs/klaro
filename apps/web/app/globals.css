@@ -130,7 +130,6 @@
 }
 
 @layer components {
-  /* Container that matches the reference. Use as `.klaro-container`. */
   .klaro-container {
     max-width: var(--klaro-container);
     margin-inline: auto;
@@ -138,5 +137,14 @@
   }
   .klaro-section {
     padding-block: var(--klaro-section-y);
+  }
+  @keyframes klaro-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .klaro-shimmer {
+    background: linear-gradient(110deg, var(--color-bg-warm) 8%, var(--color-line) 18%, var(--color-bg-warm) 33%);
+    background-size: 200% 100%;
+    animation: klaro-shimmer 1.6s ease-in-out infinite;
   }
 }

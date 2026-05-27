@@ -20,9 +20,9 @@ export function TrustStrip() {
         <p className="text-center font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-muted)]">
           Standards and infrastructure we build on
         </p>
-        <ul className="mt-6 flex flex-wrap items-center justify-around gap-x-6 gap-y-4">
+        <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
           {ITEMS.map((label) => (
-            <li key={label} className="text-base font-normal text-[var(--color-muted)]">
+            <li key={label} className="text-base font-medium text-[var(--color-muted)]">
               {label}
             </li>
           ))}

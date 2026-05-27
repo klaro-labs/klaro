@@ -133,7 +133,8 @@ const STATUS_LABEL: Record<Status, string> = {
 
 export function Corridors() {
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(64px,9vw,120px)]">
+    <section className="bg-[var(--color-bg-warm)] py-[clamp(64px,9vw,120px)]">
+      <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)]">
       <SectionHeader
         eyebrow="Corridors"
         title={
@@ -201,6 +202,7 @@ export function Corridors() {
         Klaro is not a bank · partner payout availability and fees depend on the
         licensed partner
       </p>
+      </div>
     </section>
   );
 }

@@ -14,7 +14,7 @@ export function Skeleton({
   return (
     <span
       aria-hidden
-      className={`inline-block animate-pulse rounded bg-[var(--color-line)]/60 ${className}`}
+      className={`inline-block rounded klaro-shimmer ${className}`}
       style={{ width: w, height: h }}
     />
   );
