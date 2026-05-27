@@ -64,6 +64,9 @@
   --klaro-container: 1280px;
   --klaro-pad: clamp(20px, 4vw, 56px);
   --klaro-section-y: clamp(80px, 12vw, 160px);
+  --klaro-tile-radius: 22px;
+  --klaro-tile-pad: clamp(28px, 3.4vw, 44px);
+  --klaro-tile-min-h: 460px;
 
   /* Motion */
   --ease-klaro: cubic-bezier(0.32, 0.72, 0, 1);
