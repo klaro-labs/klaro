@@ -296,8 +296,26 @@ export function startArcListener() {
   // wrap every watchEvent registration so the unwatch
   // function is collected. `stopArcListener()` calls them all on
   // SIGTERM before `closeAll()` drains the queues.
+  //
+  // QA-053 fix: force poll-mode (eth_getLogs) instead of filter-mode
+  // (eth_newFilter + eth_getFilterChanges). Arc RPC expires filters
+  // after a short TTL (~5 min observed); when the filter dies, viem
+  // throws 'filter not found' on the next poll and the subscription
+  // silently stops. Health checks stay green; throughput drops to 0%.
+  // poll-mode re-issues eth_getLogs every pollingInterval with a
+  // running fromBlock cursor — no persistent filter to expire.
+  // QA-053 fix: wrap watchEvent to always pass { poll: true } so viem uses
+  // eth_getLogs polling instead of eth_newFilter + eth_getFilterChanges.
+  // Arc RPC expires filters after a short TTL; the filter-mode error
+  // (`filter not found`) silently kills the subscription. With poll mode
+  // each tick re-issues eth_getLogs from a running cursor — no persistent
+  // filter to expire. Per-call-site type narrowing is preserved by passing
+  // `opts` through as the first arg + injecting `poll: true` separately.
   const watch: typeof client.watchEvent = (opts) => {
-    const unwatch = client.watchEvent(opts);
+    const unwatch = client.watchEvent({
+      ...opts,
+      poll: true,
+    } as Parameters<typeof client.watchEvent>[0]);
     _unwatchers.push(unwatch);
     return unwatch;
   };
