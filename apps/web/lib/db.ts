@@ -15,6 +15,13 @@ import {
   createClient as createPlainClient,
   type SupabaseClient,
 } from "@supabase/supabase-js";
+// QA-055: Database codegen lives in ./database.types — generated via
+// mcp__supabase__generate_typescript_types from the live schema. Not yet
+// threaded through these clients because the hand-written dbTypes.ts has
+// drifted from the live schema in ~6 fields (amount_usdc as string vs
+// number, etc.) and migrating every consumer is its own workstream.
+// Re-export so any NEW code can `import { Database } from "@/lib/db"`
+// and use a typed client directly without an additional import path.
 // `cookies` from `next/headers` is a
 // Server-Component-only import. When imported at module load, every consumer
 // (transitively `auth.ts`, `repo/lpMembers.ts`, `signin/page.tsx`) inherits
@@ -87,3 +94,8 @@ export async function tryDb(): Promise<SupabaseClient | null> {
     return null;
   }
 }
+
+// Re-export the codegen'd Database type so consumers can use a typed
+// client directly: createClient<Database>(...) for new code that wants
+// compile-time column-name safety.
+export type { Database } from "./database.types";
