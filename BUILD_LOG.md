@@ -12,3 +12,4 @@
 - ✅ Step 8: /brand-kit alias (/resources/brand → /brand-kit redirect)
 - ✅ Step 9: /company/contact page with form + email directory
 - ✅ Step 10: /signin quiet rewrite — reduced glow, passkey CTA, fixed hover + error copy
+- ✅ Step 11: /onboarding — 4-step flow (business, wallet, verification, first invoice)
