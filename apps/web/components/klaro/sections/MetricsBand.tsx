@@ -24,8 +24,8 @@ export function MetricsBand() {
           ))}
         </dl>
         <p className="mt-10 max-w-2xl mx-auto text-center text-xs text-[var(--color-ink-subtle)]">
-          Demonstration counters only. Replace with verified Arc testnet event
-          aggregates before presenting transaction volume as live.
+          Demonstration counters only — not live transaction volume. Verified
+          Arc testnet aggregates ship once the telemetry pipeline lands.
         </p>
       </div>
     </section>
