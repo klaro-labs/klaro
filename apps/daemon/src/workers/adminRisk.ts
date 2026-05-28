@@ -46,7 +46,7 @@ export function startAdminRisk() {
         sb()
           .from("invoices")
           .select(
-            "id, accepted_by, amount, paid_tx_hash, screening_results!left(id)",
+            "id, accepted_by, amount_usdc, paid_tx_hash, screening_results!left(id)",
           )
           .eq("status", "PAID")
           .lte("updated_at", sla30m)
@@ -78,7 +78,7 @@ export function startAdminRisk() {
         const row = i as {
           id: string;
           accepted_by?: string;
-          amount?: string;
+          amount_usdc?: string | number;
           paid_tx_hash?: string;
         };
         if (!row.accepted_by || !row.paid_tx_hash) continue;
@@ -87,7 +87,7 @@ export function startAdminRisk() {
           {
             invoiceId: row.id,
             buyerAddress: row.accepted_by,
-            amount: row.amount ?? "0",
+            amount: String(row.amount_usdc ?? "0"),
             paidTxHash: row.paid_tx_hash,
           },
           { jobId: `screen-and-settle_${row.id}` },
