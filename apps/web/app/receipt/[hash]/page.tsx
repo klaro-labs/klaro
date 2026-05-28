@@ -160,7 +160,7 @@ export default async function PublicReceiptPage({
               : "This is a demo receipt created by the simulator. It is not anchored on Arc and does not prove a payment, screening decision, or wallet signature."}
           </p>
 
-          <article className="mt-8 overflow-hidden rounded-lg border border-white/10 bg-white text-[var(--color-ink)] shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <article className="mt-8 overflow-hidden rounded-lg border border-white/10 bg-white text-[var(--color-ink)] shadow-[0_4px_16px_rgba(10,10,10,0.15)]">
             <div className="border-b border-[var(--color-line)] bg-[var(--color-bg)] px-6 py-4">
               <p className="font-mono text-xs text-[var(--color-ink-subtle)]">
                 receipt.klaro.so/{shortAddress(hashHex)}

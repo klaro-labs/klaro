@@ -86,7 +86,7 @@ export function Developers() {
             </dl>
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-white/10 bg-[#0F0F12] shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+          <div className="overflow-hidden rounded-lg border border-white/10 bg-[#0F0F12] shadow-[0_4px_16px_rgba(10,10,10,0.15)]">
             <div className="flex items-center gap-2 border-b border-white/10 bg-[#16161A] px-4 py-2.5">
               <span aria-hidden className="size-2.5 rounded-full bg-rose-400" />
               <span
