@@ -3,14 +3,8 @@ import type { Route } from "next";
 import { Logo } from "./Logo";
 
 /**
- * Footer — designer §17 sitemap, rewritten to remove the
- * aliasing pattern. Previously 5-of-6 rows in each column linked to a
- * single catch-all page (e.g. every Trust row → /trust), so clicking
- * "Bug bounty" landed on a generic Trust page with no bug-bounty
- * content. That violates (no overclaiming). The honest
- * fix is one row per real destination; labels match what the linked
- * page actually shows. Sub-routes earn their own label only once they
- * have their own page.
+ * Footer — one row per real destination; labels match what each linked page
+ * actually shows. Email row mirrors §5.4 of the port plan.
  */
 
 const LINKS = {
@@ -18,14 +12,16 @@ const LINKS = {
     { label: "Product overview", href: "/product" as const },
     { label: "Invoicing", href: "/product/invoicing" as const },
     { label: "Receipts", href: "/product/receipts" as const },
+    { label: "Cashout", href: "/product/cashout" as const },
     { label: "Pricing", href: "/pricing" as const },
   ],
   Build: [
-    { label: "Developer docs", href: "/build" as const },
+    { label: "Build with Klaro", href: "/build" as const },
     { label: "API reference", href: "/docs" as const },
     { label: "Status", href: "/status" as const },
   ],
   Resources: [
+    { label: "Docs", href: "/docs" as const },
     { label: "User flows", href: "/resources/flows" as const },
     { label: "Brand kit", href: "/brand-kit" as const },
     { label: "Trust center", href: "/trust" as const },
@@ -38,6 +34,12 @@ const LINKS = {
     { label: "Disclosures", href: "/legal/disclosures" as const },
   ],
 } as const;
+
+const EMAILS = [
+  { label: "General", value: "hi@klaro.so" },
+  { label: "Sales", value: "sales@klaro.so" },
+  { label: "Security", value: "security@klaro.so" },
+] as const;
 
 export function Footer() {
   return (
@@ -52,6 +54,21 @@ export function Footer() {
               Arc-native payment OS for emerging-market vendors. Invoice
               globally. Cash out locally. Prove every payment.
             </p>
+            <ul className="mt-6 space-y-2 text-sm">
+              {EMAILS.map((e) => (
+                <li key={e.value} className="flex items-baseline gap-2">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">
+                    {e.label}
+                  </span>
+                  <a
+                    href={`mailto:${e.value}`}
+                    className="text-white/80 transition-colors hover:text-white"
+                  >
+                    {e.value}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {Object.entries(LINKS).map(([heading, items]) => (

@@ -107,26 +107,59 @@ export default function ProductCashoutPage() {
           <ul className="divide-y divide-[var(--color-line)]">
             {sorted.map((c) => {
               const status = STATUS_COPY[c.status];
+              const eta = c.etaMinutes === 0 ? "Instant" : `~${c.etaMinutes} min`;
               return (
-                <li
-                  key={c.code}
-                  className="grid grid-cols-2 gap-3 px-5 py-4 text-[13px] md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] md:items-center md:gap-4"
-                >
-                  <span className="font-medium">{c.country}</span>
-                  <span className="font-mono text-[12px] text-[var(--color-muted)] md:text-[var(--color-ink-2)]">
-                    {c.symbol} {c.currency}
-                  </span>
-                  <span className="font-mono text-[12px] text-[var(--color-muted)]">{c.partner}</span>
-                  <span className="font-mono text-[12px] text-[var(--color-muted)]">
-                    {c.etaMinutes === 0 ? "Instant" : `~${c.etaMinutes} min`}
-                  </span>
-                  <span className="md:text-right">
+                <li key={c.code} className="px-5 py-4 text-[13px]">
+                  {/* Mobile: stacked card. Desktop: 5-col grid. */}
+                  <div className="flex items-start justify-between gap-3 md:hidden">
+                    <span className="font-medium">{c.country}</span>
                     <span
-                      className={`inline-flex rounded-pill px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.06em] ${status.tone}`}
+                      className={`inline-flex shrink-0 rounded-pill px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.06em] ${status.tone}`}
                     >
                       {status.label}
                     </span>
-                  </span>
+                  </div>
+                  <dl className="mt-2 grid grid-cols-3 gap-2 font-mono text-[11px] text-[var(--color-muted)] md:hidden">
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-[0.1em] opacity-70">
+                        Pair
+                      </dt>
+                      <dd className="mt-0.5 text-[var(--color-ink-2)]">
+                        {c.symbol} {c.currency}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-[0.1em] opacity-70">
+                        Partner
+                      </dt>
+                      <dd className="mt-0.5 truncate">{c.partner}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-[0.1em] opacity-70">
+                        ETA
+                      </dt>
+                      <dd className="mt-0.5">{eta}</dd>
+                    </div>
+                  </dl>
+                  <div className="hidden md:grid md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] md:items-center md:gap-4">
+                    <span className="font-medium">{c.country}</span>
+                    <span className="font-mono text-[12px] text-[var(--color-ink-2)]">
+                      {c.symbol} {c.currency}
+                    </span>
+                    <span className="font-mono text-[12px] text-[var(--color-muted)]">
+                      {c.partner}
+                    </span>
+                    <span className="font-mono text-[12px] text-[var(--color-muted)]">
+                      {eta}
+                    </span>
+                    <span className="text-right">
+                      <span
+                        className={`inline-flex rounded-pill px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.06em] ${status.tone}`}
+                      >
+                        {status.label}
+                      </span>
+                    </span>
+                  </div>
                 </li>
               );
             })}

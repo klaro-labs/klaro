@@ -54,7 +54,7 @@ export function Developers() {
 
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
-                href="/developers"
+                href="/build"
                 className={cn(
                   buttonVariants({ variant: "primary", size: "md" }),
                   // Override colors so primary CTA reads on dark band

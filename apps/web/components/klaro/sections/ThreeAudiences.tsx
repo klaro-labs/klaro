@@ -12,7 +12,7 @@ interface Audience {
   title: string;
   bullets: string[];
   cta: string;
-  href: "/signin" | "/product" | "/developers";
+  href: "/signin" | "/product" | "/build";
   tone: "light" | "dark" | "light-secondary";
 }
 
@@ -53,7 +53,7 @@ const A: Audience[] = [
       "Public OpenAPI · docs.klaro.so",
     ],
     cta: "Read the docs",
-    href: "/developers",
+    href: "/build",
     tone: "light-secondary",
   },
 ];

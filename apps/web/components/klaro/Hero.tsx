@@ -50,7 +50,7 @@ export function Hero() {
               Create your first invoice →
             </Link>
             <Link
-              href="/brand-kit#stenn-proof"
+              href="/product/receipts"
               className={buttonVariants({ size: "lg", variant: "secondary" })}
             >
               See a real receipt
