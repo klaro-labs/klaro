@@ -36,9 +36,13 @@ export function CookieConsent() {
     <div
       role="dialog"
       aria-label="Cookie consent"
-      className="fixed bottom-20 left-1/2 z-[60] w-[min(960px,calc(100vw-2rem))] -translate-x-1/2 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] p-4 shadow-[0_8px_30px_rgba(0,0,0,0.18)]"
+      // QA-057: was `fixed bottom-20 ... centered` which on standard 900px
+      // viewports landed the banner SQUARELY over the primary pricing tier
+      // (and equivalent above-the-fold CTAs on every other page). Move
+      // to a slim bottom-pinned bar so it docks below all real content.
+      className="fixed bottom-0 left-0 right-0 z-[60] border-t border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.10)]"
     >
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 md:flex-row md:items-center md:gap-6">
         <div className="flex-1 text-sm">
           <p className="font-medium">Cookies</p>
           <p className="mt-1 text-[var(--color-ink-muted)]">
