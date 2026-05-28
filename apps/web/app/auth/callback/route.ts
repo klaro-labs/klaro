@@ -20,11 +20,26 @@ import { captureError } from "@/lib/sentry";
 
 const SAFE_NEXT_DEFAULT = "/vendor";
 
+// Reject every shape that could escape this origin:
+//   - absolute URLs (`https://evil.com/...`)
+//   - protocol-relative (`//evil.com/...`)
+//   - backslash-prefixed (`/\\evil.com/...` — Chromium normalizes to `//`)
+//   - any URL whose resolved origin differs from ours after parsing
+// Whitelisting `startsWith("/") && !startsWith("//")` was insufficient.
 function safeNext(raw: string | null, origin: string): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
+  if (!raw) return SAFE_NEXT_DEFAULT;
+  if (!raw.startsWith("/")) return SAFE_NEXT_DEFAULT;
+  if (raw.startsWith("//") || raw.startsWith("/\\")) return SAFE_NEXT_DEFAULT;
+  if (raw.includes("\\")) return SAFE_NEXT_DEFAULT;
+  let u: URL;
+  try {
+    u = new URL(raw, origin);
+  } catch {
     return SAFE_NEXT_DEFAULT;
   }
-  return new URL(raw, origin).pathname + new URL(raw, origin).search;
+  if (u.origin !== origin) return SAFE_NEXT_DEFAULT;
+  if (u.pathname.startsWith("//")) return SAFE_NEXT_DEFAULT;
+  return u.pathname + u.search;
 }
 
 export async function GET(req: NextRequest) {
