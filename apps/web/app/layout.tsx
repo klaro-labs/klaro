@@ -4,8 +4,32 @@ import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Web3Provider } from "@/components/providers/Web3Provider";
 import { CookieConsent } from "@/components/klaro/CookieConsent";
+import { JsonLd } from "@/components/klaro/JsonLd";
 import { ServiceWorkerInit } from "@/components/klaro/ServiceWorkerInit";
 import { LOCALE_COOKIE, parseLocale, isRtl } from "@/lib/i18n";
+
+const SITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://klaro.so/#org",
+      name: "Klaro",
+      url: "https://klaro.so",
+      logo: "https://klaro.so/brand/klaro-wordmark.svg",
+      description:
+        "Arc-native payment OS for emerging-market vendors. Invoice globally in USDC, prove every payment on-chain, cash out through verified partners.",
+      sameAs: ["https://github.com/klaro-labs/klaro"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://klaro.so/#site",
+      url: "https://klaro.so",
+      name: "Klaro",
+      publisher: { "@id": "https://klaro.so/#org" },
+    },
+  ],
+};
 
 // next/font self-hosts the families with `display: swap` + preload. The
 // `variable` outputs feed the `--font-*` CSS variables declared in
@@ -63,6 +87,7 @@ export default async function RootLayout({
       className={`${interTight.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body>
+        <JsonLd data={SITE_JSON_LD} />
         <Web3Provider>{children}</Web3Provider>
         <CookieConsent />
         <ServiceWorkerInit />

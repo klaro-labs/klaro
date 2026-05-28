@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { JsonLd } from "@/components/klaro/JsonLd";
 import { PageHero } from "@/components/ui/PageHero";
 import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { Pill } from "@/components/ui/Pill";
@@ -16,9 +17,20 @@ export const metadata: Metadata = {
     "Free on testnet. 1% on mainnet. No monthly fee, no setup fee, no per-seat fee, no hidden FX markup.",
 };
 
+const FAQ_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
+};
+
 export default function PricingPage() {
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
+      <JsonLd data={FAQ_JSON_LD} />
       <Nav />
       <PageHero
         eyebrow="Pricing"
