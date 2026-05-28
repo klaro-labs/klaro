@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { SectionHeader } from "../SectionHeader";
 import { Badge } from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
@@ -166,16 +167,15 @@ function TierCard({ tier: t }: { tier: Tier }) {
               isDark ? "text-white/80" : "text-[var(--color-ink-muted)]",
             )}
           >
-            <span
+            <Check
               aria-hidden
-              className={
+              className={cn(
+                "mt-0.5 size-3.5 shrink-0",
                 isDark
                   ? "text-[var(--color-gold)]"
-                  : "text-[var(--color-brand)]"
-              }
-            >
-              ✓
-            </span>
+                  : "text-[var(--color-brand)]",
+              )}
+            />
             {b}
           </li>
         ))}

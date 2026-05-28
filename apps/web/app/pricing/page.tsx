@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Route } from "next";
+import { Check } from "lucide-react";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
 import { JsonLd } from "@/components/klaro/JsonLd";
@@ -99,16 +100,15 @@ export default function PricingPage() {
                       t.highlight ? "text-white/85" : "text-[var(--color-muted)]",
                     )}
                   >
-                    <span
+                    <Check
                       aria-hidden
-                      className={
+                      className={cn(
+                        "mt-0.5 size-3.5 shrink-0",
                         t.highlight
                           ? "text-[var(--color-klaro-gold)]"
-                          : "text-[var(--color-klaro-orange)]"
-                      }
-                    >
-                      ✓
-                    </span>
+                          : "text-[var(--color-klaro-orange)]",
+                      )}
+                    />
                     {f}
                   </li>
                 ))}
