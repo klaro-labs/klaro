@@ -20,7 +20,13 @@ const opt = (k: string): string | undefined =>
   process.env[k] && process.env[k]!.length > 0 ? process.env[k] : undefined;
 
 // ─── Supabase (M4 auth + DB) ─────────────────────────────────────────
-export const SUPABASE_URL = opt("SUPABASE_URL");
+// SUPABASE_URL was server-only — `supabaseLive()` always returned
+// false in the browser so Google OAuth (createBrowserClient) never even
+// reached Supabase. Read NEXT_PUBLIC_SUPABASE_URL first (real public
+// var on Vercel + .env.local). Fall back to the bare SUPABASE_URL so
+// server-side code that already reads it keeps working unchanged.
+export const SUPABASE_URL =
+  opt("NEXT_PUBLIC_SUPABASE_URL") ?? opt("SUPABASE_URL");
 export const SUPABASE_ANON_KEY = opt("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 export const SUPABASE_SERVICE_ROLE_KEY = opt("SUPABASE_SERVICE_ROLE_KEY");
 export const supabaseLive = (): boolean =>

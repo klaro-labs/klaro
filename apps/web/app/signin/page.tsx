@@ -35,10 +35,15 @@ export default function SignInPage() {
     setPasskeyOn(webAuthnSupported());
   }, []);
 
+  // Route every auth provider through /auth/callback so the server can
+  // exchange the verify token for session cookies. Previously this pointed
+  // at /vendor directly, so the magic-link flow landed on /vendor with the
+  // ?code= in the URL and middleware bounced to /signin (no session was
+  // ever created). P0 bug found during 2026-05-28 QA.
   const callbackUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/vendor`
-      : "/vendor";
+      ? `${window.location.origin}/auth/callback?next=/vendor`
+      : "/auth/callback?next=/vendor";
 
   async function handleGoogle() {
     try {
