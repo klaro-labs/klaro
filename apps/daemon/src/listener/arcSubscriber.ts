@@ -14,7 +14,7 @@
  * AgentEscrow.JobCompleted → notify-vendor + notify-agent
  * AuditReceipt.ReceiptMinted → notify-vendor (receipt available)
  */
-import { parseAbiItem } from "viem";
+import { parseAbiItem, decodeFunctionData, parseAbi, keccak256 } from "viem";
 import { arcPublic } from "../arc.js";
 import { env } from "../env.js";
 import {
@@ -306,6 +306,31 @@ export function startArcListener() {
           const key = `invoice-paid:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
           await safeEvent("InvoicePaid", key, async () => {
+            // QA-034 fix: capture buyer's EIP-712 signature from the
+            // acceptAndPay calldata so the receipt's acceptance_hash
+            // anchor is populated (instead of rendering "—" on
+            // /receipt/[hash]). Decoded async and non-fatal — if the
+            // tx fetch fails we still flip the row to PAID with a null
+            // signature (better than blocking the screen job).
+            let acceptanceSig: string | null = null;
+            try {
+              const tx = await client.getTransaction({
+                hash: ev.transactionHash,
+              });
+              const { args } = decodeFunctionData({
+                abi: parseAbi([
+                  "function acceptAndPay(bytes32 invoiceId, bytes buyerSignature, address buyer)",
+                ]),
+                data: tx.input,
+              });
+              acceptanceSig = keccak256(args[1] as `0x${string}`);
+            } catch (e) {
+              log.error("event.InvoicePaid.sigCapture.failed", {
+                id: ev.args.invoiceId,
+                err: (e as Error)?.message,
+              });
+            }
+
             // QA-028 fix: sync DB before fanning out the screen job. Without
             // this the world sees a PAID invoice on chain + screening_results
             // rows in Supabase, but invoices.status stays 'CREATED' forever
@@ -319,6 +344,7 @@ export function startArcListener() {
                 accepted_by: ev.args.buyer,
                 accepted_at: new Date().toISOString(),
                 paid_tx_hash: ev.transactionHash,
+                ...(acceptanceSig ? { acceptance_sig: acceptanceSig } : {}),
               })
               .eq("id", ev.args.invoiceId)
               .in("status", ["CREATED", "ACCEPTED"]);
