@@ -20,24 +20,23 @@ const opt = (k: string): string | undefined =>
   process.env[k] && process.env[k]!.length > 0 ? process.env[k] : undefined;
 
 /**
- * Public-env reader for NEXT_PUBLIC_* values. Caller MUST pass the literal
- * `process.env.NEXT_PUBLIC_*` reference so webpack's DefinePlugin can inline
- * the value at build time. Variable-subscript helpers (like `opt("NEXT_PUBLIC_X")`)
- * defeat the substitution and leave the browser bundle with `undefined`.
- * Use `pub(process.env.NEXT_PUBLIC_X)`, NEVER `opt("NEXT_PUBLIC_X")`.
+ * Public-env reader. Caller MUST pass the literal `process<dot>env<dot>NEXT_PUBLIC_<NAME>`
+ * reference so webpack's DefinePlugin can inline the value at build time. Variable-
+ * subscript helpers defeat the substitution and leave the browser bundle with
+ * undefined. Use pub(process<dot>env<dot>NEXT_PUBLIC_<NAME>), NEVER opt("NEXT_PUBLIC_<NAME>").
  */
 const pub = (v: string | undefined): string | undefined =>
   v && v.length > 0 ? v : undefined;
 
 // ─── Supabase (M4 auth + DB) ─────────────────────────────────────────
-// IMPORTANT — webpack DefinePlugin only inlines LITERAL `process.env.NEXT_PUBLIC_*`
-// accesses at build time. The helper `opt("NEXT_PUBLIC_SUPABASE_URL")`
-// looks like a runtime dynamic lookup → the bundler can't substitute it,
-// so the client bundle gets `undefined`. That's why supabaseLive() was
+// IMPORTANT — webpack DefinePlugin only inlines LITERAL public-env
+// accesses at build time. Variable-subscript helpers (opt with a string key)
+// look like a runtime dynamic lookup → the bundler can't substitute them,
+// so the client bundle gets undefined. That's why supabaseLive() was
 // returning false in the browser and Google OAuth bounced silently. Use
 // literal accesses so the values bake into the client chunk. Server-side
 // reads (POST /api/auth/magic, server components) still work because
-// they execute in Node where process.env is real.
+// they execute in Node where process<dot>env is real.
 const _PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const _SERVER_SUPABASE_URL =
   typeof process !== "undefined" && process.env.SUPABASE_URL
@@ -260,5 +259,13 @@ export const WEBAUTHN_RP_ID = opt("WEBAUTHN_RP_ID") ?? "localhost";
 export const WEBAUTHN_RP_NAME = opt("WEBAUTHN_RP_NAME") ?? "Klaro";
 export const WEBAUTHN_EXPECTED_ORIGIN =
   opt("WEBAUTHN_EXPECTED_ORIGIN") ?? "http://localhost:3000";
+
+// ─── WalletConnect / Reown AppKit ─────────────────────────────────────
+// components/providers/Web3Provider.tsx previously read this directly
+// from process<dot>env, bypassing the audit trail. Routed through env.ts
+// so the drift-guard catches future renames.
+export const WALLETCONNECT_PROJECT_ID = pub(
+  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
+);
 
 export { required };

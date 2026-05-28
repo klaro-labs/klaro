@@ -5,6 +5,7 @@ import { WagmiProvider, createConfig, http } from "wagmi";
 import { arcTestnet, base, mainnet } from "wagmi/chains";
 import { injected, walletConnect } from "wagmi/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WALLETCONNECT_PROJECT_ID, PUBLIC_ORIGIN } from "@/lib/env";
 
 /**
  * Web3 providers: wagmi + viem + react-query.
@@ -24,7 +25,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
  * render don't share state across requests.
  */
 
-const wcProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
+const wcProjectId = WALLETCONNECT_PROJECT_ID;
 
 const connectors = [
   injected(),
@@ -40,7 +41,7 @@ const connectors = [
               process.env.NEXT_PUBLIC_PUBLIC_ORIGIN ??
               "https://klaro-peach.vercel.app",
             icons: [
-              `${process.env.NEXT_PUBLIC_PUBLIC_ORIGIN ?? "https://klaro-peach.vercel.app"}/icon.png`,
+              `${(PUBLIC_ORIGIN || "https://klaro-peach.vercel.app")}/icon.png`,
             ],
           },
         }),

@@ -30,6 +30,7 @@ const EXCLUDED_DIRS = [
 // Pages that ARE public but intentionally excluded from sitemap.
 const ALLOWED_NO_INDEX = new Set<string>([
   "/offline", // service-worker fallback; not user-discoverable
+  "/onboarding", // post-auth vendor wizard; only reached after signup, not for crawlers
 ]);
 
 function walk(dir: string): string[] {

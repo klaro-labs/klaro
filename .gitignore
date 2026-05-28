@@ -106,6 +106,13 @@ internal/
 design-reference/screenshots/
 apps/web/mockups/
 
+# E2E QA artifacts: throwaway test-wallet keys, Rabby persistent profile,
+# vendored extension. Never commit — keys are testnet but still secrets.
+apps/web/e2e/wallets/
+apps/web/e2e/fixtures/rabby/ext/
+apps/web/e2e/.rabby-profile/
+apps/web/e2e/.playwright-data/
+
 # Claude Code session state (scheduled tasks lock, etc.) is per-machine.
 .claude/scheduled_tasks.lock
 .claude/scheduled_tasks.json

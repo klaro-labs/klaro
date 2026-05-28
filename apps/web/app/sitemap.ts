@@ -13,12 +13,21 @@ const ROUTES: {
   // Marketing core
   { path: "", changeFrequency: "weekly", priority: 1.0 },
   { path: "/product", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/product/invoicing", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/product/cashout", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/product/receipts", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/product/reputation", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/product/stablefx", changeFrequency: "monthly", priority: 0.7 },
   { path: "/developers", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/build", changeFrequency: "monthly", priority: 0.8 },
   { path: "/pricing", changeFrequency: "monthly", priority: 0.8 },
   { path: "/company", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/company/contact", changeFrequency: "yearly", priority: 0.5 },
   { path: "/roadmap", changeFrequency: "weekly", priority: 0.7 },
   { path: "/docs", changeFrequency: "weekly", priority: 0.8 },
   { path: "/brand-kit", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/resources", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/resources/flows", changeFrequency: "monthly", priority: 0.6 },
 
   // Trust + ops
   { path: "/trust", changeFrequency: "monthly", priority: 0.7 },
