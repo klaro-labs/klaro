@@ -226,12 +226,18 @@ export function startScreenAndSettle() {
       // been waited on (settleTxHash != null). When the on-chain branch
       // was skipped — dev/test only, per the fail-loud guard above —
       // fall back to the buyer's paidTxHash so the row remains coherent.
+      // QA-054: invoices table has no screening_hash column — that field
+      // lives on `receipts` (written by receiptGenerate worker per QA-024
+      // fix). Removing it here; the screeningHash is already passed through
+      // the receipt-generate job payload below + receiptGenerate composes
+      // the on-chain anchor from screening_results rows + the receipts row
+      // captures it. Including it in this update produced 'column does not
+      // exist' on every auto-pass — silent-fail on the auto-release path.
       const upSettled = await sb()
         .from("invoices")
         .update({
           status: "SETTLED",
           settled_tx_hash: settleTxHash ?? paidTxHash,
-          screening_hash: screeningHash,
         })
         .eq("id", invoiceId);
       if (upSettled.error) throw upSettled.error;
