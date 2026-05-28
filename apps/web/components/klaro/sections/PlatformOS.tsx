@@ -95,7 +95,7 @@ function SurfaceCard({ surface }: { surface: Surface }) {
         surface.variant === "light" &&
           "border border-[var(--color-line)] bg-[var(--color-bg-elevated)] text-[var(--color-ink)]",
         isDark && "bg-[var(--color-ink)] text-white",
-        isBrand && "bg-[var(--color-brand)] text-white",
+        isBrand && "bg-[var(--color-klaro-orange-deep)] text-white",
       )}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
