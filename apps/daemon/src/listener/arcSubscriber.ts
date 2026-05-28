@@ -47,10 +47,17 @@ const PROOF_SUBMITTED_EVENT = parseAbiItem(
   "event ProofSubmittedFor(bytes32 indexed cashoutId, bytes32 indexed proofHash)",
 );
 const CASE_OPENED_EVENT = parseAbiItem(
-  "event CaseOpened(bytes32 indexed caseId, address indexed claimant, address indexed respondent, bytes32 evidenceHash)",
+  // QA-041: real contract emits a 5th bytes32 (reasonHash) — missing it
+  // changes the topic + silently never matches. Verified against
+  // packages/contracts/abis/v1.0/DisputeManager.json.
+  "event CaseOpened(bytes32 indexed caseId, address indexed claimant, address indexed respondent, bytes32 evidenceHash, bytes32 reasonHash)",
 );
 const DECIDED_EVENT = parseAbiItem(
-  "event Decided(bytes32 indexed caseId, uint8 outcome, bytes32 reasonHash)",
+  // QA-041: real contract is (indexed bytes32 caseId, uint8 outcome,
+  // indexed bytes32 reasonHash, bytes32 evidenceHash). Listener had
+  // 3 params; canonical has 4 + different indexed split. Verified
+  // against packages/contracts/abis/v1.0/DisputeManager.json.
+  "event Decided(bytes32 indexed caseId, uint8 outcome, bytes32 indexed reasonHash, bytes32 evidenceHash)",
 );
 // listener was subscribing to 5 of 10
 // documented events. Adding the remaining 5 so vendors get notified when
