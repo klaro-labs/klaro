@@ -1,4 +1,4 @@
-import { handle, ok } from "@/lib/api";
+import { handle, handleGet } from "@/lib/api";
 import { CreateInvoice } from "@/lib/apiSchemas";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { createInvoice, listInvoicesForVendor } from "@/lib/repo/invoices";
@@ -20,11 +20,11 @@ function nextInvoiceId(
   ) as Hex;
 }
 
-export async function GET() {
+export const GET = handleGet(async () => {
   const session = await requireVendor();
   const invoices = await listInvoicesForVendor(session.vendor.id);
-  return ok({ invoices });
-}
+  return { invoices };
+});
 
 export const POST = handle(CreateInvoice, async (input) => {
   const session = await requireVendor();

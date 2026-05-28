@@ -44,18 +44,23 @@ export async function getCurrentSession(): Promise<Session | null> {
   return { vendor, role: "operator", simulated: true };
 }
 
-/** Convenience guard for admin/operator routes + server actions. */
+/** Convenience guard for admin/operator routes + server actions.
+ * Messages are prefixed `unauthorized:` / `forbidden:` so lib/api.ts
+ * `handle()` and `handleGet()` map them to 401 / 403 instead of a raw
+ * 500 with stack-leak risk. (P0-11 finding: bare GET handlers that
+ * called requireVendor returned 500 to anonymous callers — fixed.) */
 export async function requireOperator(): Promise<Session> {
   const s = await getCurrentSession();
-  if (!s) throw new Error("not signed in");
-  if (s.role !== "operator") throw new Error("operator role required");
+  if (!s) throw new Error("unauthorized: not signed in");
+  if (s.role !== "operator")
+    throw new Error("forbidden: operator role required");
   return s;
 }
 
 /** Convenience guard for vendor-scoped server actions. */
 export async function requireVendor(): Promise<Session> {
   const s = await getCurrentSession();
-  if (!s) throw new Error("not signed in");
+  if (!s) throw new Error("unauthorized: not signed in");
   return s;
 }
 
@@ -76,7 +81,10 @@ export async function getCurrentLpSession(): Promise<LpSession | null> {
 
 export async function requireLp(): Promise<LpSession> {
   const s = await getCurrentLpSession();
-  if (!s) throw new Error("not an LP member — request access at lp@klaro.so");
+  if (!s)
+    throw new Error(
+      "forbidden: not an LP member — request access at lp@klaro.so",
+    );
   return s;
 }
 

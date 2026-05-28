@@ -1,14 +1,14 @@
-import { handle, ok } from "@/lib/api";
+import { handle, handleGet } from "@/lib/api";
 import { CashoutCreateReq } from "@/lib/apiSchemas";
 import { requireVendor } from "@/lib/auth";
 import { listForVendor } from "@/lib/repo/cashouts";
 import { createCashoutAction } from "@/app/vendor/cashout/actions";
 
-export async function GET() {
+export const GET = handleGet(async () => {
   const session = await requireVendor();
   const cashouts = await listForVendor(session.vendor.id);
-  return ok({ cashouts });
-}
+  return { cashouts };
+});
 
 /**
  * Create a cashout. previous version ignored

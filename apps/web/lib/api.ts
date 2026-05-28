@@ -51,6 +51,40 @@ export function err(status: number, error: string, detail?: unknown): Response {
   });
 }
 
+/** GET-handler wrapper. Same auth/error mapping as handle() but no body parse.
+ * Bare GET handlers that called requireVendor() returned uncaught 500 to anon
+ * callers (P0-11 pen-test finding). This collapses every read endpoint to the
+ * same auth→401, forbidden→403 mapping.
+ */
+export function handleGet<T>(
+  fn: (req: Request) => Promise<T>,
+): (req: Request) => Promise<Response> {
+  return async (req) => {
+    try {
+      const result = await fn(req);
+      return new Response(jsonSafe(result), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    } catch (e) {
+      const error = e as Error;
+      captureError(error, { url: req.url, method: req.method });
+      const status = /unauthor/i.test(error.message)
+        ? 401
+        : /forbid/i.test(error.message)
+          ? 403
+          : 500;
+      const code =
+        status === 401
+          ? "unauthorized"
+          : status === 403
+            ? "forbidden"
+            : "internal_error";
+      return err(status, code);
+    }
+  };
+}
+
 /** Wrap a handler: parse JSON body, validate with zod, dispatch errors uniformly,
  * honor `Idempotency-Key` header (replay → 200 with cached response). */
 export function handle<T extends ZodSchema>(

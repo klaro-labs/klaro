@@ -1,4 +1,4 @@
-import { handle, ok } from "@/lib/api";
+import { handle, handleGet } from "@/lib/api";
 import { WebhookCreateReq } from "@/lib/apiSchemas";
 import { requireVendor } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
@@ -25,12 +25,12 @@ function liveModeNotAvailable(): never {
   );
 }
 
-export async function GET() {
+export const GET = handleGet(async () => {
   const session = await requireVendor();
   if (supabaseLive()) liveModeNotAvailable();
   const list = _webhooks.get(session.vendor.id) ?? [];
-  return ok({ webhooks: list, simulated: true });
-}
+  return { webhooks: list, simulated: true };
+});
 
 export const POST = handle(WebhookCreateReq, async (input) => {
   const session = await requireVendor();
