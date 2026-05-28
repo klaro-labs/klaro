@@ -6,7 +6,7 @@ import { keccak256, stringToBytes } from "viem";
 // keccak256(vendorId|nonce|dueAt) so two parallel creates can't collide.
 import { createInvoice } from "@/lib/repo/invoices";
 import { sendInvoiceLinkEmail } from "@/lib/email";
-import { dollarsToUSDC } from "@/lib/money";
+import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 import type { Hex } from "@/lib/types";
@@ -30,20 +30,10 @@ export async function createInvoiceAction(input: {
   // == 0x000…000. Buyer who pays a zero-address invoice locks USDC in escrow
   // with no recoverable payout path.
   const vendorWallet = assertVendorWalletProvisioned(session.vendor);
-  // QA-048: `<= 0` alone didn't catch Infinity / NaN / huge floats.
-  // dollarsToUSDC(Infinity) throws "Cannot convert Infinity to a BigInt"
-  // → 500 instead of validation 400. Use Number.isFinite + cap to a
-  // sane upper bound ($1B is way above any vendor's plausible single
-  // invoice — overflow protection, not a business rule).
-  if (
-    !Number.isFinite(input.amountUSD) ||
-    input.amountUSD <= 0 ||
-    input.amountUSD > 1_000_000_000
-  ) {
-    throw new Error(
-      "validation_amount_out_of_range: amount must be a finite number > 0 and ≤ $1B",
-    );
-  }
+  // QA-048 / QA-049 / QA-050: centralised amount validation in
+  // lib/money.ts so every call site catches Infinity/NaN/negative the
+  // same way. dollarsToUSDC(Infinity) was throwing a 500.
+  assertSafeUSDAmount(input.amountUSD);
   if (!input.customerEmail.includes("@"))
     throw new Error("validation_invalid_customer_email");
   if (

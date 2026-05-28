@@ -29,6 +29,56 @@ export function dollarsToUSDC(dollars: number): bigint {
   return BigInt(Math.round(dollars * 100)) * 10n ** BigInt(USDC_DECIMALS - 2);
 }
 
+/**
+ * Validate a dollar amount before any BigInt or contract-call use.
+ * Three sibling actions hit the same gap (QA-048/049): `<= 0` passes
+ * Infinity, NaN silently propagates, negative bigints sneak through
+ * `=== 0n`. Centralised so every amount-handling action gets the same
+ * guarantees. Throws with a `validation_` prefix so lib/api.ts handle()
+ * maps it to 400 not 500.
+ *
+ * @param dollars Caller-supplied amount in dollars (e.g. 100.50).
+ * @param cap Maximum allowed in dollars; default $1B overflow guard.
+ */
+export function assertSafeUSDAmount(
+  dollars: number,
+  cap = 1_000_000_000,
+): void {
+  if (!Number.isFinite(dollars))
+    throw new Error("validation_amount_not_finite");
+  if (dollars <= 0)
+    throw new Error("validation_amount_out_of_range: must be > 0");
+  if (dollars > cap)
+    throw new Error(`validation_amount_out_of_range: must be ≤ $${cap}`);
+}
+
+/**
+ * Parse a string into a positive bigint (raw 6-decimal USDC). Used by
+ * cashout + other paths where the amount arrives as a string from an
+ * untrusted client (BigInt('Infinity') throws sync; '=== 0n' doesn't
+ * catch negatives — QA-049). Throws on every defective shape with a
+ * validation_ prefix.
+ *
+ * @param raw The raw string (typically a JS bigint serialised to string).
+ * @param cap Maximum allowed raw USDC units; default 1e15 (~$1B).
+ */
+export function parseSafeUsdcBigint(
+  raw: string,
+  cap = 1_000_000_000_000_000n,
+): bigint {
+  let v: bigint;
+  try {
+    v = BigInt(raw);
+  } catch {
+    throw new Error("validation_amount_unparseable");
+  }
+  if (v <= 0n)
+    throw new Error("validation_amount_out_of_range: must be > 0");
+  if (v > cap)
+    throw new Error("validation_amount_out_of_range: above safe cap");
+  return v;
+}
+
 export function shortAddress(addr: string): string {
   if (!addr.startsWith("0x") || addr.length < 12) return addr;
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;

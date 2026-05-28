@@ -8,6 +8,7 @@ import { getCorridor } from "@/lib/corridors";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 import { computeQuoteHash } from "@/lib/cashoutQuote";
+import { parseSafeUsdcBigint } from "@/lib/money";
 import { quoteCashout } from "@/lib/corridors";
 import { isLiveOnChain } from "@/lib/arcClient";
 import { supabaseLive } from "@/lib/env";
@@ -57,18 +58,11 @@ export async function createCashoutAction(input: Input): Promise<Hex> {
   const cor = getCorridor(input.currency);
   if (!cor) throw new Error(`Unknown corridor ${input.currency}`);
 
-  // QA-049 (sibling of QA-048): `=== 0n` doesn't catch negative bigints
-  // (e.g. BigInt("-1000000") → -1000000n). And BigInt("Infinity") throws
-  // synchronously → 500. Wrap in try/catch + check positivity. $1T raw
-  // USDC is an overflow guard (real cashouts will never hit it).
-  let usdcAmount: bigint;
-  try {
-    usdcAmount = BigInt(input.usdcAmount);
-  } catch {
-    throw new Error("validation_amount_unparseable");
-  }
-  if (usdcAmount <= 0n || usdcAmount > 1_000_000_000_000_000n)
-    throw new Error("validation_amount_out_of_range");
+  // QA-050: centralised raw-USDC bigint parsing in lib/money.ts:
+  // parseSafeUsdcBigint handles the BigInt(Infinity)-throws + negative
+  // bigint defects in one place so future amount-handling code can't
+  // miss either.
+  const usdcAmount = parseSafeUsdcBigint(input.usdcAmount);
 
   const expiresAt = new Date(input.quoteExpiresAtIso);
   if (Number.isNaN(+expiresAt) || expiresAt < new Date()) {

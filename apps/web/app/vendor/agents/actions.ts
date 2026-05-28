@@ -12,7 +12,7 @@ import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
 import { captureError } from "@/lib/sentry";
 import { record as auditRecord } from "@/lib/auditLog";
-import { dollarsToUSDC } from "@/lib/money";
+import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import type { Hex } from "@/lib/types";
 
 /**
@@ -43,14 +43,7 @@ export async function createJobAction(formData: FormData): Promise<void> {
   const amount = Number(formData.get("amount") ?? 0);
   const description = String(formData.get("description") ?? "");
   if (!agentId.startsWith("0x")) throw new Error("validation_agentId_required");
-  // QA-049 (sibling of QA-048): `amount <= 0` passes Infinity. dollarsToUSDC(Infinity)
-  // throws 'Cannot convert Infinity to a BigInt' → 500. Same fix as createInvoiceAction.
-  if (
-    !Number.isFinite(amount) ||
-    amount <= 0 ||
-    amount > 1_000_000_000
-  )
-    throw new Error("validation_amount_out_of_range: amount must be finite, > 0, ≤ $1B");
+  assertSafeUSDAmount(amount);
   if (description.length < 10)
     throw new Error("validation_brief_too_short: must be ≥ 10 chars");
 
