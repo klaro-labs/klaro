@@ -19,6 +19,16 @@ const required = (k: string): string => {
 const opt = (k: string): string | undefined =>
   process.env[k] && process.env[k]!.length > 0 ? process.env[k] : undefined;
 
+/**
+ * Public-env reader for NEXT_PUBLIC_* values. Caller MUST pass the literal
+ * `process.env.NEXT_PUBLIC_*` reference so webpack's DefinePlugin can inline
+ * the value at build time. Variable-subscript helpers (like `opt("NEXT_PUBLIC_X")`)
+ * defeat the substitution and leave the browser bundle with `undefined`.
+ * Use `pub(process.env.NEXT_PUBLIC_X)`, NEVER `opt("NEXT_PUBLIC_X")`.
+ */
+const pub = (v: string | undefined): string | undefined =>
+  v && v.length > 0 ? v : undefined;
+
 // ─── Supabase (M4 auth + DB) ─────────────────────────────────────────
 // IMPORTANT — webpack DefinePlugin only inlines LITERAL `process.env.NEXT_PUBLIC_*`
 // accesses at build time. The helper `opt("NEXT_PUBLIC_SUPABASE_URL")`
@@ -47,7 +57,7 @@ export const supabaseLive = (): boolean =>
   Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 // ─── Circle Wallets (M4 vendor onboarding + signing) ─────────────────
-export const CIRCLE_CLIENT_KEY = opt("NEXT_PUBLIC_CIRCLE_CLIENT_KEY");
+export const CIRCLE_CLIENT_KEY = pub(process.env.NEXT_PUBLIC_CIRCLE_CLIENT_KEY);
 export const CIRCLE_API_KEY = opt("CIRCLE_API_KEY");
 export const CIRCLE_ENTITY_SECRET = opt("CIRCLE_ENTITY_SECRET");
 /** Circle Modular Wallets endpoint (per docs). */
@@ -71,13 +81,21 @@ export const ARC_TESTNET_RPC_URL =
 export const ARC_TESTNET_CHAIN_ID = 5_042_002;
 
 // ─── Klaro contract addresses (set after `forge create`) ─────────────
-export const INVOICE_ESCROW_ADDRESS = opt("NEXT_PUBLIC_INVOICE_ESCROW_ADDRESS");
-export const AUDIT_RECEIPT_ADDRESS = opt("NEXT_PUBLIC_AUDIT_RECEIPT_ADDRESS");
-export const REFUND_PROTOCOL_ADDRESS = opt(
-  "NEXT_PUBLIC_REFUND_PROTOCOL_ADDRESS",
+export const INVOICE_ESCROW_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_INVOICE_ESCROW_ADDRESS,
 );
-export const FEE_SPLITTER_ADDRESS = opt("NEXT_PUBLIC_FEE_SPLITTER_ADDRESS");
-export const ROUTE_POLICY_ADDRESS = opt("NEXT_PUBLIC_ROUTE_POLICY_ADDRESS");
+export const AUDIT_RECEIPT_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_AUDIT_RECEIPT_ADDRESS,
+);
+export const REFUND_PROTOCOL_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_REFUND_PROTOCOL_ADDRESS,
+);
+export const FEE_SPLITTER_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_FEE_SPLITTER_ADDRESS,
+);
+export const ROUTE_POLICY_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_ROUTE_POLICY_ADDRESS,
+);
 
 // ─── BullMQ + Upstash (M7 queue infra) ───────────────────────────────
 export const REDIS_URL = opt("REDIS_URL");
@@ -121,10 +139,12 @@ export const x402Live = (): boolean => X402_ENABLED;
 /** Klaro's USDC receiver for fee collection. Required when X402_ENABLED=1
  * — otherwise the 402 body would advertise a zero-address recipient and
  * any paid call would burn the USDC. Audit fix (loop ). */
-export const KLARO_FEE_RECEIVER = opt("NEXT_PUBLIC_KLARO_FEE_RECEIVER");
+export const KLARO_FEE_RECEIVER = pub(
+  process.env.NEXT_PUBLIC_KLARO_FEE_RECEIVER,
+);
 
 // ─── MoonPay sandbox (M10) ───────────────────────────────────────────
-export const MOONPAY_PUBLIC_KEY = opt("NEXT_PUBLIC_MOONPAY_PUBLIC_KEY");
+export const MOONPAY_PUBLIC_KEY = pub(process.env.NEXT_PUBLIC_MOONPAY_PUBLIC_KEY);
 export const MOONPAY_SECRET_KEY = opt("MOONPAY_SECRET_KEY");
 export const moonpayLive = (): boolean => Boolean(MOONPAY_PUBLIC_KEY);
 
@@ -138,13 +158,15 @@ export const SENTRY_DSN = opt("SENTRY_DSN");
 export const SENTRY_ENV = process.env.SENTRY_ENV ?? "testnet";
 export const sentryLive = (): boolean => Boolean(SENTRY_DSN);
 
-export const POSTHOG_KEY = opt("NEXT_PUBLIC_POSTHOG_KEY");
+export const POSTHOG_KEY = pub(process.env.NEXT_PUBLIC_POSTHOG_KEY);
 export const POSTHOG_HOST =
   process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
 export const posthogLive = (): boolean => Boolean(POSTHOG_KEY);
 
-export const GROWTHBOOK_HOST = opt("NEXT_PUBLIC_GROWTHBOOK_HOST");
-export const GROWTHBOOK_CLIENT_KEY = opt("NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY");
+export const GROWTHBOOK_HOST = pub(process.env.NEXT_PUBLIC_GROWTHBOOK_HOST);
+export const GROWTHBOOK_CLIENT_KEY = pub(
+  process.env.NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY,
+);
 export const growthbookLive = (): boolean =>
   Boolean(GROWTHBOOK_HOST && GROWTHBOOK_CLIENT_KEY);
 
@@ -155,22 +177,22 @@ export const CRON_SECRET = opt("CRON_SECRET");
 // The consumer (`subscribePush()` in lib/push.ts) is wired but currently
 // not invoked from any UI surface. Declaring the env here keeps the import
 // type-safe for when the "Enable notifications" CTA lands.
-export const VAPID_PUBLIC_KEY = opt("NEXT_PUBLIC_VAPID_PUBLIC_KEY");
+export const VAPID_PUBLIC_KEY = pub(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
 
 // ─── ReputationManager ────────────────────
 // Set post-deploy alongside other contract addresses; arcClient's
 // readReputationScore() flips from honest-simulated to live chain read
 // when this is present.
-export const REPUTATION_MANAGER_ADDRESS = opt(
-  "NEXT_PUBLIC_REPUTATION_MANAGER_ADDRESS",
+export const REPUTATION_MANAGER_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_REPUTATION_MANAGER_ADDRESS,
 );
 
 // ─── CounterpartyRegistry ─────────────────
 // Set post-deploy so /admin/sanctions can enumerate the on-chain denylist
 // via getLogs(DenylistAdded). Same honesty→feature ladder pattern as
 // ReputationManager.
-export const COUNTERPARTY_REGISTRY_ADDRESS = opt(
-  "NEXT_PUBLIC_COUNTERPARTY_REGISTRY_ADDRESS",
+export const COUNTERPARTY_REGISTRY_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_COUNTERPARTY_REGISTRY_ADDRESS,
 );
 
 // ─── Screening provider credentials (loop ) ─────────────
