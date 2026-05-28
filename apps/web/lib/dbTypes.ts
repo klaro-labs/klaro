@@ -64,7 +64,13 @@ export interface DbInvoice {
   customer_id: string | null;
   customer_email: string | null;
   customer_name: string | null;
-  amount_usdc: string; // numeric — returned as string by pg
+  // QA-055: numeric columns return as string OR number depending on
+  // supabase-js version + column scale. Hand-written type said `string`
+  // but runtime is sometimes `number` (caught by QA-014). Use the union
+  // so callers' defensive `String(v).replace(...)` typechecks for both
+  // paths. Codegen'd lib/database.types.ts has the canonical `number`
+  // typing — migration to the typed client is QA-055 step 2 backlog.
+  amount_usdc: string | number;
   token: string;
   due_at: string;
   notes_md: string | null;
@@ -86,12 +92,15 @@ export interface DbCashoutOrder {
   id: string;
   vendor_id: string;
   vendor_wallet: string;
-  usdc_amount: string;
-  payout_minor: string;
+  // QA-055: see DbInvoice.amount_usdc note — numeric columns are
+  // string|number depending on supabase-js + column scale. Defensive
+  // coerce in lib/repo/cashouts.ts:numericToBigInt handles both.
+  usdc_amount: string | number;
+  payout_minor: string | number;
   currency: string;
-  klaro_fee_usdc: string;
-  lp_spread_usdc: string;
-  quote_rate: string;
+  klaro_fee_usdc: string | number;
+  lp_spread_usdc: string | number;
+  quote_rate: string | number;
   quote_hash: string;
   status: CashoutStatus;
   lp_id: string | null;
