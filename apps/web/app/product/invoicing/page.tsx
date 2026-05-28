@@ -3,6 +3,9 @@ import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
 import { PageHero } from "@/components/ui/PageHero";
 import { FeatureCard } from "@/components/ui/FeatureCard";
+import { MockBrowserChrome } from "@/components/ui/MockBrowserChrome";
+import { MockInvoice } from "@/components/ui/demos/MockInvoice";
+import { MockPayPage } from "@/components/ui/demos/MockPayPage";
 import { FinalCta } from "@/components/klaro/sections/FinalCta";
 
 export const metadata: Metadata = {
@@ -33,6 +36,21 @@ export default function ProductInvoicingPage() {
           { label: "Read API docs", href: "/docs", variant: "secondary" },
         ]}
       />
+
+      <section className="klaro-container pb-20">
+        <div className="grid gap-6 md:grid-cols-2">
+          <MockBrowserChrome url="klaro.so/vendor/invoices/demo">
+            <MockInvoice />
+          </MockBrowserChrome>
+          <MockBrowserChrome url="klaro.so/i/demo">
+            <MockPayPage />
+          </MockBrowserChrome>
+        </div>
+        <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+          Left · vendor view. Right · what the buyer sees. Both are demos.
+        </p>
+      </section>
+
       <section className="klaro-container pb-20">
         <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)]">
           Built for serious vendors
@@ -48,6 +66,7 @@ export default function ProductInvoicingPage() {
           ))}
         </div>
       </section>
+
       <FinalCta />
       <Footer />
     </main>

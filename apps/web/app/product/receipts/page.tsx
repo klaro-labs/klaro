@@ -3,6 +3,8 @@ import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
 import { PageHero } from "@/components/ui/PageHero";
 import { FeatureCard } from "@/components/ui/FeatureCard";
+import { MockBrowserChrome } from "@/components/ui/MockBrowserChrome";
+import { MockReceipt } from "@/components/ui/demos/MockReceipt";
 import { FinalCta } from "@/components/klaro/sections/FinalCta";
 
 export const metadata: Metadata = {
@@ -27,9 +29,18 @@ export default function ProductReceiptsPage() {
         sub="Every Klaro payment mints a public on-chain receipt. Both parties sign. Anyone can verify without trusting Klaro, the vendor, or the buyer."
         ctas={[
           { label: "Open workspace", href: "/signin" },
-          { label: "See a receipt", href: "/receipt/0xdemo", variant: "secondary" },
+          { label: "How verification works", href: "/trust", variant: "secondary" },
         ]}
       />
+
+      <section className="klaro-container pb-20">
+        <div className="mx-auto max-w-[560px]">
+          <MockBrowserChrome url="klaro.so/receipt/demo">
+            <MockReceipt />
+          </MockBrowserChrome>
+        </div>
+      </section>
+
       <section className="klaro-container pb-20">
         <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)]">
           Why it matters
@@ -45,6 +56,26 @@ export default function ProductReceiptsPage() {
           ))}
         </div>
       </section>
+
+      <section className="klaro-container pb-20">
+        <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-warm)] p-8">
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
+            Verify any receipt
+          </p>
+          <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight">
+            Three lines. No Klaro account required.
+          </h3>
+          <pre className="mt-5 overflow-x-auto rounded-md border border-[var(--color-line)] bg-[var(--color-bg)] p-4 font-mono text-[12px] leading-relaxed text-[var(--color-ink-2)]">
+{`# Read the receipt straight off Arc
+curl https://klaro.so/api/v1/receipts/<hash> \\
+  | jq '{amount, payer, vendor, txHash, blockNumber, signatures}'`}
+          </pre>
+          <p className="mt-3 text-[12px] text-[var(--color-muted)]">
+            Or recompute the receipt hash locally — the schema is in <span className="font-mono">packages/contracts/src/AuditReceipt.sol</span>.
+          </p>
+        </div>
+      </section>
+
       <FinalCta />
       <Footer />
     </main>
