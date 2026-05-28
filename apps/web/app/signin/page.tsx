@@ -59,7 +59,7 @@ export default function SignInPage() {
     const res = await sendEmailMagicLink(email, callbackUrl);
     if (!res.ok) {
       setStatus("error");
-      setErrorMsg(res.error ?? "magic-link send failed");
+      setErrorMsg(res.error ?? "We couldn't send the link. Try again.");
       return;
     }
     if (res.simulated) {
@@ -76,7 +76,7 @@ export default function SignInPage() {
         {/* Blue radial-glow lower-right */}
         <div
           aria-hidden
-          className="pointer-events-none absolute right-[-30%] bottom-[20%] -z-10 h-[640px] w-[640px] rounded-full bg-[var(--color-brand)] opacity-25 blur-[140px]"
+          className="pointer-events-none absolute right-[-30%] bottom-[20%] -z-10 h-[640px] w-[640px] rounded-full bg-[var(--color-brand)] opacity-[0.06] blur-[140px]"
         />
 
         <div className="pt-12">
@@ -171,6 +171,13 @@ export default function SignInPage() {
               Continue with Google
             </button>
 
+            <button
+              type="button"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-pill border border-[var(--color-line)] bg-[var(--color-bg-elevated)] text-sm font-medium hover:bg-[var(--color-bg)]"
+            >
+              Sign in with passkey
+            </button>
+
             <form onSubmit={handleEmail} className="space-y-3">
               <input
                 type="email"
@@ -183,7 +190,7 @@ export default function SignInPage() {
               <button
                 type="submit"
                 disabled={status === "sending"}
-                className="flex h-11 w-full items-center justify-center gap-3 rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white hover:bg-[color-mix(in_oklab,var(--color-ink)_88%,white)] disabled:opacity-50"
+                className="flex h-11 w-full items-center justify-center gap-3 rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white hover:bg-black disabled:opacity-50"
               >
                 {status === "sending" ? "Sending…" : "Continue with email"}
               </button>

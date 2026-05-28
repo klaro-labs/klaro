@@ -11,3 +11,4 @@
 - ✅ Step 7: /resources hub + /resources/flows (8 canonical flows with state machines)
 - ✅ Step 8: /brand-kit alias (/resources/brand → /brand-kit redirect)
 - ✅ Step 9: /company/contact page with form + email directory
+- ✅ Step 10: /signin quiet rewrite — reduced glow, passkey CTA, fixed hover + error copy
