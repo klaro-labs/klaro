@@ -349,6 +349,25 @@ export function startArcListener() {
           const key = `invoice-settled:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
           await safeEvent("InvoiceSettled", key, async () => {
+            // QA-029 fix: mirror QA-028 — sync invoices.status + settled_tx_hash
+            // to DB on InvoiceSettled. Without this the row stays at PAID
+            // forever and the vendor UI shows "Paid · settling" instead of
+            // "Settled" even after the on-chain settle landed.
+            const dbUpd = await sb()
+              .from("invoices")
+              .update({
+                status: "SETTLED",
+                settled_tx_hash: ev.transactionHash,
+              })
+              .eq("id", ev.args.invoiceId)
+              .in("status", ["PAID", "ACCEPTED"]);
+            if (dbUpd.error) {
+              log.error("event.InvoiceSettled.dbSync.failed", {
+                id: ev.args.invoiceId,
+                err: dbUpd.error.message,
+              });
+            }
+
             // wiring: settlementTx is what receipt hash depends on.
             // deterministic jobId so screenAndSettle's
             // worker-side enqueue + this listener-side enqueue collapse
