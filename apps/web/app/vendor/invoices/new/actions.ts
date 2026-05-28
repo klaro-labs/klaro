@@ -30,11 +30,28 @@ export async function createInvoiceAction(input: {
   // == 0x000…000. Buyer who pays a zero-address invoice locks USDC in escrow
   // with no recoverable payout path.
   const vendorWallet = assertVendorWalletProvisioned(session.vendor);
-  if (input.amountUSD <= 0) throw new Error("Amount must be > 0");
+  // QA-048: `<= 0` alone didn't catch Infinity / NaN / huge floats.
+  // dollarsToUSDC(Infinity) throws "Cannot convert Infinity to a BigInt"
+  // → 500 instead of validation 400. Use Number.isFinite + cap to a
+  // sane upper bound ($1B is way above any vendor's plausible single
+  // invoice — overflow protection, not a business rule).
+  if (
+    !Number.isFinite(input.amountUSD) ||
+    input.amountUSD <= 0 ||
+    input.amountUSD > 1_000_000_000
+  ) {
+    throw new Error(
+      "validation_amount_out_of_range: amount must be a finite number > 0 and ≤ $1B",
+    );
+  }
   if (!input.customerEmail.includes("@"))
-    throw new Error("Invalid customer email");
-  if (input.dueDays < 1 || input.dueDays > 365)
-    throw new Error("dueDays must be 1-365");
+    throw new Error("validation_invalid_customer_email");
+  if (
+    !Number.isInteger(input.dueDays) ||
+    input.dueDays < 1 ||
+    input.dueDays > 365
+  )
+    throw new Error("validation_due_days_out_of_range: dueDays must be 1-365");
 
   try {
     const amountWei = dollarsToUSDC(input.amountUSD);
