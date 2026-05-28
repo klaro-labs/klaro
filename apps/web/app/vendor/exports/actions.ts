@@ -22,8 +22,16 @@ export async function getTaxPackAction(input: {
   const session = await requireVendor();
   try {
     const invoices = await listInvoicesForVendor(session.vendor.id);
+    // QA-051: bare `new Date(input.fromIso)` returns Invalid Date for any
+    // bad string — downstream date filters silently produce empty CSV
+    // with no error. Vendor exports "no income this period" tax pack and
+    // files wrong return. Validate explicitly at the boundary.
     const from = new Date(input.fromIso);
     const to = new Date(input.toIso);
+    if (Number.isNaN(+from) || Number.isNaN(+to))
+      throw new Error("validation_invalid_date_range: from/to must be ISO datetimes");
+    if (from >= to)
+      throw new Error("validation_invalid_date_range: from must be before to");
     return {
       csv: buildTaxPackCsv({ invoices, from, to }),
       summary: taxPackSummary({ invoices, from, to }),
