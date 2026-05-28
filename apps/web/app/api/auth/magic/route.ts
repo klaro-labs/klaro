@@ -28,10 +28,17 @@ const ALLOWED_REDIRECT_HOSTS = new Set<string>([
   // is reserved for explicit partner hosts (none today).
 ]);
 
+// QA-045 fix: hand-rolled whitelist had the same defect as QA-019 + QA-044
+// (`!startsWith("//")` missed backslash-prefix). Consolidated to one
+// shared helper so the 3 call sites can't drift apart again.
+import { resolveSafeRedirect } from "@/lib/safeRedirect";
+
 function safeRedirect(rawRedirect: string, origin: string): string {
-  if (rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) {
-    return new URL(rawRedirect, origin).toString();
+  // Same-origin paths: validated by the shared helper.
+  if (rawRedirect.startsWith("/")) {
+    return resolveSafeRedirect(rawRedirect, origin, "/");
   }
+  // Absolute URL — only allow same-origin or explicit partner allowlist.
   try {
     const u = new URL(rawRedirect);
     if (u.origin === origin || ALLOWED_REDIRECT_HOSTS.has(u.host)) {

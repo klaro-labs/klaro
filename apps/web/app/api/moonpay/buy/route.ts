@@ -19,22 +19,14 @@ const ALLOWED_REDIRECT_HOSTS = new Set<string>([
   // additional partner hosts that may need to receive post-purchase callbacks
 ]);
 
-// QA-044 fix: same open-redirect window QA-019 closed in /auth/callback.
-// Reject backslash-prefixed paths (/\\evil.com) — Chromium normalizes
-// to //evil.com. Always parse + verify resolved origin equals ours
-// before accepting same-origin redirects.
+// QA-044/045 consolidation: route same-origin path validation through the
+// shared lib/safeRedirect helper so all 3 redirect call sites use one
+// allow-list. Absolute-URL branch keeps the explicit partner-host allowlist.
+import { resolveSafeRedirect } from "@/lib/safeRedirect";
+
 function safeRedirectTarget(rawRedirect: string, origin: string): string {
-  if (rawRedirect.includes("\\")) return origin;
-  if (rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) {
-    let u: URL;
-    try {
-      u = new URL(rawRedirect, origin);
-    } catch {
-      return origin;
-    }
-    if (u.origin !== origin) return origin;
-    if (u.pathname.startsWith("//")) return origin;
-    return u.toString();
+  if (rawRedirect.startsWith("/")) {
+    return resolveSafeRedirect(rawRedirect, origin, "/");
   }
   try {
     const u = new URL(rawRedirect);

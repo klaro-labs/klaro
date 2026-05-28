@@ -17,28 +17,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseLive, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/env";
 import { captureError } from "@/lib/sentry";
+import { isSafeOriginRelative } from "@/lib/safeRedirect";
 
 const SAFE_NEXT_DEFAULT = "/vendor";
 
-// Reject every shape that could escape this origin:
-//   - absolute URLs (`https://evil.com/...`)
-//   - protocol-relative (`//evil.com/...`)
-//   - backslash-prefixed (`/\\evil.com/...` — Chromium normalizes to `//`)
-//   - any URL whose resolved origin differs from ours after parsing
-// Whitelisting `startsWith("/") && !startsWith("//")` was insufficient.
+// QA-019/044/045 consolidation: route same-origin-path validation through
+// the shared lib/safeRedirect helper so the 3 redirect call sites use one
+// allow-list. Returns origin-relative pathname+search (not a full URL)
+// because Supabase exchangeCodeForSession constructs the final URL.
 function safeNext(raw: string | null, origin: string): string {
   if (!raw) return SAFE_NEXT_DEFAULT;
-  if (!raw.startsWith("/")) return SAFE_NEXT_DEFAULT;
-  if (raw.startsWith("//") || raw.startsWith("/\\")) return SAFE_NEXT_DEFAULT;
-  if (raw.includes("\\")) return SAFE_NEXT_DEFAULT;
-  let u: URL;
-  try {
-    u = new URL(raw, origin);
-  } catch {
-    return SAFE_NEXT_DEFAULT;
-  }
-  if (u.origin !== origin) return SAFE_NEXT_DEFAULT;
-  if (u.pathname.startsWith("//")) return SAFE_NEXT_DEFAULT;
+  if (!isSafeOriginRelative(raw, origin)) return SAFE_NEXT_DEFAULT;
+  const u = new URL(raw, origin);
   return u.pathname + u.search;
 }
 
