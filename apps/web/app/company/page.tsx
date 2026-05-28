@@ -7,7 +7,7 @@ import { SectionHeader } from "@/components/klaro/SectionHeader";
 export const metadata: Metadata = {
   title: "Company · Klaro",
   description:
-    "Klaro Labs is building the Arc-native payment OS for emerging-market vendors. We work in public, ship every week, and label every claim.",
+    "Klaro is the Arc-native invoice and receipt rail for emerging-market vendors. We work in public, ship every week, and label every claim.",
 };
 
 const PRINCIPLES = [
@@ -21,7 +21,7 @@ const PRINCIPLES = [
   },
   {
     title: "Proof beats claims.",
-    body: "Every live meaningful action must produce evidence: tx hash, signature, receipt, payout reference or audit log. Demo states remain explicitly labelled.",
+    body: "Every live action produces evidence: tx hash, signature, receipt, payout reference, audit-log entry. Simulated states remain explicitly labelled.",
   },
   {
     title: "Admin is not the product.",
@@ -29,7 +29,7 @@ const PRINCIPLES = [
   },
   {
     title: "Test like money is real.",
-    body: "The release standard is Foundry security testing on contracts and application flow testing in CI. Current test evidence is reported honestly.",
+    body: "Foundry on contracts, Vitest on the API, Playwright on the UI. Coverage is reported honestly — no green-badge theatre.",
   },
   {
     title: "Honest labels everywhere.",
@@ -41,25 +41,24 @@ export default function CompanyPage() {
   return (
     <main className="bg-[var(--color-paper)] text-[var(--color-ink)]">
       <Nav />
+
       <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-16">
         <SectionHeader
-          eyebrow="Klaro Labs"
+          eyebrow="Klaro"
           title={
             <>
-              We're building the payment OS
+              Make stablecoin payments
               <br />
-              <span className="text-[var(--color-brand)]">
-                emerging-market vendors deserve.
-              </span>
+              <span className="text-[var(--color-brand)]">boring.</span>
             </>
           }
-          lede="200 million SMBs in India, Brazil, Philippines, Mexico, Indonesia, and Nigeria sell globally but get paid like it's 1985 — wire transfers that take days, FX margins they can't see, evidence trails that don't survive a chargeback. Klaro fixes that with Arc + USDC."
+          lede="The vendors we build for don't care about chains, oracles, or rollups. They care whether the money arrived. Klaro hides every piece of plumbing that doesn't matter and surfaces every piece that does."
         />
       </section>
 
       <section className="mx-auto w-full max-w-[1200px] px-6 py-12">
-        <div className="grid gap-6 rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:grid-cols-[1.2fr_1fr] md:p-12">
-          <div>
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:p-10">
             <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
               Mission
             </p>
@@ -67,12 +66,25 @@ export default function CompanyPage() {
               Make every payment a vendor receives feel like they were paid by
               their best customer.
             </h2>
+            <p className="mt-4 text-base leading-relaxed text-[var(--color-ink)]/75">
+              Fast. Verifiable. With a receipt that survives any audit. In the
+              local currency they spend. Without ever asking them to learn what a
+              chain ID is.
+            </p>
           </div>
-          <p className="self-end text-base leading-relaxed text-[var(--color-ink)]/80">
-            Fast. Verifiable. With a receipt that survives any audit. In the
-            local currency they spend. Without ever asking them to learn what a
-            chain ID is.
-          </p>
+          <div className="rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:p-10">
+            <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
+              North star
+            </p>
+            <h2 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight">
+              One billion vendors paid faithfully.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-[var(--color-ink)]/75">
+              The first emerging-market vendor invoicing graph on stablecoin
+              rails — owned by the vendors, readable by every lender, denominated
+              in USDC.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -80,7 +92,7 @@ export default function CompanyPage() {
         <SectionHeader
           eyebrow="How we work"
           title="Six rules that govern every decision."
-          lede="The full set of 21 product principles + 15 AI-discipline rules lives in our repo. Here are the six that shape the product most directly."
+          lede="The full set of 21 product principles and 15 AI-discipline rules lives in our repo. Here are the six that shape the product most directly."
         />
         <div className="mt-12 grid gap-4 md:grid-cols-2">
           {PRINCIPLES.map((p) => (
@@ -111,7 +123,7 @@ export default function CompanyPage() {
             ],
             [
               "Circle App Kit",
-              "Planned unified balance, bridge and swap integration.",
+              "Planned unified balance, bridge, and swap integration.",
             ],
             [
               "Circle Wallets",
@@ -137,6 +149,25 @@ export default function CompanyPage() {
         </div>
       </section>
 
+      <section className="mx-auto w-full max-w-[1200px] px-6 py-16">
+        <div className="rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:p-10">
+          <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
+            Who we are
+          </p>
+          <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight">
+            A small team, working in public.
+          </h2>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[var(--color-ink)]/75">
+            Klaro is not yet incorporated as Klaro Labs Inc — see{" "}
+            <code className="rounded bg-[var(--color-ink)]/5 px-1.5 py-0.5 font-mono text-[12px]">
+              HUMAN_ACTIONS_NEEDED.md
+            </code>{" "}
+            for the open items. Real bios and offices land here when the legal
+            entity exists. Until then we refuse to invent them.
+          </p>
+        </div>
+      </section>
+
       <section className="mx-auto w-full max-w-[1200px] px-6 py-20">
         <SectionHeader eyebrow="Get in touch" title="Three doors in." />
         <div className="mt-10 grid gap-3 md:grid-cols-3">
@@ -144,9 +175,7 @@ export default function CompanyPage() {
             href="/signin"
             className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6 transition-colors hover:border-[var(--color-brand)]/40"
           >
-            <h4 className="font-display text-lg font-semibold">
-              Try the product
-            </h4>
+            <h4 className="font-display text-lg font-semibold">Try the product</h4>
             <p className="mt-2 text-sm text-[var(--color-ink)]/80">
               Open the testnet demo. No credit card and no real funds moved.
             </p>
@@ -155,7 +184,7 @@ export default function CompanyPage() {
             </span>
           </Link>
           <Link
-            href="/developers"
+            href="/build"
             className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6 transition-colors hover:border-[var(--color-brand)]/40"
           >
             <h4 className="font-display text-lg font-semibold">Build on us</h4>
@@ -163,22 +192,21 @@ export default function CompanyPage() {
               OpenAPI 3.1 · @klaro/sdk · webhook receivers · ERC-8183 reference.
             </p>
             <span className="mt-4 inline-block text-xs text-[var(--color-brand)]">
-              /developers →
+              /build →
             </span>
           </Link>
-          <a
-            href="mailto:hi@klaro.so"
+          <Link
+            href="/company/contact"
             className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6 transition-colors hover:border-[var(--color-brand)]/40"
           >
             <h4 className="font-display text-lg font-semibold">Partnerships</h4>
             <p className="mt-2 text-sm text-[var(--color-ink)]/80">
               ERP integrations, LP onboarding, corridor expansion, investors.
-              hi@klaro.so.
             </p>
             <span className="mt-4 inline-block text-xs text-[var(--color-brand)]">
-              Email →
+              /company/contact →
             </span>
-          </a>
+          </Link>
         </div>
       </section>
 

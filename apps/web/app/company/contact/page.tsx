@@ -2,18 +2,20 @@ import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
 import { PageHero } from "@/components/ui/PageHero";
+import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact · Klaro",
-  description: "Talk to the Klaro team. General inquiries, sales, security, and press.",
+  description:
+    "Talk to the Klaro team. General, sales, security disclosure, and trust.",
 };
 
 const CONTACTS = [
-  { role: "General", email: "hi@klaro.so" },
-  { role: "Sales", email: "sales@klaro.so" },
-  { role: "Security", email: "security@klaro.so" },
-  { role: "Press", email: "press@klaro.so" },
-];
+  { role: "General", email: "hi@klaro.so", note: "Anything else." },
+  { role: "Sales & partnerships", email: "sales@klaro.so", note: "ERP, LP, corridor expansion." },
+  { role: "Security disclosure", email: "security@klaro.so", note: "Encrypted: PGP key on /trust." },
+  { role: "Trust & compliance", email: "trust@klaro.so", note: "Vendor diligence and audit." },
+] as const;
 
 export default function ContactPage() {
   return (
@@ -22,78 +24,35 @@ export default function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="Talk to us."
-        sub="Whether you're a vendor, LP partner, or developer — we read every message."
+        sub="A founder reads everything that comes through. Response in one business day for general, four hours for security."
       />
-      <section className="klaro-container pb-20">
-        <div className="grid gap-10 md:grid-cols-2">
-          <form className="space-y-5" action="/api/contact" method="POST">
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                Name
-              </label>
-              <input
-                name="name"
-                required
-                className="mt-1.5 h-11 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-klaro-orange)]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                required
-                className="mt-1.5 h-11 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-klaro-orange)]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                Company
-              </label>
-              <input
-                name="company"
-                className="mt-1.5 h-11 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-klaro-orange)]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                Message
-              </label>
-              <textarea
-                name="message"
-                required
-                rows={4}
-                className="mt-1.5 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-klaro-orange)]"
-              />
-            </div>
-            <button
-              type="submit"
-              className="h-11 rounded-pill bg-[var(--color-ink)] px-6 text-sm font-medium text-white transition-all duration-150 hover:bg-black active:scale-[0.97]"
-            >
-              Send message
-            </button>
-          </form>
+      <section className="klaro-container pb-20 md:pb-28">
+        <div className="grid gap-10 md:grid-cols-[1.2fr_1fr] md:gap-12">
+          <ContactForm />
 
           <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8">
             <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)]">
               By topic
             </p>
-            <dl className="mt-6 space-y-4">
+            <dl className="mt-6 space-y-5">
               {CONTACTS.map((c) => (
                 <div key={c.role}>
                   <dt className="text-sm font-medium">{c.role}</dt>
                   <dd className="mt-0.5">
-                    <a href={`mailto:${c.email}`} className="text-sm text-[var(--color-klaro-orange)] hover:underline">
+                    <a
+                      href={`mailto:${c.email}`}
+                      className="text-sm text-[var(--color-klaro-orange)] hover:underline"
+                    >
                       {c.email}
                     </a>
+                    <span className="ml-2 text-xs text-[var(--color-muted)]">{c.note}</span>
                   </dd>
                 </div>
               ))}
             </dl>
             <p className="mt-8 text-xs text-[var(--color-muted)]">
-              Response time: 1 business day for general inquiries, 4 hours for security reports.
+              Klaro is not yet incorporated as Klaro Labs Inc — see HUMAN_ACTIONS_NEEDED.md.
+              No physical office to publish yet.
             </p>
           </div>
         </div>
