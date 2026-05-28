@@ -57,8 +57,17 @@ export async function POST(req: Request) {
     const supabase = createServerClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: () => {
-          /* magic-link issuance doesn't need to mutate cookies */
+        setAll: (toSet) => {
+          // Persist the PKCE code-verifier cookie Supabase sets during
+          // signInWithOtp. Previously this was a no-op (comment claimed
+          // magic-link issuance doesn't need to mutate cookies) — but
+          // PKCE flow requires the verifier on the same origin so the
+          // /auth/callback route can exchange the code for a session.
+          // Without this the callback throws "PKCE code verifier not
+          // found in storage". P0 bug found during 2026-05-28 QA.
+          for (const { name, value, options } of toSet) {
+            cookieStore.set(name, value, options);
+          }
         },
       },
     });
