@@ -61,14 +61,14 @@ export function startAdminRisk() {
         await queue("notify-admin").add(
           `dispute:${d.case_id}`,
           { caseId: d.case_id, kind: "sla.overdue" },
-          { jobId: `notify-admin:dispute:${d.case_id}` },
+          { jobId: `notify-admin_dispute_${d.case_id}` },
         );
 
       for (const o of stuck.data ?? [])
         await queue("notify-admin").add(
           `cashout:${o.id}`,
           { orderId: o.id, kind: "cashout.stuck" },
-          { jobId: `notify-admin:cashout:${o.id}` },
+          { jobId: `notify-admin_cashout_${o.id}` },
         );
 
       for (const i of unscreened.data ?? []) {
@@ -90,7 +90,7 @@ export function startAdminRisk() {
             amount: row.amount ?? "0",
             paidTxHash: row.paid_tx_hash,
           },
-          { jobId: `screen-and-settle:${row.id}` },
+          { jobId: `screen-and-settle_${row.id}` },
         );
       }
 

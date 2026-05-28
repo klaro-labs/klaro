@@ -166,7 +166,7 @@ async function _runSafeEvent(
                 kind: "listener.retry_exhausted",
                 detail: { event, key, retryCount },
               },
-              { jobId: `notify-admin:listener-retry:${event}` },
+              { jobId: `notify-admin_listener-retry_${event}` },
             );
           } else {
             log.warn("listener.adminEscalation.suppressedByCooldown", {
@@ -302,7 +302,7 @@ export function startArcListener() {
                 amount: ev.args.amount?.toString() ?? "0",
                 paidTxHash: ev.transactionHash,
               },
-              { jobId: `screen-and-settle:${ev.args.invoiceId}` },
+              { jobId: `screen-and-settle_${ev.args.invoiceId}` },
             );
             log.info("event.InvoicePaid", { id: ev.args.invoiceId });
           });
@@ -329,12 +329,12 @@ export function startArcListener() {
                 invoiceId: ev.args.invoiceId,
                 settlementTx: ev.transactionHash,
               },
-              { jobId: `receipt-generate:${ev.args.invoiceId}` },
+              { jobId: `receipt-generate_${ev.args.invoiceId}` },
             );
             await queue("notify-vendor").add(
               ev.args.invoiceId ?? "",
               { invoiceId: ev.args.invoiceId, kind: "invoice.settled" },
-              { jobId: `notify-vendor:settled:${ev.args.invoiceId}` },
+              { jobId: `notify-vendor_settled_${ev.args.invoiceId}` },
             );
           });
         }
@@ -379,7 +379,7 @@ export function startArcListener() {
             await queue("notify-vendor").add(
               ev.args.orderId ?? "",
               { orderId: ev.args.orderId, kind: "cashout.lp_assigned" },
-              { jobId: `notify-vendor:lp_assigned:${ev.args.orderId}` },
+              { jobId: `notify-vendor_lp_assigned_${ev.args.orderId}` },
             );
           });
         }
@@ -421,7 +421,7 @@ export function startArcListener() {
                 kind: "cashout.released",
                 amountUsdc: ev.args.usdcAmount?.toString(),
               },
-              { jobId: `notify-lp:released:${ev.args.cashoutId}` },
+              { jobId: `notify-lp_released_${ev.args.cashoutId}` },
             );
           });
         }

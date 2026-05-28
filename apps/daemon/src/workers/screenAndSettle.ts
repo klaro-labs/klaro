@@ -124,7 +124,7 @@ export function startScreenAndSettle() {
         await queue("notify-admin").add(
           "screening-fail",
           { invoiceId, paidTxHash, kind: "screening.fail" },
-          { jobId: `notify-admin:screening-fail:${invoiceId}` },
+          { jobId: `notify-admin_screening-fail_${invoiceId}` },
         );
         return;
       }
@@ -133,7 +133,7 @@ export function startScreenAndSettle() {
         await queue("notify-admin").add(
           "screening-review",
           { invoiceId, paidTxHash, kind: "screening.review" },
-          { jobId: `notify-admin:screening-review:${invoiceId}` },
+          { jobId: `notify-admin_screening-review_${invoiceId}` },
         );
         return;
       }
@@ -250,7 +250,7 @@ export function startScreenAndSettle() {
           settlementTx: settleTxHash ?? paidTxHash,
           screeningHash,
         },
-        { jobId: `receipt-generate:${invoiceId}` },
+        { jobId: `receipt-generate_${invoiceId}` },
       );
       await queue("erp-sync").add(invoiceId, {
         invoiceId,
@@ -259,7 +259,7 @@ export function startScreenAndSettle() {
       await queue("notify-vendor").add(
         invoiceId,
         { invoiceId, kind: "invoice.settled" },
-        { jobId: `notify-vendor:settled:${invoiceId}` },
+        { jobId: `notify-vendor_settled_${invoiceId}` },
       );
     },
     4,

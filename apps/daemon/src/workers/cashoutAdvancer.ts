@@ -79,7 +79,7 @@ export function startCashoutAdvancer() {
           await queue("notify-vendor").add(
             orderId,
             { orderId, kind: "cashout.lp_assigned" },
-            { jobId: `notify-vendor:lp_assigned:${orderId}` },
+            { jobId: `notify-vendor_lp_assigned_${orderId}` },
           );
           return;
         }
@@ -112,7 +112,7 @@ export function startCashoutAdvancer() {
             await queue("notify-admin").add(
               `proof-review:${orderId}`,
               { orderId, kind: "cashout.proof_review_required" },
-              { jobId: `notify-admin:proof-review:${orderId}` },
+              { jobId: `notify-admin_proof-review_${orderId}` },
             );
             return;
           }
@@ -239,7 +239,7 @@ export function startCashoutAdvancer() {
               kind: "cashout.released",
               amountUsdc: row?.usdc_amount?.toString(),
             },
-            { jobId: `notify-lp:released:${orderId}` },
+            { jobId: `notify-lp_released_${orderId}` },
           );
           return;
         }

@@ -47,7 +47,7 @@ export function startLifecycleReminders() {
             invoiceId: inv.id,
             kind: `lifecycle.${hit.window}`,
           },
-          { jobId: `${inv.id}:${hit.window}` /* dedupe per window */ },
+          { jobId: `${inv.id}_${hit.window}` /* dedupe per window */ },
         );
       }
     },

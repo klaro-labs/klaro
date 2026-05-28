@@ -48,7 +48,7 @@ export function startProofVerifier() {
       await queue("notify-admin").add(
         `proof-review:${orderId}`,
         { orderId, proofHash, kind: "cashout.proof_review_required" },
-        { jobId: `notify-admin:proof-review:${orderId}` },
+        { jobId: `notify-admin_proof-review_${orderId}` },
       );
     },
     4,
