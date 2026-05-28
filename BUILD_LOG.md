@@ -13,3 +13,4 @@
 - ✅ Step 9: /company/contact page with form + email directory
 - ✅ Step 10: /signin quiet rewrite — reduced glow, passkey CTA, fixed hover + error copy
 - ✅ Step 11: /onboarding — 4-step flow (business, wallet, verification, first invoice)
+- ✅ Step 12: AppShell — VendorNav (5 items), MobileShell (Lucide icons + safe-area) already adopted in PREMIUM_FIX_PLAN; vendor pages use consistent layout
