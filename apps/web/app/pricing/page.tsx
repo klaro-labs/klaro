@@ -24,7 +24,7 @@ export default function PricingPage() {
         eyebrow="Pricing"
         chips={["Testnet free forever"]}
         title="Pay what you actually pay."
-        sub="No monthly fee. No setup fee. No per-seat fee. No FX markup we don't disclose. During testnet every feature is free."
+        sub="No monthly fee. No setup fee. No per-seat fee. No undisclosed FX markup. During testnet every feature is free."
         ctas={[
           { label: "Open workspace", href: "/signin" },
           { label: "Talk to sales", href: "mailto:sales@klaro.so", variant: "secondary" },

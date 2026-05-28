@@ -18,7 +18,7 @@ const TOPICS: { title: string; description: string; href: Route }[] = [
   {
     title: "Cashout to local currency",
     description:
-      "Pilot live for INR. Other corridors simulated until partner sign.",
+      "Pilot is live for INR. Other corridors are simulated until partner sign-off.",
     href: "/vendor/cashout" as Route,
   },
   {

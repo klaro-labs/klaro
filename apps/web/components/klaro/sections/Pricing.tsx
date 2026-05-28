@@ -89,7 +89,7 @@ export function Pricing() {
             <br /> Honest on mainnet.
           </>
         }
-        lede="No monthly fee. No setup fee. No per-seat fee. No FX markup we don't disclose. During testnet every feature is free — no real money moves anyway. Mainnet rates lock in at launch."
+        lede="No monthly fee. No setup fee. No per-seat fee. No undisclosed FX markup. During testnet every feature is free — no real money moves anyway. Mainnet rates lock in at launch."
         className="max-w-2xl"
       />
 
