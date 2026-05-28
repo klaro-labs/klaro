@@ -16,17 +16,24 @@ import type {
   CashoutTimelineEvent,
 } from "../types";
 
+// PostgREST returns numeric as either a JS string (preserves precision)
+// or a number depending on column scale + supabase-js version. Coerce to
+// string before .replace so both paths work — same fix as
+// lib/repo/invoices.ts:fromRow.
+const numericToBigInt = (v: string | number): bigint =>
+  BigInt(String(v).replace(/\.\d+$/, ""));
+
 function fromRow(row: DbCashoutOrder): CashoutOrder {
   return {
     id: row.id as Hex,
     vendorId: row.vendor_id,
     vendorWallet: row.vendor_wallet as Hex,
-    usdcAmount: BigInt(row.usdc_amount.replace(/\.\d+$/, "")),
+    usdcAmount: numericToBigInt(row.usdc_amount),
     payoutMinor: BigInt(row.payout_minor),
     currency: row.currency,
     status: row.status,
-    klaroFeeUsdc: BigInt(row.klaro_fee_usdc.replace(/\.\d+$/, "")),
-    lpSpreadUsdc: BigInt(row.lp_spread_usdc.replace(/\.\d+$/, "")),
+    klaroFeeUsdc: numericToBigInt(row.klaro_fee_usdc),
+    lpSpreadUsdc: numericToBigInt(row.lp_spread_usdc),
     quoteRate: Number(row.quote_rate),
     quoteHash: row.quote_hash as Hex,
     requestedAt: new Date(row.requested_at),

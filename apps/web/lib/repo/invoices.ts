@@ -37,7 +37,11 @@ function fromRow(row: DbInvoiceWithVendor): Invoice {
     vendorId: row.vendor_id,
     vendorWallet: wallet ? (wallet as Hex) : null,
     token: row.token as Hex,
-    amount: BigInt(row.amount_usdc.replace(/\.\d+$/, "")) ?? 0n,
+    // PostgREST returns numeric either as a JS string (preserves precision)
+    // or as a number depending on column scale + supabase-js version.
+    // Coerce before .replace so both paths work — getPublicInvoice already
+    // does this; fromRow was the unfixed twin.
+    amount: BigInt(String(row.amount_usdc).replace(/\.\d+$/, "")) ?? 0n,
     dueAt: new Date(row.due_at),
     status: row.status,
     customer: {
