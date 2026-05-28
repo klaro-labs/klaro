@@ -46,7 +46,7 @@ export function startAdminRisk() {
         sb()
           .from("invoices")
           .select(
-            "id, buyer_address, amount, paid_tx_hash, screening_results!left(id)",
+            "id, accepted_by, amount, paid_tx_hash, screening_results!left(id)",
           )
           .eq("status", "PAID")
           .lte("updated_at", sla30m)
@@ -77,16 +77,16 @@ export function startAdminRisk() {
         // collapse instead of multiplying.
         const row = i as {
           id: string;
-          buyer_address?: string;
+          accepted_by?: string;
           amount?: string;
           paid_tx_hash?: string;
         };
-        if (!row.buyer_address || !row.paid_tx_hash) continue;
+        if (!row.accepted_by || !row.paid_tx_hash) continue;
         await queue("screen-and-settle").add(
           row.id,
           {
             invoiceId: row.id,
-            buyerAddress: row.buyer_address,
+            buyerAddress: row.accepted_by,
             amount: row.amount ?? "0",
             paidTxHash: row.paid_tx_hash,
           },

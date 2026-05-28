@@ -29,7 +29,11 @@ import { log } from "../log.js";
 
 // Minimal event ABIs — full ABIs land in packages/core when extracted.
 const INVOICE_PAID_EVENT = parseAbiItem(
-  "event InvoicePaid(bytes32 indexed invoiceId, address indexed buyer, uint256 amount, bytes32 metadataHash)",
+  // QA-027 fix: contract emits InvoicePaid WITHOUT metadataHash. Viem
+  // derives the event topic from this signature; an extra param meant
+  // we were polling for a non-existent topic — listener silently
+  // matched zero logs while looking "healthy."
+  "event InvoicePaid(bytes32 indexed invoiceId, address indexed buyer, uint256 amount)",
 );
 const ORDER_CLAIMED_EVENT = parseAbiItem(
   "event OrderClaimed(bytes32 indexed orderId, bytes32 indexed lpId, address indexed lp)",
