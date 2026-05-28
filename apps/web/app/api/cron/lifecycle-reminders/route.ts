@@ -5,6 +5,7 @@ import { sendLifecycleReminder, type ReminderWindow } from "@/lib/email";
 import { CRON_SECRET } from "@/lib/env";
 import { isFlagOn } from "@/lib/featureFlags";
 import { seenOnce } from "@/lib/seenOnce";
+import { captureError } from "@/lib/sentry";
 
 /**
  * Lifecycle reminder cron. Called by Vercel Cron (or any external scheduler)
@@ -94,6 +95,7 @@ export async function GET(req: NextRequest) {
 
   let sent = 0;
   let skipped = 0;
+  let failed = 0;
   for (const inv of invoices) {
     if (inv.status !== "CREATED" && inv.status !== "ACCEPTED") continue;
     const daysOut = Math.round((+inv.dueAt - now) / 86_400_000);
@@ -108,22 +110,35 @@ export async function GET(req: NextRequest) {
       continue;
     }
 
-    await sendLifecycleReminder({
-      buyerEmail: inv.customer.email,
-      vendorName: await vendorNameFor(inv.vendorId),
-      invoiceId: inv.id,
-      amountUsdc: inv.amount,
-      dueAtIso: inv.dueAt.toISOString(),
-      hostedUrl: `https://klaro.so/i/${inv.id}`,
-      window: hit.window,
-    });
-    sent++;
+    try {
+      await sendLifecycleReminder({
+        buyerEmail: inv.customer.email,
+        vendorName: await vendorNameFor(inv.vendorId),
+        invoiceId: inv.id,
+        amountUsdc: inv.amount,
+        dueAtIso: inv.dueAt.toISOString(),
+        hostedUrl: `https://klaro.so/i/${inv.id}`,
+        window: hit.window,
+      });
+      sent++;
+    } catch (err) {
+      // QA-070: pre-fix one email failure (network blip, SES rate limit,
+      // bad address) aborted the entire loop and silently dropped every
+      // subsequent invoice's reminder. Isolate per-invoice failures.
+      captureError(err, {
+        where: "cron.lifecycle-reminders",
+        invoiceId: inv.id,
+        window: hit.window,
+      });
+      failed++;
+    }
   }
 
   return Response.json({
     ok: true,
     sent,
     skipped,
+    failed,
     considered: invoices.length,
   });
 }
