@@ -149,12 +149,12 @@ export default function DevelopersPage() {
           <RefCard
             title="On-chain ABIs"
             body="abis/v1.0/*.json pinned per contract. Regenerated from forge build."
-            href="https://github.com/klaro-labs/arcbuild"
+            href="https://github.com/klaro-labs/klaro"
           />
           <RefCard
             title="ERC-8183 reference"
             body="Agent job-settlement escrow. AgentEscrow.sol is the canonical implementation."
-            href="https://github.com/klaro-labs/arcbuild"
+            href="https://github.com/klaro-labs/klaro"
           />
           <RefCard
             title="Postman collection"

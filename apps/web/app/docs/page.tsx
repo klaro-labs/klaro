@@ -43,17 +43,17 @@ const SECTIONS = [
       },
       {
         label: "Contract ABIs",
-        href: "https://github.com/klaro-labs/arcbuild",
+        href: "https://github.com/klaro-labs/klaro",
         body: "packages/contracts/abis/v1.0/*.json — pinned per release.",
       },
       {
         label: "ERC-8183 escrow",
-        href: "https://github.com/klaro-labs/arcbuild",
+        href: "https://github.com/klaro-labs/klaro",
         body: "AgentEscrow.sol is the canonical implementation.",
       },
       {
         label: "ReasonCodes",
-        href: "https://github.com/klaro-labs/arcbuild",
+        href: "https://github.com/klaro-labs/klaro",
         body: "Every admin action carries one of the canonical reason hashes.",
       },
     ],
@@ -98,7 +98,7 @@ const SECTIONS = [
       },
       {
         label: "Runbooks",
-        href: "https://github.com/klaro-labs/arcbuild",
+        href: "https://github.com/klaro-labs/klaro",
         body: "Nine operator playbooks: pause, slash, refund, KYB-revoke, …",
       },
       {
