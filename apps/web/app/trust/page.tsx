@@ -1,7 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
 import { Badge } from "@/components/ui/Badge";
+
+export const metadata: Metadata = {
+  title: "Trust · Klaro",
+  description:
+    "Klaro trust center — honest labels on every surface, no PII on-chain, contract source published, and the third-party audit roadmap.",
+};
 
 const EXPLANATIONS = [
   {

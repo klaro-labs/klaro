@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalLayout } from "@/components/klaro/LegalLayout";
+
+export const metadata: Metadata = {
+  title: "Privacy · Klaro",
+  description:
+    "Klaro privacy policy — what we collect, what we hash, what stays off-chain, and how to exercise your rights.",
+};
 
 export default function PrivacyPage() {
   return (

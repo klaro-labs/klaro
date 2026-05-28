@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalLayout } from "@/components/klaro/LegalLayout";
+
+export const metadata: Metadata = {
+  title: "Cookies · Klaro",
+  description:
+    "Cookies Klaro sets, why each is set, and how to opt out of the optional analytics ones.",
+};
 
 const COOKIES = [
   {

@@ -1,7 +1,13 @@
 import Link from "next/link";
-import type { Route } from "next";
+import type { Metadata, Route } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+
+export const metadata: Metadata = {
+  title: "Help · Klaro",
+  description:
+    "Common Klaro tasks: invoice in USDC, cash out locally, share a verifiable receipt, dispute a payment.",
+};
 
 const TOPICS: { title: string; description: string; href: Route }[] = [
   {

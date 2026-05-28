@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalLayout } from "@/components/klaro/LegalLayout";
+
+export const metadata: Metadata = {
+  title: "Terms of Service · Klaro",
+  description:
+    "Klaro Terms of Service for the testnet preview build. No real money moves; production terms ship before mainnet.",
+};
 
 export default function TermsPage() {
   return (

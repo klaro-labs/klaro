@@ -1,5 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Logo } from "@/components/klaro/Logo";
+
+export const metadata: Metadata = {
+  title: "Status · Klaro",
+  description:
+    "Live health of Klaro services and the on-chain pause state of every Klaro contract on Arc.",
+};
 
 /**
  * Public status page. v2 §37.

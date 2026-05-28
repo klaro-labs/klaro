@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalLayout } from "@/components/klaro/LegalLayout";
+
+export const metadata: Metadata = {
+  title: "Acceptable Use · Klaro",
+  description:
+    "What you can and can't do with Klaro — prohibited categories, abuse handling, and contact paths.",
+};
 
 export default function AcceptableUsePage() {
   return (

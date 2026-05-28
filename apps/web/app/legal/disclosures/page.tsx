@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalLayout } from "@/components/klaro/LegalLayout";
+
+export const metadata: Metadata = {
+  title: "Disclosures · Klaro",
+  description:
+    "Material disclosures about Klaro's testnet build — simulated surfaces, operator role, and pending partner integrations.",
+};
 
 export default function DisclosuresPage() {
   return (

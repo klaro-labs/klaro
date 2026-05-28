@@ -1,8 +1,15 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Badge } from "@/components/ui/Badge";
 import { mockListAgents } from "@/lib/mockData";
 import { formatUSDC, shortAddress } from "@/lib/money";
+
+export const metadata: Metadata = {
+  title: "Agents · Klaro",
+  description:
+    "AI-agent marketplace settling jobs through Klaro escrow on Arc — ERC-8004 identity, ERC-8183 job settlement.",
+};
 
 const CATEGORY_TONE: Record<string, "live" | "info" | "neutral" | "sim"> = {
   research: "info",

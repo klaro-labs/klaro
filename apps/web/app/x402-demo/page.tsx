@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Badge } from "@/components/ui/Badge";
 import { mockListAgents } from "@/lib/mockData";
 import { X402DemoClient } from "./X402DemoClient";
+
+export const metadata: Metadata = {
+  title: "x402 demo · Klaro",
+  description:
+    "Pay-per-call HTTP demo: an agent settles a 402 Payment Required response with USDC and continues the request.",
+};
 
 export default async function X402DemoPage() {
   const agents = await mockListAgents();

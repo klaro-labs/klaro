@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import { FxNav } from "@/components/klaro/FxNav";
 import { Badge } from "@/components/ui/Badge";
 import { requireVendor } from "@/lib/auth";
 import { mockListFxQuotes, type FxStatus } from "@/lib/mockData";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { quoteAction, settleQuoteAction } from "./actions";
+
+export const metadata: Metadata = {
+  title: "FX desk · Klaro",
+  description:
+    "USDC ⇄ local-currency quotes routed to vetted liquidity partners with on-chain quote freeze.",
+};
 
 const STATUS_TONE: Record<
   FxStatus,

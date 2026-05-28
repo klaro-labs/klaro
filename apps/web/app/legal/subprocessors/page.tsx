@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalLayout } from "@/components/klaro/LegalLayout";
+
+export const metadata: Metadata = {
+  title: "Subprocessors · Klaro",
+  description:
+    "Third-party vendors Klaro routes data through, the scope of each, and the regions they process in.",
+};
 
 const SUBPROCESSORS = [
   {

@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { LegalLayout } from "@/components/klaro/LegalLayout";
+
+export const metadata: Metadata = {
+  title: "Data Processing Addendum · Klaro",
+  description:
+    "Klaro DPA — sub-processors, transfer mechanisms, and data-subject rights for vendors processing customer data through the platform.",
+};
 
 export default function DPAPage() {
   return (
