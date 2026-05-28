@@ -106,7 +106,7 @@ export function StennProof() {
 
 function ReceiptDeep() {
   return (
-    <article className="rounded-lg border border-white/10 bg-white p-7 text-[var(--color-ink)] shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
+    <article className="rounded-lg border border-white/10 bg-white p-7 text-[var(--color-ink)] shadow-[0_1px_4px_rgba(10,10,10,0.08)]">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
           Receipt preview
