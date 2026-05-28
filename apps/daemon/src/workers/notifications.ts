@@ -189,14 +189,19 @@ function makeWorker(
         // through silently. Look up the principal vendor via the
         // agent_jobs row so the email actually fires.
         // surface PostgREST error.
+        // QA-036: schema has `vendor_id`, not `principal_vendor_id`. And
+        // `job.data.jobId` is the bytes32 chain id stored in the text
+        // column `job_id`, NOT the uuid pk `id`. Both refs were wrong;
+        // every agent.job.completed notification silently fell through
+        // to no_vendor_resolved.
         const { data: aj, error: ajErr } = await sb()
           .from("agent_jobs")
-          .select("principal_vendor_id")
-          .eq("id", job.data.jobId)
+          .select("vendor_id")
+          .eq("job_id", job.data.jobId)
           .maybeSingle();
         if (ajErr) throw ajErr;
-        if (aj?.principal_vendor_id)
-          await emailVendor(aj.principal_vendor_id, out.subject, out.html);
+        if (aj?.vendor_id)
+          await emailVendor(aj.vendor_id, out.subject, out.html);
         else log.warn("notify.vendor.no_vendor_resolved", { ...job.data });
       } else if (recipient === "buyer" && job.data.invoiceId) {
         await emailBuyer(job.data.invoiceId, out.subject, out.html);
