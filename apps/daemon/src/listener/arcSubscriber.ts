@@ -10,7 +10,9 @@
  * CashoutOrderProcessor.ProofSubmitted → cashout-advance:proof-verify
  * CashoutOrderProcessor.OrderReleased → notify-lp
  * DisputeManager.CaseOpened → notify-admin
- * DisputeManager.Decided → cashout/agent advancer
+ * DisputeManager.Decided → notify-admin (fan-out to cashout/agent advancer is
+ *   F8-pending — outcome-enum-driven business logic + advancer wiring not yet
+ *   in scope; admin manually advances based on the notify-admin payload)
  * AgentEscrow.JobCompleted → notify-vendor + notify-agent
  * AuditReceipt.ReceiptMinted → notify-vendor (receipt available)
  */
