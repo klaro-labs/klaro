@@ -89,10 +89,24 @@ async function getSupabaseSession(): Promise<Session | null> {
     supabase = createServerClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: (toSet) =>
-          toSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
-          ),
+        // cookieStore.set throws "Cookies can only be modified in a Server
+        // Action or Route Handler" when invoked from a Server Component.
+        // Supabase calls setAll on every getUser() to rotate the refresh
+        // token, so a Server-Component-only call site (vendor layout +
+        // every server page) will crash with 500 the moment the access
+        // token expires. Swallow per the canonical Supabase SSR pattern:
+        // https://supabase.com/docs/guides/auth/server-side/nextjs
+        // The middleware (which IS a Route Handler context) writes the
+        // refreshed cookies for us on the next request.
+        setAll: (toSet) => {
+          try {
+            toSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            );
+          } catch {
+            // ignore — see comment above
+          }
+        },
       },
     });
     ({
