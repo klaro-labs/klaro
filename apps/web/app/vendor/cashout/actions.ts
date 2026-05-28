@@ -57,8 +57,18 @@ export async function createCashoutAction(input: Input): Promise<Hex> {
   const cor = getCorridor(input.currency);
   if (!cor) throw new Error(`Unknown corridor ${input.currency}`);
 
-  const usdcAmount = BigInt(input.usdcAmount);
-  if (usdcAmount === 0n) throw new Error("amount must be > 0");
+  // QA-049 (sibling of QA-048): `=== 0n` doesn't catch negative bigints
+  // (e.g. BigInt("-1000000") → -1000000n). And BigInt("Infinity") throws
+  // synchronously → 500. Wrap in try/catch + check positivity. $1T raw
+  // USDC is an overflow guard (real cashouts will never hit it).
+  let usdcAmount: bigint;
+  try {
+    usdcAmount = BigInt(input.usdcAmount);
+  } catch {
+    throw new Error("validation_amount_unparseable");
+  }
+  if (usdcAmount <= 0n || usdcAmount > 1_000_000_000_000_000n)
+    throw new Error("validation_amount_out_of_range");
 
   const expiresAt = new Date(input.quoteExpiresAtIso);
   if (Number.isNaN(+expiresAt) || expiresAt < new Date()) {

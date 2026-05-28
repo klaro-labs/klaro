@@ -42,9 +42,17 @@ export async function createJobAction(formData: FormData): Promise<void> {
   const agentId = String(formData.get("agentId") ?? "");
   const amount = Number(formData.get("amount") ?? 0);
   const description = String(formData.get("description") ?? "");
-  if (!agentId.startsWith("0x")) throw new Error("agentId required");
-  if (amount <= 0) throw new Error("amount must be > 0");
-  if (description.length < 10) throw new Error("brief must be ≥ 10 chars");
+  if (!agentId.startsWith("0x")) throw new Error("validation_agentId_required");
+  // QA-049 (sibling of QA-048): `amount <= 0` passes Infinity. dollarsToUSDC(Infinity)
+  // throws 'Cannot convert Infinity to a BigInt' → 500. Same fix as createInvoiceAction.
+  if (
+    !Number.isFinite(amount) ||
+    amount <= 0 ||
+    amount > 1_000_000_000
+  )
+    throw new Error("validation_amount_out_of_range: amount must be finite, > 0, ≤ $1B");
+  if (description.length < 10)
+    throw new Error("validation_brief_too_short: must be ≥ 10 chars");
 
   try {
     const agent = await mockGetAgent(agentId);
