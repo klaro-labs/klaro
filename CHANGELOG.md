@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+- 6 new Supabase migrations since 0.1.0: advisor follow-ups (0020), contact submissions (0021), vendor write policies (0021), public invoice read (0022), payout-proof verification columns (0023), public invoice via RPC (0023). Brings total table count to ~38.
+
 ## [0.1.0] — 2026-05-26
 
 Initial public release. Targets Arc Testnet (chain `5042002`).

@@ -67,7 +67,7 @@ const ITEMS: {
     quarter: "Q2 2026",
     title: "Supabase live data layer",
     status: "wip",
-    body: "26 tables, RLS per role, full audit trail. Replacing in-memory mock store.",
+    body: "38 tables, RLS per role, full audit trail. Replacing in-memory mock store.",
   },
   {
     quarter: "Q2 2026",

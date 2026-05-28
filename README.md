@@ -104,7 +104,7 @@ klaro/
 │   └── daemon/                Arc event listener + BullMQ workers + DLQ paging
 │
 ├── packages/
-│   ├── contracts/             20 Solidity contracts · 500 Foundry tests
+│   ├── contracts/             22 Solidity contracts · 504 Foundry tests
 │   ├── sdk/                   @klaro/sdk — TypeScript client
 │   ├── cli/                   klaro command-line entry point
 │   ├── receipt-badge/         Embeddable receipt React + web component
