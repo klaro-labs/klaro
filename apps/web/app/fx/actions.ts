@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireVendor } from "@/lib/auth";
 import { mockCreateFxQuote, mockSettleFxQuote } from "@/lib/mockData";
-import { dollarsToUSDC } from "@/lib/money";
+import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { record as auditRecord } from "@/lib/auditLog";
 
 /// Indicative rates per pair (dst per 1 src). Replace with adapter.quote() in live mode.
@@ -25,7 +25,8 @@ export async function quoteAction(formData: FormData): Promise<void> {
   const src = String(formData.get("src") ?? "USDC");
   const dst = String(formData.get("dst") ?? "EURC");
   const amount = Number(formData.get("amount") ?? 0);
-  if (amount <= 0) throw new Error("amount_must_be_positive");
+  // QA-052: same Infinity/NaN gap fix family — use shared helper.
+  assertSafeUSDAmount(amount);
   const rate = RATES[`${src}->${dst}`];
   if (!rate) throw new Error("unsupported_pair");
 

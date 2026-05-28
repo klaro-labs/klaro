@@ -10,7 +10,7 @@ import {
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 import { record as auditRecord } from "@/lib/auditLog";
-import { dollarsToUSDC } from "@/lib/money";
+import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import type { Hex } from "@/lib/types";
 
 /**
@@ -38,8 +38,9 @@ export async function createStreamAction(formData: FormData): Promise<void> {
   if (!payerLabel) throw new Error("payer label required");
   if (!/^0x[0-9a-fA-F]{40}$/.test(payerAddress))
     throw new Error("invalid payer address");
-  if (amount <= 0) throw new Error("amount must be > 0");
-  if (days < 1 || days > 365) throw new Error("days must be 1-365");
+  assertSafeUSDAmount(amount); // QA-052: shared validator family.
+  if (!Number.isInteger(days) || days < 1 || days > 365)
+    throw new Error("validation_days_out_of_range: days must be integer 1-365");
 
   try {
     const stream = await mockCreateStream({

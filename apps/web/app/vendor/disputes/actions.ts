@@ -15,7 +15,7 @@ import { getCashout } from "@/lib/repo/cashouts";
 import { getInvoice } from "@/lib/repo/invoices";
 import { requireVendor } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
-import { dollarsToUSDC } from "@/lib/money";
+import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { captureError } from "@/lib/sentry";
 import type { Hex } from "@/lib/types";
 
@@ -49,7 +49,7 @@ export async function openDisputeAction(formData: FormData): Promise<void> {
     const note = String(formData.get("note") ?? "");
     if (!contextRefId.startsWith("0x") || contextRefId.length !== 66)
       throw new Error("contextRefId must be 0x + 64 hex");
-    if (amount <= 0) throw new Error("amount must be > 0");
+    assertSafeUSDAmount(amount); // QA-052: shared validator family.
     if (note.length < 20)
       throw new Error("opening note must explain what happened (≥ 20 chars)");
 

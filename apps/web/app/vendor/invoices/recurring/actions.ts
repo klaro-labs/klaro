@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { mockCreateRecurring, type RecurringSchedule } from "@/lib/mockData";
-import { dollarsToUSDC } from "@/lib/money";
+import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 
@@ -35,8 +35,10 @@ export async function createRecurringAction(formData: FormData): Promise<void> {
   }
   const frequency = frequencyRaw as RecurringSchedule["frequency"];
 
-  if (!customerEmail || amount <= 0 || !description) {
-    throw new Error("customerEmail, amount, description are required");
+  // QA-052: same Infinity/NaN gap fix — shared helper.
+  assertSafeUSDAmount(amount);
+  if (!customerEmail || !description) {
+    throw new Error("validation_required_fields: customerEmail + description required");
   }
 
   try {

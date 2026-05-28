@@ -7,7 +7,7 @@ import { keccak256, stringToBytes } from "viem";
 // repo wrapper yet and stay direct.
 import { mockUpdateLP, mockCreateLPInvite } from "@/lib/mockData";
 import { getCashout, advanceCashout } from "@/lib/repo/cashouts";
-import { dollarsToUSDC } from "@/lib/money";
+import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { requireOperator, requireLp } from "@/lib/auth";
 import { record as auditRecord } from "@/lib/auditLog";
 import { captureError } from "@/lib/sentry";
@@ -217,7 +217,10 @@ export async function claimOrderAction(formData: FormData): Promise<void> {
 export async function stakeAction(formData: FormData): Promise<void> {
   const { vendor, lp } = await requireLp();
   const amount = Number(formData.get("amount") ?? 0);
-  if (amount < 50) throw new Error("minimum T0 stake is $50");
+  // QA-052: shared validator catches Infinity/NaN that 'amount < 50' missed
+  // (Infinity is NOT < 50 — passes — then dollarsToUSDC throws downstream).
+  assertSafeUSDAmount(amount);
+  if (amount < 50) throw new Error("validation_min_stake: minimum T0 stake is $50");
   if (lp.status !== "APPROVED" && lp.status !== "STAKED") {
     throw new Error("LP must be approved before staking");
   }
