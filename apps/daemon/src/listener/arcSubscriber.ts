@@ -14,7 +14,14 @@
  * AgentEscrow.JobCompleted → notify-vendor + notify-agent
  * AuditReceipt.ReceiptMinted → notify-vendor (receipt available)
  */
-import { parseAbiItem, decodeFunctionData, parseAbi, keccak256 } from "viem";
+import {
+  parseAbiItem,
+  decodeFunctionData,
+  parseAbi,
+  keccak256,
+  type Log,
+  type AbiEvent,
+} from "viem";
 import { arcPublic } from "../arc.js";
 import { env } from "../env.js";
 import {
@@ -297,26 +304,71 @@ export function startArcListener() {
   // function is collected. `stopArcListener()` calls them all on
   // SIGTERM before `closeAll()` drains the queues.
   //
-  // QA-053 fix: force poll-mode (eth_getLogs) instead of filter-mode
-  // (eth_newFilter + eth_getFilterChanges). Arc RPC expires filters
-  // after a short TTL (~5 min observed); when the filter dies, viem
-  // throws 'filter not found' on the next poll and the subscription
-  // silently stops. Health checks stay green; throughput drops to 0%.
-  // poll-mode re-issues eth_getLogs every pollingInterval with a
-  // running fromBlock cursor — no persistent filter to expire.
-  // QA-053 fix: wrap watchEvent to always pass { poll: true } so viem uses
-  // eth_getLogs polling instead of eth_newFilter + eth_getFilterChanges.
-  // Arc RPC expires filters after a short TTL; the filter-mode error
-  // (`filter not found`) silently kills the subscription. With poll mode
-  // each tick re-issues eth_getLogs from a running cursor — no persistent
-  // filter to expire. Per-call-site type narrowing is preserved by passing
-  // `opts` through as the first arg + injecting `poll: true` separately.
-  const watch: typeof client.watchEvent = (opts) => {
-    const unwatch = client.watchEvent({
-      ...opts,
-      poll: true,
-    } as Parameters<typeof client.watchEvent>[0]);
+  // QA-053 fix (v2 — the v1 `poll: true` cast was silently ignored by
+  // viem@2.50.4; filter mode kept being used + the daemon kept hitting
+  // 'filter not found' against Arc RPC every ~5 min). This wrapper
+  // bypasses viem.watchEvent's filter machinery entirely:
+  //
+  // - Maintain a fromBlock cursor per registration (start at 'latest').
+  // - Every POLL_INTERVAL_MS, call client.getLogs({event, address,
+  //   fromBlock: cursor + 1, toBlock: 'latest'}) — pure eth_getLogs, no
+  //   filter id, no filter to expire.
+  // - Hand each new log to onLogs(...) just like watchEvent would, then
+  //   advance the cursor.
+  // - Errors are reported via opts.onError (preserving the existing
+  //   listenerError() handler in this file).
+  //
+  // Trade-off: minor extra RPC load (one getLogs per pollingInterval per
+  // subscription) vs the previous filter-based approach. Arc has
+  // sub-second finality + we already poll at 500ms, so the load delta is
+  // trivial. The reliability win is enormous — listener stays alive
+  // indefinitely instead of dying silently.
+  const POLL_INTERVAL_MS = 1500;
+  // Generic to preserve typed `ev.args` at each callsite. Log<...,
+  // strict=true, abiEvent> gives a typed `args` field per viem.
+  type TypedLog<E extends AbiEvent> = Log<bigint, number, false, E, true>;
+  type WatchOpts<E extends AbiEvent> = {
+    address: `0x${string}`;
+    event: E;
+    onLogs: (logs: readonly TypedLog<E>[]) => void | Promise<void>;
+    onError?: (err: unknown) => void;
+  };
+  const watch = <E extends AbiEvent>(opts: WatchOpts<E>): (() => void) => {
+    let cursor: bigint | null = null;
+    let stopped = false;
+    const tick = async () => {
+      if (stopped) return;
+      try {
+        const latest = await client.getBlockNumber();
+        if (cursor === null) {
+          // First tick — seed cursor at current latest so we don't replay
+          // every historic event at startup.
+          cursor = latest;
+          return;
+        }
+        if (latest <= cursor) return;
+        const logs = await client.getLogs({
+          address: opts.address,
+          event: opts.event,
+          fromBlock: cursor + 1n,
+          toBlock: latest,
+        });
+        cursor = latest;
+        if (logs.length > 0)
+          await opts.onLogs(logs as unknown as readonly TypedLog<E>[]);
+      } catch (err) {
+        if (opts.onError) opts.onError(err);
+      }
+    };
+    const handle = setInterval(tick, POLL_INTERVAL_MS);
+    const unwatch = () => {
+      stopped = true;
+      clearInterval(handle);
+    };
     _unwatchers.push(unwatch);
+    // Fire once immediately so the cursor seeds without waiting for the
+    // first interval tick.
+    void tick();
     return unwatch;
   };
 
