@@ -1,50 +1,35 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
 import { BrandMark } from "@/components/klaro/BrandMark";
+import { BrandKitTabs } from "./Tabs";
+
+export const metadata: Metadata = {
+  title: "Brand kit · Klaro",
+  description:
+    "Klaro brand kit — logo, colour palette, typography, voice guidelines, and downloadable asset bundle.",
+};
 
 /**
- * Brand kit — public marketing page, mirror of `designer/brand-kit/index.html`.
- * 10 numbered sections + hero + press band, all in one cohesive long-form page
- * with a sticky left sidebar (CONTENTS) and right content column.
- * Section copy and structure copied verbatim from the designer source.
+ * Brand kit — public marketing page.
+ * Five tabs (Logo · Colour · Type · Voice · Downloads) so each section stays
+ * digestible on mobile. Press band lives below all tabs.
  */
-
-const SECTIONS = [
-  { n: "01", slug: "identity", label: "Identity" },
-  { n: "02", slug: "logo", label: "Logo" },
-  { n: "03", slug: "color", label: "Color" },
-  { n: "04", slug: "typography", label: "Typography" },
-  { n: "05", slug: "voice", label: "Voice & tone" },
-  { n: "06", slug: "components", label: "Components" },
-  { n: "07", slug: "stenn-proof", label: "Stenn-Proof badge" },
-  { n: "08", slug: "imagery", label: "Imagery" },
-  { n: "09", slug: "usage", label: "Usage rules" },
-  { n: "10", slug: "downloads", label: "Downloads" },
-] as const;
-
 export default function BrandKitPage() {
   return (
-    <main>
+    <main className="min-h-screen bg-[var(--color-bg)]">
       <Nav />
       <BrandKitHero />
-      <div className="mx-auto w-full max-w-[1200px] px-6 pt-[78px] pb-16">
-        <div className="grid gap-12 md:grid-cols-[220px_1fr]">
-          <ContentsSidebar />
-          <div>
-            <SectionIdentity />
-            <SectionLogo />
-            <SectionColor />
-            <SectionTypography />
-            <SectionVoice />
-            <SectionComponents />
-            <SectionStennBadge />
-            <SectionImagery />
-            <SectionUsage />
-            <SectionDownloads />
-          </div>
-        </div>
-      </div>
+      <BrandKitTabs
+        tabs={[
+          { id: "logo", label: "Logo", content: <LogoTab /> },
+          { id: "color", label: "Colour", content: <ColorTab /> },
+          { id: "type", label: "Type", content: <TypeTab /> },
+          { id: "voice", label: "Voice", content: <VoiceTab /> },
+          { id: "downloads", label: "Downloads", content: <DownloadsTab /> },
+        ]}
+      />
       <PressBand />
       <Footer />
     </main>
@@ -55,148 +40,19 @@ export default function BrandKitPage() {
 
 function BrandKitHero() {
   return (
-    <section className="mx-auto w-full max-w-[1216px] px-6 pt-20 pb-16 md:-translate-y-[5px] md:pt-[140px] md:pb-24">
+    <section className="mx-auto w-full max-w-[1216px] px-6 pt-20 pb-12 md:pt-[120px] md:pb-16">
       <p className="inline-flex rounded-pill border border-[var(--color-brand)]/20 bg-[var(--color-brand-soft)] px-3 py-1 font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
         Brand kit · v0.4
       </p>
-      <h1 className="mt-6 max-w-[540px] font-display text-[clamp(3rem,6.5vw,5.65rem)] font-semibold leading-[1.03] tracking-[-0.055em]">
-        How <span className="text-[var(--color-brand)]">Klaro</span> looks,
-        sounds, and shows up.
+      <h1 className="mt-6 max-w-[560px] font-display text-[clamp(2.5rem,5.5vw,4.75rem)] font-semibold leading-[1.05] tracking-[-0.045em]">
+        How <span className="text-[var(--color-brand)]">Klaro</span> looks, sounds, and shows up.
       </h1>
       <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--color-ink-muted)] md:text-lg">
-        The Klaro brand exists to make stablecoin payments feel trustworthy,
-        clear, and human. Use this kit for product surfaces, marketing, partner
-        integrations, and press.
+        The Klaro brand exists to make stablecoin payments feel trustworthy, clear, and human. Use this kit for product surfaces, marketing, partner integrations, and press.
       </p>
-      <div className="mt-10 flex gap-3">
-        <Link
-          href="#downloads"
-          className="inline-flex h-11 items-center gap-2 rounded-pill bg-[var(--color-ink)] px-5 text-sm font-medium text-white hover:bg-black"
-        >
-          Download assets ↓
-        </Link>
-        <Link
-          href="#identity"
-          className="inline-flex h-11 items-center rounded-pill border border-[var(--color-line)] bg-white px-5 text-sm font-medium hover:bg-[var(--color-bg-elevated)]"
-        >
-          Read the guide
-        </Link>
-      </div>
 
-      {/* 4-column meta band, mirrors designer hero bottom */}
-      <dl className="mt-16 grid gap-8 border-t border-[var(--color-line)] pt-6 text-sm sm:grid-cols-2 md:grid-cols-4">
-        <BkMeta term="Klaro Labs" def="Brand owner" />
-        <BkMeta term="2026" def="Established" />
-        <BkMeta
-          term="brand@klaro.so"
-          def="Questions"
-          link="mailto:brand@klaro.so"
-        />
-        <BkMeta term="CC-BY 4.0" def="Brand guide license" />
-      </dl>
-    </section>
-  );
-}
-
-function BkMeta({
-  term,
-  def,
-  link,
-}: {
-  term: string;
-  def: string;
-  link?: string;
-}) {
-  return (
-    <div>
-      {link ? (
-        <a
-          href={link}
-          className="font-medium text-[var(--color-ink)] hover:text-[var(--color-brand)]"
-        >
-          {term}
-        </a>
-      ) : (
-        <p className="font-medium text-[var(--color-ink)]">{term}</p>
-      )}
-      <p className="mt-1 font-mono text-xs text-[var(--color-ink-subtle)]">
-        {def}
-      </p>
-    </div>
-  );
-}
-
-/* ─── Sticky CONTENTS sidebar ─────────────────────────────────────── */
-
-function ContentsSidebar() {
-  return (
-    <aside className="hidden md:block">
-      <div className="sticky top-24">
-        <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-ink-subtle)]">
-          Contents
-        </p>
-        <ol className="mt-4 space-y-2.5 border-l border-[var(--color-line)]">
-          {SECTIONS.map((s) => (
-            <li key={s.slug}>
-              <a
-                href={`#${s.slug}`}
-                className="-ml-px block border-l-2 border-transparent py-1 pl-4 text-sm text-[var(--color-ink-muted)] transition-colors hover:border-[var(--color-brand)] hover:text-[var(--color-ink)]"
-              >
-                {s.n} · {s.label}
-              </a>
-            </li>
-          ))}
-        </ol>
-        <p className="mt-8 font-mono text-xs text-[var(--color-ink-subtle)]">
-          v0.4 · 2026-05-19
-        </p>
-        <p className="font-mono text-xs text-[var(--color-ink-subtle)]">
-          Working draft
-        </p>
-      </div>
-    </aside>
-  );
-}
-
-/* ─── Section helpers ─────────────────────────────────────────────── */
-
-function BkSectionHead({
-  n,
-  title,
-  lede,
-}: {
-  n: string;
-  title: string;
-  lede: string;
-}) {
-  return (
-    <header>
-      <div className="flex items-baseline gap-6">
-        <span className="font-mono text-sm text-[var(--color-ink-subtle)]">
-          {n}
-        </span>
-        <h2 className="font-display text-[clamp(2.25rem,4vw,3.5rem)] font-semibold leading-[1.05] tracking-tight">
-          {title}
-        </h2>
-      </div>
-      <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--color-ink-muted)] md:text-lg">
-        {lede}
-      </p>
-    </header>
-  );
-}
-
-/* ─── 01 Identity ─────────────────────────────────────────────────── */
-
-function SectionIdentity() {
-  return (
-    <section id="identity" className="scroll-mt-24">
-      <BkSectionHead
-        n="01"
-        title="Identity"
-        lede="Klaro is the operating system for stablecoin payments. Our brand promises clarity — about money, about counterparties, about what happens after you press send."
-      />
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
+      {/* Identity promise + how we work (was section 01 of monolith) */}
+      <div className="mt-12 grid gap-5 md:grid-cols-2">
         <PromiseCard
           eyebrow="Mission"
           title="Make money move at the speed of work, anywhere on earth."
@@ -220,7 +76,33 @@ function SectionIdentity() {
           body="We are engineers and operators. We ship working software, not white papers."
         />
       </div>
+
+      {/* Meta band */}
+      <dl className="mt-12 grid gap-8 border-t border-[var(--color-line)] pt-6 text-sm sm:grid-cols-2 md:grid-cols-4">
+        <BkMeta term="Klaro Labs" def="Brand owner" />
+        <BkMeta term="2026" def="Established" />
+        <BkMeta term="brand@klaro.so" def="Questions" link="mailto:brand@klaro.so" />
+        <BkMeta term="CC-BY 4.0" def="Brand guide license" />
+      </dl>
     </section>
+  );
+}
+
+function BkMeta({ term, def, link }: { term: string; def: string; link?: string }) {
+  return (
+    <div>
+      {link ? (
+        <a
+          href={link}
+          className="font-medium text-[var(--color-ink)] hover:text-[var(--color-brand)]"
+        >
+          {term}
+        </a>
+      ) : (
+        <p className="font-medium text-[var(--color-ink)]">{term}</p>
+      )}
+      <p className="mt-1 font-mono text-xs text-[var(--color-ink-subtle)]">{def}</p>
+    </div>
   );
 }
 
@@ -240,38 +122,44 @@ function PromiseCard({ eyebrow, title }: { eyebrow: string; title: string }) {
 function MiniCard({ title, body }: { title: string; body: string }) {
   return (
     <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
-      <h3 className="font-display text-xl font-semibold tracking-tight">
-        {title}
-      </h3>
-      <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
-        {body}
-      </p>
+      <h3 className="font-display text-xl font-semibold tracking-tight">{title}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">{body}</p>
     </article>
   );
 }
 
-/* ─── 02 Logo ──────────────────────────────────────────────────────── */
+/* ─── Section helpers ─────────────────────────────────────────────── */
 
-function SectionLogo() {
+function TabHead({ title, lede }: { title: string; lede: string }) {
   return (
-    <section id="logo" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="02"
+    <header className="mb-10">
+      <h2 className="font-display text-[clamp(1.75rem,3.5vw,2.75rem)] font-semibold leading-[1.1] tracking-tight">
+        {title}
+      </h2>
+      <p className="mt-4 max-w-3xl text-base leading-relaxed text-[var(--color-ink-muted)]">
+        {lede}
+      </p>
+    </header>
+  );
+}
+
+/* ─── Tab 1: Logo ──────────────────────────────────────────────────── */
+
+function LogoTab() {
+  return (
+    <section>
+      <TabHead
         title="Logo"
-        lede="The Klaro mark is built from three rectangles — one for each surface of the product: invoicing, off-ramp, financing. Together they form a K."
+        lede="The Klaro mark is built from a solid stem and two chevrons pointing right — settlement, in shape. Use the horizontal lockup on most surfaces; symbol-only is reserved for tight icon contexts."
       />
 
-      <figure className="mt-10 overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)]">
+      <figure className="overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)]">
         <div className="grid place-items-center px-6 py-24">
-          <BrandMark size={300} />
+          <BrandMark size={240} />
         </div>
         <figcaption className="flex items-center justify-between border-t border-[var(--color-line)] bg-white px-5 py-3 text-xs">
-          <span className="font-mono text-[var(--color-ink-muted)]">
-            Klaro symbol
-          </span>
-          <span className="font-mono text-[var(--color-ink-subtle)]">
-            100x100 base · uniform stroke
-          </span>
+          <span className="font-mono text-[var(--color-ink-muted)]">Klaro symbol</span>
+          <span className="font-mono text-[var(--color-ink-subtle)]">24×24 base · solid fills</span>
         </figcaption>
       </figure>
 
@@ -279,18 +167,12 @@ function SectionLogo() {
         <div className="grid place-items-center bg-white px-6 py-16">
           <span className="inline-flex items-center gap-4">
             <BrandMark size={80} />
-            <span className="font-display text-5xl font-semibold tracking-tight">
-              klaro
-            </span>
+            <span className="font-display text-5xl font-semibold tracking-tight">klaro</span>
           </span>
         </div>
         <figcaption className="flex items-center justify-between border-t border-[var(--color-line)] bg-white px-5 py-3 text-xs">
-          <span className="font-mono text-[var(--color-ink-muted)]">
-            Horizontal lockup
-          </span>
-          <span className="font-mono text-[var(--color-ink-subtle)]">
-            Symbol + wordmark · default for most surfaces
-          </span>
+          <span className="font-mono text-[var(--color-ink-muted)]">Horizontal lockup</span>
+          <span className="font-mono text-[var(--color-ink-subtle)]">Default for most surfaces</span>
         </figcaption>
       </figure>
 
@@ -298,35 +180,38 @@ function SectionLogo() {
         <div className="grid place-items-center bg-[var(--color-ink)] px-6 py-16">
           <span className="inline-flex items-center gap-4">
             <BrandMark size={80} inkFill="#ffffff" brandFill="#C7522A" />
-            <span className="font-display text-5xl font-semibold tracking-tight text-white">
-              klaro
-            </span>
+            <span className="font-display text-5xl font-semibold tracking-tight text-white">klaro</span>
           </span>
         </div>
         <figcaption className="flex items-center justify-between border-t border-[var(--color-line)] bg-white px-5 py-3 text-xs">
-          <span className="font-mono text-[var(--color-ink-muted)]">
-            Dark surface lockup
-          </span>
-          <span className="font-mono text-[var(--color-ink-subtle)]">
-            Stem inverts to white; orange arms unchanged
-          </span>
+          <span className="font-mono text-[var(--color-ink-muted)]">Dark surface lockup</span>
+          <span className="font-mono text-[var(--color-ink-subtle)]">Stem inverts to white; chevrons unchanged</span>
         </figcaption>
       </figure>
+
+      <div className="mt-8 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-warm)] p-6">
+        <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
+          Clearspace
+        </p>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-muted)]">
+          Keep clearspace around the mark equal to the stem width. Never crop the chevrons. Never rotate, skew, or apply effects.
+        </p>
+      </div>
     </section>
   );
 }
 
-/* ─── 03 Color ─────────────────────────────────────────────────────── */
+/* ─── Tab 2: Colour ────────────────────────────────────────────────── */
 
-function SectionColor() {
+function ColorTab() {
   return (
-    <section id="color" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="03"
-        title="Color"
+    <section>
+      <TabHead
+        title="Colour"
         lede="Klaro's terracotta carries the brand. Stenn-Proof gold is reserved exclusively for verified receipts. Everything else is warm graphite or paper."
       />
-      <div className="mt-10 space-y-5">
+
+      <div className="space-y-5">
         <ColorCard
           bg="#C7522A"
           fg="#ffffff"
@@ -335,7 +220,7 @@ function SectionColor() {
           hex="#C7522A"
           rgb="199 82 42"
           oklch="0.58 0.18 38"
-          note="Calls to action, links, accents, hero highlights. The brand's load-bearing color."
+          note="Calls to action, links, accents, hero highlights. The brand's load-bearing colour."
         />
         <ColorCard
           bg="#F5B100"
@@ -352,8 +237,7 @@ function SectionColor() {
             Neutrals
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-muted)]">
-            Warm-leaning grayscale. Backgrounds are tinted slightly off-white.
-            Text never goes lower than #6B6B6B for accessibility.
+            Warm-leaning grayscale. Backgrounds are tinted slightly off-white. Text never goes lower than #6B6B6B for accessibility.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3 md:grid-cols-5">
             <Swatch hex="#0A0A0A" label="Ink" />
@@ -389,17 +273,10 @@ function ColorCard({
 }) {
   return (
     <article className="overflow-hidden rounded-lg border border-[var(--color-line)]">
-      <div
-        className="relative px-7 py-12"
-        style={{ background: bg, color: fg }}
-      >
-        <p className="font-mono text-[11px] tracking-[0.18em] uppercase opacity-80">
-          {eyebrow}
-        </p>
-        <p className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          {name}
-        </p>
-        <dl className="absolute right-7 bottom-6 font-mono text-xs opacity-90">
+      <div className="relative px-7 py-12 sm:py-16" style={{ background: bg, color: fg }}>
+        <p className="font-mono text-[11px] tracking-[0.18em] uppercase opacity-80">{eyebrow}</p>
+        <p className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">{name}</p>
+        <dl className="mt-6 font-mono text-xs opacity-90 sm:absolute sm:right-7 sm:bottom-6 sm:mt-0">
           <Pair k="HEX" v={hex} />
           <Pair k="RGB" v={rgb} />
           <Pair k="OKLCH" v={oklch} />
@@ -414,7 +291,7 @@ function ColorCard({
 
 function Pair({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex justify-end gap-3">
+    <div className="flex gap-3 sm:justify-end">
       <dt>{k}</dt>
       <dd>· {v}</dd>
     </div>
@@ -428,47 +305,43 @@ function Swatch({ hex, label }: { hex: string; label: string }) {
         className="h-16 w-full rounded-md border border-[var(--color-line)]"
         style={{ background: hex }}
       />
-      <p className="mt-2 font-mono text-[11px] text-[var(--color-ink-muted)]">
-        {label}
-      </p>
-      <p className="font-mono text-[10px] text-[var(--color-ink-subtle)]">
-        {hex}
-      </p>
+      <p className="mt-2 font-mono text-[11px] text-[var(--color-ink-muted)]">{label}</p>
+      <p className="font-mono text-[10px] text-[var(--color-ink-subtle)]">{hex}</p>
     </div>
   );
 }
 
-/* ─── 04 Typography ────────────────────────────────────────────────── */
+/* ─── Tab 3: Type ──────────────────────────────────────────────────── */
 
-function SectionTypography() {
+function TypeTab() {
   return (
-    <section id="typography" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="04"
+    <section>
+      <TabHead
         title="Typography"
-        lede="Three families. Inter Tight for display, Inter for body, JetBrains Mono for receipts, code, and wallet addresses."
+        lede="Three families. Inter Tight for display, Inter for body, JetBrains Mono for receipts, code, and wallet addresses. All three are open-source under SIL Open Font License."
       />
-      <div className="mt-10 space-y-5">
+
+      <div className="space-y-5">
         <TypeCard
           family="Inter Tight"
           usage="Display · headlines, hero, section titles"
           meta="600 · letter-spacing -0.04em"
           sample="Get paid in seconds."
-          sampleClass="font-display text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-tight"
+          sampleClass="font-display text-[clamp(2.25rem,5vw,4rem)] font-semibold leading-[1.05] tracking-tight"
         />
         <TypeCard
           family="Inter"
           usage="Body · UI text, prose, forms"
           meta="400 / 500 / 600"
           sample="Issue an invoice. Get paid in USDC. Sweep to local currency."
-          sampleClass="font-sans text-2xl leading-snug"
+          sampleClass="font-sans text-xl leading-snug md:text-2xl"
         />
         <TypeCard
           family="JetBrains Mono"
           usage="Mono · receipts, code, wallet addresses, tabular data"
           meta="400 / 500"
           sample="0x7a3c…b21f · 4,200.00 USDC · receipt.klaro.so"
-          sampleClass="font-mono text-xl"
+          sampleClass="font-mono text-lg md:text-xl"
         />
       </div>
     </section>
@@ -490,38 +363,34 @@ function TypeCard({
 }) {
   return (
     <article className="overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
-      <div className="flex items-baseline justify-between border-b border-[var(--color-line)] px-6 py-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--color-line)] px-6 py-4">
         <div>
           <p className="font-display text-base font-semibold">{family}</p>
-          <p className="font-mono text-xs text-[var(--color-ink-subtle)]">
-            {usage}
-          </p>
+          <p className="font-mono text-xs text-[var(--color-ink-subtle)]">{usage}</p>
         </div>
-        <p className="font-mono text-[11px] text-[var(--color-ink-subtle)]">
-          {meta}
-        </p>
+        <p className="font-mono text-[11px] text-[var(--color-ink-subtle)]">{meta}</p>
       </div>
-      <div className="px-6 py-10 md:px-10 md:py-16">
+      <div className="px-6 py-10 md:px-10 md:py-14">
         <p className={sampleClass}>{sample}</p>
       </div>
     </article>
   );
 }
 
-/* ─── 05 Voice & tone ──────────────────────────────────────────────── */
+/* ─── Tab 4: Voice ─────────────────────────────────────────────────── */
 
-function SectionVoice() {
+function VoiceTab() {
   return (
-    <section id="voice" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="05"
+    <section>
+      <TabHead
         title="Voice & tone"
-        lede="We write the way an honest senior engineer would talk to a vendor in their second language. Direct. Concrete. Never patronizing."
+        lede="We write the way an honest senior engineer would talk to a vendor in their second language. Direct. Concrete. Never patronising."
       />
-      <div className="mt-10 grid gap-5 md:grid-cols-3">
+
+      <div className="grid gap-5 md:grid-cols-3">
         <VoiceCard
           title="Direct."
-          body={`State what happens. Use verbs. Cut hedging. If a vendor needs to scroll to find the answer, we've already lost.`}
+          body="State what happens. Use verbs. Cut hedging. If a vendor needs to scroll to find the answer, we've already lost."
         />
         <VoiceCard
           title="Confident."
@@ -529,7 +398,7 @@ function SectionVoice() {
         />
         <VoiceCard
           title="Multilingual-aware."
-          body={`Headlines are tested in English, Hindi, Portuguese, Spanish, Tagalog, and Swahili before publishing. Idioms get cut.`}
+          body="Headlines are tested in English, Hindi, Portuguese, Spanish, Tagalog, and Swahili before publishing. Idioms get cut."
         />
       </div>
 
@@ -544,7 +413,32 @@ function SectionVoice() {
           dont="We're excited to share that we're partnering with Circle to bring you the next generation of cross-border payments!"
           dont2="Onboarding has never been easier with our seamless KYC integration."
           doer="Klaro runs on Circle's Arc network. Payments settle in stablecoins. Vendors keep more of what they earn."
-          doer2="Sign up with Google. Verify your business in 4 minutes. Send your first invoice."
+          doer2="Sign up with Google. Verify your business in four minutes. Send your first invoice."
+        />
+      </div>
+
+      <div className="mt-10 grid gap-5 md:grid-cols-2">
+        <UsageCard
+          kind="do"
+          title="Allowed without asking"
+          items={[
+            "Linking to klaro.so or any subdomain.",
+            "Using the Klaro logo to indicate Klaro integration in your product (with a link back).",
+            "Embedding the Stenn-Proof badge on receipts you've actually issued through Klaro.",
+            "Writing about Klaro in editorial / news contexts.",
+            "Using brand colours and typography as visual reference in case studies.",
+          ]}
+        />
+        <UsageCard
+          kind="dont"
+          title="Requires brand@klaro.so"
+          items={[
+            "Using the Stenn-Proof badge on receipts you haven't issued through Klaro.",
+            "Modifying the logo — recolouring, redrawing, adding effects, animating beyond the supplied motion files.",
+            "Combining the Klaro logo with another mark in a single composite mark.",
+            'Using "Klaro" or "Stenn-Proof" as part of a product name you ship.',
+            "Selling merchandise that uses the Klaro logo.",
+          ]}
         />
       </div>
     </section>
@@ -554,12 +448,8 @@ function SectionVoice() {
 function VoiceCard({ title, body }: { title: string; body: string }) {
   return (
     <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
-      <h3 className="font-display text-xl font-semibold tracking-tight">
-        {title}
-      </h3>
-      <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
-        {body}
-      </p>
+      <h3 className="font-display text-xl font-semibold tracking-tight">{title}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">{body}</p>
     </article>
   );
 }
@@ -583,30 +473,32 @@ function DoDontPair({
   );
 }
 
-function DoDontBlock({
-  kind,
-  lines,
-}: {
-  kind: "do" | "dont";
-  lines: string[];
-}) {
+function DoDontBlock({ kind, lines }: { kind: "do" | "dont"; lines: string[] }) {
   const isDo = kind === "do";
   return (
     <div
-      className={`rounded-lg border p-5 ${isDo ? "border-emerald-200 bg-emerald-50/40" : "border-rose-200 bg-rose-50/40"}`}
+      className={`rounded-lg border p-5 ${
+        isDo ? "border-emerald-200 bg-emerald-50/40" : "border-rose-200 bg-rose-50/40"
+      }`}
     >
       <p
-        className={`inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase ${isDo ? "text-emerald-700" : "text-rose-700"}`}
+        className={`inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase ${
+          isDo ? "text-emerald-700" : "text-rose-700"
+        }`}
       >
         <span
-          className={`inline-flex size-4 items-center justify-center rounded-full text-[10px] text-white ${isDo ? "bg-emerald-500" : "bg-rose-500"}`}
+          className={`inline-flex size-4 items-center justify-center rounded-full text-[10px] text-white ${
+            isDo ? "bg-emerald-500" : "bg-rose-500"
+          }`}
         >
           {isDo ? "✓" : "✕"}
         </span>
         {isDo ? "Do" : "Don't"}
       </p>
       <ul
-        className={`mt-3 space-y-3 text-sm ${isDo ? "text-[var(--color-ink)] font-medium" : "text-[var(--color-ink-muted)]"}`}
+        className={`mt-3 space-y-3 text-sm ${
+          isDo ? "font-medium text-[var(--color-ink)]" : "text-[var(--color-ink-muted)]"
+        }`}
       >
         {lines.map((l, i) => (
           <li key={i}>{l}</li>
@@ -616,407 +508,19 @@ function DoDontBlock({
   );
 }
 
-/* ─── 06 Components ────────────────────────────────────────────────── */
-
-function SectionComponents() {
-  return (
-    <section id="components" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="06"
-        title="Components"
-        lede="Small set of building blocks. Every Klaro surface is composed from these."
-      />
-
-      <CompGroup
-        label="Buttons"
-        note="Primary uses ink fill by default; switches to Klaro terracotta on hover. Hero CTAs use 48px height."
-      >
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            className="rounded-pill bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[var(--color-brand)]"
-          >
-            Primary action
-          </button>
-          <button
-            type="button"
-            className="rounded-pill border border-[var(--color-line)] bg-white px-5 py-2.5 text-sm font-medium hover:border-[var(--color-ink)]"
-          >
-            Secondary
-          </button>
-          <a
-            href="/product"
-            className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-brand)] hover:underline"
-          >
-            Tertiary link →
-          </a>
-          <button
-            type="button"
-            className="rounded-pill bg-[var(--color-ink)] px-6 py-3 text-base font-medium text-white hover:bg-[var(--color-brand)]"
-          >
-            Hero CTA
-          </button>
-        </div>
-      </CompGroup>
-
-      <CompGroup
-        label="Chips & tags"
-        note="Status, scope, environment. Use lowercase verbs or one-word labels."
-      >
-        <div className="flex flex-wrap items-center gap-3">
-          <Chip>Neutral</Chip>
-          <Chip tone="brand">Active state</Chip>
-          <Chip tone="gold">Verified</Chip>
-          <Chip tone="live">
-            <span className="size-1.5 rounded-full bg-emerald-500" />
-            Live
-          </Chip>
-          <Chip tone="brand-soft">
-            <span className="size-1.5 rounded-full bg-[var(--color-brand)]" />
-            On Arc
-          </Chip>
-        </div>
-      </CompGroup>
-
-      <CompGroup
-        label="Iconography"
-        note="Stroke-based. 1.6px weight. Rounded line-caps. Geometric. Never filled."
-      >
-        <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
-          {[
-            "📄",
-            "💳",
-            "🛡",
-            "🔒",
-            "→",
-            "✓",
-            "+",
-            "🌐",
-            "🕐",
-            "✦",
-            "◉",
-            "🔑",
-          ].map((g, i) => (
-            <div
-              key={i}
-              className="grid h-14 w-14 place-items-center rounded-md border border-[var(--color-line)] text-lg text-[var(--color-ink-muted)]"
-            >
-              {g}
-            </div>
-          ))}
-        </div>
-      </CompGroup>
-    </section>
-  );
-}
-
-function CompGroup({
-  label,
-  note,
-  children,
-}: {
-  label: string;
-  note: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <article className="mt-5 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
-      <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
-        {label}
-      </p>
-      <div className="mt-5 border-t border-[var(--color-line)] pt-5">
-        {children}
-      </div>
-      <p className="mt-5 text-sm text-[var(--color-ink-muted)]">{note}</p>
-    </article>
-  );
-}
-
-function Chip({
-  tone = "neutral",
-  children,
-}: {
-  tone?: "neutral" | "brand" | "gold" | "live" | "brand-soft";
-  children: React.ReactNode;
-}) {
-  const styles: Record<string, string> = {
-    neutral:
-      "border border-[var(--color-line)] bg-white text-[var(--color-ink-muted)]",
-    brand: "bg-[var(--color-brand-soft)] text-[var(--color-brand)]",
-    gold: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-    live: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-    "brand-soft":
-      "bg-[var(--color-brand-soft)] text-[var(--color-brand)] ring-1 ring-[var(--color-brand)]/15",
-  };
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-pill px-3 py-1 font-mono text-[11px] ${styles[tone]}`}
-    >
-      {children}
-    </span>
-  );
-}
-
-/* ─── 07 Stenn-Proof badge ─────────────────────────────────────────── */
-
-function SectionStennBadge() {
-  return (
-    <section id="stenn-proof" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="07"
-        title="The Stenn-Proof badge"
-        lede="Our signature object. A small gold-and-ink badge that anchors trust. Every verified receipt carries it. Nothing else may."
-      />
-
-      <figure className="mt-10 overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-ink)]">
-        <div className="grid place-items-center py-20">
-          <StennBadge size="hero" />
-        </div>
-        <figcaption className="flex items-center justify-between border-t border-white/10 bg-[var(--color-ink)] px-5 py-3 text-xs text-white/60">
-          <span className="font-mono">The badge</span>
-          <span className="font-mono">At 2.2x for inspection</span>
-        </figcaption>
-      </figure>
-
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
-          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
-            Three sizes
-          </p>
-          <ul className="mt-5 space-y-4">
-            <li className="flex items-center justify-between gap-4">
-              <StennBadge size="sm" />
-              <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                Compact · 20px
-              </span>
-            </li>
-            <li className="flex items-center justify-between gap-4">
-              <StennBadge size="md" />
-              <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                Default · 28px
-              </span>
-            </li>
-            <li className="flex items-center justify-between gap-4">
-              <StennBadge size="lg" />
-            </li>
-          </ul>
-        </article>
-
-        <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
-          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
-            Embed snippet
-          </p>
-          <p className="mt-3 text-sm text-[var(--color-ink-muted)]">
-            Vendors drop the React component on their portfolio. Every receipt
-            is a marketing impression.
-          </p>
-          <pre className="mt-4 overflow-x-auto rounded-md bg-[var(--color-ink)] p-4 font-mono text-[12px] leading-relaxed text-white">
-            {`import { KlaroReceiptBadge } from "@klaro/receipt-badge";
-
-<KlaroReceiptBadge
-  hash="0x9f8a3c5b…"
-  size="default"
-/>`}
-          </pre>
-        </article>
-      </div>
-    </section>
-  );
-}
-
-function StennBadge({ size }: { size: "sm" | "md" | "lg" | "hero" }) {
-  const cls = {
-    sm: "h-6  text-[10px] gap-1.5 px-2.5",
-    md: "h-8  text-xs    gap-2   px-3",
-    lg: "h-10 text-sm    gap-2   px-4",
-    hero: "h-14 text-base  gap-3   px-6 tracking-[0.2em]",
-  }[size];
-  return (
-    <span
-      className={`inline-flex items-center rounded-pill bg-amber-100 font-mono uppercase text-amber-800 ring-1 ring-amber-300 ${cls}`}
-    >
-      <span
-        className="grid place-items-center rounded-full bg-[var(--color-gold)] text-white"
-        style={{ width: "1.4em", height: "1.4em" }}
-      >
-        ✓
-      </span>
-      Stenn-Proof · Verified
-    </span>
-  );
-}
-
-/* ─── 08 Imagery ───────────────────────────────────────────────────── */
-
-function SectionImagery() {
-  return (
-    <section id="imagery" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="08"
-        title="Imagery"
-        lede="Real vendors, real workplaces. No stock photography. No glossy money imagery. No abstract crypto art."
-      />
-      <div className="mt-10 grid gap-5 md:grid-cols-3">
-        <ImageryPlaceholder
-          label="Vendor portraits"
-          note="Real founders in real workspaces. Natural light. Eye contact. No staged laptops."
-        />
-        <ImageryPlaceholder
-          label="Product surfaces"
-          note="Real Klaro UI in real contexts: phone in hand, browser in dim café, ledger on screen."
-        />
-        <ImageryPlaceholder
-          label="Place + texture"
-          note="Documentary detail shots: shopfronts, ledgers, ports, hands. Anchors corridor stories."
-        />
-      </div>
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <DoDontImage
-          kind="dont"
-          art={
-            <div
-              className="h-full w-full"
-              style={{
-                background:
-                  "radial-gradient(circle at 40% 40%, #f6c200 0%, #0A0A0A 50%, #00E5FF 100%)",
-              }}
-            />
-          }
-          label="typical crypto art (don't)"
-          note="No abstract money imagery. No glowing coins, no $-signs, no neon networks."
-        />
-        <DoDontImage
-          kind="do"
-          art={
-            <div
-              className="grid h-full w-full place-items-center text-xs text-[var(--color-ink-subtle)]"
-              style={{
-                background:
-                  "repeating-linear-gradient(45deg, var(--color-bg) 0 8px, var(--color-bg-elevated) 8px 16px)",
-              }}
-            >
-              vendor portrait · real workspace
-            </div>
-          }
-          label="vendor portrait · real workspace"
-          note="Documentary photography. Restrained editing. Black-and-white when in doubt."
-        />
-      </div>
-    </section>
-  );
-}
-
-function ImageryPlaceholder({ label, note }: { label: string; note: string }) {
-  return (
-    <article>
-      <div
-        className="grid h-72 w-full place-items-center rounded-lg border border-[var(--color-line)] text-xs text-[var(--color-ink-subtle)]"
-        style={{
-          background:
-            "repeating-linear-gradient(45deg, var(--color-bg) 0 8px, var(--color-bg-elevated) 8px 16px)",
-        }}
-      >
-        <span className="rounded border border-[var(--color-line)] bg-white px-3 py-1 font-mono">
-          {label}
-        </span>
-      </div>
-      <p className="mt-3 text-sm text-[var(--color-ink-muted)]">{note}</p>
-    </article>
-  );
-}
-
-function DoDontImage({
-  kind,
-  art,
-  label,
-  note,
-}: {
-  kind: "do" | "dont";
-  art: React.ReactNode;
-  label: string;
-  note: string;
-}) {
-  const isDo = kind === "do";
-  return (
-    <article
-      className={`rounded-lg border ${isDo ? "border-emerald-200 bg-emerald-50/40" : "border-rose-200 bg-rose-50/40"}`}
-    >
-      <div className="overflow-hidden rounded-t-lg">
-        <div className="h-60 w-full">{art}</div>
-      </div>
-      <div className="px-5 py-4">
-        <p
-          className={`inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase ${isDo ? "text-emerald-700" : "text-rose-700"}`}
-        >
-          <span
-            className={`inline-flex size-4 items-center justify-center rounded-full text-[10px] text-white ${isDo ? "bg-emerald-500" : "bg-rose-500"}`}
-          >
-            {isDo ? "✓" : "✕"}
-          </span>
-          {isDo ? "Do" : "Don't"}
-        </p>
-        <p className="mt-2 text-sm font-medium">{label}</p>
-        <p className="mt-1 text-sm text-[var(--color-ink-muted)]">{note}</p>
-      </div>
-    </article>
-  );
-}
-
-/* ─── 09 Usage rules ───────────────────────────────────────────────── */
-
-function SectionUsage() {
-  return (
-    <section id="usage" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="09"
-        title="Usage rules"
-        lede="What you can do with the Klaro brand without asking us, and what requires written permission."
-      />
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
-        <UsageCard
-          kind="do"
-          title="Allowed without asking"
-          items={[
-            "Linking to klaro.so or any subdomain.",
-            "Using the Klaro logo to indicate Klaro integration in your product (with a link back).",
-            "Embedding the Stenn-Proof badge on receipts you've actually issued through Klaro.",
-            "Writing about Klaro in editorial / news contexts.",
-            "Using brand colors and typography as visual reference in case studies.",
-          ]}
-        />
-        <UsageCard
-          kind="dont"
-          title="Requires brand@klaro.so"
-          items={[
-            "Using the Stenn-Proof badge on receipts you haven't issued through Klaro.",
-            "Modifying the logo — recoloring, redrawing, adding effects, animating beyond the supplied motion files.",
-            "Combining the Klaro logo with another mark in a single composite mark.",
-            'Using "Klaro" or "Stenn-Proof" as part of a product name you ship.',
-            "Selling merchandise that uses the Klaro logo.",
-          ]}
-        />
-      </div>
-    </section>
-  );
-}
-
-function UsageCard({
-  kind,
-  title,
-  items,
-}: {
-  kind: "do" | "dont";
-  title: string;
-  items: string[];
-}) {
+function UsageCard({ kind, title, items }: { kind: "do" | "dont"; title: string; items: string[] }) {
   const isDo = kind === "do";
   return (
     <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
       <p
-        className={`inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase ${isDo ? "text-emerald-700" : "text-rose-700"}`}
+        className={`inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase ${
+          isDo ? "text-emerald-700" : "text-rose-700"
+        }`}
       >
         <span
-          className={`inline-flex size-4 items-center justify-center rounded-full text-[10px] text-white ${isDo ? "bg-emerald-500" : "bg-rose-500"}`}
+          className={`inline-flex size-4 items-center justify-center rounded-full text-[10px] text-white ${
+            isDo ? "bg-emerald-500" : "bg-rose-500"
+          }`}
         >
           {isDo ? "✓" : "✕"}
         </span>
@@ -1026,17 +530,13 @@ function UsageCard({
         {items.map((it, i) => (
           <li key={i} className="flex items-start gap-3">
             <span
-              className={`mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full text-[10px] text-white ${isDo ? "bg-emerald-500" : "bg-rose-500"}`}
+              className={`mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full text-[10px] text-white ${
+                isDo ? "bg-emerald-500" : "bg-rose-500"
+              }`}
             >
               {isDo ? "✓" : "✕"}
             </span>
-            <span
-              className={
-                isDo
-                  ? "text-[var(--color-ink)]"
-                  : "text-[var(--color-ink-muted)]"
-              }
-            >
+            <span className={isDo ? "text-[var(--color-ink)]" : "text-[var(--color-ink-muted)]"}>
               {it}
             </span>
           </li>
@@ -1046,48 +546,68 @@ function UsageCard({
   );
 }
 
-/* ─── 10 Downloads ─────────────────────────────────────────────────── */
+/* ─── Tab 5: Downloads ─────────────────────────────────────────────── */
 
-function SectionDownloads() {
+const DOWNLOADS = [
+  {
+    title: "Klaro mark (light)",
+    meta: "1 KB · SVG",
+    body: "Symbol on light surfaces. Inline-ready, no bitmap fallback needed.",
+    href: "/brand/klaro-mark.svg",
+  },
+  {
+    title: "Klaro mark (dark)",
+    meta: "1 KB · SVG",
+    body: "Symbol with white stem for dark backgrounds.",
+    href: "/brand/klaro-mark-dark.svg",
+  },
+  {
+    title: "Klaro horizontal wordmark",
+    meta: "2 KB · SVG",
+    body: "Symbol + wordmark lockup. Default for most surfaces.",
+    href: "/brand/klaro-wordmark.svg",
+  },
+  {
+    title: "Colour tokens (CSS)",
+    meta: "1 KB · :root variables",
+    body: "Drop-in CSS custom properties. Same values our app uses.",
+    href: "/brand/klaro-tokens.css",
+  },
+  {
+    title: "Colour tokens (JSON)",
+    meta: "1 KB · DTCG format",
+    body: "Design Tokens Community Group schema. Pipe into Style Dictionary, Figma Tokens, or your own tooling.",
+    href: "/brand/klaro-tokens.json",
+  },
+];
+
+function DownloadsTab() {
   return (
-    <section id="downloads" className="mt-[clamp(80px,10vw,160px)] scroll-mt-24">
-      <BkSectionHead
-        n="10"
+    <section>
+      <TabHead
         title="Downloads"
-        lede="Production-ready files. SVG and PNG for the logo. WOFF2 for fonts (under SIL Open Font License). Figma source for the full kit."
+        lede="What we have today. Logo, wordmark, and colour tokens — production-ready. The full Figma source and font WOFF2 bundle are in progress; email brand@klaro.so to get them early."
       />
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
-        <DownloadCard
-          title="Klaro logo · full pack"
-          meta="218 KB · SVG + PNG + ICO"
-          body="Symbol, wordmark, lockups, app icon, favicon. Light + dark variants."
-        />
-        <DownloadCard
-          title="Stenn-Proof badge kit"
-          meta="84 KB · SVG + React + Web Component"
-          body="Three sizes, three states, with embed snippets for every framework."
-        />
-        <DownloadCard
-          title="Typography · WOFF2 bundle"
-          meta="412 KB · 3 families"
-          body="Inter Tight, Inter, JetBrains Mono. Subsetted to Latin + Devanagari + Cyrillic."
-        />
-        <DownloadCard
-          title="Color tokens"
-          meta="6 KB · CSS / JSON / Figma"
-          body="Full token tree: primary, neutrals, semantic, dark mode."
-        />
-        <DownloadCard
+
+      <div className="grid gap-5 md:grid-cols-2">
+        {DOWNLOADS.map((d) => (
+          <DownloadCard key={d.href} {...d} />
+        ))}
+        <RequestCard
           title="Figma source · brand kit"
-          meta="14 MB · .fig"
-          body="Every page in this document, editable. Auto-layout components included."
+          meta="In progress"
+          body="Every page in this document, editable, auto-layout components. Email to request early access."
         />
-        <DownloadCard
-          title="Brand guide PDF"
-          meta="3.8 MB · 38 pages"
-          body="This document, paginated for print and partner distribution."
+        <RequestCard
+          title="Typography · WOFF2 bundle"
+          meta="In progress"
+          body="Inter Tight, Inter, JetBrains Mono — subsetted to Latin + Devanagari + Cyrillic."
         />
       </div>
+
+      <p className="mt-8 max-w-2xl text-xs text-[var(--color-ink-subtle)]">
+        Logo files: all rights reserved. Brand guide text: CC-BY 4.0. Fonts are distributed under the SIL Open Font License by their authors; we do not sublicense them.
+      </p>
     </section>
   );
 }
@@ -1096,31 +616,48 @@ function DownloadCard({
   title,
   meta,
   body,
+  href,
 }: {
   title: string;
   meta: string;
   body: string;
+  href: string;
 }) {
   return (
     <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="font-display text-lg font-semibold tracking-tight">
-            {title}
-          </h3>
-          <p className="mt-1 font-mono text-xs text-[var(--color-ink-subtle)]">
-            {meta}
-          </p>
+        <div className="min-w-0">
+          <h3 className="font-display text-lg font-semibold tracking-tight">{title}</h3>
+          <p className="mt-1 font-mono text-xs text-[var(--color-ink-subtle)]">{meta}</p>
           <p className="mt-3 text-sm text-[var(--color-ink-muted)]">{body}</p>
         </div>
-        <button
-          type="button"
-          disabled
-          title="Asset bundles coming soon"
-          className="inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-pill border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium opacity-60"
+        <a
+          href={href}
+          download
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-pill border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium hover:border-[var(--color-ink)]"
         >
           ↓ Download
-        </button>
+        </a>
+      </div>
+    </article>
+  );
+}
+
+function RequestCard({ title, meta, body }: { title: string; meta: string; body: string }) {
+  return (
+    <article className="rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-warm)] p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h3 className="font-display text-lg font-semibold tracking-tight">{title}</h3>
+          <p className="mt-1 font-mono text-xs text-[var(--color-ink-subtle)]">{meta}</p>
+          <p className="mt-3 text-sm text-[var(--color-ink-muted)]">{body}</p>
+        </div>
+        <a
+          href="mailto:brand@klaro.so?subject=Brand%20kit%20request"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-pill border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
+        >
+          Email to request
+        </a>
       </div>
     </article>
   );
@@ -1140,15 +677,15 @@ function PressBand() {
             Working on a story or co-launch?
           </h3>
           <p className="mt-2 text-sm text-white/70">
-            Reach the brand team directly. We respond within 1 business day.
+            Reach the brand team directly. We respond within one business day.
           </p>
         </div>
-        <a
+        <Link
           href="mailto:brand@klaro.so"
           className="inline-flex h-11 items-center rounded-pill bg-white px-5 text-sm font-medium text-[var(--color-ink)] hover:bg-[var(--color-gold)]"
         >
           brand@klaro.so
-        </a>
+        </Link>
       </article>
     </section>
   );

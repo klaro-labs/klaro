@@ -1,0 +1,23 @@
+/**
+ * Klaro brand tokens — drop-in CSS custom properties.
+ * Source of truth: apps/web/app/globals.css `@theme inline`.
+ * License: CC-BY 4.0 (brand guide). Logo files: all rights reserved.
+ */
+:root {
+  /* Brand */
+  --klaro-terracotta: #c7522a;
+  --klaro-terracotta-soft: #f6e7df;
+  --klaro-terracotta-deep: #8a3815;
+
+  /* Reserved — Stenn-Proof badge only */
+  --klaro-gold: #f5b100;
+  --klaro-gold-soft: #fdf3d6;
+  --klaro-gold-deep: #8a6200;
+
+  /* Neutrals */
+  --klaro-ink: #0a0a0a;
+  --klaro-ink-muted: #6b6b6b;
+  --klaro-ink-subtle: #a3a3a3;
+  --klaro-line: #e5e5e5;
+  --klaro-paper: #fafaf7;
+}

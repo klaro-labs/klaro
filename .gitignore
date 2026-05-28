@@ -9,6 +9,10 @@ out/
 build/
 *.tsbuildinfo
 
+# Exception: /build route lives under apps/web/app/build — not a build output.
+!apps/web/app/build/
+!apps/web/app/build/**
+
 # Foundry build artifacts and locally-cloned dependencies. CI re-clones
 # packages/contracts/lib/{forge-std,openzeppelin-contracts} on each run
 # at the versions pinned in .github/workflows/ci.yml.
