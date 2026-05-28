@@ -9,7 +9,11 @@ import { getCurrentSession } from "@/lib/auth";
 import { listInvoicesForVendor } from "@/lib/repo/invoices";
 import { mockListDisputesForVendor } from "@/lib/mockData";
 
-const DEBUG_TOKEN = "qa014-bf3a9c";
+// 192-bit random token. Rotated when endpoint is deleted post-root-cause.
+// QA-018 acknowledges this is hardcoded — endpoint is temporary, data
+// exposure requires a Supabase session cookie, and the endpoint will be
+// removed within the hour.
+const DEBUG_TOKEN = "45abc8709c774b646eda0e1eebf6a2a6d77869068d91a55d";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
