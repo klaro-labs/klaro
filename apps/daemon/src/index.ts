@@ -11,6 +11,7 @@ import { log } from "./log.js";
 import { startHttp } from "./http.js";
 import { closeAll, queue } from "./queue.js";
 import { startArcListener, stopArcListener } from "./listener/arcSubscriber.js";
+import { assertListenerEventSigs } from "./listener/abiAssert.js";
 
 import { startWebhookDelivery } from "./workers/webhookDelivery.js";
 import { startScreenAndSettle } from "./workers/screenAndSettle.js";
@@ -73,6 +74,12 @@ async function scheduleCrons() {
 
 async function boot() {
   log.info("daemon.boot", { env: env.NODE_ENV });
+
+  // ABI drift guard. Throws at boot if any listener event sig diverges
+  // from the canonical forge ABI — prevents the QA-027 family from ever
+  // silently recurring (5 separate sig mismatches in this session alone).
+  assertListenerEventSigs();
+  log.info("daemon.abi_drift_check.ok");
 
   const server = startHttp();
 
