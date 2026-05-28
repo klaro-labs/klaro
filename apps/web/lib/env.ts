@@ -20,14 +20,28 @@ const opt = (k: string): string | undefined =>
   process.env[k] && process.env[k]!.length > 0 ? process.env[k] : undefined;
 
 // ─── Supabase (M4 auth + DB) ─────────────────────────────────────────
-// SUPABASE_URL was server-only — `supabaseLive()` always returned
-// false in the browser so Google OAuth (createBrowserClient) never even
-// reached Supabase. Read NEXT_PUBLIC_SUPABASE_URL first (real public
-// var on Vercel + .env.local). Fall back to the bare SUPABASE_URL so
-// server-side code that already reads it keeps working unchanged.
+// IMPORTANT — webpack DefinePlugin only inlines LITERAL `process.env.NEXT_PUBLIC_*`
+// accesses at build time. The helper `opt("NEXT_PUBLIC_SUPABASE_URL")`
+// looks like a runtime dynamic lookup → the bundler can't substitute it,
+// so the client bundle gets `undefined`. That's why supabaseLive() was
+// returning false in the browser and Google OAuth bounced silently. Use
+// literal accesses so the values bake into the client chunk. Server-side
+// reads (POST /api/auth/magic, server components) still work because
+// they execute in Node where process.env is real.
+const _PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const _SERVER_SUPABASE_URL =
+  typeof process !== "undefined" && process.env.SUPABASE_URL
+    ? process.env.SUPABASE_URL
+    : undefined;
+const _PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 export const SUPABASE_URL =
-  opt("NEXT_PUBLIC_SUPABASE_URL") ?? opt("SUPABASE_URL");
-export const SUPABASE_ANON_KEY = opt("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  _PUBLIC_SUPABASE_URL && _PUBLIC_SUPABASE_URL.length > 0
+    ? _PUBLIC_SUPABASE_URL
+    : _SERVER_SUPABASE_URL;
+export const SUPABASE_ANON_KEY =
+  _PUBLIC_SUPABASE_ANON_KEY && _PUBLIC_SUPABASE_ANON_KEY.length > 0
+    ? _PUBLIC_SUPABASE_ANON_KEY
+    : undefined;
 export const SUPABASE_SERVICE_ROLE_KEY = opt("SUPABASE_SERVICE_ROLE_KEY");
 export const supabaseLive = (): boolean =>
   Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
