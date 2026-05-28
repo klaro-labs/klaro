@@ -157,4 +157,76 @@ describe("lifecycle-reminder cron — multi-vendor + cache", () => {
     // And we shouldn't have called mockGetVendor 3+ times (one per invoice).
     expect(vendorLookupIds.length).toBeLessThanOrEqual(2);
   });
+
+  // QA-070: pre-fix one sendLifecycleReminder throw aborted the entire
+  // loop and silently dropped every subsequent invoice. Per-iteration
+  // try/catch now isolates failures + surfaces a `failed` counter.
+  it("isolates per-invoice failures so one bad email doesn't drop the rest (QA-070)", async () => {
+    sentReminders.length = 0;
+    vendorLookupIds.length = 0;
+
+    const mocked = await import("@/lib/mockData");
+    const vendorsRepo = await import("@/lib/repo/vendors");
+    const emailModule = await import("@/lib/email");
+
+    (vendorsRepo.getVendorById as ReturnType<typeof vi.fn>).mockImplementation(
+      async (id: string) => ({
+        id,
+        email: `${id}@klaro.demo`,
+        displayName: `Vendor ${id.slice(-1)}`,
+        wallet: ("0x" + "00".repeat(20)) as Hex,
+        createdAt: new Date(),
+      }),
+    );
+
+    // Make the 2nd email send throw to simulate SES rate-limit / bad-address.
+    let callCount = 0;
+    (
+      emailModule.sendLifecycleReminder as ReturnType<typeof vi.fn>
+    ).mockImplementation(
+      async (opts: { vendorName: string; buyerEmail: string }) => {
+        callCount += 1;
+        if (callCount === 2) throw new Error("SES rate-limit (simulated)");
+        sentReminders.push({
+          vendorName: opts.vendorName,
+          buyerEmail: opts.buyerEmail,
+        });
+      },
+    );
+
+    const dueIn3Days = new Date(Date.now() + 3 * 86_400_000);
+    for (let i = 0; i < 3; i++) {
+      await mocked.mockCreateInvoice({
+        vendorId: `vendor-qa070-${i}`,
+        vendorWallet: ("0x" + "dd".repeat(20)) as Hex,
+        token: ("0x" + "bb".repeat(20)) as Hex,
+        amount: 1_000_000n,
+        dueAt: dueIn3Days,
+        customer: { email: `buyer-qa070-${i}@example.com`, name: `Buyer ${i}` },
+        lineItems: [{ description: "z", amount: 1_000_000n }],
+        id: `0x${"c".repeat(63)}${i}` as Hex,
+        metadataHash: keccak256(stringToBytes(`m-qa070-${i}`)),
+      });
+    }
+
+    const { GET } = await import("@/app/api/cron/lifecycle-reminders/route");
+    const res = await GET(
+      new Request("http://x/cron") as unknown as Parameters<typeof GET>[0],
+    );
+    const body = await res.json();
+
+    // Loop did NOT abort on the throw — response still ok.
+    expect(body.ok).toBe(true);
+    // Pre-fix: callCount would have been 2 (loop dies after the throw).
+    // Post-fix: every invoice gets attempted.
+    expect(callCount).toBeGreaterThanOrEqual(3);
+    // `failed` counter exposed in response so operators see partial-batch.
+    expect(body.failed).toBeGreaterThanOrEqual(1);
+    // At least one of the THREE QA-070 invoices' send did succeed
+    // (call 1 + call 3 by mock contract).
+    const qa070Sent = sentReminders.filter((r) =>
+      r.buyerEmail.startsWith("buyer-qa070-"),
+    );
+    expect(qa070Sent.length).toBeGreaterThanOrEqual(2);
+  });
 });
