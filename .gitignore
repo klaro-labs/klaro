@@ -104,6 +104,7 @@ internal/
 # Captured screenshots + rendered HTMLs from design-reference/. Regenerable
 # from the capture-*.mjs scripts; PNGs would bloat the repo and pollute diffs.
 design-reference/screenshots/
+apps/web/mockups/
 
 # Claude Code session state (scheduled tasks lock, etc.) is per-machine.
 .claude/scheduled_tasks.lock

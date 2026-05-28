@@ -322,7 +322,7 @@ function BusinessStep({ form, update, onBlur }: StepProps) {
           value={form.displayName}
           onChange={(e) => update("displayName", e.target.value)}
           onBlur={onBlur}
-          placeholder="Atelier Vega"
+          placeholder="Your legal business name"
           className={INPUT}
         />
       </div>
@@ -334,7 +334,7 @@ function BusinessStep({ form, update, onBlur }: StepProps) {
           value={form.country}
           onChange={(e) => update("country", e.target.value)}
           onBlur={onBlur}
-          placeholder="India"
+          placeholder="ISO country (e.g. IN, US, DE)"
           className={INPUT}
         />
       </div>
