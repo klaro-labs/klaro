@@ -298,6 +298,32 @@ export function startArcListener() {
           const key = `invoice-paid:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
           await safeEvent("InvoicePaid", key, async () => {
+            // QA-028 fix: sync DB before fanning out the screen job. Without
+            // this the world sees a PAID invoice on chain + screening_results
+            // rows in Supabase, but invoices.status stays 'CREATED' forever
+            // → vendor dashboard never reflects payment. Use a conservative
+            // update that only flips CREATED→PAID (don't clobber a row that
+            // somehow moved further, e.g. operator already settled).
+            const dbUpd = await sb()
+              .from("invoices")
+              .update({
+                status: "PAID",
+                accepted_by: ev.args.buyer,
+                accepted_at: new Date().toISOString(),
+                paid_tx_hash: ev.transactionHash,
+              })
+              .eq("id", ev.args.invoiceId)
+              .in("status", ["CREATED", "ACCEPTED"]);
+            if (dbUpd.error) {
+              log.error("event.InvoicePaid.dbSync.failed", {
+                id: ev.args.invoiceId,
+                err: dbUpd.error.message,
+              });
+              // Don't bail — keep enqueueing the screen job. The DB sync
+              // is best-effort defensive (a later reconciler could fix it
+              // from on-chain state).
+            }
+
             await queue("screen-and-settle").add(
               ev.args.invoiceId ?? "",
               {
