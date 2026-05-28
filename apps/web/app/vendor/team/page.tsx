@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { mockListTeam } from "@/lib/mockData";
@@ -32,88 +31,89 @@ export default async function TeamPage() {
   const team = await mockListTeam(session.vendor.id);
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={session.vendor.displayName} />
-      <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Team & roles
-            </p>
-            <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-              Team
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm text-[var(--color-ink-muted)]">
-              Four roles. Backed by Supabase RLS in live mode, in-memory mock
-              otherwise. Each role&apos;s scope is enforced server-side at the
-              API layer + Postgres row-level — clients cannot bypass.
-            </p>
-          </div>
-          <Badge tone={supabaseLive() ? "live" : "sim"}>
-            {supabaseLive()
-              ? "Supabase RLS"
-              : "Simulated · SUPABASE_URL not set"}
-          </Badge>
+    <div className="mx-auto w-full max-w-[1100px] px-4 py-6 md:px-6 md:py-10">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+            Team &amp; roles
+          </p>
+          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+            Team
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-[var(--color-ink-muted)]">
+            Four roles. Backed by Supabase RLS in live mode, in-memory mock
+            otherwise. Each role&apos;s scope is enforced server-side at the
+            API layer + Postgres row-level — clients cannot bypass.
+          </p>
         </div>
+        <Badge tone={supabaseLive() ? "live" : "sim"}>
+          {supabaseLive()
+            ? "Supabase RLS"
+            : "Simulated · SUPABASE_URL not set"}
+        </Badge>
+      </header>
 
-        <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-4">
-          {Object.entries(ROLE_DESCRIPTIONS).map(([role, desc]) => (
-            <div
-              key={role}
-              className="rounded-lg border border-[var(--color-line)] bg-white p-4"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium">{role}</span>
-                <Badge tone={ROLE_TONE[role]}>role</Badge>
-              </div>
-              <p className="mt-2 text-xs text-[var(--color-ink-muted)]">
-                {desc}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <form
-          action={inviteTeammateAction}
-          className="grid grid-cols-1 gap-3 rounded-lg border border-[var(--color-line)] bg-white p-6 md:grid-cols-[1fr_auto_auto] md:items-end"
-        >
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-[var(--color-ink-muted)]">Email address</span>
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="teammate@company.com"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
-            />
-          </label>
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-[var(--color-ink-muted)]">Role</span>
-            <select
-              name="role"
-              defaultValue="Member"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
-            >
-              {/* Iter 75: dropped Owner option to match the action's
-                  refusal + the per-row change-role dropdown — only one
-                  Owner per tenant. Pre-iter-75 the option appeared and
-                  produced a confusing post-submit error. */}
-              <option>Admin</option>
-              <option>Member</option>
-              <option>ReadOnly</option>
-            </select>
-          </label>
-          <button
-            type="submit"
-            className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
+      <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-4">
+        {Object.entries(ROLE_DESCRIPTIONS).map(([role, desc]) => (
+          <div
+            key={role}
+            className="rounded-lg border border-[var(--color-line)] bg-white p-4"
           >
-            Invite
-          </button>
-        </form>
+            <div className="flex items-center justify-between">
+              <span className="font-medium">{role}</span>
+              <Badge tone={ROLE_TONE[role]}>role</Badge>
+            </div>
+            <p className="mt-2 text-xs text-[var(--color-ink-muted)]">{desc}</p>
+          </div>
+        ))}
+      </div>
 
-        <h2 className="mt-10 mb-3 font-display text-xl font-semibold">
-          Members
-        </h2>
+      <form
+        action={inviteTeammateAction}
+        className="mt-6 grid grid-cols-1 gap-3 rounded-lg border border-[var(--color-line)] bg-white p-6 md:grid-cols-[1fr_auto_auto] md:items-end"
+      >
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="text-[var(--color-ink-muted)]">Email address</span>
+          <input
+            name="email"
+            type="email"
+            required
+            placeholder="teammate@company.com"
+            className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="text-[var(--color-ink-muted)]">Role</span>
+          <select
+            name="role"
+            defaultValue="Member"
+            className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+          >
+            <option>Admin</option>
+            <option>Member</option>
+            <option>ReadOnly</option>
+          </select>
+        </label>
+        <button
+          type="submit"
+          className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
+        >
+          Invite
+        </button>
+      </form>
+
+      <h2 className="mt-10 mb-3 font-display text-xl font-semibold">Members</h2>
+      {team.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-[var(--color-line)] bg-white p-10 text-center">
+          <p className="font-display text-lg font-semibold tracking-tight">
+            Just you, for now
+          </p>
+          <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--color-ink-muted)]">
+            Invite a teammate above. They&apos;ll get an email link to claim
+            their role.
+          </p>
+        </div>
+      ) : (
         <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
           {team.map((m) => (
             <li
@@ -137,9 +137,6 @@ export default async function TeamPage() {
                   Owner
                 </span>
               ) : (
-                // inert "Manage" button → real role-change + remove
-                // controls wired to existing changeRoleAction /
-                // removeTeammateAction (per CLAUDE rule "no fake controls").
                 <details className="relative">
                   <summary className="cursor-pointer rounded border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs hover:border-[var(--color-brand)]">
                     Manage
@@ -198,7 +195,7 @@ export default async function TeamPage() {
             </li>
           ))}
         </ul>
-      </section>
-    </main>
+      )}
+    </div>
   );
 }

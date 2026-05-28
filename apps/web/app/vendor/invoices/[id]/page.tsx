@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { VendorNav } from "@/components/klaro/VendorNav";
-import { MobileShell } from "@/components/klaro/MobileShell";
 import { ShareInvoiceLink } from "@/components/klaro/ShareInvoiceLink";
 import { Badge } from "@/components/ui/Badge";
 import { formatUSDC, shortAddress, relativeTime } from "@/lib/money";
@@ -62,77 +60,68 @@ export default async function InvoiceDetailPage({
   const shortId = `INV-${invoice.id.slice(2, 6).toUpperCase()}`;
 
   return (
-    <>
-      <div className="md:hidden">
-        <MobileShell active="invoices">
-          <div className="-mx-4 -mt-5 flex items-center justify-between border-b border-[var(--color-line)] bg-white/95 px-4 py-3 backdrop-blur">
-            <Link
-              href="/vendor/invoices"
-              className="text-sm font-medium text-[var(--color-brand)]"
+    <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 md:py-12">
+      <Link
+        href="/vendor/invoices"
+        className="inline-flex items-center gap-1 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
+      >
+        ← All invoices
+      </Link>
+
+      <header className="mt-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-xs text-[var(--color-ink-subtle)]">
+            {shortId} · {shortAddress(invoice.id)}
+          </p>
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">
+            {formatUSDC(invoice.amount)}
+          </h1>
+          <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
+            To {invoice.customer.name ?? invoice.customer.email} · Created{" "}
+            {relativeTime(invoice.createdAt)}
+          </p>
+        </div>
+        <Badge tone={STATUS_TONE[invoice.status]}>
+          {STATUS_LABEL[invoice.status]}
+        </Badge>
+      </header>
+
+      {isHeld && (
+        <article className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4">
+          <p className="flex items-start gap-3 text-sm">
+            <span
+              aria-hidden
+              className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-rose-500 text-xs font-bold text-white"
             >
-              ‹ Back
-            </Link>
-            <span className="font-display text-sm font-semibold">
-              {shortId}
+              !
             </span>
-            <span className="w-12" aria-hidden />
-          </div>
+            <span>
+              <span className="font-medium text-rose-900">Held for review</span>
+              <span className="mt-1 block text-rose-800/80">
+                Buyer wallet flagged in our daily sanctions refresh. We respond
+                within 24h.
+              </span>
+            </span>
+          </p>
+        </article>
+      )}
 
-          {isHeld && (
-            <article className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4">
-              <p className="flex items-start gap-3 text-sm">
-                <span
-                  aria-hidden
-                  className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-rose-500 text-xs font-bold text-white"
-                >
-                  !
-                </span>
-                <span>
-                  <span className="font-medium text-rose-900">
-                    Held for review
-                  </span>
-                  <span className="mt-1 block text-rose-800/80">
-                    Buyer wallet flagged in our daily sanctions refresh. We
-                    respond within 24h.
-                  </span>
-                </span>
-              </p>
-            </article>
-          )}
-
-          <article className="mt-4 rounded-xl border border-[var(--color-line)] bg-white p-5">
-            <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-ink-subtle)]">
-              Amount
-            </p>
-            <p className="mt-1 font-display text-4xl font-semibold tracking-tight">
-              {formatUSDC(invoice.amount)}
-            </p>
-            <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
-              To {invoice.customer.name ?? invoice.customer.email}
-            </p>
-          </article>
-
-          <div className="mt-6">
-            <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-ink-subtle)]">
-              Timeline
-            </p>
-            <ol className="mt-3 rounded-xl border border-[var(--color-line)] bg-white">
+      <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr]">
+        <div className="space-y-7">
+          <Section title="Timeline">
+            <ol className="-mx-1">
               <TimelineRow
                 done
                 label="Invoice created"
-                time={invoice.createdAt.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                time={relativeTime(invoice.createdAt)}
               />
               <TimelineRow
                 done={invoice.status !== "CREATED"}
                 label="Buyer signed it"
                 time={
-                  invoice.acceptedAt?.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }) ?? "—"
+                  invoice.acceptedAt
+                    ? relativeTime(invoice.acceptedAt)
+                    : "—"
                 }
               />
               <TimelineRow
@@ -148,143 +137,115 @@ export default async function InvoiceDetailPage({
                 }
               />
             </ol>
-          </div>
+          </Section>
 
-          <Link
-            href="/vendor/disputes"
-            className="mt-6 flex h-12 w-full items-center justify-center rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white hover:bg-black"
-          >
-            Open support case
-          </Link>
-        </MobileShell>
+          <Section title="Line items">
+            <table className="w-full text-sm">
+              <tbody>
+                {invoice.lineItems.length === 0 ? (
+                  <tr>
+                    <td className="py-2 text-[var(--color-ink-subtle)]">
+                      No line items recorded for this invoice.
+                    </td>
+                  </tr>
+                ) : (
+                  invoice.lineItems.map((l, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-[var(--color-line)] last:border-b-0"
+                    >
+                      <td className="py-2 text-[var(--color-ink)]">
+                        {l.description}
+                      </td>
+                      <td className="py-2 text-right text-[var(--color-ink-muted)]">
+                        {formatUSDC(l.amount)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </Section>
+
+          <Section title="Hosted invoice link">
+            <p className="font-mono text-sm break-all text-[var(--color-brand)]">
+              {hostedUrl}
+            </p>
+            <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
+              Share this URL to run the demo buyer checkout. Live wallet,
+              cross-chain and card payments are not enabled here.
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <Link
+                href={hostedUrl as `/i/${string}`}
+                className="text-sm font-medium text-[var(--color-brand)] hover:underline"
+              >
+                Open hosted invoice →
+              </Link>
+              <ShareInvoiceLink url={shareUrl} />
+            </div>
+          </Section>
+
+          <Section title="Screening">
+            <p className="text-xs text-[var(--color-ink-muted)]">
+              Simulated screening review only. No provider approval or on-chain{" "}
+              <code className="font-mono">screeningHash</code> is asserted in
+              demo mode.
+            </p>
+            <Link
+              href={{
+                pathname: `/vendor/invoices/${invoice.id}/screening`,
+              }}
+              className="mt-3 inline-block text-sm font-medium text-[var(--color-brand)] hover:underline"
+            >
+              View screening detail →
+            </Link>
+          </Section>
+
+          {invoice.status === "SETTLED" && invoice.receiptHash ? (
+            <Section title="Stenn-Proof receipt">
+              <p className="font-mono text-xs text-[var(--color-ink-muted)]">
+                {invoice.receiptHash}
+              </p>
+              <Link
+                href={
+                  `/receipt/${invoice.receiptHash}` as `/receipt/${string}`
+                }
+                className="mt-3 inline-block text-sm font-medium text-[var(--color-brand)] hover:underline"
+              >
+                View public receipt →
+              </Link>
+            </Section>
+          ) : null}
+        </div>
+
+        <aside className="space-y-7">
+          <Section title="Customer">
+            <p className="font-medium">{invoice.customer.name ?? "—"}</p>
+            <p className="text-sm text-[var(--color-ink-muted)]">
+              {invoice.customer.email}
+            </p>
+          </Section>
+          <Section title="Token">
+            <p className="font-mono text-sm">{shortAddress(invoice.token)}</p>
+            <p className="text-xs text-[var(--color-ink-subtle)]">
+              USDC ERC-20 on Arc (6 dec)
+            </p>
+          </Section>
+          <Section title="Due">
+            <p className="text-sm">{invoice.dueAt.toLocaleDateString()}</p>
+          </Section>
+          {isHeld ? (
+            <Link
+              href="/vendor/disputes"
+              className="inline-flex w-full items-center justify-center rounded-pill bg-[var(--color-ink)] px-4 py-2.5 text-sm font-medium text-white hover:bg-black"
+            >
+              Open support case
+            </Link>
+          ) : null}
+        </aside>
       </div>
-
-      <main className="hidden md:block">
-        <VendorNav vendorName={vendor.displayName} />
-
-        <section className="mx-auto w-full max-w-3xl px-6 py-12">
-          <Link
-            href="/vendor"
-            className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
-          >
-            ← All invoices
-          </Link>
-
-          <header className="mt-6 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                {shortAddress(invoice.id)}
-              </p>
-              <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">
-                {formatUSDC(invoice.amount)}
-              </h1>
-              <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
-                To {invoice.customer.name ?? invoice.customer.email} · Created{" "}
-                {relativeTime(invoice.createdAt)}
-              </p>
-            </div>
-            <Badge tone={STATUS_TONE[invoice.status]}>
-              {STATUS_LABEL[invoice.status]}
-            </Badge>
-          </header>
-
-          <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr]">
-            <div className="space-y-7">
-              <Section title="Line items">
-                <table className="w-full text-sm">
-                  <tbody>
-                    {invoice.lineItems.map((l, i) => (
-                      <tr
-                        key={i}
-                        className="border-b border-[var(--color-line)] last:border-b-0"
-                      >
-                        <td className="py-2 text-[var(--color-ink)]">
-                          {l.description}
-                        </td>
-                        <td className="py-2 text-right text-[var(--color-ink-muted)]">
-                          {formatUSDC(l.amount)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Section>
-
-              <Section title="Hosted invoice link">
-                <p className="font-mono text-sm break-all text-[var(--color-brand)]">
-                  {hostedUrl}
-                </p>
-                <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
-                  Share this URL to run the demo buyer checkout. Live wallet,
-                  cross-chain and card payments are not enabled here.
-                </p>
-                <div className="mt-3 flex items-center gap-3">
-                  <Link
-                    href={hostedUrl as `/i/${string}`}
-                    className="text-sm font-medium text-[var(--color-brand)] hover:underline"
-                  >
-                    Open hosted invoice →
-                  </Link>
-                  <ShareInvoiceLink url={shareUrl} />
-                </div>
-              </Section>
-
-              <Section title="Screening">
-                <p className="text-xs text-[var(--color-ink-muted)]">
-                  Simulated screening review only. No provider approval or
-                  on-chain <code className="font-mono">screeningHash</code> is
-                  asserted in demo mode.
-                </p>
-                <Link
-                  href={{
-                    pathname: `/vendor/invoices/${invoice.id}/screening`,
-                  }}
-                  className="mt-3 inline-block text-sm font-medium text-[var(--color-brand)] hover:underline"
-                >
-                  View screening detail →
-                </Link>
-              </Section>
-
-              {invoice.status === "SETTLED" && invoice.receiptHash ? (
-                <Section title="Stenn-Proof receipt">
-                  <p className="font-mono text-xs text-[var(--color-ink-muted)]">
-                    {invoice.receiptHash}
-                  </p>
-                  <Link
-                    href={
-                      `/receipt/${invoice.receiptHash}` as `/receipt/${string}`
-                    }
-                    className="mt-3 inline-block text-sm font-medium text-[var(--color-brand)] hover:underline"
-                  >
-                    View public receipt →
-                  </Link>
-                </Section>
-              ) : null}
-            </div>
-
-            <aside className="space-y-7">
-              <Section title="Customer">
-                <p className="font-medium">{invoice.customer.name ?? "—"}</p>
-                <p className="text-sm text-[var(--color-ink-muted)]">
-                  {invoice.customer.email}
-                </p>
-              </Section>
-              <Section title="Token">
-                <p className="font-mono text-sm">
-                  {shortAddress(invoice.token)}
-                </p>
-                <p className="text-xs text-[var(--color-ink-subtle)]">
-                  USDC ERC-20 on Arc (6 dec)
-                </p>
-              </Section>
-              <Section title="Due">
-                <p className="text-sm">{invoice.dueAt.toLocaleDateString()}</p>
-              </Section>
-            </aside>
-          </div>
-        </section>
-      </main>
-    </>
+    </div>
   );
 }
 

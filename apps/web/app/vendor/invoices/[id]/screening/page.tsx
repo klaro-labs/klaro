@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo.
@@ -79,8 +78,7 @@ export default async function ScreeningPage({
   if (invoice.vendorId !== session.vendor.id) notFound();
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={session.vendor.displayName} />
+    <div>
       <section className="mx-auto w-full max-w-[900px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
@@ -136,6 +134,6 @@ export default async function ScreeningPage({
           ← Back to invoice
         </Link>
       </section>
-    </main>
+    </div>
   );
 }

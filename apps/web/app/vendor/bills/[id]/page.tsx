@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { mockGetBill } from "@/lib/mockData";
@@ -30,8 +29,7 @@ export default async function BillDetailPage({
   if (!bill || bill.vendorId !== session.vendor.id) notFound();
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={session.vendor.displayName} />
+    <div>
       <section className="mx-auto w-full max-w-[900px] px-6 py-10">
         <Link
           href="/vendor/bills"
@@ -126,6 +124,6 @@ export default async function BillDetailPage({
           </form>
         )}
       </section>
-    </main>
+    </div>
   );
 }

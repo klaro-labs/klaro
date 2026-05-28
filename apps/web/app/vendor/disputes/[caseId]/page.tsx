@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { mockGetDispute } from "@/lib/mockData";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
@@ -42,11 +41,9 @@ export default async function DisputeDetailPage({
   // Return notFound rather than a 403 so the route doesn't leak
   // case existence.
   if (!c || !session || c.vendorId !== session.vendor.id) notFound();
-  const entity = session.vendor.displayName ?? "Klaro";
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={entity} />
+    <div>
       <section className="mx-auto w-full max-w-[900px] px-6 py-10">
         <Link
           href="/vendor/disputes"
@@ -204,6 +201,6 @@ export default async function DisputeDetailPage({
           </form>
         )}
       </section>
-    </main>
+    </div>
   );
 }

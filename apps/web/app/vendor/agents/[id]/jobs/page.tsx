@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { mockGetAgent, mockListAgentJobs } from "@/lib/mockData";
@@ -34,8 +33,7 @@ export default async function VendorAgentJobsPage({
   const jobs = allJobs.filter((j) => j.agentId === id);
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={session.vendor.displayName} />
+    <div>
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <Link
           href="/vendor/agents"
@@ -106,6 +104,6 @@ export default async function VendorAgentJobsPage({
           </ul>
         )}
       </section>
-    </main>
+    </div>
   );
 }

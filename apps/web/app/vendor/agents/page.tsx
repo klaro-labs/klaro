@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { keccak256, stringToBytes } from "viem";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
@@ -54,8 +53,7 @@ export default async function VendorAgentsPage({
   // that vanish on cold start. Dev/simulator mode keeps full UI.
   if (supabaseLive()) {
     return (
-      <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-        <VendorNav vendorName={session.vendor.displayName} />
+      <div>
         <section className="mx-auto w-full max-w-[760px] px-6 py-16">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
             Agent jobs · coming soon
@@ -80,7 +78,7 @@ export default async function VendorAgentsPage({
             · {session.vendor.displayName}
           </p>
         </section>
-      </main>
+      </div>
     );
   }
   const jobs = await mockListAgentJobs(session.vendor.id);
@@ -88,8 +86,7 @@ export default async function VendorAgentsPage({
   const preselected = hire ? agents.find((a) => a.agentId === hire) : null;
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={session.vendor.displayName} />
+    <div>
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
@@ -270,6 +267,6 @@ export default async function VendorAgentsPage({
           </ul>
         )}
       </section>
-    </main>
+    </div>
   );
 }

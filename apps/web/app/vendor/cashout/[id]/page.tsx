@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { VendorNav } from "@/components/klaro/VendorNav";
-import { MobileShell } from "@/components/klaro/MobileShell";
 import { Badge } from "@/components/ui/Badge";
 import { CashoutActions } from "@/components/klaro/CashoutActions";
 import { getCurrentSession } from "@/lib/auth";
@@ -64,14 +62,8 @@ export default async function CashoutDetailPage({
   const corridor = getCorridor(order.currency);
   const simulated = session.simulated;
 
-  // wrap with MobileShell so the page
-  // has bottom-nav + proper mobile-app frame at 390x844 per codex plan
-  // "Cashout: quote, partner selection, live order...". The content reflows
-  // inside; a fuller mobile-specific redesign needs the actual rendered
-  // mockup (designer/mobile/index.html is a Figma bundler thumbnail,
-  // tracked as design-parity blocker).
-  const content = (
-    <>
+  return (
+    <div>
       <section className="mx-auto w-full max-w-3xl px-6 py-12 md:py-12">
         <Link
           href="/vendor/cashout"
@@ -175,19 +167,7 @@ export default async function CashoutDetailPage({
             : "Klaro is not a bank · USDC stays in escrow on Arc until you confirm local currency landed · Mainnet payout availability depends on the licensed partner per corridor."}
         </p>
       </section>
-    </>
-  );
-
-  return (
-    <>
-      <div className="md:hidden">
-        <MobileShell active="cashout">{content}</MobileShell>
-      </div>
-      <main className="hidden md:block">
-        <VendorNav vendorName={session.vendor.displayName} />
-        {content}
-      </main>
-    </>
+    </div>
   );
 }
 

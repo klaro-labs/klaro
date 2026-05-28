@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import {
@@ -21,8 +20,7 @@ export default async function RetainerPage() {
   const streams = await mockListStreams(session.vendor.id);
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={session.vendor.displayName} />
+    <div>
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
@@ -200,6 +198,6 @@ export default async function RetainerPage() {
           </ul>
         )}
       </section>
-    </main>
+    </div>
   );
 }

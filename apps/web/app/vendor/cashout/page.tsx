@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { CashoutRequestForm } from "@/components/klaro/CashoutRequestForm";
-import { MobileShell } from "@/components/klaro/MobileShell";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo; mockComputeBalances
@@ -90,19 +88,17 @@ export default async function CashoutPage({
   return (
     <>
       <div className="md:hidden">
-        <MobileShell active="cashout">
+        <div className="px-4 py-6">
           <MobileCashout
             active={activeCashout}
             last={lastCashout}
             balance={balances.available}
             forceQuote={query.new === "1"}
           />
-        </MobileShell>
+        </div>
       </div>
 
       <main className="hidden md:block">
-        <VendorNav vendorName={vendor.displayName} />
-
         <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
           <header>
             <div className="flex items-center gap-2">
@@ -259,18 +255,16 @@ function MobileCashoutQuote({
 }) {
   return (
     <>
-      <div className="-mx-4 -mt-5 flex items-center justify-between border-b border-[var(--color-line)] bg-white/95 px-4 py-3 backdrop-blur">
-        <Link
-          href="/vendor"
-          className="text-sm font-medium text-[var(--color-brand)]"
-        >
-          ‹ Back
-        </Link>
-        <span className="font-display text-sm font-semibold">Cash out</span>
-        <span className="w-12" aria-hidden />
-      </div>
+      <header>
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+          Cashout
+        </p>
+        <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
+          New request
+        </h1>
+      </header>
 
-      <article className="mt-4 rounded-2xl border border-[var(--color-line)] bg-white p-5">
+      <article className="mt-5 rounded-2xl border border-[var(--color-line)] bg-white p-5">
         <div className="flex items-start justify-between gap-3">
           <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-ink-subtle)]">
             You give
@@ -346,19 +340,15 @@ function MobileCashoutQuote({
 function MobileCashoutLive({ order }: { order: CashoutOrder }) {
   return (
     <>
-      <div className="-mx-4 -mt-5 flex items-center justify-between border-b border-[var(--color-line)] bg-white/95 px-4 py-3 backdrop-blur">
-        <Link
-          href="/vendor"
-          className="text-sm font-medium text-[var(--color-brand)]"
-        >
-          ‹ Back
-        </Link>
-        <span className="font-display text-sm font-semibold">
+      <header>
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
           Order {shortAddress(order.id)}
-        </span>
-        <span className="w-12" aria-hidden />
-      </div>
-      <article className="mt-4 rounded-xl border border-[var(--color-brand)]/20 bg-[var(--color-brand-soft)] p-4">
+        </p>
+        <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
+          Cashout in flight
+        </h1>
+      </header>
+      <article className="mt-5 rounded-xl border border-[var(--color-brand)]/20 bg-[var(--color-brand-soft)] p-4">
         <p className="flex items-start gap-3 text-sm">
           <span
             aria-hidden
@@ -435,19 +425,10 @@ function MobileCashoutLive({ order }: { order: CashoutOrder }) {
 function MobileCashoutConfirm({ order }: { order: CashoutOrder }) {
   return (
     <>
-      <div className="-mx-4 -mt-5 flex items-center justify-between border-b border-[var(--color-line)] bg-white/95 px-4 py-3 backdrop-blur">
-        <Link
-          href="/vendor"
-          className="text-sm font-medium text-[var(--color-brand)]"
-        >
-          ‹ Back
-        </Link>
-        <span className="font-display text-sm font-semibold">
-          Confirm payment
-        </span>
-        <span className="w-12" aria-hidden />
-      </div>
-      <h1 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+        Confirm payment
+      </p>
+      <h1 className="mt-1 font-display text-3xl font-semibold leading-tight tracking-tight">
         Did you receive ₹
         {(Number(order.payoutMinor) / 100).toLocaleString("en-IN")}?
       </h1>
@@ -502,13 +483,7 @@ function MobileCashoutComplete({ order }: { order: CashoutOrder }) {
   const refundedToVendor = order.status === "RESOLVED_VENDOR_PAYS";
   return (
     <>
-      <Link
-        href="/vendor"
-        className="text-sm font-medium text-[var(--color-brand)]"
-      >
-        ‹ Done
-      </Link>
-      <div className="mt-8 grid place-items-center">
+      <div className="grid place-items-center">
         <span
           aria-hidden
           className="grid size-20 place-items-center rounded-full bg-emerald-100 text-3xl text-emerald-700"
@@ -578,19 +553,15 @@ async function MobileCashoutDispute({ order }: { order: CashoutOrder }) {
     : ("/vendor/disputes" as const);
   return (
     <>
-      <div className="-mx-4 -mt-5 flex items-center justify-between border-b border-[var(--color-line)] bg-white/95 px-4 py-3 backdrop-blur">
-        <Link
-          href="/vendor"
-          className="text-sm font-medium text-[var(--color-brand)]"
-        >
-          ‹ Back
-        </Link>
-        <span className="font-display text-sm font-semibold">
-          Dispute opened
-        </span>
-        <span className="w-12" aria-hidden />
-      </div>
-      <article className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4">
+      <header>
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+          Dispute
+        </p>
+        <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
+          Case opened
+        </h1>
+      </header>
+      <article className="mt-5 rounded-xl border border-rose-200 bg-rose-50 p-4">
         <p className="flex items-start gap-3 text-sm">
           <span
             aria-hidden

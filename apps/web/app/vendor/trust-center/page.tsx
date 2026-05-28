@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { VendorNav } from "@/components/klaro/VendorNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 
@@ -92,8 +91,7 @@ export default async function VendorTrustCenterPage() {
   if (!session) redirect("/signin");
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
-      <VendorNav vendorName={session.vendor.displayName} />
+    <div>
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <header className="mb-8">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
@@ -193,6 +191,6 @@ export default async function VendorTrustCenterPage() {
           </a>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
