@@ -161,7 +161,7 @@ export default async function LPDocsPage() {
             ) : isOperator ? (
               <form action={approveApplicationAction}>
                 <input type="hidden" name="lpId" value={lp.lpId} />
-                <button className="rounded bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+                <button className="rounded bg-[var(--color-klaro-orange-deep)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
                   [Operator] Approve application
                 </button>
               </form>

@@ -146,7 +146,7 @@ export default async function HostedInvoicePage({
 
             <section className="flex-1 px-5 pt-6 pb-32">
               <div className="flex items-center gap-3">
-                <span className="grid size-12 place-items-center rounded-full bg-[var(--color-brand)] font-display text-lg font-semibold text-white">
+                <span className="grid size-12 place-items-center rounded-full bg-[var(--color-klaro-orange-deep)] font-display text-lg font-semibold text-white">
                   {vendorInitials}
                 </span>
                 <div>

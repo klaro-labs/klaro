@@ -48,7 +48,7 @@ export function LPNav({ entityName }: { entityName: string }) {
           </span>
           <span
             aria-hidden
-            className="inline-flex size-8 items-center justify-center rounded-full bg-[var(--color-brand)] text-xs font-medium text-white"
+            className="inline-flex size-8 items-center justify-center rounded-full bg-[var(--color-klaro-orange-deep)] text-xs font-medium text-white"
           >
             {entityName
               .split(" ")
