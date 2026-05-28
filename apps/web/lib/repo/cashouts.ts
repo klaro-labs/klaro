@@ -29,7 +29,10 @@ function fromRow(row: DbCashoutOrder): CashoutOrder {
     vendorId: row.vendor_id,
     vendorWallet: row.vendor_wallet as Hex,
     usdcAmount: numericToBigInt(row.usdc_amount),
-    payoutMinor: BigInt(row.payout_minor),
+    // QA-046: payout_minor is numeric in schema (same as usdc_amount).
+    // Missed when QA-014 fix introduced numericToBigInt — raw BigInt()
+    // would have thrown on the PostgREST-returns-number path.
+    payoutMinor: numericToBigInt(row.payout_minor),
     currency: row.currency,
     status: row.status,
     klaroFeeUsdc: numericToBigInt(row.klaro_fee_usdc),
