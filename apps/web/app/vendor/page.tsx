@@ -54,14 +54,9 @@ export default async function VendorOverviewPage({
 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-brand)]">
-              Overview
-            </p>
-            {simulated ? (
-              <Badge tone="sim">Simulated session</Badge>
-            ) : null}
-          </div>
+          {simulated ? (
+            <Badge tone="sim">Simulated session</Badge>
+          ) : null}
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             Welcome back, {vendor.displayName.split(" ")[0]}.
           </h1>

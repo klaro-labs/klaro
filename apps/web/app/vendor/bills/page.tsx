@@ -26,7 +26,7 @@ export default async function BillsPage() {
               {t("bills.description")}
             </p>
           </div>
-          <Badge tone="sim">Coming soon</Badge>
+          <Badge tone="sim">M5 · pay-bills pilot</Badge>
         </div>
 
         <div className="rounded-lg border border-[var(--color-line)] bg-white p-6">

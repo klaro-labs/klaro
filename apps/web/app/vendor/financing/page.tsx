@@ -130,7 +130,7 @@ export default async function FinancingPage() {
             title="Available soon when the PDF export route is live"
             className="mt-3 cursor-not-allowed rounded border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium text-[var(--color-ink-subtle)] opacity-60"
           >
-            Download PDF preview · coming soon
+            Download PDF preview · arrives M12
           </button>
         </div>
       </section>

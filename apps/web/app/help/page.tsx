@@ -83,7 +83,8 @@ export default function HelpPage() {
             <span className="sr-only">Search help</span>
             <input
               type="search"
-              placeholder="Search Klaro help (coming soon)"
+              placeholder="Search Klaro help"
+              aria-label="Search help — full-text search arrives later"
               disabled
               className="w-full rounded-lg border border-[var(--color-line)] bg-white px-4 py-3 text-sm outline-none disabled:opacity-50"
             />
