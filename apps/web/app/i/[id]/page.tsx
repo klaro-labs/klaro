@@ -4,10 +4,11 @@ import { Logo } from "@/components/klaro/Logo";
 import { BrandMark } from "@/components/klaro/BrandMark";
 import { Badge } from "@/components/ui/Badge";
 import { PayWithUSDC } from "@/components/klaro/PayWithUSDC";
-// dual-mode via repo so live Supabase
-// reads work for buyers landing on the hosted invoice URL.
-import { getInvoice } from "@/lib/repo/invoices";
-import { getVendorById } from "@/lib/repo/vendors";
+// Public invoice fetch via SECURITY DEFINER RPC (migration 0022) — anon
+// callers resolve an invoice by id without exposing the invoices table.
+// Single-row lookup, no enumeration. Returns vendor display name + wallet
+// in the same payload so we don't need a second join + RLS check.
+import { getPublicInvoice } from "@/lib/repo/invoices";
 import { isLiveOnChain } from "@/lib/arcClient";
 import { formatUSDC, shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
@@ -29,7 +30,7 @@ export default async function HostedInvoicePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const invoice = await getInvoice(id as Hex);
+  const invoice = await getPublicInvoice(id as Hex);
   if (!invoice) notFound();
 
   // previously only `PAID` / `SETTLED`
@@ -106,15 +107,12 @@ export default async function HostedInvoicePage({
   const vendorWallet: Hex = vendorWalletMaybe;
 
   // mobile variant rendered
-  // `invoice.customer.name` (the BUYER's name from the invoice snapshot)
-  // as the vendor in five places — "Invoice from <buyer>", "You paid
-  // <buyer>", "To <buyer>", initials avatar built from buyer name. Buyer
-  // would see their own name where the vendor brand should be. Resolve
-  // the real vendor displayName from `invoice.vendorId`; fall back to a
-  // truncated wallet address if the vendor row is missing.
-  const vendor = await getVendorById(invoice.vendorId);
+  // Vendor display name comes from the same RPC payload as the invoice
+  // (see lib/repo/invoices.ts getPublicInvoice). No second round trip, no
+  // anon-vendor-read needed. Falls back to a shortened wallet address if
+  // the vendor row was deleted.
   const vendorName =
-    vendor?.displayName ?? `Vendor ${shortAddress(vendorWallet)}`;
+    invoice.vendorDisplayName ?? `Vendor ${shortAddress(vendorWallet)}`;
   const vendorFirstName = vendorName.split(" ")[0] ?? "vendor";
   const vendorInitials = vendorName
     .split(" ")

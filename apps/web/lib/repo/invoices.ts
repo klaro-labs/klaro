@@ -73,6 +73,59 @@ export async function getInvoice(id: Hex): Promise<Invoice | null> {
   return data ? fromRow(data as DbInvoiceWithVendor) : null;
 }
 
+/**
+ * Public invoice lookup for /i/[id] — does not require auth.
+ * Calls the get_public_invoice SECURITY DEFINER RPC (migration 0022) so
+ * the underlying tables stay locked to anon. Single-row by-id only, no
+ * enumeration. Returns the same `Invoice` shape as getInvoice() plus
+ * eagerly-hydrated line items so the public pay page can render without
+ * a second round trip.
+ */
+export async function getPublicInvoice(
+  id: Hex,
+): Promise<(Invoice & { vendorDisplayName: string | null }) | null> {
+  const c = await tryDb();
+  if (!c) {
+    const m = await mockGetInvoice(id);
+    return m ? { ...m, vendorDisplayName: null } : null;
+  }
+  const { data, error } = await c.rpc("get_public_invoice", { p_id: id });
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return null;
+  return {
+    id: row.id as Hex,
+    vendorId: row.vendor_id,
+    vendorWallet: row.vendor_wallet ? (row.vendor_wallet as Hex) : null,
+    vendorDisplayName: row.vendor_display_name ?? null,
+    token: row.token as Hex,
+    amount: BigInt(String(row.amount_usdc).replace(/\.\d+$/, "")) ?? 0n,
+    dueAt: new Date(row.due_at),
+    status: row.status,
+    customer: {
+      email: row.customer_email ?? "unknown@",
+      name: row.customer_name ?? undefined,
+    },
+    lineItems: Array.isArray(row.line_items)
+      ? row.line_items.map(
+          (li: { description: string; amount_usdc: number | string }) => ({
+            description: li.description,
+            amount: BigInt(String(li.amount_usdc).replace(/\.\d+$/, "")),
+          }),
+        )
+      : [],
+    metadataHash: row.metadata_hash as Hex,
+    splitsHash: (row.splits_hash ?? undefined) as Hex | undefined,
+    acceptanceSig: undefined,
+    acceptedBy: undefined,
+    acceptedAt: undefined,
+    paidTx: undefined,
+    settledTx: undefined,
+    receiptHash: undefined,
+    createdAt: new Date(row.created_at),
+  };
+}
+
 export async function listInvoicesForVendor(
   vendorId: string,
 ): Promise<Invoice[]> {
