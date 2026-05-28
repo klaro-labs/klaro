@@ -7,7 +7,15 @@ import { tryDb } from "../db";
 import type { DbReceipt } from "../dbTypes";
 import type { Hex, ReceiptAnchor } from "../types";
 
-function fromRow(row: DbReceipt): ReceiptAnchor {
+// QA-023 fix: hydrate vendor wallet from the joined invoices→vendors path
+// instead of stubbing 0x0. The receipt page rendered "Vendor wallet: 0x0000…0000"
+// for every receipt because fromRow had a placeholder.
+type DbReceiptWithVendor = DbReceipt & {
+  invoices?: { vendors?: { wallet: string | null } | null } | null;
+};
+
+function fromRow(row: DbReceiptWithVendor): ReceiptAnchor {
+  const vendorWallet = row.invoices?.vendors?.wallet;
   return {
     invoiceId: row.invoice_id as Hex,
     invoiceHash: row.invoice_hash as Hex,
@@ -16,20 +24,24 @@ function fromRow(row: DbReceipt): ReceiptAnchor {
     settlementTx: row.settlement_tx as Hex,
     settledAt: new Date(row.settled_at),
     sourceChainId: row.source_chain_id ?? 5_042_002,
-    vendor: ("0x" + "0".repeat(40)) as Hex, // hydrated via separate vendor lookup when needed
+    vendor: (vendorWallet ?? "0x" + "0".repeat(40)) as Hex,
   };
 }
+
+// Nested PostgREST select pulls the vendor wallet alongside the receipt row
+// in one round trip.
+const RECEIPT_SELECT = "*, invoices!inner(vendors!inner(wallet))";
 
 export async function getByHash(hash: Hex): Promise<ReceiptAnchor | null> {
   const c = await tryDb();
   if (!c) return null;
   const { data, error } = await c
     .from("receipts")
-    .select("*")
+    .select(RECEIPT_SELECT)
     .eq("receipt_hash", hash)
     .maybeSingle();
   if (error) throw error;
-  return data ? fromRow(data as DbReceipt) : null;
+  return data ? fromRow(data as DbReceiptWithVendor) : null;
 }
 
 export async function getByInvoice(
@@ -39,9 +51,9 @@ export async function getByInvoice(
   if (!c) return null;
   const { data, error } = await c
     .from("receipts")
-    .select("*")
+    .select(RECEIPT_SELECT)
     .eq("invoice_id", invoiceId)
     .maybeSingle();
   if (error) throw error;
-  return data ? fromRow(data as DbReceipt) : null;
+  return data ? fromRow(data as DbReceiptWithVendor) : null;
 }
