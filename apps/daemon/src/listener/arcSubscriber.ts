@@ -36,10 +36,15 @@ const INVOICE_PAID_EVENT = parseAbiItem(
   "event InvoicePaid(bytes32 indexed invoiceId, address indexed buyer, uint256 amount)",
 );
 const ORDER_CLAIMED_EVENT = parseAbiItem(
-  "event OrderClaimed(bytes32 indexed orderId, bytes32 indexed lpId, address indexed lp)",
+  // QA-030: contract emits OrderClaimed(bytes32,bytes32) — listener had
+  // an extra `address indexed lp` so the derived topic never matched any
+  // real event. Cashout claim flow silently never fired.
+  "event OrderClaimed(bytes32 indexed cashoutId, bytes32 indexed lpId)",
 );
 const PROOF_SUBMITTED_EVENT = parseAbiItem(
-  "event ProofSubmitted(bytes32 indexed orderId, bytes32 indexed proofHash)",
+  // QA-031: contract event name is ProofSubmittedFor (not ProofSubmitted)
+  // — wrong name = wrong topic = silent fail on LP proof submissions.
+  "event ProofSubmittedFor(bytes32 indexed cashoutId, bytes32 indexed proofHash)",
 );
 const CASE_OPENED_EVENT = parseAbiItem(
   "event CaseOpened(bytes32 indexed caseId, address indexed claimant, address indexed respondent, bytes32 evidenceHash)",
@@ -64,7 +69,10 @@ const JOB_COMPLETED_EVENT = parseAbiItem(
   "event JobCompleted(bytes32 indexed jobId, uint256 amountUsdc, uint256 feeUsdc)",
 );
 const RECEIPT_MINTED_EVENT = parseAbiItem(
-  "event ReceiptMinted(bytes32 indexed invoiceId, bytes32 indexed receiptHash, uint256 tokenId)",
+  // QA-032: contract emits ReceiptMinted(uint256 indexed tokenId, bytes32 indexed receiptHash,
+  // bytes32 indexed invoiceId, address vendor). Listener had wrong param ORDER (invoiceId first)
+  // and missing the `address vendor` tail — so the derived topic never matched any real mint.
+  "event ReceiptMinted(uint256 indexed tokenId, bytes32 indexed receiptHash, bytes32 indexed invoiceId, address vendor)",
 );
 
 /**
@@ -426,9 +434,9 @@ export function startArcListener() {
             // deterministic jobId dedups with the
             // advancer-side enqueue.
             await queue("notify-vendor").add(
-              ev.args.orderId ?? "",
-              { orderId: ev.args.orderId, kind: "cashout.lp_assigned" },
-              { jobId: `notify-vendor_lp_assigned_${ev.args.orderId}` },
+              ev.args.cashoutId ?? "",
+              { orderId: ev.args.cashoutId, kind: "cashout.lp_assigned" },
+              { jobId: `notify-vendor_lp_assigned_${ev.args.cashoutId}` },
             );
           });
         }
@@ -443,8 +451,8 @@ export function startArcListener() {
           const key = `proof-submitted:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
           await safeEvent("ProofSubmitted", key, async () => {
-            await queue("proof-verify").add(ev.args.orderId ?? "", {
-              orderId: ev.args.orderId,
+            await queue("proof-verify").add(ev.args.cashoutId ?? "", {
+              orderId: ev.args.cashoutId,
               proofHash: ev.args.proofHash,
             });
           });
