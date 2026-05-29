@@ -536,6 +536,21 @@ export function startArcListener() {
           const key = `invoice-refunded:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
           await safeEvent("InvoiceRefunded", key, async () => {
+            // Sync DB status — on-chain REFUNDED is ground truth (refund()
+            // requires PAID on-chain). Without this the row stays PAID forever
+            // and the UI shows "Paid" instead of "Refunded" after the on-chain
+            // refund. Mirrors the InvoiceSettled/InvoicePaid DB sync.
+            const dbUpd = await sb()
+              .from("invoices")
+              .update({ status: "REFUNDED" })
+              .eq("id", ev.args.invoiceId)
+              .in("status", ["PAID", "ACCEPTED"]);
+            if (dbUpd.error) {
+              log.error("event.InvoiceRefunded.dbSync.failed", {
+                id: ev.args.invoiceId,
+                err: dbUpd.error.message,
+              });
+            }
             await queue("notify-vendor").add(ev.args.invoiceId ?? "", {
               invoiceId: ev.args.invoiceId,
               kind: "invoice.refunded",
