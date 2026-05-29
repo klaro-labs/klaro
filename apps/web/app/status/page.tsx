@@ -209,7 +209,7 @@ export default function StatusPage() {
           <p className="font-medium">Testnet preview — no real money moves.</p>
           <p className="mt-2">
             Klaro is in Arc testnet. Every settlement, cashout, and dispute on
-            this page is for testnet USDC only. Mainnet ships after the security audit completes.
+            this page is for testnet USDC only. Mainnet ships after the
             security audit completes.
           </p>
         </div>

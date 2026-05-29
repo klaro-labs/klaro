@@ -158,12 +158,9 @@ export default function CompanyPage() {
             A small team, working in public.
           </h2>
           <p className="mt-4 max-w-3xl text-base leading-relaxed text-[var(--color-ink)]/75">
-            Klaro is not yet incorporated as Klaro Labs Inc — see{" "}
-            <code className="rounded bg-[var(--color-ink)]/5 px-1.5 py-0.5 font-mono text-[12px]">
-              HUMAN_ACTIONS_NEEDED.md
-            </code>{" "}
-            for the open items. Real bios and offices land here when the legal
-            entity exists. Until then we refuse to invent them.
+            Klaro is pre-incorporation. Real bios and office details will
+            appear here once the legal entity is formed — until then we
+            won&rsquo;t invent them.
           </p>
         </div>
       </section>

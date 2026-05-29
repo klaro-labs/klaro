@@ -1,3 +1,5 @@
+import Link from "next/link";
+import type { Route } from "next";
 import { SectionHeader } from "../SectionHeader";
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
@@ -17,6 +19,7 @@ interface Surface {
   variant: "light" | "dark" | "brand";
   sample: React.ReactNode;
   cta: string;
+  href: Route;
 }
 
 const SURFACES: Surface[] = [
@@ -29,6 +32,7 @@ const SURFACES: Surface[] = [
     variant: "light",
     sample: <InvoiceRouteSample />,
     cta: "See the checkout",
+    href: "/product/invoicing",
   },
   {
     eyebrow: "Surface 2 · INR pilot · testnet simulation",
@@ -39,6 +43,7 @@ const SURFACES: Surface[] = [
     variant: "dark",
     sample: <CashoutSample />,
     cta: "How payouts work",
+    href: "/product/cashout",
   },
   {
     eyebrow: "Surface 3 · simulated reputation",
@@ -49,6 +54,7 @@ const SURFACES: Surface[] = [
     variant: "light",
     sample: <TrustScoreSample />,
     cta: "How scoring works",
+    href: "/product/reputation",
   },
   {
     eyebrow: "Klaro Lab · access-gated previews",
@@ -59,6 +65,7 @@ const SURFACES: Surface[] = [
     variant: "brand",
     sample: <LabSample />,
     cta: "Request access",
+    href: "/signin",
   },
 ];
 
@@ -126,14 +133,15 @@ function SurfaceCard({ surface }: { surface: Surface }) {
         {surface.lede}
       </p>
       <div className="mt-6">{surface.sample}</div>
-      <p
+      <Link
+        href={surface.href}
         className={cn(
-          "mt-6 text-sm font-medium",
+          "mt-6 inline-flex items-center gap-1 text-sm font-medium hover:underline",
           isDark || isBrand ? "text-white" : "text-[var(--color-brand)]",
         )}
       >
         {surface.cta} →
-      </p>
+      </Link>
     </article>
   );
 }

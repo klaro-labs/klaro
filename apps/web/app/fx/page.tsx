@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { FxNav } from "@/components/klaro/FxNav";
 import { Badge } from "@/components/ui/Badge";
-import { requireVendor } from "@/lib/auth";
+import { getCurrentSession } from "@/lib/auth";
 import { mockListFxQuotes, type FxStatus } from "@/lib/mockData";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { quoteAction, settleQuoteAction } from "./actions";
@@ -38,7 +39,12 @@ function effectiveStatus(status: FxStatus, expiresAt: Date): FxStatus {
 }
 
 export default async function FxPage() {
-  const { vendor } = await requireVendor();
+  // QA-074: was `requireVendor()`, which throws on no session → a top-level
+  // page (no 401 mapping) rendered a hard HTTP 500 for every logged-out
+  // visitor. Gate gracefully to sign-in instead.
+  const session = await getCurrentSession();
+  if (!session) redirect("/signin?next=/fx");
+  const { vendor } = session;
   const quotes = await mockListFxQuotes(vendor.id);
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
