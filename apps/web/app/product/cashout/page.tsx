@@ -19,7 +19,10 @@ const STEPS = [
 
 const STATUS_COPY: Record<CorridorStatus, { label: string; tone: string }> = {
   live: {
-    label: "Live",
+    // QA-075: US/USD is USDC-native (USDC == USD, no fiat conversion;
+    // realFiatMoves:false). A bare "Live" chip on a cashout table read as a
+    // production fiat payout — label it for what it is.
+    label: "USDC-native",
     tone: "bg-[color-mix(in_oklab,var(--color-success)_12%,transparent)] text-[var(--color-success)]",
   },
   pilot: {
@@ -51,7 +54,7 @@ export default function ProductCashoutPage() {
         eyebrow="Cashout"
         chips={["Testnet pilot", "LP marketplace · invite-only"]}
         title="USDC in. Local currency out."
-        sub="Vendors turn USDC into rupees, reais, or euros through verified liquidity partners. Every step is escrowed, provable, and dispute-ready."
+        sub="Vendors cash USDC into rupees, reais, or euros through verified liquidity partners — every step escrowed, provable, and dispute-ready. On testnet today the INR corridor is a pilot and the rest are simulated; no real money moves."
         ctas={[
           { label: "Open workspace", href: "/signin" },
           { label: "Become an LP", href: "/lp", variant: "secondary" },
@@ -81,7 +84,7 @@ export default function ProductCashoutPage() {
               Corridors
             </p>
             <h2 className="mt-3 font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold tracking-tight">
-              {liveCount} live · {pilotCount} pilot · {CORRIDORS.length - liveCount - pilotCount} simulation
+              {liveCount} USDC-native · {pilotCount} pilot · {CORRIDORS.length - liveCount - pilotCount} simulated
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted)]">
               Honest labels per <a href="/trust" className="text-[var(--color-klaro-orange)] hover:underline">principle 8</a>.

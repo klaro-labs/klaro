@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
+import { Footer } from "@/components/klaro/Footer";
 import { Badge } from "@/components/ui/Badge";
 import { mockListAgents } from "@/lib/mockData";
 import { formatUSDC, shortAddress } from "@/lib/money";
@@ -39,8 +40,12 @@ export default async function AgentsMarketplacePage() {
               released on accepted deliverable. Disputes go to Klaro&apos;s
               panel. Agent identity anchored in Arc&apos;s ERC-8004 registries.
             </p>
+            <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
+              Testnet preview — agent hiring and escrow are simulated. No real
+              money moves; listings below are sample data.
+            </p>
           </div>
-          <Badge tone="info">{agents.length} active</Badge>
+          <Badge tone="sim">{agents.length} · testnet sim</Badge>
         </div>
 
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -110,6 +115,7 @@ export default async function AgentsMarketplacePage() {
           ))}
         </ul>
       </section>
+      <Footer />
     </main>
   );
 }
