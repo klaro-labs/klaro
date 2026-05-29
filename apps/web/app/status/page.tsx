@@ -161,8 +161,13 @@ export default function StatusPage() {
             </span>
           </div>
           <p className="mt-3 text-sm text-[var(--color-ink-muted)]">
-            Live monitoring via BetterStack + Arc RPC health probes lands soon.
-            For incident postmortems see{" "}
+            <strong className="font-medium text-[var(--color-ink)]">
+              Illustrative — not yet live-monitored.
+            </strong>{" "}
+            The statuses and the latency/finality figures below are{" "}
+            <em>targets</em>, not real-time probes; live BetterStack + Arc RPC
+            health checks wire up in M11. This is not a production SLA. For
+            incident postmortems see{" "}
             <a
               href="https://github.com/klaro-protocol/incidents"
               className="underline"
