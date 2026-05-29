@@ -485,6 +485,11 @@ export function startArcListener() {
             // to DB on InvoiceSettled. Without this the row stays at PAID
             // forever and the vendor UI shows "Paid · settling" instead of
             // "Settled" even after the on-chain settle landed.
+            // On-chain SETTLED is ground truth (the contract enforces
+            // CREATED→PAID→SETTLED), so reconcile from CREATED too — otherwise a
+            // missed InvoicePaid (daemon downtime) leaves the row stuck at
+            // CREATED forever while on-chain is settled + the receipt is minted.
+            // Still excludes terminal REFUNDED/CANCELLED so we never resurrect them.
             const dbUpd = await sb()
               .from("invoices")
               .update({
@@ -492,7 +497,7 @@ export function startArcListener() {
                 settled_tx_hash: ev.transactionHash,
               })
               .eq("id", ev.args.invoiceId)
-              .in("status", ["PAID", "ACCEPTED"]);
+              .in("status", ["PAID", "ACCEPTED", "CREATED"]);
             if (dbUpd.error) {
               log.error("event.InvoiceSettled.dbSync.failed", {
                 id: ev.args.invoiceId,

@@ -8,6 +8,7 @@ import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo so live Supabase
 // reads work; previously mock-only.
 import { getInvoice } from "@/lib/repo/invoices";
+import { reconcileInvoicePublished } from "@/lib/arcClient";
 import { PUBLIC_ORIGIN, INVOICE_ESCROW_ADDRESS } from "@/lib/env";
 import type { Hex, InvoiceStatus } from "@/lib/types";
 
@@ -64,6 +65,22 @@ export default async function InvoiceDetailPage({
   const showPublish =
     Boolean(INVOICE_ESCROW_ADDRESS) && invoice.status === "CREATED";
 
+  // Resilience: the publish flow records `published_tx_hash` from the client
+  // right after `createInvoice` lands. If that record step ever fails (network
+  // blip, tab close) the invoice is on-chain but the DB shows it unpublished —
+  // and re-signing would revert. Reconcile against on-chain truth so the vendor
+  // sees "Published on-chain" instead of a reverting button.
+  let publishedTx: Hex | null = invoice.publishedTx ?? null;
+  let publishedOnChain = Boolean(publishedTx);
+  if (showPublish && !publishedTx) {
+    const rec = await reconcileInvoicePublished(invoice.id);
+    if (rec.publishedOnChain) {
+      publishedOnChain = true;
+      publishedTx = rec.txHash ?? null;
+    }
+  }
+  const isPublishedOnChain = showPublish && publishedOnChain;
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 md:py-12">
       <Link
@@ -117,14 +134,16 @@ export default async function InvoiceDetailPage({
             On-chain status
           </h2>
           <div className="rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-4">
-            {invoice.publishedTx ? (
+            {isPublishedOnChain ? (
               <div className="text-sm">
                 <p className="font-medium text-emerald-700">
                   Published on-chain
                 </p>
-                <p className="mt-1 font-mono text-xs break-all text-[var(--color-ink-muted)]">
-                  {invoice.publishedTx}
-                </p>
+                {publishedTx ? (
+                  <p className="mt-1 font-mono text-xs break-all text-[var(--color-ink-muted)]">
+                    {publishedTx}
+                  </p>
+                ) : null}
                 <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
                   The buyer can now pay this invoice.
                 </p>

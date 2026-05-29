@@ -26,7 +26,10 @@ import {
 } from "./env";
 import { keccak256, toBytes, parseAbiItem } from "viem";
 import { mockGetInvoice } from "./mockData";
-import { getInvoice as getStoredInvoice } from "./repo/invoices";
+import {
+  getInvoice as getStoredInvoice,
+  recordInvoicePublished,
+} from "./repo/invoices";
 import type { Hex, Invoice, ReceiptAnchor } from "./types";
 import {
   CANONICAL_INVOICE_ESCROW_ABI,
@@ -148,6 +151,97 @@ export async function getInvoiceWithSource(
       invoiceId: id,
     });
     return { source: "error", invoice: null, error: msg };
+  }
+}
+
+const INVOICE_CREATED_EVENT = parseAbiItem(
+  "event InvoiceCreated(bytes32 indexed invoiceId, address indexed vendor, address token, uint256 amount, bytes32 metadataHash)",
+);
+
+export interface ReconcilePublishResult {
+  /** true once the escrow shows this invoice exists (status != NONE) */
+  publishedOnChain: boolean;
+  /** the creating tx hash, recovered from the InvoiceCreated log (null if the
+   *  log couldn't be read — the invoice is still published, hash just unknown) */
+  txHash: Hex | null;
+}
+
+/**
+ * Reconcile a DB invoice that may be published on-chain but missing its
+ * `published_tx_hash`. The publish flow records the hash from the client right
+ * after `createInvoice` lands; if that record step fails for any reason
+ * (network blip, tab close, page churn) the invoice is on-chain yet the DB
+ * still shows it unpublished — and re-signing `createInvoice` would revert
+ * ("already exists"), stranding the vendor. On-chain truth wins: if the escrow
+ * shows the invoice exists, backfill the creating tx hash so the vendor sees
+ * "Published on-chain" and never re-signs. Idempotent; returns
+ * `publishedOnChain: false` for invoices genuinely not yet on-chain.
+ */
+export async function reconcileInvoicePublished(
+  id: Hex,
+): Promise<ReconcilePublishResult> {
+  if (!INVOICE_ESCROW_ADDRESS) return { publishedOnChain: false, txHash: null };
+  try {
+    const client = getArcPublicClient();
+    const raw = await client.readContract({
+      address: INVOICE_ESCROW_ADDRESS as Address,
+      abi: INVOICE_ESCROW_GET_INVOICE_ABI,
+      functionName: "getInvoice",
+      args: [id],
+    });
+    const status = Number((raw as { status: number }).status);
+    if (status === 0) return { publishedOnChain: false, txHash: null };
+
+    // Published on-chain — recover the creating tx hash from the InvoiceCreated
+    // log so the proof link + DB stay accurate. Arc's RPC caps eth_getLogs at a
+    // 10k-block range, so scan backward from head in windows, breaking on the
+    // first hit. Reconciliation only runs for on-chain-but-DB-null invoices (a
+    // rare recovery case) and a stuck vendor reloads soon after the failed
+    // record, so the creating tx is almost always in the first window. A
+    // getLogs failure mustn't block reconciliation: the invoice is published
+    // regardless of whether we can show its hash.
+    const WINDOW = 9_999n;
+    const MAX_WINDOWS = 6; // ~60k recent blocks of best-effort lookback
+    let txHash: Hex | null = null;
+    try {
+      let to = await client.getBlockNumber();
+      for (let w = 0; w < MAX_WINDOWS && to > 0n && !txHash; w++) {
+        const from = to > WINDOW ? to - WINDOW : 0n;
+        const logs = await client.getLogs({
+          address: INVOICE_ESCROW_ADDRESS as Address,
+          event: INVOICE_CREATED_EVENT,
+          args: { invoiceId: id },
+          fromBlock: from,
+          toBlock: to,
+        });
+        txHash = (logs.at(-1)?.transactionHash as Hex | undefined) ?? null;
+        if (from === 0n) break;
+        to = from - 1n;
+      }
+    } catch (e) {
+      console.error(
+        "[arcClient] reconcile getLogs failed:",
+        (e as Error).message,
+      );
+    }
+
+    if (txHash) {
+      try {
+        await recordInvoicePublished(id, txHash);
+      } catch (e) {
+        console.error(
+          "[arcClient] reconcile backfill failed:",
+          (e as Error).message,
+        );
+      }
+    }
+    return { publishedOnChain: true, txHash };
+  } catch (err) {
+    console.error(
+      "[arcClient] reconcileInvoicePublished failed:",
+      (err as Error).message,
+    );
+    return { publishedOnChain: false, txHash: null };
   }
 }
 

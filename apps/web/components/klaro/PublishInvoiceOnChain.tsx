@@ -107,10 +107,19 @@ export function PublishInvoiceOnChain({
       });
       setHash(txHash as Hex);
       setPhase("recording");
-      await recordInvoicePublishedAction(invoiceId, txHash as Hex);
+      // The tx is broadcast — the invoice is (or will be) on-chain. If the DB
+      // record fails here (network blip, etc.), DON'T prompt a re-publish: that
+      // would revert ("already exists"). Refresh instead — the server
+      // reconciles published_tx_hash against on-chain truth on the next load.
+      try {
+        await recordInvoicePublishedAction(invoiceId, txHash as Hex);
+      } catch {
+        /* server-side reconcile backfills it; just refresh below */
+      }
       setPhase("done");
       router.refresh();
     } catch (err) {
+      // Reached only when the signature/broadcast itself failed (no tx on-chain).
       const msg = err instanceof Error ? err.message : "Publish failed.";
       if (/rejected|denied|user/i.test(msg)) {
         setPhase("idle");

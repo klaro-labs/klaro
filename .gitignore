@@ -110,7 +110,13 @@ apps/web/mockups/
 # vendored extension. Never commit — keys are testnet but still secrets.
 apps/web/e2e/wallets/
 apps/web/e2e/fixtures/rabby/ext/
+apps/web/e2e/fixtures/rabby/rabby.zip
 apps/web/e2e/.rabby-profile/
+apps/web/e2e/.rabby-profile-buyer/
+apps/web/e2e/.rabby-debug/
+apps/web/e2e/.rabby-debug-buyer/
+apps/web/e2e/.pb-shots/
+apps/web/e2e/.pb-vid/
 apps/web/e2e/.playwright-data/
 
 # Claude Code session state (scheduled tasks lock, etc.) is per-machine.
