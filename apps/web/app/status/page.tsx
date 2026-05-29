@@ -169,12 +169,12 @@ export default function StatusPage() {
             health checks wire up in M11. This is not a production SLA. For
             incident postmortems see{" "}
             <a
-              href="https://github.com/klaro-protocol/incidents"
+              href="https://github.com/klaro-labs/klaro"
               className="underline"
               target="_blank"
               rel="noreferrer"
             >
-              github.com/klaro-protocol/incidents
+              github.com/klaro-labs/klaro
             </a>
             .
           </p>

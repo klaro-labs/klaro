@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 const CONTACTS = [
   { role: "General", email: "hi@klaro.so", note: "Anything else." },
   { role: "Sales & partnerships", email: "sales@klaro.so", note: "ERP, LP, corridor expansion." },
-  { role: "Security disclosure", email: "security@klaro.so", note: "Encrypted: PGP key on /trust." },
+  { role: "Security disclosure", email: "security@klaro.so", note: "Responsible disclosure — see /trust." },
   { role: "Trust & compliance", email: "trust@klaro.so", note: "Vendor diligence and audit." },
 ] as const;
 
