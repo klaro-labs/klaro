@@ -326,6 +326,10 @@ export function startArcListener() {
   // trivial. The reliability win is enormous — listener stays alive
   // indefinitely instead of dying silently.
   const POLL_INTERVAL_MS = 1500;
+  // QA-072: trailing re-scan depth (blocks) to absorb eth_getLogs
+  // read-after-write indexing lag on Arc. ~25 sub-second blocks ≈ 10-25s of
+  // lag tolerance; claimOnce dedups the overlap so it's free of double-fires.
+  const REORG_OVERLAP = 25n;
   // Generic to preserve typed `ev.args` at each callsite. Log<...,
   // strict=true, abiEvent> gives a typed `args` field per viem.
   type TypedLog<E extends AbiEvent> = Log<bigint, number, false, E, true>;
@@ -337,6 +341,7 @@ export function startArcListener() {
   };
   const watch = <E extends AbiEvent>(opts: WatchOpts<E>): (() => void) => {
     let cursor: bigint | null = null;
+    let seed: bigint | null = null;
     let stopped = false;
     const tick = async () => {
       if (stopped) return;
@@ -346,13 +351,27 @@ export function startArcListener() {
           // First tick — seed cursor at current latest so we don't replay
           // every historic event at startup.
           cursor = latest;
+          seed = latest;
           return;
         }
         if (latest <= cursor) return;
+        // QA-072: re-scan a trailing window instead of jumping the cursor
+        // straight to `latest`. Arc's eth_getLogs is read-after-write lagged
+        // — a log mined at block N isn't index-visible for a few hundred ms.
+        // The old code advanced the cursor to `latest` immediately, so a log
+        // not yet indexed when its block was first scanned got skipped
+        // forever (silent: the poll succeeded, just returned []). Overlapping
+        // by REORG_OVERLAP blocks lets a late-indexed log surface on a later
+        // tick; claimOnce dedups the re-scan so nothing fires twice. Never
+        // scan before the boot seed (keeps the no-historic-replay intent).
+        let fromBlock = cursor + 1n - REORG_OVERLAP;
+        const floor = (seed ?? 0n) + 1n;
+        if (fromBlock < floor) fromBlock = floor;
+        if (fromBlock < 0n) fromBlock = 0n;
         const logs = await client.getLogs({
           address: opts.address,
           event: opts.event,
-          fromBlock: cursor + 1n,
+          fromBlock,
           toBlock: latest,
         });
         cursor = latest;
