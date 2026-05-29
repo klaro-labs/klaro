@@ -12,8 +12,10 @@ export default function AcceptableUsePage() {
     <LegalLayout title="Acceptable Use Policy" lastUpdated="2026-05-24">
       <p>
         Klaro is for legitimate vendor invoicing, settlement, and cashout. The
-        following are prohibited and trigger account suspension + reporting to
-        relevant authorities.
+        following are prohibited. On mainnet, violations trigger account
+        suspension and, where legally required, reporting to the relevant
+        authorities; on testnet, screening and enforcement are simulated or
+        still under development.
       </p>
 
       <h2 className="mt-6 font-display text-xl font-semibold text-[var(--color-ink)]">
@@ -21,8 +23,8 @@ export default function AcceptableUsePage() {
       </h2>
       <ul className="list-disc pl-5">
         <li>
-          Money laundering, terrorist financing, sanctions evasion (3-of-3
-          screening enforces).
+          Money laundering, terrorist financing, sanctions evasion (sanctions
+          screening; enforced on mainnet).
         </li>
         <li>
           Sale of controlled substances, weapons, child sexual abuse material —
@@ -35,7 +37,7 @@ export default function AcceptableUsePage() {
           Klaro invoices).
         </li>
         <li>
-          Adult content and services per Visa/Mastercard MCC restrictions.
+          Adult content and services.
         </li>
       </ul>
 
@@ -64,7 +66,9 @@ export default function AcceptableUsePage() {
         <code className="font-mono text-xs">VendorReputation</code> with an
         immutable evidence hash. Severe cases trigger{" "}
         <code className="font-mono text-xs">KILL_FRAUD</code> via ReasonCodes,
-        deactivating the agent / LP / vendor.
+        deactivating the agent / LP / vendor. This on-chain enforcement model is
+        the mainnet design; on testnet it is partially simulated and still under
+        development.
       </p>
 
       <h2 className="mt-6 font-display text-xl font-semibold text-[var(--color-ink)]">

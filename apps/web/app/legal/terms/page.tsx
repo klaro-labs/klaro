@@ -19,7 +19,9 @@ export default function TermsPage() {
         1. What Klaro is
       </h2>
       <p>
-        Klaro is an Arc-native USDC invoicing, escrow, and cashout platform. We
+        Klaro is an Arc-native USDC invoicing, escrow, and cashout platform — on
+        testnet, cashout to local currency is simulated (the INR corridor is a
+        pilot) and no real fiat moves; live fiat cashout is mainnet-only. We
         do not custody fiat. We do not originate loans. We are not a bank,
         broker-dealer, money services business, or payment processor in any
         jurisdiction during the testnet phase.
@@ -30,7 +32,7 @@ export default function TermsPage() {
       </h2>
       <p>
         You must be 18+, not on any sanctions list, and not located in an
-        OFAC-restricted territory. KYB is required for live mode; testnet is
+        OFAC-restricted territory. KYB is required on mainnet; testnet is
         permissionless.
       </p>
 
@@ -39,8 +41,9 @@ export default function TermsPage() {
       </h2>
       <p>
         Klaro contracts on Arc are open source and unaudited at testnet. You
-        bear the risk of bugs, exploits, or unintended behavior. We will publish
-        audit reports before mainnet and run a bounty on Immunefi.
+        bear the risk of bugs, exploits, or unintended behavior. We intend to
+        publish audit reports and stand up a public bug-bounty program (Immunefi
+        or equivalent) before mainnet.
       </p>
 
       <h2 className="mt-6 font-display text-xl font-semibold text-[var(--color-ink)]">

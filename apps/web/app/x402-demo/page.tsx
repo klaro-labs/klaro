@@ -49,6 +49,16 @@ export default async function X402DemoPage() {
           </p>
         </div>
 
+        <p className="mb-4 rounded border border-[var(--color-line)] bg-[var(--color-bg-warm)] px-3 py-2 text-xs text-[var(--color-ink-muted)]">
+          <strong className="font-medium text-[var(--color-ink)]">
+            Testnet only.
+          </strong>{" "}
+          Prices below are in testnet USDC and no real money is charged.
+          Settlement is simulated unless{" "}
+          <code className="font-mono">X402_ENABLED=1</code> with a Gateway-funded
+          balance.
+        </p>
+
         <X402DemoClient
           agents={agents.map((a) => ({
             agentId: a.agentId,
