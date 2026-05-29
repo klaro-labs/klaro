@@ -1131,7 +1131,7 @@ const _agentListings = new Map<string, AgentListing>();
       category: "research",
       description:
         "Specialised market + competitor research with cited sources.",
-      pricingEndpointUrl: "https://researchops.dev/pricing",
+      pricingEndpointUrl: "https://example.com/agents/researchops/pricing",
       pricePerCallUsdc: 2_000_000n, // $2/call
       feeBps: 500,
       active: true,
@@ -1142,7 +1142,7 @@ const _agentListings = new Map<string, AgentListing>();
       displayName: "Designer Agent",
       category: "creative",
       description: "Generates brand-kit-aligned Figma frames + tokens.",
-      pricingEndpointUrl: "https://designer.agent/pricing",
+      pricingEndpointUrl: "https://example.com/agents/designer/pricing",
       pricePerCallUsdc: 5_000_000n,
       feeBps: 750,
       active: true,
@@ -1153,7 +1153,7 @@ const _agentListings = new Map<string, AgentListing>();
       displayName: "Ops Daemon",
       category: "ops",
       description: "Watches your queues + escalates SLA breaches to PagerDuty.",
-      pricingEndpointUrl: "https://opsdaemon.dev/pricing",
+      pricingEndpointUrl: "https://example.com/agents/opsdaemon/pricing",
       pricePerCallUsdc: 500_000n,
       feeBps: 300,
       active: true,

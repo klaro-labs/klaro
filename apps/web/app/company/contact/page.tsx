@@ -51,8 +51,8 @@ export default function ContactPage() {
               ))}
             </dl>
             <p className="mt-8 text-xs text-[var(--color-muted)]">
-              Klaro is not yet incorporated as Klaro Labs Inc — see HUMAN_ACTIONS_NEEDED.md.
-              No physical office to publish yet.
+              Klaro is pre-incorporation — no registered entity name or physical
+              office to publish yet.
             </p>
           </div>
         </div>
