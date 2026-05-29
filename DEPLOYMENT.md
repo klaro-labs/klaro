@@ -11,9 +11,9 @@
 | ----------------------- | -------------------------------------------- |
 | FeeSplitter             | `0x3b2E07e58f1578cF24B6438E3E76728C21555B66` |
 | RoutePolicyEngine       | `0xb33f84A23ec052d21745F550733f5f277959E3FA` |
-| InvoiceEscrow           | `0xF5Cfe431eBF40c1c99336334123316FdA66900f5` |
+| InvoiceEscrow           | `0xA76edAd6e1c0D0854a21BF527086CA44b620c4e2` |
 | AuditReceipt            | `0x19d44E987DBd853c3C94A4Ab35404cCCd7612B00` |
-| RefundProtocol          | `0x3467b644bF2A325EB9885A83f245840E642AFCf9` |
+| RefundProtocol          | `0xCC4cFb95ae8d5774DF66a70E2Af8aaD7A5076339` |
 | LPRegistry              | `0xCF591a1fA140c5Ca04686dDD7De006Da78C2180b` |
 | LPStaking               | `0x4b36eD428b47F4254737215454BE6e9b99A1bD1f` |
 | ProofRegistry           | `0xb0a2c7815D75EeBF73f8869C810EC8da5FcCbC33` |
