@@ -24,7 +24,7 @@ export default function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="Talk to us."
-        sub="A founder reads everything that comes through. Response in one business day for general, four hours for security."
+        sub="A founder reads everything that comes through. We aim to reply within one business day; security reports are prioritised."
       />
       <section className="klaro-container pb-20 md:pb-28">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr] md:gap-12">

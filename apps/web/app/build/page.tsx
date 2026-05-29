@@ -14,7 +14,7 @@ import { cn } from "@/lib/cn";
 export const metadata: Metadata = {
   title: "Build · Klaro",
   description:
-    "Build payment flows in 30 lines. REST API, TypeScript SDK, webhooks, and a sandbox that boots without credentials.",
+    "Build payment flows in under 30 lines. REST API, TypeScript SDK, webhooks, and a sandbox that boots without credentials.",
 };
 
 const CAPABILITIES = [
@@ -100,7 +100,7 @@ export default function BuildPage() {
       <PageHero
         eyebrow="Build"
         chips={["REST", "TypeScript", "Webhooks"]}
-        title="Build payment flows in 30 lines."
+        title="Build payment flows in under 30 lines."
         sub="Issue invoices, verify receipts, and trigger cashouts from your backend. The SDK handles auth, retries, and BigInt serialization. The sandbox boots without credentials."
         ctas={[
           { label: "Get an API key", href: "/vendor/settings#api-keys" },
