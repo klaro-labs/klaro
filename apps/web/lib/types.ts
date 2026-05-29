@@ -66,6 +66,7 @@ export interface Invoice {
   acceptedAt?: Date;
   paidTx?: Hex;
   settledTx?: Hex;
+  publishedTx?: Hex; // QA-020: vendor-signed createInvoice publish tx; undefined until published on-chain
   receiptHash?: Hex;
   createdAt: Date;
 }

@@ -4,7 +4,11 @@ import { keccak256, stringToBytes } from "viem";
 // dual-mode via repo. Repo signature
 // is stricter than mock — caller computes id + metadataHash up front. Uses
 // keccak256(vendorId|nonce|dueAt) so two parallel creates can't collide.
-import { createInvoice } from "@/lib/repo/invoices";
+import {
+  createInvoice,
+  getInvoice,
+  recordInvoicePublished,
+} from "@/lib/repo/invoices";
 import { sendInvoiceLinkEmail } from "@/lib/email";
 import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
@@ -101,6 +105,38 @@ export async function createInvoiceAction(input: {
     return invoice.id;
   } catch (e) {
     captureError(e, { action: "invoice.create", vendorId: session.vendor.id });
+    throw e;
+  }
+}
+
+/**
+ * QA-020: record that the vendor published the invoice on-chain.
+ * Called by the PublishInvoiceOnChain client component after the
+ * vendor's wallet confirms `InvoiceEscrow.createInvoice`. Vendor-scoped:
+ * the caller must own the invoice (ownership checked against the session,
+ * never trusted from the client). The tx itself was signed by the
+ * vendor's wallet, so this only persists the hash for the UI.
+ */
+export async function recordInvoicePublishedAction(
+  invoiceId: Hex,
+  txHash: Hex,
+): Promise<void> {
+  const session = await requireVendor();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(txHash)) {
+    throw new Error("validation_invalid_tx_hash");
+  }
+  const invoice = await getInvoice(invoiceId);
+  if (!invoice || invoice.vendorId !== session.vendor.id) {
+    throw new Error("not_found_or_forbidden");
+  }
+  try {
+    await recordInvoicePublished(invoiceId, txHash);
+  } catch (e) {
+    captureError(e, {
+      action: "invoice.recordPublished",
+      vendorId: session.vendor.id,
+      invoiceId,
+    });
     throw e;
   }
 }

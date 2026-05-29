@@ -83,6 +83,7 @@ export interface DbInvoice {
   accepted_at: string | null;
   paid_tx_hash: string | null;
   settled_tx_hash: string | null;
+  published_tx_hash: string | null;
   receipt_hash: string | null;
   created_at: string;
   updated_at: string;

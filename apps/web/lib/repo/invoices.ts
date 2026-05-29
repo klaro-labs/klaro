@@ -56,6 +56,7 @@ function fromRow(row: DbInvoiceWithVendor): Invoice {
     acceptedAt: row.accepted_at ? new Date(row.accepted_at) : undefined,
     paidTx: (row.paid_tx_hash ?? undefined) as Hex | undefined,
     settledTx: (row.settled_tx_hash ?? undefined) as Hex | undefined,
+    publishedTx: (row.published_tx_hash ?? undefined) as Hex | undefined,
     receiptHash: (row.receipt_hash ?? undefined) as Hex | undefined,
     createdAt: new Date(row.created_at),
   };
@@ -228,6 +229,25 @@ export async function createInvoice(args: {
     ...(insert.data as DbInvoice),
     vendors: { wallet: args.vendorWallet },
   });
+}
+
+/**
+ * QA-020: record the vendor-signed on-chain publish tx for an invoice.
+ * The invoice row itself stays `CREATED` — `published_tx_hash` going
+ * non-null is what flips the vendor UI from "publish" to "published".
+ * Mock mode is a no-op (no chain to publish to).
+ */
+export async function recordInvoicePublished(
+  id: Hex,
+  txHash: Hex,
+): Promise<void> {
+  const c = await tryDb();
+  if (!c) return;
+  const { error } = await c
+    .from("invoices")
+    .update({ published_tx_hash: txHash })
+    .eq("id", id);
+  if (error) throw error;
 }
 
 export async function advanceInvoiceStatus(

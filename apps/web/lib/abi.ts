@@ -29,6 +29,22 @@ export const INVOICE_ESCROW_ABI = [
     ],
     outputs: [],
   },
+  // QA-020: vendor publishes the invoice on-chain from their own wallet.
+  // `vendor` is set to msg.sender inside the contract, so the connected
+  // wallet MUST be the invoice's payout wallet (enforced in the UI).
+  {
+    type: "function",
+    name: "createInvoice",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "invoiceId", type: "bytes32" },
+      { name: "token", type: "address" },
+      { name: "amount", type: "uint256" },
+      { name: "dueAt", type: "uint64" },
+      { name: "metadataHash", type: "bytes32" },
+    ],
+    outputs: [],
+  },
 ] as const;
 
 export const ERC20_ABI = [

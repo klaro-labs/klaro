@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ShareInvoiceLink } from "@/components/klaro/ShareInvoiceLink";
+import { PublishInvoiceOnChain } from "@/components/klaro/PublishInvoiceOnChain";
 import { Badge } from "@/components/ui/Badge";
 import { formatUSDC, shortAddress, relativeTime } from "@/lib/money";
 import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo so live Supabase
 // reads work; previously mock-only.
 import { getInvoice } from "@/lib/repo/invoices";
-import { PUBLIC_ORIGIN } from "@/lib/env";
+import { PUBLIC_ORIGIN, INVOICE_ESCROW_ADDRESS } from "@/lib/env";
 import type { Hex, InvoiceStatus } from "@/lib/types";
 
 /**
@@ -58,6 +59,10 @@ export default async function InvoiceDetailPage({
   const shareUrl = `${PUBLIC_ORIGIN}${hostedUrl}`;
   const isHeld = invoice.status === "ACCEPTED" || invoice.status === "PAID"; // held / re-screening
   const shortId = `INV-${invoice.id.slice(2, 6).toUpperCase()}`;
+  // QA-020: in live mode an invoice must be published to InvoiceEscrow
+  // (vendor-signed) before a buyer can pay it.
+  const showPublish =
+    Boolean(INVOICE_ESCROW_ADDRESS) && invoice.status === "CREATED";
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 md:py-12">
@@ -105,6 +110,43 @@ export default async function InvoiceDetailPage({
           </p>
         </article>
       )}
+
+      {showPublish ? (
+        <article className="mt-6">
+          <h2 className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+            On-chain status
+          </h2>
+          <div className="rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-4">
+            {invoice.publishedTx ? (
+              <div className="text-sm">
+                <p className="font-medium text-emerald-700">
+                  Published on-chain
+                </p>
+                <p className="mt-1 font-mono text-xs break-all text-[var(--color-ink-muted)]">
+                  {invoice.publishedTx}
+                </p>
+                <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
+                  The buyer can now pay this invoice.
+                </p>
+              </div>
+            ) : invoice.vendorWallet ? (
+              <PublishInvoiceOnChain
+                invoiceId={invoice.id}
+                vendorWallet={invoice.vendorWallet}
+                token={invoice.token}
+                amount={invoice.amount.toString()}
+                dueAtUnix={Math.floor(invoice.dueAt.getTime() / 1000)}
+                metadataHash={invoice.metadataHash}
+              />
+            ) : (
+              <p className="text-sm text-rose-700">
+                This invoice has no payout wallet provisioned, so it can&rsquo;t
+                be published. Provision your wallet in settings first.
+              </p>
+            )}
+          </div>
+        </article>
+      ) : null}
 
       <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr]">
         <div className="space-y-7">
