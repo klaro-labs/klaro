@@ -16,7 +16,7 @@ const badgeVariants = cva(
     variants: {
       tone: {
         live: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
-        info: "bg-[var(--color-brand-soft)] text-[var(--color-brand)] ring-1 ring-inset ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
+        info: "bg-[var(--color-brand-soft)] text-[var(--color-klaro-orange-deep)] ring-1 ring-inset ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
         neutral:
           "bg-[var(--color-bg-elevated)] text-[var(--color-ink-muted)] ring-1 ring-inset ring-[var(--color-line)]",
         verified:

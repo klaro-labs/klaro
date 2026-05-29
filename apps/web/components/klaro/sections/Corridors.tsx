@@ -111,9 +111,9 @@ const ROWS: Corridor[] = [
 const STATUS_PILL: Record<Status, string> = {
   live: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   pilot:
-    "bg-[var(--color-brand-soft)] text-[var(--color-brand)] ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
+    "bg-[var(--color-brand-soft)] text-[var(--color-klaro-orange-deep)] ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
   "access-gated":
-    "bg-[var(--color-brand-soft)] text-[var(--color-brand)] ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
+    "bg-[var(--color-brand-soft)] text-[var(--color-klaro-orange-deep)] ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
   sim: "bg-[var(--color-bg)] text-[var(--color-ink-muted)] ring-[var(--color-line)]",
 };
 

@@ -24,7 +24,7 @@ export function TrustStrip() {
           {ITEMS.map((label) => (
             <li
               key={label}
-              className="font-display text-lg font-semibold tracking-tight text-[var(--color-ink-3)] opacity-55 transition-opacity duration-150 hover:opacity-100 md:text-xl"
+              className="font-display text-lg font-semibold tracking-tight text-[var(--color-ink-3)] opacity-70 transition-opacity duration-150 hover:opacity-100 md:text-xl"
             >
               {label}
             </li>

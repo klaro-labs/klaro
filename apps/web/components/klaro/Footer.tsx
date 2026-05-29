@@ -57,7 +57,7 @@ export function Footer() {
             <ul className="mt-6 space-y-2 text-sm">
               {EMAILS.map((e) => (
                 <li key={e.value} className="flex items-baseline gap-2">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/55">
                     {e.label}
                   </span>
                   <a
@@ -98,7 +98,7 @@ export function Footer() {
               © 2026 Klaro · Testnet preview · Klaro is not a bank · No
               real money moves on testnet
             </p>
-            <p className="mt-1 text-white/35">
+            <p className="mt-1 text-white/55">
               Klaro is not a bank, broker-dealer, or money transmitter. Klaro provides software; partner payout services are operated by licensed partners in each corridor.
             </p>
           </div>

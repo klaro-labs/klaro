@@ -23,7 +23,7 @@ const STATUS_COPY: Record<CorridorStatus, { label: string; tone: string }> = {
     // realFiatMoves:false). A bare "Live" chip on a cashout table read as a
     // production fiat payout — label it for what it is.
     label: "USDC-native",
-    tone: "bg-[color-mix(in_oklab,var(--color-success)_12%,transparent)] text-[var(--color-success)]",
+    tone: "bg-[color-mix(in_oklab,var(--color-success)_12%,transparent)] text-[#166534]",
   },
   pilot: {
     label: "Pilot",

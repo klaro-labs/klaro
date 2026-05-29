@@ -107,7 +107,7 @@ function PulsePanel() {
           </li>
         ))}
       </ol>
-      <p className="mt-5 text-[11px] text-white/35">
+      <p className="mt-5 text-[11px] text-white/55">
         Illustrative testnet event stream · no settlement claim
       </p>
     </aside>

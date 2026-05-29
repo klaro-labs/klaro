@@ -281,7 +281,7 @@ function CodeCard({ tabs }: { tabs: Tab[] }) {
         <span aria-hidden className="size-2.5 rounded-full bg-amber-400" />
         <span aria-hidden className="size-2.5 rounded-full bg-emerald-400" />
         <span className="ml-3 font-mono text-xs text-white/60">{primary.label}</span>
-        <span className="ml-auto inline-flex gap-3 font-mono text-[11px] text-white/45">
+        <span className="ml-auto inline-flex gap-3 font-mono text-[11px] text-white/55">
           {rest.map((t) => (
             <span key={t.id}>{t.label}</span>
           ))}

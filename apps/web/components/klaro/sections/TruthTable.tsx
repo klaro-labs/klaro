@@ -115,7 +115,7 @@ const TONES: Record<Tone, { label: string; dot: string; pill: string }> = {
   "access-gated": {
     label: "Access-gated",
     dot: "bg-[var(--color-brand)]",
-    pill: "bg-[var(--color-brand-soft)] text-[var(--color-brand)] ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
+    pill: "bg-[var(--color-brand-soft)] text-[var(--color-klaro-orange-deep)] ring-[color-mix(in_oklab,var(--color-brand)_15%,transparent)]",
   },
   lab: {
     label: "Lab preview",

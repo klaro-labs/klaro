@@ -9,7 +9,10 @@
    working; new code uses `--color-klaro-orange`. */
 @theme inline {
   /* Brand */
-  --color-klaro-orange: #C7522A;
+  /* LF-4: #C7522A was 4.41:1 on white — fails WCAG AA (4.5) for the 11px
+     eyebrow labels + inline links it's used on. #BC4C26 is a near-identical
+     darken at ~5.0:1, clearing AA while preserving brand identity. */
+  --color-klaro-orange: #BC4C26;
   --color-klaro-orange-deep: #8E3414;
   --color-klaro-orange-soft: #FAEDE5;
   --color-klaro-gold: #F5B100;
@@ -42,8 +45,8 @@
   /* Legacy aliases — keep working until every consumer is migrated. */
   --color-bg-elevated: #FFFFFF;
   --color-ink-muted: #6B6B6B;
-  --color-ink-subtle: #A3A3A3;
-  --color-brand: #C7522A;
+  --color-ink-subtle: #707070; /* LF-4: was #A3A3A3 (~2.3:1, fails AA). #707070 clears 4.5:1 on white AND the warm #FAFAF7 surfaces (4.7:1). */
+  --color-brand: #BC4C26; /* LF-4: mirror --color-klaro-orange darken for AA. */
   --color-brand-soft: #FAEDE5;
   --color-gold: #F5B100;
 

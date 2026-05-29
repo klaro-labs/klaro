@@ -77,7 +77,7 @@ export function StennProof() {
           <PdfCard />
           <span
             aria-hidden
-            className="hidden self-center text-center text-xs font-medium uppercase tracking-widest text-white/40 md:block"
+            className="hidden self-center text-center text-xs font-medium uppercase tracking-widest text-white/55 md:block"
           >
             vs
           </span>
@@ -178,7 +178,7 @@ function PdfCard() {
 function PdfRow({ k, v }: { k: string; v: string }) {
   return (
     <>
-      <dt className="text-white/40">{k}</dt>
+      <dt className="text-white/55">{k}</dt>
       <dd className="text-white/75">{v}</dd>
     </>
   );

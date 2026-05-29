@@ -208,13 +208,13 @@ function TrustScoreSample() {
       <ul className="mt-3 space-y-1 text-xs text-[var(--color-ink-muted)]">
         <li>
           ✓ 42 invoices settled clean{" "}
-          <span className="text-emerald-600">+18</span>
+          <span className="text-emerald-700">+18</span>
         </li>
         <li>
-          ✓ ERP connected · Tally <span className="text-emerald-600">+12</span>
+          ✓ ERP connected · Tally <span className="text-emerald-700">+12</span>
         </li>
         <li>
-          ✓ 14 clean cashouts <span className="text-emerald-600">+9</span>
+          ✓ 14 clean cashouts <span className="text-emerald-700">+9</span>
         </li>
       </ul>
     </div>
