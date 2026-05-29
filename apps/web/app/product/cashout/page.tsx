@@ -87,7 +87,7 @@ export default function ProductCashoutPage() {
               {liveCount} USDC-native · {pilotCount} pilot · {CORRIDORS.length - liveCount - pilotCount} simulated
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted)]">
-              Honest labels per <a href="/trust" className="text-[var(--color-klaro-orange)] hover:underline">principle 8</a>.
+              Honest labels per <a href="/trust" className="text-[var(--color-klaro-orange)] underline">principle 8</a>.
               Simulated corridors ship the full state machine but no real fiat moves until a partner signs.
             </p>
           </div>

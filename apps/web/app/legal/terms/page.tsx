@@ -61,7 +61,7 @@ export default function TermsPage() {
       <p>
         We may pause individual contracts or your account if you violate{" "}
         <a
-          className="text-[var(--color-brand)] hover:underline"
+          className="text-[var(--color-brand)] underline"
           href="/legal/acceptable-use"
         >
           acceptable use

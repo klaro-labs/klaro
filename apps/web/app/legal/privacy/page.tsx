@@ -32,7 +32,7 @@ export default function PrivacyPage() {
         <li>
           Cookies:{" "}
           <a
-            className="text-[var(--color-brand)] hover:underline"
+            className="text-[var(--color-brand)] underline"
             href="/legal/cookies"
           >
             see cookie policy
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
         GDPR + CCPA grant you access, rectification, erasure, and portability.
         Use{" "}
         <a
-          className="text-[var(--color-brand)] hover:underline"
+          className="text-[var(--color-brand)] underline"
           href="/account/privacy"
         >
           /account/privacy
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
       <p>
         See{" "}
         <a
-          className="text-[var(--color-brand)] hover:underline"
+          className="text-[var(--color-brand)] underline"
           href="/legal/subprocessors"
         >
           the subprocessors list

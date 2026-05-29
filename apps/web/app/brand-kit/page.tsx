@@ -91,17 +91,18 @@ function BrandKitHero() {
 function BkMeta({ term, def, link }: { term: string; def: string; link?: string }) {
   return (
     <div>
-      {link ? (
-        <a
-          href={link}
-          className="font-medium text-[var(--color-ink)] hover:text-[var(--color-brand)]"
-        >
-          {term}
-        </a>
-      ) : (
-        <p className="font-medium text-[var(--color-ink)]">{term}</p>
-      )}
-      <p className="mt-1 font-mono text-xs text-[var(--color-ink-subtle)]">{def}</p>
+      <dt className="font-medium text-[var(--color-ink)]">
+        {link ? (
+          <a href={link} className="hover:text-[var(--color-brand)]">
+            {term}
+          </a>
+        ) : (
+          term
+        )}
+      </dt>
+      <dd className="mt-1 font-mono text-xs text-[var(--color-ink-subtle)]">
+        {def}
+      </dd>
     </div>
   );
 }
