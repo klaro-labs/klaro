@@ -176,6 +176,7 @@ export default function SignInPage() {
               type="email"
               required
               autoComplete="email"
+              aria-label="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"

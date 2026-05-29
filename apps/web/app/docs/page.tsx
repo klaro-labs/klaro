@@ -124,6 +124,7 @@ export default function DocsLandingPage() {
         </Link>
         <div className="mt-6">
           <SectionHeader
+            as="h1"
             eyebrow="Docs"
             title={
               <>
