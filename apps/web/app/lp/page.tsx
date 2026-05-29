@@ -61,6 +61,10 @@ export default async function LPHomePage() {
             </a>
             .
           </p>
+          <p className="mt-4 text-xs text-[var(--color-ink-subtle)]">
+            Klaro is in Arc testnet — the LP flow is simulated and no real funds
+            or payouts move.
+          </p>
         </section>
       </main>
     );
