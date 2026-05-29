@@ -61,6 +61,17 @@ contract InvoiceEscrow is EIP712, ReentrancyGuard, Pausable, Ownable {
         "InvoiceAcceptance(bytes32 invoiceId,address vendor,address token,uint256 amount,uint64 dueAt,bytes32 metadataHash,bytes32 splitsHash)"
     );
 
+    /// @notice EIP-712 type-hash for a vendor's Klaro Link authorization. The
+    /// vendor signs this ONCE per link (binding their wallet to the link's
+    /// token + amount until `authDeadline`); `createInvoiceFor` then lets the
+    /// operator publish each link-payment's invoice on-chain on the vendor's
+    /// behalf. Intentionally reusable across the link's many payments — each
+    /// invoiceId is unique and `AlreadyExists` guards duplicates. Scoped to
+    /// `linkId` so an authorization can't be replayed across links.
+    bytes32 public constant LINK_INVOICE_AUTH_TYPEHASH = keccak256(
+        "LinkInvoiceAuthorization(address vendor,address token,uint256 amount,bytes32 linkId,uint64 authDeadline)"
+    );
+
     mapping(bytes32 => Invoice) public invoices; // invoiceId → state
     mapping(bytes32 => FeeSplitter.Split[]) private _invoiceSplits; // invoiceId → splits
 
@@ -126,6 +137,8 @@ contract InvoiceEscrow is EIP712, ReentrancyGuard, Pausable, Ownable {
     error ScreeningNotRecorded();
     error BuyerDenylisted();
     error BuyerNotCleared();
+    error AuthExpired();
+    error BadVendorAuth();
     // setRefundCaller now rejects
     // address(0) so the owner can't accidentally brick refunds.
     error ZeroAddress();
@@ -201,8 +214,51 @@ contract InvoiceEscrow is EIP712, ReentrancyGuard, Pausable, Ownable {
         emit InvoiceSplitsSet(invoiceId, splits.length, splitsHash);
     }
 
+    /// @notice Open an invoice on behalf of a vendor who pre-authorized a Klaro
+    /// Link. The vendor signs `LinkInvoiceAuthorization` once (token+amount+
+    /// linkId+deadline); anyone (the Klaro operator, or even the buyer's relayer)
+    /// may then publish each link-payment's invoice on-chain by presenting that
+    /// signature. The recovered signer becomes `inv.vendor`, so settlement always
+    /// pays the vendor — a relayed publish cannot redirect funds. A spurious
+    /// invoice is harmless: it still needs a buyer to `acceptAndPay`.
+    /// Works for EOA + EIP-1271 vendor wallets (SignatureChecker).
+    function createInvoiceFor(
+        bytes32 invoiceId,
+        address vendor,
+        address token,
+        uint256 amount,
+        uint64 dueAt,
+        bytes32 metadataHash,
+        bytes32 linkId,
+        uint64 authDeadline,
+        bytes calldata vendorAuthSig
+    ) external whenNotPaused nonReentrant {
+        if (vendor == address(0)) revert ZeroAddress();
+        if (block.timestamp > authDeadline) revert AuthExpired();
+        bytes32 structHash = keccak256(
+            abi.encode(LINK_INVOICE_AUTH_TYPEHASH, vendor, token, amount, linkId, authDeadline)
+        );
+        bytes32 digest = _hashTypedDataV4(structHash);
+        if (!SignatureChecker.isValidSignatureNow(vendor, digest, vendorAuthSig)) {
+            revert BadVendorAuth();
+        }
+        _createInvoiceFor(invoiceId, vendor, token, amount, dueAt, metadataHash, bytes32(0));
+    }
+
     function _createInvoice(
         bytes32 invoiceId,
+        address token,
+        uint256 amount,
+        uint64 dueAt,
+        bytes32 metadataHash,
+        bytes32 splitsHash
+    ) internal {
+        _createInvoiceFor(invoiceId, msg.sender, token, amount, dueAt, metadataHash, splitsHash);
+    }
+
+    function _createInvoiceFor(
+        bytes32 invoiceId,
+        address vendor,
         address token,
         uint256 amount,
         uint64 dueAt,
@@ -213,7 +269,7 @@ contract InvoiceEscrow is EIP712, ReentrancyGuard, Pausable, Ownable {
         if (invoices[invoiceId].status != Status.NONE) revert AlreadyExists();
 
         invoices[invoiceId] = Invoice({
-            vendor: msg.sender,
+            vendor: vendor,
             token: token,
             amount: amount,
             dueAt: dueAt,
@@ -225,7 +281,7 @@ contract InvoiceEscrow is EIP712, ReentrancyGuard, Pausable, Ownable {
             status: Status.CREATED
         });
 
-        emit InvoiceCreated(invoiceId, msg.sender, token, amount, metadataHash);
+        emit InvoiceCreated(invoiceId, vendor, token, amount, metadataHash);
     }
 
     function _validateSplits(FeeSplitter.Split[] calldata splits) internal pure {
