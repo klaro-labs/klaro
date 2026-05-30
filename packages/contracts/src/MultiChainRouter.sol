@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { RoutePolicyEngine } from "./RoutePolicyEngine.sol";
@@ -17,7 +18,7 @@ import { RoutePolicyEngine } from "./RoutePolicyEngine.sol";
 /// `decide()` — reverts if blocked
 /// 3. `recordExecution()` — operator stamps which route was actually
 /// taken + txHash for the audit trail ( — proof beats claims)
-contract MultiChainRouter is Ownable {
+contract MultiChainRouter is Ownable2Step {
     enum RouteKind {
         NONE,
         SAME_CHAIN, // already on Arc — no bridge needed

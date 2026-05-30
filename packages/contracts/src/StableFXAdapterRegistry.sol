@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -26,7 +27,7 @@ import { RoutePolicyEngine } from "./RoutePolicyEngine.sol";
 /// feed compromise, FX rate manipulation, or bad-adapter swap
 /// drain attempt left no kill-switch short of rotating the
 /// operator key (which breaks every legitimate path simultaneously).
-contract StableFXAdapterRegistry is Ownable, ReentrancyGuard, Pausable {
+contract StableFXAdapterRegistry is Ownable2Step, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     /// @notice (srcToken, dstToken) → adapter

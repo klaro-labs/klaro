@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
@@ -25,7 +26,7 @@ import { ReasonCodes } from "./lib/ReasonCodes.sol";
 // to freeze new cases short of replacing the operator on every
 // consumer contract. (boring infra — kill-switch one
 // click away).
-contract DisputeManager is Pausable, Ownable {
+contract DisputeManager is Pausable, Ownable2Step {
     enum Status {
         NONE,
         OPENED, // case file created

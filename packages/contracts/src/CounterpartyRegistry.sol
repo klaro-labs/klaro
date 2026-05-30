@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { ReasonCodes } from "./lib/ReasonCodes.sol";
@@ -17,7 +18,7 @@ import { ReasonCodes } from "./lib/ReasonCodes.sol";
 /// should ALWAYS be rejected (sanctions hits, confirmed fraud).
 /// @dev — no PII stored. Only the bundle hash + decidedAt +
 /// TTL. Raw screening evidence lives off-chain in `screening_results`.
-contract CounterpartyRegistry is Ownable {
+contract CounterpartyRegistry is Ownable2Step {
     struct Decision {
         bytes32 bundleHash; // keccak of off-chain 3-of-3 screening bundle
         uint64 decidedAt; // unix seconds when screening ran

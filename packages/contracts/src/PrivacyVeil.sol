@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 
@@ -19,7 +20,7 @@ import { KlaroConfig } from "./KlaroConfig.sol";
 /// stored commit. For ANY hiding guarantee in a future version, `salt` MUST be a
 /// CSPRNG value (≥32 bytes; never derived from on-chain-visible inputs) — a
 /// low-entropy salt is brute-forceable.
-contract PrivacyVeil is Ownable {
+contract PrivacyVeil is Ownable2Step {
     struct Veil {
         bytes32 commit; // keccak256(abi.encode(amountUsdc, salt)) — anchor, not hiding in M1
         uint64 committedAt;

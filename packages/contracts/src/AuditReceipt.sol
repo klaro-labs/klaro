@@ -3,6 +3,7 @@ pragma solidity 0.8.28;
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 
@@ -17,7 +18,7 @@ import { KlaroConfig } from "./KlaroConfig.sol";
 /// Off-chain receipt page reads the URI to render full details.
 /// The `verify(receiptHash)` view lets anyone confirm a receipt
 /// exists without going through Klaro infrastructure.
-contract AuditReceipt is ERC721, Ownable {
+contract AuditReceipt is ERC721, Ownable2Step {
     struct Anchor {
         bytes32 invoiceId; // matches InvoiceEscrow key
         bytes32 invoiceHash; // keccak256 of invoice metadata JSON

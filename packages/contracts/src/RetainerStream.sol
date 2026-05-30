@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
@@ -20,7 +21,7 @@ import { DisputeManager } from "./DisputeManager.sol";
 /// @dev Conservation invariant (Echidna target):
 /// deposit == withdrawn + payerRefund + remainingForRecipient
 /// for every stream, in every state.
-contract RetainerStream is ReentrancyGuard, Ownable, Pausable {
+contract RetainerStream is ReentrancyGuard, Ownable2Step, Pausable {
     using SafeERC20 for IERC20;
 
     /// @notice Operator role (day-to-day pause/unpause without holding owner key).

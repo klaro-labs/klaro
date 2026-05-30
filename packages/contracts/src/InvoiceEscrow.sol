@@ -8,6 +8,7 @@ import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/Sig
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { FeeSplitter } from "./FeeSplitter.sol";
@@ -28,7 +29,7 @@ import { PrivacyVeil } from "./PrivacyVeil.sol";
 /// both EOA `ecrecover` results AND EIP-1271 SCA `isValidSignature`
 /// responses. Raw `ecrecover` only would silently fail for every
 /// Modular-Wallet buyer (build-plan GAP 396).
-contract InvoiceEscrow is EIP712, ReentrancyGuard, Pausable, Ownable {
+contract InvoiceEscrow is EIP712, ReentrancyGuard, Pausable, Ownable2Step {
     using SafeERC20 for IERC20;
 
     // ─── State machine ──────────────────────────────────────────────────

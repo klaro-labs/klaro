@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
@@ -19,7 +20,7 @@ import { ReasonCodes } from "./lib/ReasonCodes.sol";
 /// dev / vendor who registered) controls metadata + can deactivate;
 /// the Klaro `operator` can force-deactivate for abuse (logged with
 /// ReasonCodes-validated reason hash).
-contract AgentRegistry is EIP712, Ownable {
+contract AgentRegistry is EIP712, Ownable2Step {
     struct Agent {
         address owner; // wallet that registered this agent
         string displayName; // human-readable label (off-chain UI)

@@ -72,6 +72,18 @@ contract DeployTest is Test {
         address owner = address(0xBEEF);
         withOwner.runForTest(address(withOwner), owner, feeReceiver);
 
+        // Ownable2Step (audit 2026-05-30): transferOwnership sets the PENDING
+        // owner — the deployer stays owner until the designated owner accepts.
+        // This is the brick-prevention: a typo'd owner can never accept, so the
+        // deployer retains control instead of losing it to a dead address.
+        assertEq(withOwner.refunds().pendingOwner(), owner);
+        assertEq(withOwner.retainer().pendingOwner(), owner);
+
+        // Designated owner accepts → ownership completes.
+        vm.startPrank(owner);
+        withOwner.refunds().acceptOwnership();
+        withOwner.retainer().acceptOwnership();
+        vm.stopPrank();
         assertEq(withOwner.refunds().owner(), owner);
         assertEq(withOwner.retainer().owner(), owner);
     }

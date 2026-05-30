@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 
@@ -15,7 +16,7 @@ import { KlaroConfig } from "./KlaroConfig.sol";
 /// (`InvoiceEscrow`, `CashoutOrderProcessor`, `AgentEscrow`,
 /// `DisputeManager`) — every state-change in those contracts can stamp
 /// a reputation event in the same tx.
-contract VendorReputation is Ownable {
+contract VendorReputation is Ownable2Step {
     enum Kind {
         NONE,
         INVOICE_SETTLED, // +weight, paid-on-time settled invoice

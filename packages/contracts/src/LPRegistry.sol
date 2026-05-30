@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { ReasonCodes } from "./lib/ReasonCodes.sol";
@@ -13,7 +14,7 @@ import { ReasonCodes } from "./lib/ReasonCodes.sol";
 /// (`CashoutOrderProcessor.claimByLP`, `MultiChainRouter`) to gate flows.
 /// Status enum and tier are intentionally orthogonal — KYB can be
 /// admitted before the LP stakes, and tier can be 0 even when admitted.
-contract LPRegistry is Ownable {
+contract LPRegistry is Ownable2Step {
     enum Status {
         NONE, // unregistered
         PENDING, // registered, KYB under review

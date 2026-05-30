@@ -6,6 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { ProofRegistry } from "./ProofRegistry.sol";
@@ -23,7 +24,7 @@ import { DisputeManager } from "./DisputeManager.sol";
 /// (this contract) until the vendor either confirms receipt of the local
 /// currency or the admin resolves a dispute. Slashing on bad-faith LP
 /// is delegated to `LPStaking`.
-contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable {
+contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
     using SafeERC20 for IERC20;
 
     enum Status {

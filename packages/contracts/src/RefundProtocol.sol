@@ -8,6 +8,7 @@ import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/Sig
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { InvoiceEscrow } from "./InvoiceEscrow.sol";
@@ -25,7 +26,7 @@ import { InvoiceEscrow } from "./InvoiceEscrow.sol";
 /// normal settlement and may need different rate-limits, replay
 /// windows, partial-refund support (M7), and EIP-3009 buyer-pull
 /// flow (M5). Keeping them isolated makes the audit story cleaner.
-contract RefundProtocol is EIP712, ReentrancyGuard, Pausable, Ownable {
+contract RefundProtocol is EIP712, ReentrancyGuard, Pausable, Ownable2Step {
     using SafeERC20 for IERC20;
 
     /// @notice The escrow this protocol operates against. Set at deploy

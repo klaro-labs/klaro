@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { ReasonCodes } from "./lib/ReasonCodes.sol";
@@ -15,7 +16,7 @@ import { ReasonCodes } from "./lib/ReasonCodes.sol";
 /// Vendor running totals (daily cap, weekly cap) intentionally live
 /// in the router that calls this engine, not here. Single
 /// responsibility: enable/block, nothing else.
-contract RoutePolicyEngine is Ownable {
+contract RoutePolicyEngine is Ownable2Step {
     struct Policy {
         bool enabled; // master switch
         uint256 maxPerOrderUsdc; // 6-dec USDC; 0 = no cap

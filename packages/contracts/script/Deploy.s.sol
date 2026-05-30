@@ -106,8 +106,12 @@ contract Deploy is Script {
         }
     }
 
-    /// @dev Hand every Ownable over to the multisig in one stroke. Owner must
-    /// `acceptOwnership()` if any contract migrates to Ownable2Step later.
+    /// @dev Start the ownership transfer of every contract to the multisig.
+    /// Audit 2026-05-30: the contracts are now Ownable2Step, so this only sets
+    /// the PENDING owner — the multisig MUST call `acceptOwnership()` on each to
+    /// complete the handover. Until it does, the deployer retains owner powers.
+    /// This eliminates the catastrophic 1-step risk where a typo in `owner` (the
+    /// KLARO_OWNER env) irrevocably bricked admin control of all 20 contracts.
     function _handoverOwnership(address owner) internal {
         splitter.transferOwnership(owner);
         policy.transferOwnership(owner);

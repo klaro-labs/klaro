@@ -6,6 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { AgentRegistry } from "./AgentRegistry.sol";
@@ -24,7 +25,7 @@ import { IACPHook, NoopACPHook } from "./IACPHook.sol";
 /// Fees: principal funds `amountUsdc + computed protocol fee` per
 /// `AgentRegistry.feeBpsOf(agentId)`. Cap enforced ≤ 100% at the
 /// registry (`maxAgentFeeBps`) — sanity-checked again here.
-contract AgentEscrow is ReentrancyGuard, Pausable, Ownable {
+contract AgentEscrow is ReentrancyGuard, Pausable, Ownable2Step {
     using SafeERC20 for IERC20;
 
     enum Status {

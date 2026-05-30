@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { KlaroConfig } from "./KlaroConfig.sol";
 
 /// @title ProofRegistry
@@ -16,7 +17,7 @@ import { KlaroConfig } from "./KlaroConfig.sol";
 /// @dev Why a separate contract: keeps the cashout state-machine code
 /// small + lets us extend proof types (Reclaim, zkEmail)
 /// without changing the order contract.
-contract ProofRegistry is Ownable {
+contract ProofRegistry is Ownable2Step {
     struct Proof {
         bytes32 cashoutId; // matches CashoutOrderProcessor key
         bytes32 lpId; // LP entity (off-chain identity in LPStaking)

@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 import { KlaroConfig } from "./KlaroConfig.sol";
 import { VendorReputation } from "./VendorReputation.sol";
@@ -15,7 +16,7 @@ import { VendorReputation } from "./VendorReputation.sol";
 /// EMERGING / ACTIVE / ESTABLISHED / PRIORITY. Single source of truth
 /// for both on-chain consumers (LP-tier eligibility, agent fee caps)
 /// and off-chain UI (`/vendor/reputation`).
-contract ReputationManager is Ownable {
+contract ReputationManager is Ownable2Step {
     enum Tier {
         EMERGING,
         ACTIVE,

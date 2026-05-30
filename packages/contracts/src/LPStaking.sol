@@ -6,6 +6,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import { SignatureChecker } from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
@@ -26,7 +27,7 @@ import { KlaroConfig } from "./KlaroConfig.sol";
 /// @dev (best option) — explicit tier ladder vs computed
 /// logarithmic curve. Tier transitions must be auditable in plain
 /// English for the LP onboarding flow.
-contract LPStaking is ReentrancyGuard, EIP712, Pausable, Ownable {
+contract LPStaking is ReentrancyGuard, EIP712, Pausable, Ownable2Step {
     using SafeERC20 for IERC20;
 
     enum Tier {
