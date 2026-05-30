@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
-import { mockListDisputesForVendor, type DisputeStatus } from "@/lib/mockData";
+import { type DisputeStatus } from "@/lib/mockData";
+import { listForVendor } from "@/lib/repo/disputes";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { openDisputeAction } from "./actions";
 
@@ -36,7 +37,7 @@ const ENTRY_POINTS = [
 export default async function DisputesPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
-  const cases = await mockListDisputesForVendor(session.vendor.id);
+  const cases = await listForVendor(session.vendor.id);
 
   return (
     <div className="mx-auto w-full max-w-[1100px] px-4 py-6 md:px-6 md:py-10">

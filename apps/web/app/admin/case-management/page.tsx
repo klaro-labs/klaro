@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
-import { mockListDisputesAll } from "@/lib/mockData";
+import { listAll } from "@/lib/repo/disputes";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 
 export const metadata = { title: "Case management · Klaro admin" };
@@ -14,7 +14,7 @@ const STATUS_TONE: Record<string, "info" | "sim" | "live" | "neutral"> = {
 };
 
 export default async function AdminCaseManagementPage() {
-  const cases = await mockListDisputesAll();
+  const cases = await listAll();
   const open = cases.filter((c) => c.status !== "DECIDED");
   const decided = cases.filter((c) => c.status === "DECIDED");
 

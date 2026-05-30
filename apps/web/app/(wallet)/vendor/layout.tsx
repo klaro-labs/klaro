@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/klaro/AppShell";
 import { getCurrentSession } from "@/lib/auth";
 import { listInvoicesForVendor } from "@/lib/repo/invoices";
-import { mockListDisputesForVendor } from "@/lib/mockData";
+import { listForVendor } from "@/lib/repo/disputes";
 
 /**
  * Vendor app shell — wraps every /vendor/* route.
@@ -27,7 +27,7 @@ export default async function VendorLayout({
   const { vendor } = session;
   const [invoices, disputes] = await Promise.all([
     listInvoicesForVendor(vendor.id),
-    mockListDisputesForVendor(vendor.id),
+    listForVendor(vendor.id),
   ]);
 
   const pendingInvoiceCount = invoices.filter(

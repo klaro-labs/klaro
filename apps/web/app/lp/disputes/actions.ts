@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { keccak256, toBytes } from "viem";
 import { requireLp } from "@/lib/auth";
-import { mockAddEvidence, mockGetDispute } from "@/lib/mockData";
+import { addEvidence, getDispute } from "@/lib/repo/disputes";
 import { getCashout } from "@/lib/repo/cashouts";
 import { record as auditRecord } from "@/lib/auditLog";
 import type { Hex } from "@/lib/types";
@@ -18,7 +18,7 @@ export async function lpDefendAction(caseId: Hex, note: string): Promise<void> {
   const { vendor, lp } = await requireLp();
   if (note.length < 5) throw new Error("defense_note_required");
 
-  const c = await mockGetDispute(caseId);
+  const c = await getDispute(caseId);
   if (!c) throw new Error("case_not_found");
   if (c.context !== "cashout") throw new Error("not_lp_defended_case");
 
@@ -27,7 +27,7 @@ export async function lpDefendAction(caseId: Hex, note: string): Promise<void> {
     throw new Error("not_assigned_lp");
   }
 
-  await mockAddEvidence(caseId, {
+  await addEvidence(caseId, {
     by: "respondent",
     at: new Date(),
     note,

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
-import { mockGetDispute } from "@/lib/mockData";
+import { getDispute } from "@/lib/repo/disputes";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { getCurrentSession } from "@/lib/auth";
 import { addEvidenceAction } from "../actions";
@@ -31,7 +31,7 @@ export default async function DisputeDetailPage({
 }) {
   const { caseId } = await params;
   const session = await getCurrentSession();
-  const c = await mockGetDispute(caseId as Hex);
+  const c = await getDispute(caseId as Hex);
   // page used to read any
   // dispute by id without a vendor-ownership check. Any signed-in
   // vendor could paste another tenant's case URL and read the

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
-import { mockListDisputesAll } from "@/lib/mockData";
+import { listAll } from "@/lib/repo/disputes";
 import { getCashout } from "@/lib/repo/cashouts";
 import { getCurrentLpSession } from "@/lib/auth";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
@@ -32,7 +32,7 @@ export default async function LPDisputesPage() {
   // LP-A could see LP-B's openingNote/evidence/amounts. Same
   // ownership gate `lpDefendAction` already enforces:
   // case.context === "cashout" AND cashout.lpId === session.lp.lpId.
-  const all = await mockListDisputesAll();
+  const all = await listAll();
   const lpId = session?.lp.lpId;
   const cases = lpId
     ? (

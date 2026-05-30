@@ -3,14 +3,13 @@ import { DisputeOpenReq } from "@/lib/apiSchemas";
 import { requireVendor } from "@/lib/auth";
 import { keccak256, stringToBytes } from "viem";
 import {
-  mockOpenDispute,
   mockGetAgentJob,
   mockGetStream,
   type DisputeContext,
 } from "@/lib/mockData";
+import * as disputesRepo from "@/lib/repo/disputes";
 import { getCashout } from "@/lib/repo/cashouts";
 import { dollarsToUSDC } from "@/lib/money";
-import { supabaseLive } from "@/lib/env";
 import type { Hex } from "@/lib/types";
 
 /**
@@ -27,15 +26,6 @@ import type { Hex } from "@/lib/types";
  */
 export const POST = handle(DisputeOpenReq, async (input) => {
   const session = await requireVendor();
-  // previously wrote to mockOpenDispute regardless of
-  // live mode → SDK users in prod got 201 + caseId but the row only
-  // existed in process memory (lost on serverless cold start). Same
-  // honest-label class as (admin/pause, fx/quotes, webhooks).
-  if (supabaseLive()) {
-    throw new Error(
-      "disputes_not_yet_persistent: in-memory store does not survive serverless cold starts; persistent disputes ship M11",
-    );
-  }
   if (!/^0x[0-9a-fA-F]{64}$/.test(input.sourceId)) {
     throw new Error(
       "sourceId must be 0x + 64 hex chars (cashoutId / agentJobId / streamId)",
@@ -51,10 +41,16 @@ export const POST = handle(DisputeOpenReq, async (input) => {
   // against an arbitrary sourceId. The `_exhaustive: never = source`
   // line forces a TS compile error in that case so the bug is caught
   // at type-check time, not at runtime against a real tenant.
+  let respondentKind: "lp" | "system" = "system";
+  let respondentId = "system";
   if (input.source === "cashout") {
     const c = await getCashout(input.sourceId as Hex);
     if (!c || c.vendorId !== session.vendor.id) {
       throw new Error("source_not_owned_by_caller");
+    }
+    if (c.lpId) {
+      respondentKind = "lp";
+      respondentId = c.lpId;
     }
   } else if (input.source === "agent") {
     const j = await mockGetAgentJob(input.sourceId);
@@ -86,7 +82,7 @@ export const POST = handle(DisputeOpenReq, async (input) => {
   // gets a value the resolvers actually handle.
   const context: DisputeContext =
     input.source === "retainer" ? "stream" : (input.source as DisputeContext);
-  await mockOpenDispute({
+  await disputesRepo.openDispute({
     caseId,
     context,
     contextRefId: input.sourceId as Hex,
@@ -96,6 +92,8 @@ export const POST = handle(DisputeOpenReq, async (input) => {
     amountUsdc: dollarsToUSDC(0),
     openingNote: input.evidenceMd,
     openingHash: keccak256(stringToBytes(input.evidenceMd)),
+    respondentKind,
+    respondentId,
   });
   return {
     dispute: {

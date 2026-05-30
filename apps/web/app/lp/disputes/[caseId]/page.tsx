@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
-import { mockGetDispute } from "@/lib/mockData";
+import { getDispute } from "@/lib/repo/disputes";
 import { getCashout } from "@/lib/repo/cashouts";
 import { getCurrentLpSession } from "@/lib/auth";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
@@ -22,7 +22,7 @@ export default async function LPDisputeDetailPage({
   params: Promise<{ caseId: string }>;
 }) {
   const { caseId } = await params;
-  const c = await mockGetDispute(caseId as Hex);
+  const c = await getDispute(caseId as Hex);
   if (!c) notFound();
 
   // Audit fix (loop ): derive LP from session, not array[0].

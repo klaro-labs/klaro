@@ -545,8 +545,8 @@ async function MobileCashoutDispute({ order }: { order: CashoutOrder }) {
   // case data (`d-${year}-0524-411`, "Opened 14:27 · 2 min ago") and
   // route Add-evidence to the disputes LIST. Now resolves the real
   // case opened by `openDisputeAction` and links to its detail page.
-  const { mockGetDisputeByContext } = await import("@/lib/mockData");
-  const dispute = await mockGetDisputeByContext("cashout", order.id);
+  const { getByContext } = await import("@/lib/repo/disputes");
+  const dispute = await getByContext("cashout", order.id);
   const caseShort = dispute ? shortAddress(dispute.caseId) : "(pending)";
   const openedRel = dispute
     ? relativeTime(dispute.openedAt)

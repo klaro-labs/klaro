@@ -5,16 +5,13 @@ import { redirect } from "next/navigation";
 import { keccak256, toBytes } from "viem";
 import { z } from "zod";
 import {
-  mockGetDispute,
-  mockOpenDispute,
-  mockAddEvidence,
   mockGetAgentJob,
   mockGetStream,
 } from "@/lib/mockData";
+import * as disputesRepo from "@/lib/repo/disputes";
 import { getCashout } from "@/lib/repo/cashouts";
 import { getInvoice } from "@/lib/repo/invoices";
 import { requireVendor } from "@/lib/auth";
-import { supabaseLive } from "@/lib/env";
 import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { captureError } from "@/lib/sentry";
 import type { Hex } from "@/lib/types";
@@ -61,9 +58,15 @@ export async function openDisputeAction(formData: FormData): Promise<void> {
     // updated. Same defect class as cross-tenant detail-page
     // reads. Resolve source by context + verify caller owns it.
     let sourceVendorId: string | null = null;
+    let respondentKind: "lp" | "system" = "system";
+    let respondentId = "system";
     if (context === "cashout") {
       const co = await getCashout(contextRefId);
       sourceVendorId = co?.vendorId ?? null;
+      if (co?.lpId) {
+        respondentKind = "lp";
+        respondentId = co.lpId;
+      }
     } else if (context === "invoice") {
       const inv = await getInvoice(contextRefId);
       sourceVendorId = inv?.vendorId ?? null;
@@ -80,7 +83,7 @@ export async function openDisputeAction(formData: FormData): Promise<void> {
     }
 
     caseId = _hash(`dispute-${contextRefId}-${Date.now()}`);
-    await mockOpenDispute({
+    await disputesRepo.openDispute({
       caseId,
       context,
       contextRefId,
@@ -90,6 +93,8 @@ export async function openDisputeAction(formData: FormData): Promise<void> {
       amountUsdc: dollarsToUSDC(amount),
       openingNote: note,
       openingHash: _hash(note),
+      respondentKind,
+      respondentId,
     });
     revalidatePath("/vendor/disputes");
     revalidatePath("/admin/disputes");
@@ -113,24 +118,13 @@ export async function addEvidenceAction(
 ): Promise<void> {
   const session = await requireVendor();
   if (note.length < 5) throw new Error("evidence note required");
-  // F-3 (web audit): same honest-label class as
-  // (admin/disputes requestEvidenceAction + assignToReviewAction) and
-  // (/api/v1/disputes). Without this guard, live-mode
-  // vendor submits evidence → mock writes to process memory → returns
-  // success → next cold start the evidence is gone. Persistence lands
-  // M11. Surfaces as 503 via classifier.
-  if (supabaseLive()) {
-    throw new Error(
-      "disputes_not_yet_persistent: vendor-side evidence persists only in dev/simulator mode until persistent disputes ship M11",
-    );
-  }
   try {
-    const c = await mockGetDispute(caseId);
+    const c = await disputesRepo.getDispute(caseId);
     if (!c) throw new Error("dispute not found");
     if (c.vendorId !== session.vendor.id)
       throw new Error("dispute belongs to a different vendor");
 
-    await mockAddEvidence(caseId, {
+    await disputesRepo.addEvidence(caseId, {
       by: "claimant",
       at: new Date(),
       note,

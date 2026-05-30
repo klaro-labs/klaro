@@ -3,7 +3,7 @@
 // dual-mode via repo so live Supabase
 // path is exercised; previously mock-only. Money-flow critical surface.
 import { createCashout, advanceCashout, getCashout } from "@/lib/repo/cashouts";
-import { mockOpenDispute } from "@/lib/mockData";
+import * as disputesRepo from "@/lib/repo/disputes";
 import { getCorridor } from "@/lib/corridors";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
@@ -407,7 +407,7 @@ export async function openDisputeAction(id: Hex): Promise<void> {
       `cashout state changed (now ${fresh?.status ?? "unknown"}) — refresh + retry`,
     );
   }
-  await mockOpenDispute({
+  await disputesRepo.openDispute({
     caseId,
     context: "cashout",
     contextRefId: id,
@@ -417,6 +417,8 @@ export async function openDisputeAction(id: Hex): Promise<void> {
     amountUsdc: order.usdcAmount,
     openingNote,
     openingHash: keccak256(stringToBytes(openingNote)),
+    respondentKind: order.lpId ? "lp" : "system",
+    respondentId: order.lpId ?? "system",
   });
   revalidatePath("/vendor/cashout");
   revalidatePath(`/vendor/cashout/${id}`);

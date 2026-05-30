@@ -1,6 +1,7 @@
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
-import { mockListDisputesAll, type DisputeOutcome } from "@/lib/mockData";
+import { type DisputeOutcome } from "@/lib/mockData";
+import { listAll } from "@/lib/repo/disputes";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import {
   decideDisputeAction,
@@ -45,7 +46,7 @@ const OUTCOMES: { value: DisputeOutcome; label: string; desc: string }[] = [
 ];
 
 export default async function AdminDisputesPage() {
-  const cases = await mockListDisputesAll();
+  const cases = await listAll();
 
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
