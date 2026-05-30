@@ -37,6 +37,15 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/sentry", () => ({ captureError: vi.fn() }));
 vi.mock("@/lib/auditLog", () => ({ record: vi.fn() }));
 
+// The action layer fail-closes with `agents_not_yet_persistent` when
+// supabaseLive() is true (live AgentEscrow wiring lands M11). This test
+// exercises the in-memory state-machine guard, which lives behind that
+// gate — force simulator mode so the transition table is reachable.
+vi.mock("@/lib/env", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/env")>()),
+  supabaseLive: () => false,
+}));
+
 async function seedJob() {
   const agentId = ("0xa9" + "0".repeat(62)) as Hex;
   const job = await mockCreateAgentJob({

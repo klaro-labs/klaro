@@ -1,8 +1,9 @@
-// Regression for loop (2026-05-25): the public
-// /api/v1/invoices/[id] GET previously returned the full Invoice payload
-// — including `customer.email` and `customer.name`. Buyer PII leaks if
-// the invoice id is shared outside its intended audience. The route now
-// strips the customer block and only exposes presence flags.
+// Regression for loop (2026-05-25): the /api/v1/invoices/[id] GET
+// previously returned the full Invoice payload — including
+// `customer.email` and `customer.name`. The route is now vendor-authed
+// (buyer-facing access goes through /i/[id]) and strips the customer
+// block to presence flags. We mock a matching vendor session so the
+// ownership check passes and the redaction path is exercised.
 
 import { describe, it, expect, vi } from "vitest";
 import type { Hex } from "@/lib/types";
@@ -20,6 +21,23 @@ const SEED_INVOICE = {
   metadataHash: ("0x" + "33".repeat(32)) as Hex,
   createdAt: new Date("2026-05-01"),
 };
+
+vi.mock("@/lib/auth", async () => {
+  const real = await vi.importActual<typeof import("@/lib/auth")>("@/lib/auth");
+  return {
+    ...real,
+    requireVendor: vi.fn(async () => ({
+      vendor: {
+        id: "vendor-asha",
+        displayName: "Asha",
+        wallet: ("0x" + "11".repeat(20)) as Hex,
+        country: "IN",
+      },
+    })),
+  };
+});
+
+vi.mock("@/lib/sentry", () => ({ captureError: vi.fn() }));
 
 vi.mock("@/lib/repo/invoices", () => ({
   getInvoice: vi.fn(async () => SEED_INVOICE),
