@@ -340,6 +340,8 @@ export function startArcListener() {
     onError?: (err: unknown) => void;
   };
   const watch = <E extends AbiEvent>(opts: WatchOpts<E>): (() => void) => {
+    // Per-(address,event) Redis key so each watcher resumes independently.
+    const cursorKey = `klaro:listener:cursor:${opts.address}:${(opts.event as AbiEvent).name}`;
     let cursor: bigint | null = null;
     let seed: bigint | null = null;
     let stopped = false;
@@ -348,11 +350,25 @@ export function startArcListener() {
       try {
         const latest = await client.getBlockNumber();
         if (cursor === null) {
-          // First tick — seed cursor at current latest so we don't replay
-          // every historic event at startup.
-          cursor = latest;
-          seed = latest;
-          return;
+          // Audit 2026-05-30: persist the cursor so a daemon RESTART resumes
+          // from the last processed block instead of re-seeding at `latest` —
+          // the old behaviour silently dropped every event emitted during
+          // downtime (settlements, refunds, receipt mints, cashout legs). On
+          // boot, resume from the persisted cursor and scan forward to recover
+          // the gap; on a genuine first run (no persisted cursor) seed at latest
+          // so we don't replay all history. claimOnce dedups any re-scan.
+          const persisted = await redis()
+            .get(cursorKey)
+            .catch(() => null);
+          if (persisted) {
+            cursor = BigInt(persisted);
+            seed = cursor;
+            // fall through to scan [cursor+1, latest] and recover the gap
+          } else {
+            cursor = latest;
+            seed = latest;
+            return;
+          }
         }
         if (latest <= cursor) return;
         // QA-072: re-scan a trailing window instead of jumping the cursor
@@ -375,6 +391,17 @@ export function startArcListener() {
           toBlock: latest,
         });
         cursor = latest;
+        // Persist the advanced cursor so a restart resumes here. Non-fatal: on a
+        // Redis hiccup the in-memory cursor still advances; a later tick retries
+        // the persist, and claimOnce makes a duplicate re-scan harmless.
+        await redis()
+          .set(cursorKey, latest.toString())
+          .catch((e) =>
+            log.error("listener.cursorPersist.failed", {
+              key: cursorKey,
+              err: (e as Error).message,
+            }),
+          );
         if (logs.length > 0)
           await opts.onLogs(logs as unknown as readonly TypedLog<E>[]);
       } catch (err) {
