@@ -12,15 +12,36 @@ import {
 } from "@/lib/corridors";
 import { formatUSDC, dollarsToUSDC } from "@/lib/money";
 import { createCashoutAction } from "@/app/vendor/cashout/actions";
+import {
+  RequestCashoutOnChain,
+  type CashoutRequestInput,
+} from "./RequestCashoutOnChain";
+import type { Hex } from "@/lib/types";
 
 /**
  * CashoutRequestForm — amount + corridor selector + live quote.
- * The quote refreshes whenever amount or corridor changes. This form is a
- * simulator until a signed live cashout submission path is wired.
+ * The quote refreshes whenever amount or corridor changes.
+ *
+ * Two submission paths:
+ *  - On-chain (LF-3): when the vendor has a provisioned payout wallet, the
+ *    quote feeds `RequestCashoutOnChain`, which has the vendor sign
+ *    `approve` + `requestAndLock` so REAL USDC is escrowed in
+ *    CashoutOrderProcessor. The operator daemon then advances the escrow to
+ *    RELEASED (claimByLP → recordProof → operatorConfirmReceived).
+ *  - Simulated: demo/no-wallet sessions fall back to the DB-only
+ *    `createCashoutAction` — no funds move. Labelled as such.
  */
-// vendorId + vendorWallet removed from props — server action derives from
-// session. .
-export function CashoutRequestForm({ maxUsdc }: { maxUsdc: bigint }) {
+const ZERO_ADDR = ("0x" + "0".repeat(40)).toLowerCase();
+
+export function CashoutRequestForm({
+  maxUsdc,
+  vendorWallet,
+}: {
+  maxUsdc: bigint;
+  /** vendor's provisioned payout wallet; when present + non-zero the live
+   *  on-chain lock path is offered instead of the simulator. */
+  vendorWallet?: Hex | null;
+}) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -36,35 +57,24 @@ export function CashoutRequestForm({ maxUsdc }: { maxUsdc: bigint }) {
   const corridor = getCorridor(currency);
   const overLimit = quote && quote.usdcAmount > maxUsdc;
 
-  return (
-    <form
-      className="space-y-5"
-      onSubmit={(e) => {
-        e.preventDefault();
-        setError(null);
-        if (!quote) return setError("Pick a valid corridor.");
-        if (overLimit)
-          return setError("Amount exceeds your cashoutable balance.");
-        start(async () => {
-          try {
-            const id = await createCashoutAction({
-              usdcAmount: quote.usdcAmount.toString(),
-              payoutMinor: quote.payoutMinor.toString(),
-              currency,
-              klaroFeeUsdc: quote.klaroFeeUsdc.toString(),
-              lpSpreadUsdc: quote.lpSpreadUsdc.toString(),
-              quoteRate: quote.corridor.rate,
-              quoteExpiresAtIso: quote.expiresAt.toISOString(),
-            });
-            router.push(`/vendor/cashout/${id}` as `/vendor/cashout/${string}`);
-          } catch (err) {
-            setError(
-              err instanceof Error ? err.message : "Cashout request failed.",
-            );
-          }
-        });
-      }}
-    >
+  const liveOnChain =
+    !!vendorWallet && vendorWallet.toLowerCase() !== ZERO_ADDR;
+  const requestInput: CashoutRequestInput | null = quote
+    ? {
+        usdcAmount: quote.usdcAmount.toString(),
+        payoutMinor: quote.payoutMinor.toString(),
+        currency,
+        klaroFeeUsdc: quote.klaroFeeUsdc.toString(),
+        lpSpreadUsdc: quote.lpSpreadUsdc.toString(),
+        quoteRate: quote.corridor.rate,
+        quoteExpiresAtIso: quote.expiresAt.toISOString(),
+      }
+    : null;
+
+  // amount + corridor inputs and the live quote panel are identical for both
+  // paths; only the submit footer differs (signed lock vs. simulated insert).
+  const fields = (
+    <>
       <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
         <Field label="Amount (USD)">
           <input
@@ -139,13 +149,69 @@ export function CashoutRequestForm({ maxUsdc }: { maxUsdc: bigint }) {
           </dl>
         </div>
       ) : null}
+    </>
+  );
 
+  // Live on-chain path (LF-3): the quote feeds the signed approve +
+  // requestAndLock. Rendered OUTSIDE a <form> — RequestCashoutOnChain drives
+  // its own button, so a form wrapper would double-fire on submit.
+  if (liveOnChain && requestInput) {
+    return (
+      <div className="space-y-5">
+        {fields}
+        <div className="border-t border-[var(--color-line)] pt-5">
+          {overLimit ? (
+            <p className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200">
+              Amount exceeds your cashoutable balance ({formatUSDC(maxUsdc)}).
+            </p>
+          ) : (
+            <RequestCashoutOnChain
+              input={requestInput}
+              vendorWallet={vendorWallet as Hex}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Simulated path (demo / no provisioned wallet): DB-only insert, no funds
+  // move — labelled honestly.
+  return (
+    <form
+      className="space-y-5"
+      onSubmit={(e) => {
+        e.preventDefault();
+        setError(null);
+        if (!quote) return setError("Pick a valid corridor.");
+        if (overLimit)
+          return setError("Amount exceeds your cashoutable balance.");
+        start(async () => {
+          try {
+            const id = await createCashoutAction({
+              usdcAmount: quote.usdcAmount.toString(),
+              payoutMinor: quote.payoutMinor.toString(),
+              currency,
+              klaroFeeUsdc: quote.klaroFeeUsdc.toString(),
+              lpSpreadUsdc: quote.lpSpreadUsdc.toString(),
+              quoteRate: quote.corridor.rate,
+              quoteExpiresAtIso: quote.expiresAt.toISOString(),
+            });
+            router.push(`/vendor/cashout/${id}` as `/vendor/cashout/${string}`);
+          } catch (err) {
+            setError(
+              err instanceof Error ? err.message : "Cashout request failed.",
+            );
+          }
+        });
+      }}
+    >
+      {fields}
       {error ? (
         <p className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200">
           {error}
         </p>
       ) : null}
-
       <div className="flex items-center gap-3 border-t border-[var(--color-line)] pt-5">
         <Button
           type="submit"

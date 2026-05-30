@@ -10,8 +10,9 @@ import { captureError } from "@/lib/sentry";
 import { computeQuoteHash } from "@/lib/cashoutQuote";
 import { parseSafeUsdcBigint } from "@/lib/money";
 import { quoteCashout } from "@/lib/corridors";
-import { isLiveOnChain } from "@/lib/arcClient";
-import { supabaseLive } from "@/lib/env";
+import { isLiveOnChain, getArcPublicClient } from "@/lib/arcClient";
+import { supabaseLive, CASHOUT_ORDER_PROCESSOR_ADDRESS } from "@/lib/env";
+import { CASHOUT_ORDER_PROCESSOR_ABI } from "@/lib/abi";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { keccak256, stringToBytes } from "viem";
@@ -161,6 +162,131 @@ export async function createCashoutAction(input: Input): Promise<Hex> {
   // analytics.ts is browser-only by design; server-side track was a
   // no-op + leaked tenant identifiers. Server-side analytics is M11.
   return order.id;
+}
+
+// ─── LF-3: live on-chain cashout request (vendor-signed requestAndLock) ───
+// Two-step bracket around the wallet signature so the server owns the quote
+// hash + verifies the on-chain lock before persisting (principle 12):
+//   prepareCashoutRequestAction → client signs requestAndLock(these args)
+//   → recordCashoutRequestedAction (verifies on-chain LOCKED, writes the row).
+
+export interface PreparedCashoutRequest {
+  cashoutId: Hex;
+  vendorWallet: Hex;
+  usdcAmount: string; // 6-dec USDC
+  inrAmount: string; // payout minor units (×100)
+  corridor: Hex; // keccak256(currency)
+  quoteExpiresAtSecs: number;
+  quoteHash: Hex;
+}
+
+function quoteHashFor(input: Input, vendorWallet: Hex, expiresAt: Date): Hex {
+  return computeQuoteHash({
+    vendor: vendorWallet,
+    usdcAmount: parseSafeUsdcBigint(input.usdcAmount),
+    payoutMinor: BigInt(input.payoutMinor),
+    currency: input.currency,
+    klaroFeeUsdc: BigInt(input.klaroFeeUsdc),
+    lpSpreadUsdc: BigInt(input.lpSpreadUsdc),
+    expiresAtSecs: BigInt(Math.floor(+expiresAt / 1000)),
+  });
+}
+
+export async function prepareCashoutRequestAction(
+  input: Input,
+): Promise<PreparedCashoutRequest> {
+  const session = await requireVendor();
+  const vendorWallet = assertVendorWalletProvisioned(session.vendor);
+  if (!getCorridor(input.currency)) {
+    throw new Error(`Unknown corridor ${input.currency}`);
+  }
+  const usdcAmount = parseSafeUsdcBigint(input.usdcAmount);
+  const expiresAt = new Date(input.quoteExpiresAtIso);
+  if (Number.isNaN(+expiresAt) || expiresAt < new Date()) {
+    throw new Error("quote expired — request a fresh quote");
+  }
+  const { randomBytes } = await import("node:crypto");
+  return {
+    cashoutId: ("0x" + randomBytes(32).toString("hex")) as Hex,
+    vendorWallet,
+    usdcAmount: usdcAmount.toString(),
+    inrAmount: input.payoutMinor,
+    corridor: keccak256(stringToBytes(input.currency)),
+    quoteExpiresAtSecs: Math.floor(+expiresAt / 1000),
+    quoteHash: quoteHashFor(input, vendorWallet, expiresAt),
+  };
+}
+
+export async function recordCashoutRequestedAction(args: {
+  cashoutId: Hex;
+  txHash: Hex;
+  input: Input;
+}): Promise<Hex> {
+  const { cashoutId, txHash, input } = args;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(cashoutId)) throw new Error("bad cashoutId");
+  if (!/^0x[0-9a-fA-F]{64}$/.test(txHash)) throw new Error("bad txHash");
+  const session = await requireVendor();
+  const vendorWallet = assertVendorWalletProvisioned(session.vendor);
+  if (!getCorridor(input.currency)) {
+    throw new Error(`Unknown corridor ${input.currency}`);
+  }
+  const usdcAmount = parseSafeUsdcBigint(input.usdcAmount);
+  const expiresAt = new Date(input.quoteExpiresAtIso);
+  const quoteHash = quoteHashFor(input, vendorWallet, expiresAt);
+  if (
+    input.expectedQuoteHash &&
+    input.expectedQuoteHash.toLowerCase() !== quoteHash.toLowerCase()
+  ) {
+    throw new Error("quote_hash_mismatch");
+  }
+
+  const addr = CASHOUT_ORDER_PROCESSOR_ADDRESS;
+  if (!addr) throw new Error("cashout processor address not configured");
+
+  // Proof beats claims (principle 12): the DB row is only written once the
+  // on-chain lock is verified to exist + match this vendor + amount + quote.
+  const order = await getArcPublicClient().readContract({
+    address: addr as Hex,
+    abi: CASHOUT_ORDER_PROCESSOR_ABI,
+    functionName: "getOrder",
+    args: [cashoutId],
+  });
+  const LOCKED = 2; // CashoutOrderProcessor.Status.LOCKED
+  if (Number(order.status) !== LOCKED) {
+    throw new Error(`cashout not locked on-chain (status ${order.status})`);
+  }
+  if (order.vendor.toLowerCase() !== vendorWallet.toLowerCase()) {
+    throw new Error("on-chain vendor does not match this account");
+  }
+  if (order.usdcAmount !== usdcAmount) {
+    throw new Error("on-chain amount does not match the quote");
+  }
+  if (order.quoteHash.toLowerCase() !== quoteHash.toLowerCase()) {
+    throw new Error("on-chain quote hash does not match");
+  }
+
+  // Idempotent: a double-submit (or a daemon that already inserted) returns the
+  // existing row rather than a duplicate-key error.
+  const existing = await getCashout(cashoutId);
+  if (existing) return existing.id;
+
+  const created = await createCashout(
+    {
+      vendorId: session.vendor.id,
+      vendorWallet,
+      usdcAmount,
+      payoutMinor: BigInt(input.payoutMinor),
+      currency: input.currency,
+      klaroFeeUsdc: BigInt(input.klaroFeeUsdc),
+      lpSpreadUsdc: BigInt(input.lpSpreadUsdc),
+      quoteRate: input.quoteRate,
+      quoteHash,
+      quoteExpiresAt: expiresAt,
+    },
+    { id: cashoutId, status: "LOCKED" },
+  );
+  revalidatePath("/vendor/cashout");
+  return created.id;
 }
 
 export async function createMobileCashoutAction(): Promise<void> {

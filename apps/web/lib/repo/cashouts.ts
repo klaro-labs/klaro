@@ -75,6 +75,17 @@ export async function getCashout(id: Hex): Promise<CashoutOrder | null> {
 
 export async function createCashout(
   input: Omit<CashoutOrder, "id" | "status" | "requestedAt" | "timeline">,
+  opts?: {
+    /**
+     * Bind the row to a caller-supplied id. Live on-chain path passes the
+     * `cashoutId` it signed into `CashoutOrderProcessor.requestAndLock` so the
+     * daemon (which keys on `cashout_orders.id == on-chain cashoutId`) can
+     * resolve + advance the order. Must be a 0x-prefixed 32-byte hash.
+     */
+    id?: Hex;
+    /** Initial status. Live path opens at LOCKED (USDC already escrowed on-chain). */
+    status?: CashoutStatus;
+  },
 ): Promise<CashoutOrder> {
   const c = await tryDb();
   if (!c) return mockCreateCashout(input);
@@ -85,8 +96,14 @@ export async function createCashout(
   // PRNG state to guess fresh order IDs and front-run dispute opens
   // (chains with the DisputeManager hijack closed ). Now uses
   // `crypto.randomBytes(32)` — 256 bits of CSPRNG entropy.
-  const { randomBytes } = await import("node:crypto");
-  const id = ("0x" + randomBytes(32).toString("hex")) as Hex;
+  let id = opts?.id;
+  if (id && !/^0x[0-9a-fA-F]{64}$/.test(id)) {
+    throw new Error("createCashout: opts.id must be a 0x 32-byte hash");
+  }
+  if (!id) {
+    const { randomBytes } = await import("node:crypto");
+    id = ("0x" + randomBytes(32).toString("hex")) as Hex;
+  }
   const { data, error } = await c
     .from("cashout_orders")
     .insert({
@@ -101,6 +118,7 @@ export async function createCashout(
       quote_rate: input.quoteRate.toString(),
       quote_hash: input.quoteHash,
       quote_expires_at: input.quoteExpiresAt.toISOString(),
+      ...(opts?.status ? { status: opts.status } : {}),
     })
     .select()
     .single();

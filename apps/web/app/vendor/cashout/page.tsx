@@ -131,7 +131,10 @@ export default async function CashoutPage({
                     {formatUSDC(balances.cashoutable)}
                   </strong>
                 </p>
-                <CashoutRequestForm maxUsdc={balances.cashoutable} />
+                <CashoutRequestForm
+                  maxUsdc={balances.cashoutable}
+                  vendorWallet={vendor.wallet}
+                />
               </div>
 
               <h2 className="mt-10 mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
