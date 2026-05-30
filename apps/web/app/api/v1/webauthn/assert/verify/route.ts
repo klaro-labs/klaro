@@ -118,7 +118,17 @@ export async function POST(req: Request) {
       .delete()
       .eq("challenge", clientData.challenge);
 
-    return ok({ verified: true, vendorId: cred.vendor_id });
+    // SECURITY (audit 2026-05-30): do NOT return cred.vendor_id. This endpoint
+    // is unauthenticated (it only proves possession of a passkey for the
+    // challenge), and handing the caller a trusted vendor identity is a latent
+    // account-takeover primitive the moment any endpoint trusts a client-
+    // supplied vendorId. A real passkey login must establish the Supabase
+    // session SERVER-SIDE here (mint a session for the vendor's
+    // supabase_user_id + set the auth cookies in this handler) and return only
+    // a success flag — until that's built, the passkey CTA must not ship as a
+    // login path. We return just `verified` so this route can't be used to
+    // assume an identity.
+    return ok({ verified: true });
   } catch (e) {
     captureError(e, { route: "webauthn.assert.verify" });
     return err(400, publicErrorMessage(e, "assert_verify_failed"));

@@ -32,7 +32,13 @@ export default function SignInPage() {
         "This email is already linked to another Klaro account. Sign in with the original provider (Google or magic link) you used first, or contact support.",
       );
     }
-    setPasskeyOn(webAuthnSupported());
+    // Passkey sign-in is NOT shipped as a login path yet: the verify route does
+    // not mint a session (see its security note), so the CTA can't actually log
+    // anyone in. Audit 2026-05-30 flagged the previous CTA — which fetched
+    // options then router.push("/vendor") — as a misleading, incomplete login.
+    // Keep the button gated off (the webAuthnSupported() check stays for when
+    // the server-side session-minting flow lands).
+    setPasskeyOn(false && webAuthnSupported());
   }, []);
 
   // Route every auth provider through /auth/callback so the server can
@@ -63,11 +69,13 @@ export default function SignInPage() {
         body: JSON.stringify({}),
       });
       if (!res.ok) throw new Error("passkey_unavailable");
-      // The actual ceremony happens in the assert/verify route; for the audit
-      // slice we land the CTA wired to the existing options endpoint. Full
-      // navigator.credentials.get round-trip is implemented in the webauthn
-      // workstream (route exists at /api/v1/webauthn/assert/verify).
-      router.push("/vendor");
+      // Do NOT fake a login by redirecting to /vendor — the passkey ceremony
+      // does not mint a session yet (the verify route returns only a success
+      // flag), so this CTA is parked (gated off above) until the server-side
+      // session-minting flow lands. Surface an honest state if it's ever
+      // reached. Audit 2026-05-30.
+      setStatus("error");
+      setErrorMsg("Passkey sign-in isn't available yet — use Google or magic link.");
     } catch (e) {
       setStatus("error");
       setErrorMsg(
