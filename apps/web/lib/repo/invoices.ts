@@ -14,7 +14,7 @@ import {
   mockListAllInvoices,
   mockAdvanceInvoiceStatus,
 } from "../mockData";
-import type { Hex, Invoice } from "../types";
+import type { Hex, Invoice, InvoiceStatus } from "../types";
 
 /**
  * previously hardcoded `vendorWallet: "0x" + "0".repeat(40)`
@@ -118,21 +118,26 @@ export async function getPublicInvoice(
         ? 0n
         : BigInt(String(row.amount_usdc).replace(/\.\d+$/, "")),
     dueAt: new Date(row.due_at),
-    status: row.status,
+    status: row.status as InvoiceStatus,
     customer: {
       email: row.customer_email ?? "unknown@",
       name: row.customer_name ?? undefined,
     },
+    // get_public_invoice returns line_items as jsonb (typed Json by the
+    // codegen); the shape is stable so narrow it explicitly for the map.
     lineItems: Array.isArray(row.line_items)
-      ? row.line_items.map(
-          (li: { description: string; amount_usdc: number | string | null }) => ({
-            description: li.description,
-            amount:
-              li.amount_usdc == null
-                ? 0n
-                : BigInt(String(li.amount_usdc).replace(/\.\d+$/, "")),
-          }),
-        )
+      ? (
+          row.line_items as Array<{
+            description: string;
+            amount_usdc: number | string | null;
+          }>
+        ).map((li) => ({
+          description: li.description,
+          amount:
+            li.amount_usdc == null
+              ? 0n
+              : BigInt(String(li.amount_usdc).replace(/\.\d+$/, "")),
+        }))
       : [],
     metadataHash: row.metadata_hash as Hex,
     splitsHash: (row.splits_hash ?? undefined) as Hex | undefined,

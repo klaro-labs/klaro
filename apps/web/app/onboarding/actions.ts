@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireVendor } from "@/lib/auth";
 import { tryDb } from "@/lib/db";
+import type { TablesUpdate } from "@/lib/database.types";
 import { captureError } from "@/lib/sentry";
 
 const BasicsInput = z.object({
@@ -98,7 +99,7 @@ export async function saveWalletAction(
   if (!client) return { ok: true, simulated: true };
 
   try {
-    const patch: Record<string, unknown> = {};
+    const patch: TablesUpdate<"vendors"> = {};
     if (parsed.data.address) patch.wallet = parsed.data.address.toLowerCase();
     if (parsed.data.circleWalletId)
       patch.circle_wallet_id = parsed.data.circleWalletId;

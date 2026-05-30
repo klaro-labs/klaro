@@ -25,11 +25,18 @@ export async function listRecentScreenCache(
     .order("decided_at", { ascending: false })
     .limit(limit);
   if (error) throw error;
-  return (data ?? []).map((r) => ({
-    buyerAddress: String(r.buyer_address),
-    bundleHash: String(r.bundle_hash),
-    decidedAt: new Date(String(r.decided_at)),
-    ttlSeconds: Number(r.ttl_seconds),
-    staleAfter: new Date(String(r.stale_after)),
-  }));
+  return (data ?? []).map((r) => {
+    const decidedAt = new Date(String(r.decided_at));
+    const ttlSeconds = Number(r.ttl_seconds);
+    return {
+      buyerAddress: String(r.buyer_address),
+      bundleHash: String(r.bundle_hash),
+      decidedAt,
+      ttlSeconds,
+      // There is no `stale_after` column — derive it from decided_at + ttl.
+      // (The prior read of a non-existent column produced Invalid Date; the
+      // Database type now catches that at compile time.)
+      staleAfter: new Date(decidedAt.getTime() + ttlSeconds * 1000),
+    };
+  });
 }

@@ -5,6 +5,7 @@
  */
 import { tryDb } from "../db";
 import type { DbVendor } from "../dbTypes";
+import type { TablesUpdate } from "../database.types";
 import { mockGetCurrentVendor } from "../mockData";
 import type { Hex, Vendor } from "../types";
 
@@ -115,7 +116,7 @@ export async function updateVendorBranding(
 ): Promise<void> {
   const c = await tryDb();
   if (!c) return; // mock side already updates in-memory via separate path
-  const update: Record<string, unknown> = {};
+  const update: TablesUpdate<"vendors"> = {};
   if (patch.brandColor !== undefined) update.brand_color = patch.brandColor;
   if (patch.brandLogoUrl !== undefined)
     update.brand_logo_url = patch.brandLogoUrl;

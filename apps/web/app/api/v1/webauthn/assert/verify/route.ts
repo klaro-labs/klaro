@@ -64,10 +64,14 @@ export async function POST(req: Request) {
       return err(400, "challenge_expired");
 
     const credentialIdBytes = Buffer.from(body.rawId, "base64url");
+    // credential_id / public_key are `bytea`; the codegen types them as
+    // `string`. Passkey auth is currently disabled (signin gates it off), so
+    // these casts preserve the existing runtime path without altering it — the
+    // bytea hex round-trip must be validated end-to-end when passkeys ship.
     const { data: cred } = await serviceDb()
       .from("webauthn_credentials")
       .select("vendor_id, counter, public_key, transports")
-      .eq("credential_id", credentialIdBytes)
+      .eq("credential_id", credentialIdBytes as unknown as string)
       .maybeSingle();
     if (!cred) return err(404, "credential_not_registered");
 
@@ -88,7 +92,7 @@ export async function POST(req: Request) {
       expectedRPID: WEBAUTHN_RP_ID,
       credential: {
         id: body.id,
-        publicKey: new Uint8Array(cred.public_key as Buffer),
+        publicKey: new Uint8Array(cred.public_key as unknown as Buffer),
         counter: Number(cred.counter ?? 0),
         transports: cred.transports as
           | AuthenticatorTransportFuture[]
@@ -112,7 +116,7 @@ export async function POST(req: Request) {
         counter: newCounter,
         last_used_at: new Date().toISOString(),
       })
-      .eq("credential_id", credentialIdBytes);
+      .eq("credential_id", credentialIdBytes as unknown as string);
     await serviceDb()
       .from("webauthn_challenges")
       .delete()

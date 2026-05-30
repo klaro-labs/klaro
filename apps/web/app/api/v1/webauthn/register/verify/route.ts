@@ -101,10 +101,16 @@ export async function POST(req: Request) {
 
     const { error: insErr } = await serviceDb()
       .from("webauthn_credentials")
+      // credential_id / public_key are `bytea`; codegen types them `string`.
+      // Passkey registration is currently gated off — casts preserve the
+      // existing path; validate the bytea hex round-trip when passkeys ship.
       .insert({
         vendor_id: session.vendor.id,
-        credential_id: Buffer.from(credential.id, "base64url"),
-        public_key: Buffer.from(credential.publicKey),
+        credential_id: Buffer.from(
+          credential.id,
+          "base64url",
+        ) as unknown as string,
+        public_key: Buffer.from(credential.publicKey) as unknown as string,
         counter: credential.counter,
         transports,
         device_label: body.deviceLabel ?? null,

@@ -3,6 +3,7 @@
  */
 import { tryDb } from "../db";
 import type { DbCashoutOrder } from "../dbTypes";
+import type { TablesUpdate } from "../database.types";
 import {
   mockListCashouts,
   mockGetCashout,
@@ -143,7 +144,7 @@ export async function advanceCashout(
 ): Promise<CashoutOrder | null> {
   const c = await tryDb();
   if (!c) return mockAdvanceCashout(id, to, event, patch, requireFromStatus);
-  const update: Record<string, unknown> = { status: to };
+  const update: TablesUpdate<"cashout_orders"> = { status: to };
   if (patch?.lpId) update.lp_id = patch.lpId;
   if (patch?.lpName) update.lp_name = patch.lpName;
   if (patch?.proofHash) update.proof_hash = patch.proofHash;

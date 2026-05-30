@@ -15,13 +15,12 @@ import {
   createClient as createPlainClient,
   type SupabaseClient,
 } from "@supabase/supabase-js";
-// QA-055: Database codegen lives in ./database.types — generated via
-// mcp__supabase__generate_typescript_types from the live schema. Not yet
-// threaded through these clients because the hand-written dbTypes.ts has
-// drifted from the live schema in ~6 fields (amount_usdc as string vs
-// number, etc.) and migrating every consumer is its own workstream.
-// Re-export so any NEW code can `import { Database } from "@/lib/db"`
-// and use a typed client directly without an additional import path.
+// Database codegen lives in ./database.types — regenerated from the LIVE schema
+// via `supabase gen types typescript --db-url <pooler>` (introspection, no
+// OAuth). Threaded through both clients below so every `.from(...)` call is
+// column-name + type checked against the real schema. Re-exported at the bottom
+// so new code can `import { Database } from "@/lib/db"` directly.
+import type { Database } from "./database.types";
 // `cookies` from `next/headers` is a
 // Server-Component-only import. When imported at module load, every consumer
 // (transitively `auth.ts`, `repo/lpMembers.ts`, `signin/page.tsx`) inherits
@@ -42,7 +41,7 @@ export function isLive(): boolean {
 }
 
 /** RLS-scoped client. Reads the caller's auth cookie. */
-export async function db(): Promise<SupabaseClient> {
+export async function db(): Promise<SupabaseClient<Database>> {
   if (!supabaseLive()) {
     throw new Error(
       "db(): SUPABASE not configured — callers must use mockData fallback",
@@ -52,7 +51,7 @@ export async function db(): Promise<SupabaseClient> {
   // transitive consumer's graph (see fix comment at top of file).
   const { cookies } = await import("next/headers");
   const store = await cookies();
-  return createSsrClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+  return createSsrClient<Database>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
     cookies: {
       getAll() {
         return store.getAll();
@@ -68,25 +67,29 @@ export async function db(): Promise<SupabaseClient> {
   });
 }
 
-let _serviceCached: SupabaseClient | null = null;
+let _serviceCached: SupabaseClient<Database> | null = null;
 /** Service-role client. Bypasses RLS. Use for daemon / cron / webhook receivers
  * / operator actions that already authorized via requireOperator(). */
-export function serviceDb(): SupabaseClient {
+export function serviceDb(): SupabaseClient<Database> {
   if (_serviceCached) return _serviceCached;
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
       "serviceDb(): SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY required",
     );
   }
-  _serviceCached = createPlainClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  _serviceCached = createPlainClient<Database>(
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: { persistSession: false, autoRefreshToken: false },
+    },
+  );
   return _serviceCached;
 }
 
 /** Convenience: try db() (RLS) first; on failure (e.g. dev with no Supabase),
  * return null so the caller can fall back to mockData. Never silently swap. */
-export async function tryDb(): Promise<SupabaseClient | null> {
+export async function tryDb(): Promise<SupabaseClient<Database> | null> {
   if (!supabaseLive()) return null;
   try {
     return await db();
