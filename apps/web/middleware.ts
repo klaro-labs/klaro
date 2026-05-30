@@ -20,19 +20,42 @@ const CSP_DEFAULT =
   "base-uri 'self'; " +
   "form-action 'self'";
 
-function applySecurityHeaders(res: NextResponse): NextResponse {
+// Hosted invoice (/i), receipt (/receipt) + link pay (/pay) pages are designed
+// to be embedded by vendors (i.klaro.so widgets). The blanket frame-ancestors
+// 'none' broke that. This variant drops the frame restriction for those routes
+// only; the app shell everywhere else stays frame-DENY.
+// Matches next.config.mjs's EMBEDDABLE_HEADERS (frame-ancestors *) so the
+// middleware-minted + route-minted responses agree instead of one clobbering
+// the other (the regression: middleware's frame-ancestors 'none' won).
+const CSP_EMBEDDABLE = CSP_DEFAULT.replace(
+  "frame-ancestors 'none'",
+  "frame-ancestors *",
+);
+
+function applySecurityHeaders(
+  res: NextResponse,
+  embeddable = false,
+): NextResponse {
   res.headers.set(
     "strict-transport-security",
     "max-age=31536000; includeSubDomains; preload",
   );
   res.headers.set("x-content-type-options", "nosniff");
-  res.headers.set("x-frame-options", "DENY");
+  // x-frame-options has no per-origin allowlist, so for embeddable routes we
+  // drop it entirely and rely on CSP frame-ancestors (omitted = allow). The app
+  // shell keeps DENY to prevent clickjacking.
+  if (!embeddable) {
+    res.headers.set("x-frame-options", "DENY");
+  }
   res.headers.set("referrer-policy", "strict-origin-when-cross-origin");
   res.headers.set(
     "permissions-policy",
     "camera=(), microphone=(), geolocation=()",
   );
-  res.headers.set("content-security-policy", CSP_DEFAULT);
+  res.headers.set(
+    "content-security-policy",
+    embeddable ? CSP_EMBEDDABLE : CSP_DEFAULT,
+  );
   return res;
 }
 
@@ -89,8 +112,20 @@ function rateLimit(ip: string): {
 }
 
 function clientIp(req: NextRequest): string {
-  // Vercel sets x-forwarded-for; first hop is the client.
-  return (req.headers.get("x-forwarded-for") ?? "unknown").split(",")[0].trim();
+  // The FIRST x-forwarded-for hop is attacker-controlled — a client could send a
+  // fresh spoofed IP on every request and skate straight past the per-IP rate
+  // limit (the whole reason magic-link issuance is proxied through here). Vercel
+  // sets x-real-ip to the true client IP (overriding any client-sent value) and
+  // APPENDS the real source as the LAST x-forwarded-for hop; both are
+  // trustworthy. Prefer x-real-ip, then the last xff hop.
+  const realIp = req.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    const hops = xff.split(",").map((s) => s.trim()).filter(Boolean);
+    if (hops.length) return hops[hops.length - 1];
+  }
+  return "unknown";
 }
 
 export function middleware(req: NextRequest) {
@@ -99,17 +134,24 @@ export function middleware(req: NextRequest) {
 
   // Subdomain routing — rewrite Host → path prefix when not already there.
   const subPrefix = SUBDOMAIN_REWRITE[host];
+  // Effective route after any subdomain rewrite (i.klaro.so/<id> -> /i/<id>), so
+  // the embeddable check is correct on both the apex and the subdomain.
+  const effectivePath =
+    subPrefix && !path.startsWith(subPrefix) ? subPrefix + path : path;
+  const embeddable = /^\/(i|receipt|pay)(\/|$)/.test(effectivePath);
+  const secure = (res: NextResponse) => applySecurityHeaders(res, embeddable);
+
   if (subPrefix && !path.startsWith(subPrefix)) {
     const url = req.nextUrl.clone();
     url.pathname = subPrefix + path;
-    return applySecurityHeaders(NextResponse.rewrite(url));
+    return secure(NextResponse.rewrite(url));
   }
 
   // Rate limit /api/* — every environment, not just prod.
   if (path.startsWith("/api/")) {
     const { ok, remaining, resetAt } = rateLimit(clientIp(req));
     if (!ok) {
-      return applySecurityHeaders(
+      return secure(
         new NextResponse(JSON.stringify({ error: "rate limit exceeded" }), {
           status: 429,
           headers: {
@@ -124,7 +166,7 @@ export function middleware(req: NextRequest) {
     const res = NextResponse.next();
     res.headers.set("x-ratelimit-remaining", String(remaining));
     res.headers.set("x-ratelimit-reset", String(Math.ceil(resetAt / 1000)));
-    if (!path.startsWith("/admin")) return applySecurityHeaders(res);
+    if (!path.startsWith("/admin")) return secure(res);
   }
 
   // Admin first-line redirect — fast 302 to /signin when no session cookie
@@ -134,13 +176,13 @@ export function middleware(req: NextRequest) {
   // /vendor. Defence-in-depth — neither this middleware nor the layout alone
   // is the gate.
   if (process.env.NODE_ENV !== "production")
-    return applySecurityHeaders(NextResponse.next());
+    return secure(NextResponse.next());
   // read via env.ts (was a direct process.env.X === "1" string
   // compare here AND in lib/auth.ts — typo risk × 2). Single declared
   // boolean in env.ts now.
-  if (KLARO_ALLOW_MOCK_AUTH) return applySecurityHeaders(NextResponse.next());
+  if (KLARO_ALLOW_MOCK_AUTH) return secure(NextResponse.next());
   if (!path.startsWith("/admin") && !path.startsWith("/internal"))
-    return applySecurityHeaders(NextResponse.next());
+    return secure(NextResponse.next());
 
   const hasSupabaseSession = req.cookies
     .getAll()
@@ -154,9 +196,9 @@ export function middleware(req: NextRequest) {
     const url = req.nextUrl.clone();
     url.pathname = "/signin";
     url.searchParams.set("from", path);
-    return applySecurityHeaders(NextResponse.redirect(url));
+    return secure(NextResponse.redirect(url));
   }
-  return applySecurityHeaders(NextResponse.next());
+  return secure(NextResponse.next());
 }
 
 export const config = {

@@ -84,6 +84,9 @@ const nextConfig = {
       // is `*` instead of `'none'`.
       { source: "/i/:path*", headers: EMBEDDABLE_HEADERS },
       { source: "/receipt/:path*", headers: EMBEDDABLE_HEADERS },
+      // Klaro Link pay pages are payment widgets meant to be shared/embedded
+      // like /i — keep next.config + middleware agreed (both allow framing).
+      { source: "/pay/:path*", headers: EMBEDDABLE_HEADERS },
     ];
   },
 };
