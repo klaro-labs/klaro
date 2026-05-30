@@ -2,9 +2,26 @@
  * Shared API helpers — zod validation, JSON response, error shape, idempotency.
  * Every REST route imports from here for consistency.
  */
+import { createHash } from "node:crypto";
 import { z, type ZodSchema } from "zod";
 import { redis as edgeIdem } from "./apiIdem";
 import { captureError } from "./sentry";
+import { getCurrentSession } from "./auth";
+
+/**
+ * Idempotency cache key, namespaced by the authenticated principal. The raw
+ * Idempotency-Key header is a GLOBAL value the client chooses — keying the cache
+ * on it alone let tenant B replay tenant A's idem key and receive A's
+ * authenticated response (cross-tenant leak), and let an anonymous caller read a
+ * cached authenticated body (auth bypass). Resolve the session first and prefix
+ * with the vendor id (or "anon"); hash the raw key so it can't inject cache-key
+ * structure or blow up the key length.
+ */
+async function idempotencyCacheKey(idemKey: string): Promise<string> {
+  const session = await getCurrentSession().catch(() => null);
+  const principal = session?.vendor?.id ?? "anon";
+  return `${principal}:${createHash("sha256").update(idemKey).digest("hex")}`;
+}
 
 export type ApiHandler<T> = (input: T, req: Request) => Promise<unknown>;
 
@@ -94,8 +111,12 @@ export function handle<T extends ZodSchema>(
   return async (req) => {
     try {
       const idemKey = req.headers.get("idempotency-key");
-      if (idemKey) {
-        const cached = await edgeIdem.get(idemKey);
+      // Resolve the per-principal cache key BEFORE the lookup so a cached
+      // authenticated response can never be replayed across tenants or to an
+      // anonymous caller (audit 2026-05-30).
+      const cacheKey = idemKey ? await idempotencyCacheKey(idemKey) : null;
+      if (cacheKey) {
+        const cached = await edgeIdem.get(cacheKey);
         if (cached)
           return new Response(cached, {
             status: 200,
@@ -123,7 +144,7 @@ export function handle<T extends ZodSchema>(
       // 500 internal_error. The `ok()`/`err()` helpers already use
       // jsonSafe; handle() must too.
       const body = jsonSafe(result);
-      if (idemKey) await edgeIdem.set(idemKey, body, 24 * 60 * 60);
+      if (cacheKey) await edgeIdem.set(cacheKey, body, 24 * 60 * 60);
       return new Response(body, {
         status: 200,
         headers: { "content-type": "application/json" },

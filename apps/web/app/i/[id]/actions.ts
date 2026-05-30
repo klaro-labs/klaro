@@ -9,7 +9,10 @@ import { sendSettledEmail } from "@/lib/email";
 import { formatUSDC } from "@/lib/money";
 import { captureError } from "@/lib/sentry";
 import { isLiveOnChain } from "@/lib/arcClient";
+import { KLARO_ALLOW_MOCK_AUTH } from "@/lib/env";
 import type { Hex } from "@/lib/types";
+
+const IS_PROD = process.env.NODE_ENV === "production";
 
 /**
  * simulatePaymentAction — fake "the buyer paid" for the simulator path.
@@ -42,6 +45,15 @@ export async function simulatePaymentAction(
       },
     );
     throw new Error("simulator_path_unavailable_in_live_mode");
+  }
+  // Audit (2026-05-30): this action is fully unauthenticated and flips any
+  // invoice to SETTLED + fires a vendor email. The isLiveOnChain() gate above
+  // only fires when the escrow env is set — a production deploy that's
+  // mis/under-configured (escrow unset) would expose this on the internet. Tie
+  // the simulator to the same fail-closed prod gate as mock auth: it may only
+  // run outside production, or in a deploy that has explicitly opted into mocks.
+  if (IS_PROD && !KLARO_ALLOW_MOCK_AUTH) {
+    throw new Error("simulator_disabled_in_production");
   }
   try {
     const inv = await mockGetInvoice(invoiceId);
