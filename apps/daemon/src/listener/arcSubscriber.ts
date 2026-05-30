@@ -505,6 +505,36 @@ export function startArcListener() {
               });
             }
 
+            // Klaro Link: bump the backing link's paid_count when a link-backed
+            // invoice settles. safeEvent dedups by (txHash, logIndex) so this
+            // runs exactly once per settle, and the contract forbids a second
+            // settle — so no double-count. Best-effort; a failure here never
+            // blocks receipt generation.
+            try {
+              const { data: invRow } = await sb()
+                .from("invoices")
+                .select("link_id")
+                .eq("id", ev.args.invoiceId)
+                .maybeSingle();
+              if (invRow?.link_id) {
+                const { data: linkRow } = await sb()
+                  .from("payment_links")
+                  .select("paid_count")
+                  .eq("id", invRow.link_id)
+                  .maybeSingle();
+                const next = ((linkRow?.paid_count as number) ?? 0) + 1;
+                await sb()
+                  .from("payment_links")
+                  .update({ paid_count: next })
+                  .eq("id", invRow.link_id);
+              }
+            } catch (e) {
+              log.error("event.InvoiceSettled.linkPaidCount.failed", {
+                id: ev.args.invoiceId,
+                err: (e as Error).message,
+              });
+            }
+
             // wiring: settlementTx is what receipt hash depends on.
             // deterministic jobId so screenAndSettle's
             // worker-side enqueue + this listener-side enqueue collapse

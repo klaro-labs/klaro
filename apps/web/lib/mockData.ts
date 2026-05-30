@@ -17,6 +17,7 @@ import type {
   CashoutOrder,
   CashoutStatus,
   CashoutTimelineEvent,
+  PaymentLink,
 } from "./types";
 
 // USDC on Arc ERC-20 interface = 6 decimals. Native is 18 (gas only), but
@@ -29,6 +30,7 @@ type SharedDemoState = typeof globalThis & {
   __klaroInvoices?: Map<Hex, Invoice>;
   __klaroCashouts?: Map<Hex, CashoutOrder>;
   __klaroDisputes?: Map<Hex, DisputeCase>;
+  __klaroLinks?: Map<string, PaymentLink>;
 };
 
 // Server actions and React server routes are separately bundled by Next.js.
@@ -37,6 +39,7 @@ type SharedDemoState = typeof globalThis & {
 const sharedDemo = globalThis as SharedDemoState;
 const _vendors = (sharedDemo.__klaroVendors ??= new Map<string, Vendor>());
 const _invoices = (sharedDemo.__klaroInvoices ??= new Map<Hex, Invoice>());
+const _links = (sharedDemo.__klaroLinks ??= new Map<string, PaymentLink>());
 
 // Seed one demo vendor + 3 invoices so dashboard renders something on first visit.
 {
@@ -1538,4 +1541,70 @@ export async function mockUpdateVendorBranding(
   if (patch.brandLogoUrl !== undefined) v.brandLogoUrl = patch.brandLogoUrl;
   v.invoiceTemplateVersion = (v.invoiceTemplateVersion ?? 1) + 1;
   return v;
+}
+
+// ── Klaro Link (payment links) ──────────────────────────────────────────────
+function seedLink(slug: string, amount: bigint, label: string | null, deactivated: boolean): PaymentLink {
+  return {
+    id: `link-${slug}`,
+    vendorId: "vendor-asha",
+    vendorWallet: DEMO_VENDOR_WALLET,
+    vendorDisplayName: "Asha Pune",
+    slug,
+    amount,
+    label,
+    expiresAt: null,
+    deactivatedAt: deactivated ? new Date("2026-05-10T00:00:00Z") : null,
+    viewCount: deactivated ? 12 : 3,
+    paidCount: deactivated ? 2 : 1,
+    createdAt: new Date(),
+  };
+}
+if (_links.size === 0) {
+  for (const l of [
+    seedLink("Re7aPmK2", 50n * ONE_USDC, "Coffee chat", false),
+    seedLink("Qz9bN3xY", 500n * ONE_USDC, "Old retainer", true),
+  ]) {
+    _links.set(l.slug, l);
+  }
+}
+
+export function mockCreateLink(a: {
+  vendorId: string; slug: string; amount: bigint; label: string | null; expiresAt: Date | null;
+}): PaymentLink {
+  const v = _vendors.get(a.vendorId);
+  const link: PaymentLink = {
+    id: globalThis.crypto?.randomUUID?.() ?? `link-${a.slug}`,
+    vendorId: a.vendorId,
+    vendorWallet: v?.wallet ?? DEMO_VENDOR_WALLET,
+    vendorDisplayName: v?.displayName ?? null,
+    slug: a.slug,
+    amount: a.amount,
+    label: a.label,
+    expiresAt: a.expiresAt,
+    deactivatedAt: null,
+    viewCount: 0,
+    paidCount: 0,
+    createdAt: new Date(),
+  };
+  _links.set(link.slug, link);
+  return link;
+}
+export function mockGetLinkBySlug(slug: string): PaymentLink | null {
+  return _links.get(slug) ?? null;
+}
+export function mockGetLinkById(id: string): PaymentLink | null {
+  for (const l of _links.values()) if (l.id === id) return l;
+  return null;
+}
+export function mockListLinksForVendor(vendorId: string): PaymentLink[] {
+  return [..._links.values()]
+    .filter((l) => l.vendorId === vendorId)
+    .sort((a, b) => +b.createdAt - +a.createdAt);
+}
+export function mockDeactivateLink(id: string): void {
+  for (const l of _links.values()) if (l.id === id) l.deactivatedAt = new Date();
+}
+export function mockIncrementLinkPaid(id: string): void {
+  for (const l of _links.values()) if (l.id === id) l.paidCount += 1;
 }

@@ -47,6 +47,51 @@ export const INVOICE_ESCROW_ABI = [
   },
 ] as const;
 
+// LF-3: vendor-signed cashout request. `requestAndLock` sets
+// `vendor = msg.sender` + pulls USDC into escrow, so the connected wallet MUST
+// be the vendor's payout wallet (enforced in the UI, mirrors createInvoice).
+export const CASHOUT_ORDER_PROCESSOR_ABI = [
+  {
+    type: "function",
+    name: "requestAndLock",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "cashoutId", type: "bytes32" },
+      { name: "usdcAmount", type: "uint256" },
+      { name: "inrAmount", type: "uint256" },
+      { name: "corridor", type: "bytes32" },
+      { name: "quoteExpiresAt", type: "uint64" },
+      { name: "quoteHash", type: "bytes32" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "getOrder",
+    stateMutability: "view",
+    inputs: [{ name: "cashoutId", type: "bytes32" }],
+    outputs: [
+      {
+        type: "tuple",
+        components: [
+          { name: "vendor", type: "address" },
+          { name: "token", type: "address" },
+          { name: "usdcAmount", type: "uint256" },
+          { name: "inrAmount", type: "uint256" },
+          { name: "lpId", type: "bytes32" },
+          { name: "lpWallet", type: "address" },
+          { name: "corridor", type: "bytes32" },
+          { name: "requestedAt", type: "uint64" },
+          { name: "quoteExpiresAt", type: "uint64" },
+          { name: "quoteHash", type: "bytes32" },
+          { name: "proofHash", type: "bytes32" },
+          { name: "status", type: "uint8" },
+        ],
+      },
+    ],
+  },
+] as const;
+
 export const ERC20_ABI = [
   {
     type: "function",
@@ -92,3 +137,22 @@ export const ACCEPTANCE_EIP712_TYPES = {
     { name: "splitsHash", type: "bytes32" },
   ],
 } as const;
+
+// Klaro Link: the vendor signs this once at link creation; the relayer presents
+// it to InvoiceEscrow.createInvoiceFor at each pay. Field order + types MUST
+// match LINK_INVOICE_AUTH_TYPEHASH in InvoiceEscrow.sol, or on-chain
+// verification reverts BadVendorAuth. Shared by the vendor's LinkForm (client
+// signer) and createLinkAction (server verifier).
+export const LINK_AUTH_EIP712_TYPES = {
+  LinkInvoiceAuthorization: [
+    { name: "vendor", type: "address" },
+    { name: "token", type: "address" },
+    { name: "amount", type: "uint256" },
+    { name: "linkId", type: "bytes32" },
+    { name: "authDeadline", type: "uint64" },
+  ],
+} as const;
+
+/** Arc system USDC (6-dec) — fixed precompile address, same on every Arc env. */
+export const ARC_USDC_ADDRESS =
+  "0x3600000000000000000000000000000000000000" as const;

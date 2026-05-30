@@ -95,6 +95,9 @@ export const FEE_SPLITTER_ADDRESS = pub(
 export const ROUTE_POLICY_ADDRESS = pub(
   process.env.NEXT_PUBLIC_ROUTE_POLICY_ADDRESS,
 );
+export const CASHOUT_ORDER_PROCESSOR_ADDRESS = pub(
+  process.env.NEXT_PUBLIC_CASHOUT_ORDER_PROCESSOR_ADDRESS,
+);
 
 // ─── BullMQ + Upstash (M7 queue infra) ───────────────────────────────
 export const REDIS_URL = opt("REDIS_URL");
@@ -168,6 +171,18 @@ export const GROWTHBOOK_CLIENT_KEY = pub(
 );
 export const growthbookLive = (): boolean =>
   Boolean(GROWTHBOOK_HOST && GROWTHBOOK_CLIENT_KEY);
+
+// ─── Klaro Link on-chain publisher (relayer) ─────────────────────────
+// Server-only key that relays InvoiceEscrow.createInvoiceFor at link pay time
+// (the vendor isn't present, so a relayer publishes each link-payment's invoice
+// using the vendor's pre-signed LinkInvoiceAuthorization). createInvoiceFor is
+// permissionless — it verifies the vendor's signature on-chain — so this wallet
+// needs only gas, NEVER operator privilege. Prod MUST use a dedicated low-
+// privilege funded wallet, not the operator key. When unset (or no escrow
+// address), link pays fall through to the simulator like every other adapter.
+export const LINK_PUBLISHER_PRIVATE_KEY = opt("LINK_PUBLISHER_PRIVATE_KEY");
+export const linkPublisherLive = (): boolean =>
+  Boolean(LINK_PUBLISHER_PRIVATE_KEY && INVOICE_ESCROW_ADDRESS);
 
 // ─── Cron secret ──────────────────────────────────────────────────────
 export const CRON_SECRET = opt("CRON_SECRET");

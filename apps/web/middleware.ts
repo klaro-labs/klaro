@@ -42,6 +42,7 @@ function applySecurityHeaders(res: NextResponse): NextResponse {
 const SUBDOMAIN_REWRITE: Record<string, string> = {
   "app.klaro.so": "/vendor",
   "i.klaro.so": "/i",
+  "pay.klaro.so": "/pay",
   "receipt.klaro.so": "/receipt",
   "cashout.klaro.so": "/vendor/cashout",
   "lp.klaro.so": "/lp",

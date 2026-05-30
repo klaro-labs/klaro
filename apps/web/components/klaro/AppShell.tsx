@@ -56,6 +56,12 @@ export function AppShell({
       badge: pendingInvoiceCount,
     },
     {
+      href: "/vendor/links",
+      label: "Links",
+      short: "Links",
+      icon: <IconLink />,
+    },
+    {
       href: "/vendor/cashout",
       label: "Cashout",
       short: "Cashout",
@@ -106,6 +112,12 @@ export function AppShell({
   ];
 
   const moreItems: NavItem[] = [
+    {
+      href: "/vendor/links",
+      label: "Links",
+      short: "Links",
+      icon: <IconLink />,
+    },
     {
       href: "/vendor/disputes",
       label: "Disputes",
@@ -464,6 +476,19 @@ function IconInvoice() {
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function IconLink() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M9 15l6-6M10 6l1-1a4 4 0 015.7 5.7l-1 1M14 18l-1 1a4 4 0 01-5.7-5.7l1-1"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

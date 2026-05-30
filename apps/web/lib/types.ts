@@ -153,3 +153,20 @@ export interface CashoutOrder {
   utrReference?: string; // off-chain UTR string (shown in dashboard, hashed on-chain)
   timeline: CashoutTimelineEvent[];
 }
+
+/** Klaro Link — a reusable USDC payment link. Not an invoice; the backing
+ *  invoice row is created at pay time (deferred). */
+export interface PaymentLink {
+  id: string;
+  vendorId: string;
+  vendorWallet: Hex | null;
+  vendorDisplayName: string | null;
+  slug: string;
+  amount: bigint;
+  label: string | null;
+  expiresAt: Date | null;
+  deactivatedAt: Date | null;
+  viewCount: number;
+  paidCount: number;
+  createdAt: Date;
+}

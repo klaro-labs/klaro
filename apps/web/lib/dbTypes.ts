@@ -145,3 +145,24 @@ export interface DbReceipt {
   reveal_customer: boolean;
   created_at: string;
 }
+
+/** payment_links row (migration 0027) — Klaro Link. */
+export interface DbPaymentLink {
+  id: string;
+  vendor_id: string;
+  slug: string;
+  amount_usdc: string | number;
+  label: string | null;
+  expires_at: string | null;
+  deactivated_at: string | null;
+  view_count: number;
+  paid_count: number;
+  created_at: string;
+  updated_at: string;
+  // Klaro Link on-chain authorization (0029). Vendor signs once at creation;
+  // the relayer publishes each payment's invoice via createInvoiceFor. Null on
+  // links created before 0029 / in simulator mode.
+  link_chain_id: string | null;   // bytes32 hex the auth is bound to
+  vendor_auth_sig: string | null; // EIP-712 signature bytes (hex)
+  auth_deadline: string | number | null; // unix seconds (bigint column)
+}
