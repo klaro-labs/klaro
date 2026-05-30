@@ -755,6 +755,29 @@ export function startArcListener() {
           const key = `decided:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
           await safeEvent("Decided", key, async () => {
+            // proof-beats-claims: the on-chain Decided event is the source
+            // of truth for a dispute's terminal state, not an operator UI
+            // write. Flip the persisted row from chain truth (idempotent —
+            // claimOnce gates the event; the update is naturally idempotent).
+            const DB_OUTCOME: Record<number, string> = {
+              1: "RELEASE_TO_CLAIMANT",
+              2: "REFUND_TO_RESPONDENT",
+              3: "SLASH_LP",
+              4: "PENALIZE_VENDOR",
+            };
+            const outcome = DB_OUTCOME[Number(ev.args.outcome)];
+            if (ev.args.caseId) {
+              const { error } = await sb()
+                .from("disputes")
+                .update({
+                  status: "DECIDED",
+                  ...(outcome ? { outcome } : {}),
+                  decision_reason_hash: ev.args.reasonHash ?? null,
+                  decided_at: new Date().toISOString(),
+                })
+                .eq("case_id", ev.args.caseId);
+              if (error) throw error;
+            }
             await queue("notify-admin").add(ev.args.caseId ?? "", {
               kind: "dispute.decided",
               detail: { caseId: ev.args.caseId, outcome: ev.args.outcome },
