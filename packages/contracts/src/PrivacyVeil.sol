@@ -7,17 +7,21 @@ import { KlaroConfig } from "./KlaroConfig.sol";
 
 /// @title PrivacyVeil
 /// @notice Per-invoice amount-commitment registry. The commit is a keccak256
-/// hash of `(amountUsdc, salt)` — a hiding commitment good enough for
-/// M1 receipts where vendors want to publish a receipt without
-/// revealing the dollar amount (v2 §15.3).
-/// A real Pedersen / Bulletproofs / ZK commitment lands in M9+; the
-/// commit shape (`bytes32`) is forward-compatible so the consumer
-/// interface doesn't change when the underlying cryptography upgrades.
-/// @dev — only the commit goes on chain. Salt + revealed
-/// amount stay off-chain. Anyone with both can verify by re-hashing.
+/// hash of `(amountUsdc, salt)` recorded as a binding anchor + proof-of-knowledge.
+/// ⚠ IMPORTANT (audit 2026-05-30): in M1 this does NOT hide the amount on-chain.
+/// The cleartext amount is still stored in `InvoiceEscrow.invoices[].amount` and
+/// emitted in the `InvoiceCreated` event — the commit is a cryptographic anchor,
+/// NOT a privacy mechanism. A real Pedersen / Bulletproofs / ZK commitment that
+/// actually hides the amount lands in M9+ (and will remove the cleartext storage);
+/// the commit shape (`bytes32`) is forward-compatible so the consumer interface
+/// doesn't change when the underlying cryptography upgrades.
+/// @dev Reveal is validated off-chain by re-hashing `(amount, salt)` against the
+/// stored commit. For ANY hiding guarantee in a future version, `salt` MUST be a
+/// CSPRNG value (≥32 bytes; never derived from on-chain-visible inputs) — a
+/// low-entropy salt is brute-forceable.
 contract PrivacyVeil is Ownable {
     struct Veil {
-        bytes32 commit; // keccak256(abi.encode(amountUsdc, salt))
+        bytes32 commit; // keccak256(abi.encode(amountUsdc, salt)) — anchor, not hiding in M1
         uint64 committedAt;
         address committer;
         bool revealed; // true once the vendor / buyer revealed publicly

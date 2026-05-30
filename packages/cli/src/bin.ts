@@ -123,8 +123,12 @@ async function main() {
     });
     console.log("Invoice:   ", invoiceId);
     console.log("Tx:        ", tx);
-    console.log("Hosted URL:", `https://klaro.so/i/${invoiceId}`);
     console.log("Explorer:  ", `${ARC_EXPLORER}/tx/${tx}`);
+    // Audit 2026-05-30: this is a RAW on-chain invoice — no off-chain record +
+    // no hosted page (i.klaro.so reads from the DB, which has no row for it). The
+    // previous "Hosted URL" line pointed at a guaranteed 404. Retrieve on-chain
+    // via `klaro invoice get <id>`.
+    console.log("Note:       on-chain only — retrieve with `klaro invoice get`", invoiceId);
     return;
   }
   if (cmd === "invoice" && sub === "get") {

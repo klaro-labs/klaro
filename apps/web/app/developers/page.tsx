@@ -24,7 +24,7 @@ const invoice = await klaro.invoices.create({
   lineItems: [
     { description: "Q2 strategy retainer", amountUsdc: "1250.00" },
   ],
-  privacyMode: "veiled", // hide amount on-chain via PrivacyVeil commit
+  privacyMode: "veiled", // anchor a keccak commit (M1); amount is still on-chain. Real hiding lands in v2.
 });
 
 console.log(invoice.hostedUrl); // → https://i.klaro.so/inv_…`;
