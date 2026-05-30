@@ -33,6 +33,19 @@
     },
     {
       "type": "function",
+      "name": "LINK_INVOICE_AUTH_TYPEHASH",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "acceptAndPay",
       "inputs": [
         {
@@ -121,6 +134,59 @@
           "name": "metadataHash",
           "type": "bytes32",
           "internalType": "bytes32"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "createInvoiceFor",
+      "inputs": [
+        {
+          "name": "invoiceId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "vendor",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "token",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "dueAt",
+          "type": "uint64",
+          "internalType": "uint64"
+        },
+        {
+          "name": "metadataHash",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "linkId",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        },
+        {
+          "name": "authDeadline",
+          "type": "uint64",
+          "internalType": "uint64"
+        },
+        {
+          "name": "vendorAuthSig",
+          "type": "bytes",
+          "internalType": "bytes"
         }
       ],
       "outputs": [],
@@ -1042,6 +1108,11 @@
     },
     {
       "type": "error",
+      "name": "AuthExpired",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "BadAcceptanceSig",
       "inputs": []
     },
@@ -1071,6 +1142,11 @@
           "internalType": "uint256"
         }
       ]
+    },
+    {
+      "type": "error",
+      "name": "BadVendorAuth",
+      "inputs": []
     },
     {
       "type": "error",

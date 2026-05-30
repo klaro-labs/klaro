@@ -102,6 +102,32 @@ contract LPStakingRevertsTest is Test {
         staking.withdrawStake(LP_ID, 999_000_000_000);
     }
 
+    // Audit 2026-05-30: a soft-suspended LP must not be able to withdraw stake
+    // (dodge a pending slash) or add stake (change tier) while under review.
+    function test_WithdrawStake_Suspended_Reverts() public {
+        vm.prank(operator);
+        staking.setActive(LP_ID, false);
+        vm.prank(lpWallet);
+        vm.expectRevert(LPStaking.LPSuspended.selector);
+        staking.withdrawStake(LP_ID, 10_000_000);
+    }
+
+    function test_AddStake_Suspended_Reverts() public {
+        vm.prank(operator);
+        staking.setActive(LP_ID, false);
+        vm.prank(lpWallet);
+        vm.expectRevert(LPStaking.LPSuspended.selector);
+        staking.addStake(LP_ID, 10_000_000);
+    }
+
+    function test_WithdrawStake_Suspended_OwnerBypass() public {
+        vm.prank(operator);
+        staking.setActive(LP_ID, false);
+        // owner() (the deployer) retains an emergency withdraw path.
+        staking.withdrawStake(LP_ID, 10_000_000);
+        assertEq(staking.getLP(LP_ID).stake, 90_000_000);
+    }
+
     function test_WithdrawStake_Stranger_RevertsOnlyOperator() public {
         // Stranger is neither lp.wallet nor owner — auth fails on the last guard.
         vm.prank(other);

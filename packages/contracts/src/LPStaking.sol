@@ -103,6 +103,8 @@ contract LPStaking is ReentrancyGuard, EIP712, Pausable, Ownable {
     error BadOperatorAuth();
     /// @notice Caller is not the wallet bound in the operator's auth.
     error CallerNotAuthorizedWallet(address expected);
+    // Stake is frozen while the LP is soft-suspended (active=false).
+    error LPSuspended();
 
     /// @notice EIP-712 type hash for the operator's registration auth.
     bytes32 public constant REGISTER_TYPEHASH = keccak256(
@@ -216,6 +218,9 @@ contract LPStaking is ReentrancyGuard, EIP712, Pausable, Ownable {
         LP storage lp = lps[lpId];
         if (lp.joinedAt == 0) revert NotRegistered();
         if (amount == 0) revert AmountZero();
+        // A soft-suspended LP (under KYB/dispute review) must not change its
+        // stake or tier; the active flag was previously write-only dead state.
+        if (!lp.active) revert LPSuspended();
         if (msg.sender != lp.wallet) revert CallerNotAuthorizedWallet(lp.wallet);
 
         usdc.safeTransferFrom(msg.sender, address(this), amount);
@@ -241,6 +246,11 @@ contract LPStaking is ReentrancyGuard, EIP712, Pausable, Ownable {
         if (msg.sender != lp.wallet && msg.sender != owner()) {
             revert OnlyOperator();
         }
+        // Audit 2026-05-30: an LP facing a pending slash could withdraw its
+        // entire stake to dodge it — the active flag (soft-suspend) never gated
+        // withdrawal. Freeze the LP's own withdrawals while suspended; the owner
+        // keeps an emergency bypass (e.g. to recover funds during an incident).
+        if (!lp.active && msg.sender != owner()) revert LPSuspended();
 
         lp.stake -= amount;
         // same T4-protection rule as addStake.

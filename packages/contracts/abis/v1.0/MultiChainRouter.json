@@ -694,6 +694,17 @@
     },
     {
       "type": "error",
+      "name": "WrongDestChain",
+      "inputs": [
+        {
+          "name": "destChainId",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "error",
       "name": "ZeroMintRecipient",
       "inputs": []
     }

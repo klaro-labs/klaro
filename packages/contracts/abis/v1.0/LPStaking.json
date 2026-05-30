@@ -790,6 +790,11 @@
     },
     {
       "type": "error",
+      "name": "LPSuspended",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "NotRegistered",
       "inputs": []
     },

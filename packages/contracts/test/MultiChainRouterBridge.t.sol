@@ -45,6 +45,17 @@ contract MultiChainRouterBridgeTest is Test {
         assertEq(uint8(kind), uint8(MultiChainRouter.RouteKind.CCTP_V2_FAST));
     }
 
+    function test_InitiateBridge_WrongDestChain_Reverts() public {
+        // Audit 2026-05-30: Klaro only bridges TO Arc. A wrong destChainId
+        // would emit a BridgeInitiated the daemon acts on, minting on the wrong
+        // chain → fund loss. Must revert.
+        vm.prank(operator);
+        vm.expectRevert(
+            abi.encodeWithSelector(MultiChainRouter.WrongDestChain.selector, uint256(999))
+        );
+        router.initiateBridge(INVOICE_ID, CORRIDOR, 84_532, 999, 100 * 10 ** 6, requester);
+    }
+
     function test_InitiateBridge_SameChain_Reverts() public {
         vm.prank(operator);
         MultiChainRouter.RouteKind kind = router.initiateBridge(

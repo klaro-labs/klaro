@@ -99,6 +99,8 @@ contract MultiChainRouter is Ownable {
     // (subscribed to BridgeInitiated) can't be tricked into minting to
     // address(0) — USDC would be permanently destroyed on the dest chain.
     error ZeroMintRecipient();
+    // Klaro only bridges to Arc; reject any other destChainId.
+    error WrongDestChain(uint256 destChainId);
 
     modifier onlyOperator() {
         if (msg.sender != klaroOperator) revert NotOperator();
@@ -250,6 +252,13 @@ contract MultiChainRouter is Ownable {
         // permanently destroyed USDC. The audit closed F92-4 by adding
         // the param; this closes the back-door of that fix.
         if (mintRecipient == address(0)) revert ZeroMintRecipient();
+        // Audit 2026-05-30: destChainId was accepted + emitted but never
+        // validated. Klaro always bridges TO Arc (the daemon's CCTP burn mints
+        // on Arc); an operator typo in destChainId would emit a BridgeInitiated
+        // the daemon then acts on, minting to the wrong chain → fund loss.
+        if (destChainId != KlaroConfig.ARC_TESTNET_CHAIN_ID) {
+            revert WrongDestChain(destChainId);
+        }
         // Operator gate replaces the caller-supplied screening bool.
         // The operator daemon is responsible for resolving screening
         // status from `CounterpartyRegistry` / external providers
