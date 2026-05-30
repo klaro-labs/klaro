@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { ConnectWalletButton } from "./ConnectWalletButton";
 import { INVOICE_ESCROW_ABI } from "@/lib/abi";
 import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
-import { recordInvoicePublishedAction } from "@/app/vendor/invoices/new/actions";
+import { recordInvoicePublishedAction } from "@/app/(wallet)/vendor/invoices/new/actions";
 import { shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
 

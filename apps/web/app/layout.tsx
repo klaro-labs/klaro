@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Web3Provider } from "@/components/providers/Web3Provider";
 import { CookieConsent } from "@/components/klaro/CookieConsent";
 import { JsonLd } from "@/components/klaro/JsonLd";
 import { ServiceWorkerInit } from "@/components/klaro/ServiceWorkerInit";
@@ -88,7 +87,9 @@ export default async function RootLayout({
     >
       <body>
         <JsonLd data={SITE_JSON_LD} />
-        <Web3Provider>{children}</Web3Provider>
+        {/* Web3Provider now lives in app/(wallet)/layout.tsx so the wagmi /
+            WalletConnect bundle only loads on wallet routes, not every page. */}
+        {children}
         <CookieConsent />
         <ServiceWorkerInit />
       </body>

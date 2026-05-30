@@ -17,7 +17,7 @@ import { CASHOUT_ORDER_PROCESSOR_ADDRESS } from "@/lib/env";
 import {
   prepareCashoutRequestAction,
   recordCashoutRequestedAction,
-} from "@/app/vendor/cashout/actions";
+} from "@/app/(wallet)/vendor/cashout/actions";
 import { shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
 

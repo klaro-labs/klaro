@@ -2,7 +2,7 @@ import { handle, handleGet } from "@/lib/api";
 import { CashoutCreateReq } from "@/lib/apiSchemas";
 import { requireVendor } from "@/lib/auth";
 import { listForVendor } from "@/lib/repo/cashouts";
-import { createCashoutAction } from "@/app/vendor/cashout/actions";
+import { createCashoutAction } from "@/app/(wallet)/vendor/cashout/actions";
 
 export const GET = handleGet(async () => {
   const session = await requireVendor();

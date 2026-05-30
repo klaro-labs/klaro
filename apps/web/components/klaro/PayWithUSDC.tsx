@@ -20,7 +20,7 @@ import {
   ACCEPTANCE_EIP712_TYPES,
 } from "@/lib/abi";
 import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
-import { simulatePaymentAction } from "@/app/i/[id]/actions";
+import { simulatePaymentAction } from "@/app/(wallet)/i/[id]/actions";
 import type { Hex } from "@/lib/types";
 
 /**

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { deactivateLinkAction } from "@/app/vendor/links/[id]/actions";
+import { deactivateLinkAction } from "@/app/(wallet)/vendor/links/[id]/actions";
 
 /**
  * Client actions for a Klaro Link detail page: copy the shareable URL and

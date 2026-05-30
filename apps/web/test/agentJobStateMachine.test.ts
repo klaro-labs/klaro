@@ -54,7 +54,7 @@ describe("agent job state-machine guard", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("rejects CREATED → CLOSED (skip funding + delivery)", async () => {
-    const { advanceJobAction } = await import("@/app/vendor/agents/actions");
+    const { advanceJobAction } = await import("@/app/(wallet)/vendor/agents/actions");
     const job = await seedJob();
     await expect(advanceJobAction(job.jobId, "CLOSED")).rejects.toThrow(
       /illegal transition/,
@@ -64,7 +64,7 @@ describe("agent job state-machine guard", () => {
   });
 
   it("rejects DELIVERED without deliverableHash", async () => {
-    const { advanceJobAction } = await import("@/app/vendor/agents/actions");
+    const { advanceJobAction } = await import("@/app/(wallet)/vendor/agents/actions");
     const job = await seedJob();
     await advanceJobAction(job.jobId, "FUNDED");
     await advanceJobAction(job.jobId, "STARTED");
@@ -74,7 +74,7 @@ describe("agent job state-machine guard", () => {
   });
 
   it("walks the happy path CREATED → FUNDED → STARTED → DELIVERED → CLOSED", async () => {
-    const { advanceJobAction } = await import("@/app/vendor/agents/actions");
+    const { advanceJobAction } = await import("@/app/(wallet)/vendor/agents/actions");
     const job = await seedJob();
     const dHash = keccak256(stringToBytes("deliverable-bytes")) as Hex;
     await advanceJobAction(job.jobId, "FUNDED");
@@ -95,7 +95,7 @@ describe("agent job state-machine guard", () => {
       .spyOn(mocked, "mockGetAgent")
       .mockResolvedValue({ ...target, active: false });
     try {
-      const { createJobAction } = await import("@/app/vendor/agents/actions");
+      const { createJobAction } = await import("@/app/(wallet)/vendor/agents/actions");
       const fd = new FormData();
       fd.set("agentId", target.agentId);
       fd.set("amount", "100");
@@ -107,7 +107,7 @@ describe("agent job state-machine guard", () => {
   });
 
   it("rejects transitions out of CLOSED (terminal)", async () => {
-    const { advanceJobAction } = await import("@/app/vendor/agents/actions");
+    const { advanceJobAction } = await import("@/app/(wallet)/vendor/agents/actions");
     const job = await seedJob();
     const dHash = keccak256(stringToBytes("deliverable-bytes")) as Hex;
     await advanceJobAction(job.jobId, "FUNDED");

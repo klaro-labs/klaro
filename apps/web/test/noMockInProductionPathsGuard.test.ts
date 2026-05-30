@@ -101,7 +101,12 @@ describe("no mockX in production paths", () => {
         })
         .join("\n");
       if (!importMatcher.test(codeOnly)) continue;
-      const rel = relative(APP_ROOT, f).replace(/\\/g, "/");
+      // Strip URL-transparent route-group segments (e.g. `(wallet)`) so the
+      // GRANDFATHERED snapshot keys on the stable logical path, not the
+      // route-group layout (app/(wallet)/i/[id]/actions.ts → app/i/...).
+      const rel = relative(APP_ROOT, f)
+        .replace(/\\/g, "/")
+        .replace(/\/\([^/]+\)/g, "");
       reachable.push(rel);
       if (!GRANDFATHERED.has(rel)) offenders.push(rel);
     }

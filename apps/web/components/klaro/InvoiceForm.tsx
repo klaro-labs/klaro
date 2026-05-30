@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { createInvoiceAction } from "@/app/vendor/invoices/new/actions";
+import { createInvoiceAction } from "@/app/(wallet)/vendor/invoices/new/actions";
 
 // vendorId + vendorWallet removed from props — server action derives them
 // from the authenticated session. .

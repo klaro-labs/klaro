@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConnectWalletButton } from "./ConnectWalletButton";
 import { PayWithUSDC } from "./PayWithUSDC";
-import { getOrCreateInvoiceForLink } from "@/app/pay/[slug]/actions";
+import { getOrCreateInvoiceForLink } from "@/app/(wallet)/pay/[slug]/actions";
 import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
 import type { Hex } from "@/lib/types";
 import type { LinkInvoiceParams } from "@/lib/repo/links";

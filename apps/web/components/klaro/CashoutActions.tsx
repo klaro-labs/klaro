@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import {
   confirmReceivedAction,
   openDisputeAction,
-} from "@/app/vendor/cashout/actions";
+} from "@/app/(wallet)/vendor/cashout/actions";
 import type { Hex } from "@/lib/types";
 
 /**

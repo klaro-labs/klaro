@@ -11,7 +11,7 @@ import {
   getCorridor,
 } from "@/lib/corridors";
 import { formatUSDC, dollarsToUSDC } from "@/lib/money";
-import { createCashoutAction } from "@/app/vendor/cashout/actions";
+import { createCashoutAction } from "@/app/(wallet)/vendor/cashout/actions";
 import {
   RequestCashoutOnChain,
   type CashoutRequestInput,

@@ -8,7 +8,7 @@ import { arcTestnet } from "wagmi/chains";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConnectWalletButton } from "./ConnectWalletButton";
-import { createLinkAction, type LinkAuthInput } from "@/app/vendor/links/new/actions";
+import { createLinkAction, type LinkAuthInput } from "@/app/(wallet)/vendor/links/new/actions";
 import { LINK_AUTH_EIP712_TYPES, ARC_USDC_ADDRESS } from "@/lib/abi";
 import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
 import { dollarsToUSDC, shortAddress } from "@/lib/money";

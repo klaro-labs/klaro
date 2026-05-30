@@ -45,7 +45,13 @@ function walk(dir: string): string[] {
 }
 
 function pageToRoute(abs: string): string {
-  const rel = relative(APP_DIR, abs).split(sep).slice(0, -1).join("/");
+  // Route groups like `(wallet)` are URL-transparent — strip them so the
+  // derived path matches the actual URL (e.g. app/(wallet)/pay → /pay).
+  const rel = relative(APP_DIR, abs)
+    .split(sep)
+    .slice(0, -1)
+    .filter((seg) => !/^\(.+\)$/.test(seg))
+    .join("/");
   return rel === "" ? "" : "/" + rel;
 }
 
