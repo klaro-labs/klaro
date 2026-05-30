@@ -110,7 +110,21 @@ export function startWebhookDelivery() {
         },
         body,
         signal: AbortSignal.timeout(10_000),
+        // SSRF: assertPublicHttpUrl validates `url`, but fetch follows redirects
+        // by default — a subscriber returning 302 -> http://169.254.169.254/...
+        // (or any private host) would have the redirect followed PAST the guard,
+        // reaching AWS IMDS / Redis / RFC1918 with a signed Klaro body. Refuse
+        // redirects entirely; webhook endpoints must be final URLs.
+        redirect: "manual",
       });
+      if (
+        res.type === "opaqueredirect" ||
+        (res.status >= 300 && res.status < 400)
+      ) {
+        throw new Error(
+          `webhook ${url} attempted a redirect (${res.status || "opaque"}) — refused (SSRF guard)`,
+        );
+      }
 
       // Upsert (so first attempt creates the row, retries update it). Stable
       // idempotency_key per (webhookId, eventId) closes the dup-key crash.

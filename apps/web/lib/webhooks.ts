@@ -86,7 +86,19 @@ async function deliver(payload: WebhookEvent): Promise<void> {
       "user-agent": "Klaro-Webhooks/0.1",
     },
     body,
+    // SSRF: assertPublicHttpUrl validates the URL, but fetch follows redirects by
+    // default — a 302 -> http://169.254.169.254/... would be followed past the
+    // guard to IMDS. Refuse redirects; webhook endpoints must be final URLs.
+    redirect: "manual",
   });
+  if (
+    res.type === "opaqueredirect" ||
+    (res.status >= 300 && res.status < 400)
+  ) {
+    throw new Error(
+      `webhook ${payload.url} attempted a redirect (${res.status || "opaque"}) — refused (SSRF guard)`,
+    );
+  }
   if (!res.ok) {
     // Throwing here flips BullMQ's retry-with-exponential-backoff on.
     throw new Error(`webhook ${payload.url} responded ${res.status}`);
