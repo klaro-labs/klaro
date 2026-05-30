@@ -59,6 +59,29 @@ jobs:
           # CI build runs without runtime envs — Next.js compiles fine.
           NEXT_TELEMETRY_DISABLED: "1"
 
+  daemon:
+    name: Daemon typecheck + test + build
+    # Audit 2026-05-30: CI built/tested web + contracts but NEVER the daemon —
+    # the process that actually moves funds (escrow release, cashout advance,
+    # receipt mint, webhook delivery). A type error or failing test there shipped
+    # uncaught. Mirror the web job: typecheck, vitest, and the tsup build.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/daemon
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: pnpm/action-setup@v4
+      - name: Install workspace deps
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
   drift-check:
     name: Arc address drift check
     runs-on: ubuntu-latest
