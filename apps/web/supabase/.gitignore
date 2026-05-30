@@ -1,0 +1,4 @@
+# Supabase CLI scratch (created by `supabase gen types` etc. — see
+# scripts/gen-db-types.mjs). No project state worth committing.
+.branches
+.temp
