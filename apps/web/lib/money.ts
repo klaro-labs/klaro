@@ -26,7 +26,12 @@ export function formatUSDC(amount: bigint): string {
 
 /** Convert dollars (e.g. 4200.50) → 6-decimal bigint (4_200_500_000). */
 export function dollarsToUSDC(dollars: number): bigint {
-  return BigInt(Math.round(dollars * 100)) * 10n ** BigInt(USDC_DECIMALS - 2);
+  // Round to FULL 6-decimal USDC precision, not to cents. The previous
+  // `round(dollars*100) * 1e4` quantised every amount to whole cents — a $1.005
+  // invoice silently became $1.01, and any API caller passing sub-cent precision
+  // lost it (audit 2026-05-30). assertSafeUSDAmount caps at $1B, so
+  // dollars * 1e6 ≤ 1e15 stays within Number.MAX_SAFE_INTEGER.
+  return BigInt(Math.round(dollars * 10 ** USDC_DECIMALS));
 }
 
 /**
