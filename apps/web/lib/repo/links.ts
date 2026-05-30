@@ -264,8 +264,11 @@ export async function getOrCreateLinkInvoice(
 
   const c = await tryDb();
   if (!c) {
-    if (!mockGetInvoice(id)) {
-      mockCreateInvoice({
+    // mockGetInvoice is async — without await this is `!Promise` (always false),
+    // so the mock invoice would never be created and the simulator pay flow would
+    // have nothing to settle.
+    if (!(await mockGetInvoice(id))) {
+      await mockCreateInvoice({
         id, vendorId: link.vendorId, vendorWallet: link.vendorWallet, token: USDC_ARC,
         amount: link.amount, dueAt, customer, lineItems, metadataHash,
       });
