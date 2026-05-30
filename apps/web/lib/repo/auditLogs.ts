@@ -4,7 +4,7 @@
  * by the calling server-action (requireOperator / requireVendor). In dev with
  * no Supabase, writes flow to console + the in-memory ring buffer in auditLog.ts.
  */
-import { tryDb } from "../db";
+import { tryDb, serviceDb, isLive } from "../db";
 import type { ActorKind, DbAuditLog } from "../dbTypes";
 
 export interface AuditWriteInput {
@@ -23,12 +23,17 @@ export interface AuditWriteInput {
 }
 
 export async function appendAudit(input: AuditWriteInput): Promise<void> {
-  const c = await tryDb();
-  if (!c) {
+  if (!isLive()) {
     // Dev fallback: rely on auditLog.ts ring buffer + console (already wired there).
     return;
   }
-  const { error } = await c.from("audit_logs").insert({
+  // Audit (2026-05-30): migration 0013 REVOKED INSERT on audit_logs from the RLS
+  // role, so the previous tryDb()/db() (RLS-scoped) write silently never
+  // persisted in live mode — the append-only audit trail was empty. Write via
+  // serviceDb() (service-role bypasses RLS + GRANT), matching this file's
+  // documented intent and the daemon's pattern; the actor's role is already
+  // proven by the calling server action (requireOperator / requireVendor).
+  const { error } = await serviceDb().from("audit_logs").insert({
     actor_kind: input.actorKind,
     actor_id: input.actorId,
     action: input.action,

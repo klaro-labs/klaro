@@ -41,7 +41,13 @@ function fromRow(row: DbInvoiceWithVendor): Invoice {
     // or as a number depending on column scale + supabase-js version.
     // Coerce before .replace so both paths work — getPublicInvoice already
     // does this; fromRow was the unfixed twin.
-    amount: BigInt(String(row.amount_usdc).replace(/\.\d+$/, "")) ?? 0n,
+    // amount_usdc is null when the vendor set privacy_mode='hide_amount' (the
+    // get_public_invoice RPC redacts it) — guard so the mapping doesn't crash on
+    // BigInt(String(null)). Hidden amount surfaces as 0n.
+    amount:
+      row.amount_usdc == null
+        ? 0n
+        : BigInt(String(row.amount_usdc).replace(/\.\d+$/, "")),
     dueAt: new Date(row.due_at),
     status: row.status,
     customer: {
@@ -104,7 +110,13 @@ export async function getPublicInvoice(
     vendorWallet: row.vendor_wallet ? (row.vendor_wallet as Hex) : null,
     vendorDisplayName: row.vendor_display_name ?? null,
     token: row.token as Hex,
-    amount: BigInt(String(row.amount_usdc).replace(/\.\d+$/, "")) ?? 0n,
+    // amount_usdc is null when the vendor set privacy_mode='hide_amount' (the
+    // get_public_invoice RPC redacts it) — guard so the mapping doesn't crash on
+    // BigInt(String(null)). Hidden amount surfaces as 0n.
+    amount:
+      row.amount_usdc == null
+        ? 0n
+        : BigInt(String(row.amount_usdc).replace(/\.\d+$/, "")),
     dueAt: new Date(row.due_at),
     status: row.status,
     customer: {
@@ -113,9 +125,12 @@ export async function getPublicInvoice(
     },
     lineItems: Array.isArray(row.line_items)
       ? row.line_items.map(
-          (li: { description: string; amount_usdc: number | string }) => ({
+          (li: { description: string; amount_usdc: number | string | null }) => ({
             description: li.description,
-            amount: BigInt(String(li.amount_usdc).replace(/\.\d+$/, "")),
+            amount:
+              li.amount_usdc == null
+                ? 0n
+                : BigInt(String(li.amount_usdc).replace(/\.\d+$/, "")),
           }),
         )
       : [],
