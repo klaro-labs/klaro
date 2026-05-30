@@ -92,6 +92,8 @@ contract DisputeManager is Pausable, Ownable2Step {
     error CaseAlreadyExists();
     error UnknownCase();
     error WrongState(Status expected, Status actual);
+    // Outcome the case's escrow-context consumer cannot resolve → would strand.
+    error OutcomeNotValidForContext(Outcome outcome, bytes32 context);
     error ZeroAddress();
 
     modifier onlyOperator() {
@@ -252,6 +254,21 @@ contract DisputeManager is Pausable, Ownable2Step {
         if (c.status == Status.NONE) revert UnknownCase();
         if (c.status != Status.UNDER_REVIEW) {
             revert WrongState(Status.UNDER_REVIEW, c.status);
+        }
+        // Audit 2026-05-30: an escrow-backed case (context != 0) committed with
+        // an outcome its consumer's resolveDispute can't handle would move to
+        // DECIDED and then strand the funds forever (resolveDispute reverts
+        // OutcomeNotApplicable, and a DECIDED case can't be re-decided). Every
+        // consumer handles RELEASE_TO_CLAIMANT + REFUND_TO_RESPONDENT; only the
+        // cashout consumer handles SLASH_LP; none handle PENALIZE_VENDOR or
+        // MUTUAL_RESOLVED. Reject the un-resolvable combinations up front.
+        // Ad-hoc cases (context == 0) have no escrow to strand, so allow any.
+        if (c.context != bytes32(0)) {
+            bool resolvable = outcome == Outcome.RELEASE_TO_CLAIMANT
+                || outcome == Outcome.REFUND_TO_RESPONDENT
+                || (outcome == Outcome.SLASH_LP
+                    && c.context == keccak256("klaro.dispute.cashout"));
+            if (!resolvable) revert OutcomeNotValidForContext(outcome, c.context);
         }
 
         c.outcome = outcome;

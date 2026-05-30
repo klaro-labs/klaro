@@ -129,7 +129,7 @@ contract DisputeManagerStateMachineTest is Test {
         dm.assignToReview(CASE);
         dm.decide(
             CASE,
-            DisputeManager.Outcome.MUTUAL_RESOLVED,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
             ReasonCodes.DISPUTE_MUTUAL_RESOLVED,
             bytes32(0)
         );
@@ -149,7 +149,7 @@ contract DisputeManagerStateMachineTest is Test {
         dm.assignToReview(CASE);
         dm.decide(
             CASE,
-            DisputeManager.Outcome.MUTUAL_RESOLVED,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
             ReasonCodes.DISPUTE_MUTUAL_RESOLVED,
             bytes32(0)
         );

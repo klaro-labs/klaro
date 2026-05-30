@@ -158,21 +158,22 @@ contract AgentEscrowResolveDisputeOnChainOutcomeTest is Test {
 
     function test_MutualResolved_Reverts_NotApplicable() public {
         _arriveDisputed(principal);
+        // Audit 2026-05-30: MUTUAL_RESOLVED has no consumer resolver, so it is
+        // now rejected at decide() — before the case is committed — instead of
+        // being decided and then stranding the escrow when resolveDispute reverts.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                DisputeManager.OutcomeNotValidForContext.selector,
+                DisputeManager.Outcome.MUTUAL_RESOLVED,
+                keccak256("klaro.dispute.agent")
+            )
+        );
         dm.decide(
             JID,
             DisputeManager.Outcome.MUTUAL_RESOLVED,
             keccak256("klaro.reason.DISPUTE_MUTUAL_RESOLVED"),
             bytes32(0)
         );
-
-        vm.prank(operator);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentEscrow.OutcomeNotApplicable.selector,
-                uint8(DisputeManager.Outcome.MUTUAL_RESOLVED)
-            )
-        );
-        esc.resolveDispute(JID, true);
     }
 
     // ─── DisputesNotConfigured: production stance, no operator-trust fallback ─
@@ -192,50 +193,51 @@ contract AgentEscrowResolveDisputeOnChainOutcomeTest is Test {
         fresh.fundJob(JID);
         vm.prank(agentWallet);
         fresh.startJob(JID);
+        // openDispute itself now reverts with no DisputeManager — the job can't
+        // enter DISPUTED without a registry to hold the case, so the escrow is
+        // never stranded (was: openDispute "succeeded" then resolveDispute
+        // reverted forever).
         vm.prank(principal);
-        fresh.openDispute(JID, keccak256("ev"));
-
-        vm.prank(operator);
         vm.expectRevert(AgentEscrow.DisputesNotConfigured.selector);
-        fresh.resolveDispute(JID, true);
+        fresh.openDispute(JID, keccak256("ev"));
     }
 
     // ─── Outcomes not defined for the agent escrow context revert ─────
 
     function test_SlashLp_Reverts_NotApplicable() public {
         _arriveDisputed(principal);
+        // SLASH_LP is only resolvable in the cashout context; for an agent case
+        // it is now rejected at decide() (was: decided then resolveDispute reverts).
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                DisputeManager.OutcomeNotValidForContext.selector,
+                DisputeManager.Outcome.SLASH_LP,
+                keccak256("klaro.dispute.agent")
+            )
+        );
         dm.decide(
             JID,
             DisputeManager.Outcome.SLASH_LP,
             keccak256("klaro.reason.SLASH_LP_DISPUTE_LOSS"),
             bytes32(0)
         );
-
-        vm.prank(operator);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentEscrow.OutcomeNotApplicable.selector, uint8(DisputeManager.Outcome.SLASH_LP)
-            )
-        );
-        esc.resolveDispute(JID, true);
     }
 
     function test_PenalizeVendor_Reverts_NotApplicable() public {
         _arriveDisputed(principal);
+        // PENALIZE_VENDOR has no consumer resolver → rejected at decide().
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                DisputeManager.OutcomeNotValidForContext.selector,
+                DisputeManager.Outcome.PENALIZE_VENDOR,
+                keccak256("klaro.dispute.agent")
+            )
+        );
         dm.decide(
             JID,
             DisputeManager.Outcome.PENALIZE_VENDOR,
             keccak256("klaro.reason.PENALIZE_VENDOR_FRAUD"),
             bytes32(0)
         );
-
-        vm.prank(operator);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentEscrow.OutcomeNotApplicable.selector,
-                uint8(DisputeManager.Outcome.PENALIZE_VENDOR)
-            )
-        );
-        esc.resolveDispute(JID, false);
     }
 }

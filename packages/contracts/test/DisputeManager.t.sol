@@ -186,7 +186,7 @@ contract DisputeManagerTest is Test {
         vm.startPrank(operator);
         dm.decide(
             CASE_ID,
-            DisputeManager.Outcome.MUTUAL_RESOLVED,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
             ReasonCodes.DISPUTE_MUTUAL_RESOLVED,
             bytes32(0)
         );
@@ -226,7 +226,11 @@ contract DisputeManagerTest is Test {
 
     /// @dev Property: every outcome other than NONE is a valid terminal state.
     function testFuzz_AnyValidOutcome_DecidesTerminally(uint8 outcomeIdx) public {
-        outcomeIdx = uint8(bound(outcomeIdx, 1, 5));
+        // Audit 2026-05-30: decide() now rejects outcomes no consumer can resolve
+        // for the case's context. CONTEXT here is a generic (non-cashout) context,
+        // so only RELEASE_TO_CLAIMANT (1) and REFUND_TO_RESPONDENT (2) are valid;
+        // SLASH_LP/PENALIZE_VENDOR/MUTUAL_RESOLVED would (correctly) revert.
+        outcomeIdx = uint8(bound(outcomeIdx, 1, 2));
         _open();
         vm.prank(operator);
         dm.assignToReview(CASE_ID);

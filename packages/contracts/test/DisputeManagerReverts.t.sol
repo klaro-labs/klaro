@@ -70,7 +70,7 @@ contract DisputeManagerRevertsTest is Test {
         vm.prank(operator);
         dm.decide(
             CASE,
-            DisputeManager.Outcome.MUTUAL_RESOLVED,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
             ReasonCodes.DISPUTE_MUTUAL_RESOLVED,
             bytes32(0)
         );
@@ -107,7 +107,7 @@ contract DisputeManagerRevertsTest is Test {
         dm.assignToReview(CASE);
         dm.decide(
             CASE,
-            DisputeManager.Outcome.MUTUAL_RESOLVED,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
             ReasonCodes.DISPUTE_MUTUAL_RESOLVED,
             bytes32(0)
         );
@@ -137,7 +137,7 @@ contract DisputeManagerRevertsTest is Test {
         vm.expectRevert(DisputeManager.UnknownCase.selector);
         dm.decide(
             CASE,
-            DisputeManager.Outcome.MUTUAL_RESOLVED,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
             ReasonCodes.DISPUTE_MUTUAL_RESOLVED,
             bytes32(0)
         );
@@ -149,7 +149,7 @@ contract DisputeManagerRevertsTest is Test {
         dm.assignToReview(CASE);
         dm.decide(
             CASE,
-            DisputeManager.Outcome.MUTUAL_RESOLVED,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
             ReasonCodes.DISPUTE_MUTUAL_RESOLVED,
             bytes32(0)
         );

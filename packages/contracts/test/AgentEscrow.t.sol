@@ -263,6 +263,11 @@ contract AgentEscrowTest is Test {
         esc.submitDeliverable(JID, keccak256("d"));
         assertEq(esc.getJob(JID).deliverableHash, keccak256("d"));
 
+        // openDispute now requires a wired DisputeManager (so the escrow can't
+        // be stranded in DISPUTED). The hostile hook still must not block it.
+        DisputeManager dm = new DisputeManager(address(this));
+        dm.setTrustedCaller(address(esc), true);
+        esc.setDisputes(dm);
         vm.prank(agentWallet);
         esc.openDispute(JID, keccak256("ev"));
         assertEq(uint8(esc.getJob(JID).status), uint8(AgentEscrow.Status.DISPUTED));

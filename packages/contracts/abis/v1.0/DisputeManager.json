@@ -652,6 +652,22 @@
     },
     {
       "type": "error",
+      "name": "OutcomeNotValidForContext",
+      "inputs": [
+        {
+          "name": "outcome",
+          "type": "uint8",
+          "internalType": "enum DisputeManager.Outcome"
+        },
+        {
+          "name": "context",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ]
+    },
+    {
+      "type": "error",
       "name": "OwnableInvalidOwner",
       "inputs": [
         {

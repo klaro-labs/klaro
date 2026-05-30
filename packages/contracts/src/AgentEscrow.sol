@@ -305,6 +305,12 @@ contract AgentEscrow is ReentrancyGuard, Pausable, Ownable2Step {
         if (j.status != Status.STARTED && j.status != Status.FUNDED) {
             revert InvalidStatus(Status.STARTED, j.status);
         }
+        // Audit 2026-05-30: a DISPUTED job can ONLY exit via resolveDispute,
+        // which requires a DECIDED case in the DisputeManager. Opening a dispute
+        // with no DisputeManager wired flipped the job to DISPUTED but never
+        // created a case, so resolveDispute could never succeed → the escrowed
+        // USDC was permanently stranded. Refuse to enter DISPUTED without one.
+        if (address(disputes) == address(0)) revert DisputesNotConfigured();
         _safeBefore(j.hook, ACTION_DISPUTE, jobId, j);
         j.status = Status.DISPUTED;
         emit JobDisputed(jobId, msg.sender);

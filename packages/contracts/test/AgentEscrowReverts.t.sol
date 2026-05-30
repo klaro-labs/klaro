@@ -237,17 +237,22 @@ contract AgentEscrowRevertsTest is Test {
         esc.openDispute(JID, keccak256("e"));
     }
 
-    function test_OpenDispute_NoDisputeManager_StillOpens() public {
-        // setDisputes never called — branch `address(disputes) == 0`.
+    function test_OpenDispute_NoDisputeManager_Reverts() public {
+        // Audit 2026-05-30: opening a dispute with no DisputeManager wired would
+        // strand the escrow (DISPUTED can only exit via resolveDispute, which
+        // needs a decided case). It now reverts instead of "still opening".
         _fund();
         vm.prank(principal);
+        vm.expectRevert(AgentEscrow.DisputesNotConfigured.selector);
         esc.openDispute(JID, keccak256("e"));
-        AgentEscrow.Job memory j = esc.getJob(JID);
-        assertEq(uint256(j.status), uint256(AgentEscrow.Status.DISPUTED));
+        assertEq(uint256(esc.getJob(JID).status), uint256(AgentEscrow.Status.FUNDED));
     }
 
     function test_OpenDispute_AgentInitiator_RespondentIsPrincipal() public {
         _start();
+        DisputeManager dm = new DisputeManager(address(this));
+        dm.setTrustedCaller(address(esc), true);
+        esc.setDisputes(dm);
         vm.prank(agentWallet);
         esc.openDispute(JID, keccak256("e"));
         AgentEscrow.Job memory j = esc.getJob(JID);
