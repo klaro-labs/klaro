@@ -4,11 +4,12 @@ import { getCurrentSession } from "@/lib/auth";
 import { mockListWebhooks } from "@/lib/mockData";
 import { relativeTime } from "@/lib/money";
 import { queueLive } from "@/lib/env";
-import { t } from "@/lib/i18n";
+import { getT } from "@/lib/i18n";
 import { createWebhookAction } from "./actions";
 import { TestPingButton } from "./TestPingButton";
 
 export default async function WebhooksPage() {
+  const t = await getT();
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
   const endpoints = await mockListWebhooks(session.vendor.id);

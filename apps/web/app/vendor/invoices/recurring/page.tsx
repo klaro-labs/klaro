@@ -3,10 +3,11 @@ import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { mockListRecurring } from "@/lib/mockData";
 import { formatUSDC, relativeTime } from "@/lib/money";
-import { t } from "@/lib/i18n";
+import { getT } from "@/lib/i18n";
 import { createRecurringAction } from "./actions";
 
 export default async function RecurringPage() {
+  const t = await getT();
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
   const items = await mockListRecurring(session.vendor.id);

@@ -3,10 +3,11 @@ import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { mockListBills } from "@/lib/mockData";
-import { t } from "@/lib/i18n";
+import { getT } from "@/lib/i18n";
 import { formatUSDC, relativeTime } from "@/lib/money";
 
 export default async function BillsPage() {
+  const t = await getT();
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
   const bills = await mockListBills(session.vendor.id);

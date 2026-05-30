@@ -83,3 +83,22 @@ export function parseLocale(cookieValue: string | undefined): Locale {
     ? (cookieValue as Locale)
     : DEFAULT_LOCALE;
 }
+
+/**
+ * Server-side translator bound to the request's locale cookie. Audit 2026-05-30:
+ * every server-component `t(key)` call omitted the `locale` arg, so it defaulted
+ * to English and NO translation was ever served regardless of the user's choice.
+ * Use this in (async) server components instead:
+ *   const t = await getT();
+ *   t("invoices.title")
+ * `cookies` is dynamic-imported so this module stays importable from client
+ * components (which only consume the locale constants, not next/headers).
+ */
+export async function getT(): Promise<
+  (key: MessageKey, vars?: Record<string, string | number>) => string
+> {
+  const { cookies } = await import("next/headers");
+  const store = await cookies();
+  const locale = parseLocale(store.get(LOCALE_COOKIE)?.value);
+  return (key, vars) => t(key, locale, vars);
+}
