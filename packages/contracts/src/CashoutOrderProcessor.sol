@@ -151,6 +151,10 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
     error DisputeNotDecided();
     error OutcomeNotApplicable(uint8 outcome);
     error SlashNotAllowed();
+    /// @notice slashAmount on a SLASH_LP resolution exceeded the disputed
+    /// order's value — an LP can't be slashed more than the USDC it was
+    /// entrusted with for this cashout. (Audit D3d/D8b HIGH.)
+    error SlashExceedsOrder(uint256 requested, uint256 max);
     // a caseId opened against a different context
     // (e.g. AgentEscrow's AGENT_DISPUTE_CONTEXT) but supplied here as
     // a cashoutId — outcomeOf would resolve against the wrong escrow's
@@ -428,6 +432,12 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
             emit OrderResolved(cashoutId, outcome, 0, reasonHash);
         } else if (decision == DisputeManager.Outcome.SLASH_LP) {
             if (slashAmount == 0) revert AmountZero();
+            // Bound the slash to the disputed order's value — the operator
+            // (hot key) must not be able to drain an LP's whole stake on a
+            // single small order. (Audit D3d/D8b HIGH.)
+            if (slashAmount > o.usdcAmount) {
+                revert SlashExceedsOrder(slashAmount, o.usdcAmount);
+            }
             Status outcome = Status.RESOLVED_VENDOR_PAYS;
             o.status = outcome;
             // cross-contract pause coupling. Previously

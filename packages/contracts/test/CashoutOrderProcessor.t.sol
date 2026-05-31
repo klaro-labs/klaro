@@ -263,6 +263,39 @@ contract CashoutOrderProcessorTest is Test {
         assertEq(staking.getLP(LP_ID).slashedTotal, 200_000_000);
     }
 
+    // audit D3d/D8b regression: the operator cannot slash more than the
+    // disputed order's value (hot-key blast-radius bound).
+    function test_resolveDispute_slashExceedingOrder_reverts() public {
+        DisputeManager dm = new DisputeManager(operator);
+        dm.setTrustedCaller(address(proc), true);
+        proc.setDisputes(dm);
+        _request();
+        vm.prank(operator);
+        proc.claimByLP(CO_ID, LP_ID);
+        vm.prank(operator);
+        proc.recordProof(CO_ID, _sampleProof());
+        vm.prank(vendor);
+        proc.openDispute(CO_ID, keccak256("evidence"));
+        dm.assignToReview(CO_ID);
+        dm.decide(
+            CO_ID,
+            DisputeManager.Outcome.SLASH_LP,
+            keccak256("klaro.reason.SLASH_LP_BAD_PROOF"),
+            bytes32(0)
+        );
+        vm.prank(operator);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                CashoutOrderProcessor.SlashExceedsOrder.selector,
+                USDC_AMT + 1,
+                USDC_AMT
+            )
+        );
+        proc.resolveDispute(
+            CO_ID, USDC_AMT + 1, keccak256("klaro.reason.SLASH_LP_BAD_PROOF")
+        );
+    }
+
     // regression: when LPStaking is paused independently
     // (owner investigating a staking bug), SLASH_LP resolution used to
     // revert wholesale — cashout stuck in DISPUTED, vendor not paid,
