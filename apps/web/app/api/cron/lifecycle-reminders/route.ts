@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { listAllInvoices } from "@/lib/repo/invoices";
 import { getVendorById } from "@/lib/repo/vendors";
 import { sendLifecycleReminder, type ReminderWindow } from "@/lib/email";
@@ -41,7 +42,13 @@ export async function GET(req: NextRequest) {
   }
   if (CRON_SECRET) {
     const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${CRON_SECRET}`) {
+    // Timing-safe compare. Hash both sides to a fixed 32 bytes so the
+    // comparison is constant-time and doesn't leak length.
+    const got = createHash("sha256").update(auth ?? "").digest();
+    const want = createHash("sha256")
+      .update(`Bearer ${CRON_SECRET}`)
+      .digest();
+    if (!timingSafeEqual(got, want)) {
       return Response.json(
         { ok: false, error: "unauthorized" },
         { status: 401 },

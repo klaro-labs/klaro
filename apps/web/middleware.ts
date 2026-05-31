@@ -14,7 +14,11 @@ const CSP_DEFAULT =
   "style-src 'self' 'unsafe-inline'; " +
   "img-src 'self' data: blob: https:; " +
   "font-src 'self' data:; " +
-  "connect-src 'self' https: wss:; " +
+  // connect-src mirrors next.config.mjs exactly (the off-domain endpoints
+  // Klaro talks to). Was 'self' https: wss:' — a wildcard that let
+  // middleware-minted responses (429/302/rewrites) exfiltrate to any HTTPS
+  // host. Keep in lockstep with next.config's list.
+  "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.circle.com https://*.arc.network https://api.resend.com https://us.i.posthog.com https://buy-sandbox.moonpay.com https://pay.google.com wss://*.supabase.co; " +
   "frame-src 'self' https://buy.moonpay.com https://buy-sandbox.moonpay.com; " +
   "frame-ancestors 'none'; " +
   "base-uri 'self'; " +
