@@ -162,6 +162,25 @@ contract InvoiceEscrowTest is Test {
         escrow.settle(INV_ID);
     }
 
+    // audit COVERAGE_contracts P1: InvoiceEscrow has 10 whenNotPaused functions
+    // but no pause-guard test. Pause (owner-only) must block creation; unpause
+    // restores it. Proves the emergency kill-switch on the settlement contract.
+    function test_pause_blocksCreateInvoice_unpauseRestores() public {
+        escrow.pause(); // test contract is the owner
+        vm.expectRevert(); // EnforcedPause
+        escrow.createInvoice(keccak256("paused"), address(usdc), AMOUNT, DUE_AT, META);
+
+        escrow.unpause();
+        escrow.createInvoice(keccak256("after-unpause"), address(usdc), AMOUNT, DUE_AT, META);
+        assertEq(uint8(escrow.getInvoice(keccak256("after-unpause")).status), uint8(InvoiceEscrow.Status.CREATED));
+    }
+
+    function test_pause_onlyOwner() public {
+        vm.prank(buyer);
+        vm.expectRevert();
+        escrow.pause();
+    }
+
     function test_cancel_byVendor_works_byOther_reverts() public {
         _createInvoice();
 
