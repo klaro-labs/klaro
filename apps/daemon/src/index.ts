@@ -31,6 +31,7 @@ import { startAdminRisk } from "./workers/adminRisk.js";
 import { startStableFxAdapter } from "./workers/stableFxAdapter.js";
 import { startProofVerifier } from "./workers/proofVerifier.js";
 import { startDisputeResolver } from "./workers/disputeResolver.js";
+import { startDisputeDecider } from "./workers/disputeDecide.js";
 import { startLifecycleReminders } from "./workers/lifecycleReminders.js";
 import { watchDlq, stopDlqWatch } from "./workers/_dlq.js";
 
@@ -97,6 +98,7 @@ async function boot() {
   startStableFxAdapter();
   startProofVerifier();
   startDisputeResolver();
+  startDisputeDecider();
   startLifecycleReminders();
 
   // Arc event subscriptions (only when contract addresses are pinned in env)

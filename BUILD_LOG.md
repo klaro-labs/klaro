@@ -2,6 +2,23 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Operator dispute-decide path wired (COVERAGE_GAPS #2 P0): the admin
+  `decideDisputeAction` threw `dispute_decide_not_yet_wired` in live mode (the web
+  can't hold the operator key, so nothing emitted `Decided` through the product —
+  the disputeResolver loop had no trigger). Now live-mode decide **enqueues** to a
+  new daemon worker `disputeDecide` which signs `DisputeManager.decide(caseId,
+  outcome, reasonHash, evidenceHash)` from the operator wallet; the resulting
+  `Decided` event drives the DB mirror (arcSubscriber) + the escrow resolution
+  (disputeResolver) — proof beats claims, the DB never leads the chain. Outcome→
+  ordinal mapped to the on-chain enum (RELEASE=1…MUTUAL=5); idempotent (`isDecided`
+  short-circuit) + fail-safe (simulate-then-write: a revert is a non-retryable
+  skip, transient errors retry). **Verified:** 7 unit tests (mapping, idempotency,
+  simulate-skip, bad-outcome-throws-before-chain); live integration smoke
+  (`qa-dispute-decide-route.ts`) drives the real DisputeManager + simulate-skips
+  (`DISPUTE_DECIDE_SMOKE_OK`); 55 daemon tests + build green. NOT yet proven: a
+  real decision landing, which needs an opened case on a funded escrow (the same
+  funded-lifecycle dependency as the resolve leg — documented in HUMAN_ACTIONS).
+
 - ✅ Test-coverage pass A+B (COVERAGE_GAPS.md #1+#2 — the highest risk-to-coverage
   gaps). **A — daemon money-movers (0→31 tests):** new `test/helpers/fakeInfra.ts`
   harness (chainable Supabase fake + queue/worker capture + arc client) drives the

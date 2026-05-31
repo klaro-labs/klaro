@@ -10,6 +10,7 @@ import {
   type DisputeOutcome,
 } from "@/lib/mockData";
 import { advanceCashout } from "@/lib/repo/cashouts";
+import * as disputesRepo from "@/lib/repo/disputes";
 import { requireOperator } from "@/lib/auth";
 import { record as auditRecord } from "@/lib/auditLog";
 import type { Hex } from "@/lib/types";
@@ -54,9 +55,52 @@ export async function decideDisputeAction(
   // pending). Simulated mode keeps working so M1 demos render.
   const { isLiveOnChain } = await import("@/lib/arcClient");
   if (isLiveOnChain()) {
-    throw new Error(
-      "dispute_decide_not_yet_wired: operator daemon must call DisputeManager.decide on chain before the DB row flips — refusing simulated-only write while contracts are live",
+    // Live: the web can't hold the operator key, so hand the decision to the
+    // daemon, which signs `DisputeManager.decide` on-chain. The resulting
+    // `Decided` event drives the DB mirror (arcSubscriber) + the escrow
+    // resolution (disputeResolver) — proof beats claims, the DB never leads the
+    // chain. Validate the cashout-outcome constraint up front; the contract
+    // re-checks context on resolve.
+    const live = await disputesRepo.getDispute(caseId);
+    if (!live) throw new Error("dispute not found");
+    if (
+      live.context === "cashout" &&
+      outcome !== "RELEASE_TO_CLAIMANT" &&
+      outcome !== "REFUND_TO_RESPONDENT" &&
+      outcome !== "SLASH_LP"
+    ) {
+      throw new Error("outcome cannot resolve a cashout dispute");
+    }
+    const reasonHash = REASON_HASHES[outcome];
+    const evidenceHash = _hash(note);
+    const { createQueue } = await import("@/lib/queue");
+    const decideQueue = createQueue<{
+      caseId: Hex;
+      outcome: DisputeOutcome;
+      reasonHash: Hex;
+      evidenceHash: Hex;
+    }>(
+      "dispute-decide",
+      // The real worker (signs DisputeManager.decide) runs in the daemon; this
+      // inline body is only hit in dev inline-mode, where isLiveOnChain() is
+      // false so this branch isn't reached.
+      async () => {},
     );
+    await decideQueue.enqueue(
+      { caseId, outcome, reasonHash, evidenceHash },
+      { idempotencyKey: `dispute-decide:${caseId}` },
+    );
+    auditRecord({
+      actor: session.vendor.id,
+      action: "dispute.decide",
+      subjectKind: "dispute",
+      subjectId: caseId,
+      reasonHash,
+      noteMd: `Operator decision ${outcome} enqueued for on-chain DisputeManager.decide`,
+      runbookId: "dispute-overdue",
+    });
+    revalidatePath("/admin/disputes");
+    return;
   }
   const dispute = await mockGetDispute(caseId);
   if (!dispute) throw new Error("dispute not found");
