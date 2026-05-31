@@ -364,6 +364,11 @@ export async function mockRecordWebhookDelivery(
   w.lastDeliveryAt = new Date();
   w.lastStatus = status;
 }
+export async function mockDeactivateWebhook(id: string): Promise<void> {
+  // Soft-delete: drop it from the map so mockListWebhooks no longer returns it,
+  // mirroring the live path's status='deleted' (filtered out by listWebhooks).
+  _webhooks.delete(id);
+}
 
 export interface Bill {
   id: string;
@@ -1544,7 +1549,12 @@ export async function mockUpdateVendorBranding(
 }
 
 // ── Klaro Link (payment links) ──────────────────────────────────────────────
-function seedLink(slug: string, amount: bigint, label: string | null, deactivated: boolean): PaymentLink {
+function seedLink(
+  slug: string,
+  amount: bigint,
+  label: string | null,
+  deactivated: boolean,
+): PaymentLink {
   return {
     id: `link-${slug}`,
     vendorId: "vendor-asha",
@@ -1570,7 +1580,11 @@ if (_links.size === 0) {
 }
 
 export function mockCreateLink(a: {
-  vendorId: string; slug: string; amount: bigint; label: string | null; expiresAt: Date | null;
+  vendorId: string;
+  slug: string;
+  amount: bigint;
+  label: string | null;
+  expiresAt: Date | null;
 }): PaymentLink {
   const v = _vendors.get(a.vendorId);
   const link: PaymentLink = {
@@ -1603,7 +1617,8 @@ export function mockListLinksForVendor(vendorId: string): PaymentLink[] {
     .sort((a, b) => +b.createdAt - +a.createdAt);
 }
 export function mockDeactivateLink(id: string): void {
-  for (const l of _links.values()) if (l.id === id) l.deactivatedAt = new Date();
+  for (const l of _links.values())
+    if (l.id === id) l.deactivatedAt = new Date();
 }
 export function mockIncrementLinkPaid(id: string): void {
   for (const l of _links.values()) if (l.id === id) l.paidCount += 1;

@@ -11,6 +11,7 @@ import {
   mockCreateWebhook,
   mockGetWebhook,
   mockRecordWebhookDelivery,
+  mockDeactivateWebhook,
   type WebhookEndpoint,
 } from "../mockData";
 
@@ -40,7 +41,9 @@ function fromRow(row: Row): WebhookEndpoint {
 
 const SELECT = "id,vendor_id,url,events,status,created_at";
 
-export async function listWebhooks(vendorId: string): Promise<WebhookEndpoint[]> {
+export async function listWebhooks(
+  vendorId: string,
+): Promise<WebhookEndpoint[]> {
   const c = await tryDb();
   if (!c) return mockListWebhooks(vendorId);
   const { data, error } = await c
@@ -72,11 +75,14 @@ export async function createWebhook(input: {
 }): Promise<WebhookEndpoint> {
   const c = await tryDb();
   if (!c) return mockCreateWebhook(input);
-  const { data, error } = await (c as unknown as RpcClient).rpc("webhook_create", {
-    p_vendor_id: input.vendorId,
-    p_url: input.url,
-    p_events: input.events,
-  });
+  const { data, error } = await (c as unknown as RpcClient).rpc(
+    "webhook_create",
+    {
+      p_vendor_id: input.vendorId,
+      p_url: input.url,
+      p_events: input.events,
+    },
+  );
   if (error) throw new Error(error.message);
   const row = (Array.isArray(data) ? data[0] : data) as {
     id: string;
@@ -91,6 +97,23 @@ export async function createWebhook(input: {
     active: true,
     createdAt: new Date(),
   };
+}
+
+/** Soft-delete an endpoint the vendor owns (status='deleted', filtered out of
+ * listWebhooks). The "webhooks vendor scope" ALL RLS policy gates the UPDATE to
+ * the owning vendor; the explicit vendor_id match is defense-in-depth. */
+export async function deactivateWebhook(
+  id: string,
+  vendorId: string,
+): Promise<void> {
+  const c = await tryDb();
+  if (!c) return void mockDeactivateWebhook(id);
+  const { error } = await c
+    .from("webhooks")
+    .update({ status: "deleted" })
+    .eq("id", id)
+    .eq("vendor_id", vendorId);
+  if (error) throw error;
 }
 
 /** Best-effort audit row for a test ping. The HTTP ping itself already ran and

@@ -5,7 +5,8 @@ import { listWebhooks } from "@/lib/repo/webhooks";
 import { relativeTime } from "@/lib/money";
 import { queueLive } from "@/lib/env";
 import { getT } from "@/lib/i18n";
-import { createWebhookAction } from "./actions";
+import { WebhookCreateForm } from "./WebhookCreateForm";
+import { DeactivateWebhookButton } from "./DeactivateWebhookButton";
 import { TestPingButton } from "./TestPingButton";
 
 export default async function WebhooksPage() {
@@ -34,29 +35,10 @@ export default async function WebhooksPage() {
           </Badge>
         </div>
 
-        <form
-          action={createWebhookAction}
-          className="grid grid-cols-1 gap-3 rounded-lg border border-[var(--color-line)] bg-white p-6 md:grid-cols-[1fr_auto] md:items-end"
-        >
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="text-[var(--color-ink-muted)]">
-              {t("webhooks.urlLabel")}
-            </span>
-            <input
-              name="url"
-              type="url"
-              required
-              placeholder="https://yourapp.com/klaro-webhook"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
-            />
-          </label>
-          <button
-            type="submit"
-            className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-          >
-            {t("webhooks.addEndpoint")}
-          </button>
-        </form>
+        <WebhookCreateForm
+          urlLabel={t("webhooks.urlLabel")}
+          addLabel={t("webhooks.addEndpoint")}
+        />
 
         <div className="mt-3 rounded border border-[var(--color-line)] bg-[var(--color-bg)] p-3 text-xs text-[var(--color-ink-muted)]">
           <p className="font-medium text-[var(--color-ink)]">
@@ -107,7 +89,10 @@ export default async function WebhooksPage() {
                       </div>
                     )}
                   </div>
-                  <TestPingButton id={w.id} url={w.url} />
+                  <div className="flex shrink-0 items-start gap-2">
+                    <TestPingButton id={w.id} url={w.url} />
+                    <DeactivateWebhookButton id={w.id} />
+                  </div>
                 </div>
               </li>
             ))}
