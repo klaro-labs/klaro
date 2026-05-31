@@ -1,12 +1,29 @@
 # Klaro — Master Audit (company-level fleet)
 
 Date: 2026-05-31 · Scope: ~473 source files / ~58.6k LOC.
-Coverage: **8 of 13 departments executed** (every high/critical-risk one) by a
-16-agent fleet across 4 batches. Lower-risk departments (D10 QA, D11 Design,
-D12 DevOps, D13 Compliance, D1 Executive) are planned in `PLAN.md` and queued.
+Coverage: **13 of 13 departments executed** by a 20-agent fleet across 5 batches.
 
-Per-department detail: `D3a/b/c/d`, `D8a/b/c`, `D7a/b`, `D6a/b`, `D2`, `D4`,
-`D5`, `D9` `.md` files in this folder.
+Per-department detail: `D1`–`D13` `.md` files in this folder.
+
+## ✅ Fixed this session (gate-verified: 518 forge · 105 web · 11 daemon · typecheck · lint)
+- **C2** RLS write gaps → migration `0036` (team/disputes/webhook_deliveries policies). *Live-untested (pooler).*
+- **C1** RetainerStream "cross-stream drain" → **investigated, false positive**; added a regression test proving value conservation + no drain in the exact feared scenario (also fills the untested-path gap D2/D10 flagged).
+- Agent-advance **TOCTOU** → atomic `fromStatus` precondition.
+- Agent/stream **dispute ownership now uses the live repo** (was mock → always failed live).
+- Daemon **`MUTUAL_RESOLVED` (outcome 5)** mapping → migration `0037` adds the enum value; Decided handler.
+- Daemon **Decided notify ordering** → DB-sync failure no longer blocks the admin notify.
+- **CSP** `connect-src` wildcard in middleware → tightened to the next.config allowlist.
+- **Timing-safe** CRON auth compare.
+- **Audit-action codes** → distinct codes for LP onboarding + retainer ops (was all `lp.admit`).
+- **DisputeManager.setOperator(0)** guard (HIGH-1 brick).
+
+## D10–D13 additions (this batch)
+- **D10 QA:** Echidna + Halmos harnesses are **stubs that revert** — README claims formal verification it doesn't run. Daemon workers that move USDC are largely untested; team/webhooks repos untested.
+- **D13 Compliance:** README "screened end to end" but all screening providers are simulated stubs (overclaim); on-chain counterparty gate is fail-open (`counterpartyStrict=false`); AgentRegistry stores `displayName` on-chain (vs "no PII on-chain").
+- **D11 Design:** MegaMenu is hover-only (keyboard-inaccessible), no skip-link, forms lack inline validation, brand-token files ship pre-fix failing-contrast values.
+- **D12 DevOps:** CI doesn't gate lint/format; Dockerfile uses unpinned `pnpm@latest`; no rollback/DLQ-replay runbook.
+
+
 
 ---
 
