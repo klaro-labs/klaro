@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
-import { mockListWebhooks } from "@/lib/mockData";
+import { listWebhooks } from "@/lib/repo/webhooks";
 import { relativeTime } from "@/lib/money";
 import { queueLive } from "@/lib/env";
 import { getT } from "@/lib/i18n";
@@ -12,7 +12,7 @@ export default async function WebhooksPage() {
   const t = await getT();
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
-  const endpoints = await mockListWebhooks(session.vendor.id);
+  const endpoints = await listWebhooks(session.vendor.id);
 
   return (
     <div>

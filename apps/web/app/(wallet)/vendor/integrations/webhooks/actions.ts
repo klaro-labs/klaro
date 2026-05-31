@@ -1,11 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
-  mockCreateWebhook,
-  mockGetWebhook,
-  mockRecordWebhookDelivery,
-} from "@/lib/mockData";
+import * as webhooksRepo from "@/lib/repo/webhooks";
 import { requireVendor } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 import { sendTestPing } from "@/lib/webhooks";
@@ -35,7 +31,7 @@ export async function createWebhookAction(formData: FormData): Promise<void> {
   await assertPublicHttpUrl(url);
 
   try {
-    await mockCreateWebhook({
+    await webhooksRepo.createWebhook({
       vendorId: session.vendor.id,
       url,
       events: ALL_EVENTS,
@@ -56,14 +52,14 @@ export async function createWebhookAction(formData: FormData): Promise<void> {
 export async function testWebhookAction(id: string) {
   const session = await requireVendor();
   try {
-    const webhook = await mockGetWebhook(id);
+    const webhook = await webhooksRepo.getWebhook(id);
     if (!webhook) throw new Error("webhook not found");
     if (webhook.vendorId !== session.vendor.id)
       throw new Error("webhook belongs to a different vendor");
     // web P2: pass vendorId so test-ping webhookId is per-tenant
     // (was hardcoded "test-ping" → cross-tenant collision on same URL).
     const res = await sendTestPing(webhook.url, session.vendor.id);
-    await mockRecordWebhookDelivery(id, res.ok ? "ok" : "fail");
+    await webhooksRepo.recordDelivery(id, res.ok ? "ok" : "fail");
     revalidatePath("/vendor/integrations/webhooks");
     return res;
   } catch (e) {
