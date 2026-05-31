@@ -14,12 +14,18 @@ import { requireVendor } from "@/lib/auth";
 // RCF1 (recurring frequency). Reject pre-store.
 const TEAM_ROLE = z.enum(["Owner", "Admin", "Member", "ReadOnly"]);
 
-/** Owner-or-admin gate. Members + read-only cannot mutate team. */
+/** Owner-or-admin gate. Members + read-only cannot mutate team.
+ *
+ * The account holder is the tenant Owner by definition — `vendor_team_members`
+ * holds the *invited* teammates, so the owner has no self-row there. A missing
+ * self-row therefore means "owner" (allow); only an explicit non-privileged
+ * team-member row (Member / ReadOnly) restricts management. (Without this, a
+ * vendor with no teammates could never invite their first one.) */
 async function _assertCanManageTeam(): Promise<{ vendorId: string }> {
   const s = await requireVendor();
   const team = await teamRepo.listTeam(s.vendor.id);
   const self = team.find((m) => m.email === s.vendor.email);
-  if (!self || (self.role !== "Owner" && self.role !== "Admin")) {
+  if (self && self.role !== "Owner" && self.role !== "Admin") {
     throw new Error("Owner or Admin role required");
   }
   return { vendorId: s.vendor.id };
