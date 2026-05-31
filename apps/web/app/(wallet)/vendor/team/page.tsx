@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
-import { mockListTeam } from "@/lib/mockData";
+import { listTeam } from "@/lib/repo/team";
 import { relativeTime } from "@/lib/money";
 import { supabaseLive } from "@/lib/env";
 import {
@@ -28,7 +28,7 @@ const ROLE_TONE: Record<string, "live" | "info" | "neutral" | "sim"> = {
 export default async function TeamPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
-  const team = await mockListTeam(session.vendor.id);
+  const team = await listTeam(session.vendor.id);
 
   return (
     <div className="mx-auto w-full max-w-[1100px] px-4 py-6 md:px-6 md:py-10">
