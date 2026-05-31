@@ -2,6 +2,8 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Team persistence (base gap #3): `lib/repo/team.ts` dual-mode; invite/role/remove + team page now persist to `vendor_team_members` (klaro_role case-mapped; status from accepted_at/removed_at); migration 0034 makes `supabase_user_id` nullable for pending invites. Gate-verified green (105 web tests).
+
 - ✅ Agents persistence (base gap #2): `lib/repo/agentJobs.ts` dual-mode; `createJobAction`/`advanceJobAction` + agent read pages now persist to `agent_jobs` (dropped `agents_not_yet_persistent` gates); state-machine guards retained; schema aligned (0033). Gate-verified green (105 web tests).
 
 - ✅ Disputes persistence (base gap #1): dual-mode `lib/repo/disputes.ts`; vendor/LP/admin/API open + evidence now persist to Supabase (dropped `disputes_not_yet_persistent` gates); all read paths live; daemon flips the row to DECIDED from the on-chain `Decided` event (proof-beats-claims); schema aligned (0032) + repo round-trip test. Gate-verified green; live multi-wallet E2E pending env (see HUMAN_ACTIONS_NEEDED).
