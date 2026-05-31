@@ -5,10 +5,10 @@ import { redirect } from "next/navigation";
 import { keccak256, toBytes } from "viem";
 import { z } from "zod";
 import {
-  mockGetAgentJob,
   mockGetStream,
 } from "@/lib/mockData";
 import * as disputesRepo from "@/lib/repo/disputes";
+import { getJob as getAgentJob } from "@/lib/repo/agentJobs";
 import { getCashout } from "@/lib/repo/cashouts";
 import { getInvoice } from "@/lib/repo/invoices";
 import { requireVendor } from "@/lib/auth";
@@ -71,9 +71,11 @@ export async function openDisputeAction(formData: FormData): Promise<void> {
       const inv = await getInvoice(contextRefId);
       sourceVendorId = inv?.vendorId ?? null;
     } else if (context === "agent") {
-      const aj = await mockGetAgentJob(contextRefId);
+      const aj = await getAgentJob(contextRefId);
       sourceVendorId = aj?.vendorId ?? null;
     } else if (context === "stream") {
+      // stream has no repo yet (mock-only) — live stream disputes are gated
+      // until RetainerStream gets a dual-mode repo (tracked in the audit).
       const st = await mockGetStream(contextRefId);
       sourceVendorId = st?.vendorId ?? null;
     }

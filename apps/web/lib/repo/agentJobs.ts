@@ -109,6 +109,7 @@ const STATUS_TS: Record<string, string> = {
 export async function advanceJob(
   jobId: string,
   to: AgentJobStatus,
+  fromStatus: AgentJobStatus,
   patch?: { deliverableHash?: Hex },
 ): Promise<AgentJob | null> {
   const c = await tryDb();
@@ -117,10 +118,14 @@ export async function advanceJob(
   const tsCol = STATUS_TS[to];
   if (tsCol) update[tsCol] = new Date().toISOString();
   if (patch?.deliverableHash) update.deliverable_hash = patch.deliverableHash;
+  // Atomic precondition: only transition if the row is still in fromStatus.
+  // Guards the TOCTOU between the action's read and this write — a concurrent
+  // advance loses the race and gets a null row back (caller treats as failure).
   const { data, error } = await c
     .from("agent_jobs")
     .update(update as unknown as TablesUpdate<"agent_jobs">)
     .eq("job_id", jobId)
+    .eq("status", fromStatus)
     .select()
     .maybeSingle();
   if (error) throw error;

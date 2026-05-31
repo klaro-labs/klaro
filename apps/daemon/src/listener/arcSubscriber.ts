@@ -784,6 +784,7 @@ export function startArcListener() {
               2: "REFUND_TO_RESPONDENT",
               3: "SLASH_LP",
               4: "PENALIZE_VENDOR",
+              5: "MUTUAL_RESOLVED",
             };
             const outcome = DB_OUTCOME[Number(ev.args.outcome)];
             if (ev.args.caseId) {
@@ -796,7 +797,15 @@ export function startArcListener() {
                   decided_at: new Date().toISOString(),
                 })
                 .eq("case_id", ev.args.caseId);
-              if (error) throw error;
+              if (error) {
+                // Don't bail — notify-admin below must still fire so a human
+                // is alerted even if the DB sync failed; a reconciler can fix
+                // the row from on-chain truth. (Matches InvoicePaid pattern.)
+                log.error("event.Decided.dbSync.failed", {
+                  caseId: ev.args.caseId,
+                  err: error.message,
+                });
+              }
             }
             await queue("notify-admin").add(ev.args.caseId ?? "", {
               kind: "dispute.decided",

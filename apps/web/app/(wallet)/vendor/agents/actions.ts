@@ -108,7 +108,11 @@ export async function advanceJobAction(
     if (to === "DELIVERED" && !patch?.deliverableHash) {
       throw new Error("deliverableHash required to mark DELIVERED");
     }
-    await agentJobsRepo.advanceJob(jobId, to, patch);
+    const advanced = await agentJobsRepo.advanceJob(jobId, to, job.status, patch);
+    if (!advanced) {
+      // Lost the atomic precondition — the job moved under us concurrently.
+      throw new Error(`illegal transition: job no longer in ${job.status}`);
+    }
     auditRecord({
       actor: session.vendor.id,
       // F-2: was "agent.reactivate" (wrong code; audit log lied).

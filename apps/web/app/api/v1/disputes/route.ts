@@ -3,11 +3,11 @@ import { DisputeOpenReq } from "@/lib/apiSchemas";
 import { requireVendor } from "@/lib/auth";
 import { keccak256, stringToBytes } from "viem";
 import {
-  mockGetAgentJob,
   mockGetStream,
   type DisputeContext,
 } from "@/lib/mockData";
 import * as disputesRepo from "@/lib/repo/disputes";
+import { getJob as getAgentJob } from "@/lib/repo/agentJobs";
 import { getCashout } from "@/lib/repo/cashouts";
 import { dollarsToUSDC } from "@/lib/money";
 import type { Hex } from "@/lib/types";
@@ -53,7 +53,7 @@ export const POST = handle(DisputeOpenReq, async (input) => {
       respondentId = c.lpId;
     }
   } else if (input.source === "agent") {
-    const j = await mockGetAgentJob(input.sourceId);
+    const j = await getAgentJob(input.sourceId);
     if (!j || j.vendorId !== session.vendor.id) {
       throw new Error("source_not_owned_by_caller");
     }
