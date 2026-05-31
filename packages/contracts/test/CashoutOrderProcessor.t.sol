@@ -296,6 +296,64 @@ contract CashoutOrderProcessorTest is Test {
         );
     }
 
+    // audit COVERAGE_contracts P0: the RELEASE_TO_CLAIMANT fund-moving branch
+    // (pays the vendor the full order, no slash) was untested.
+    function test_resolveDispute_releaseToClaimant_paysVendor() public {
+        DisputeManager dm = new DisputeManager(operator);
+        dm.setTrustedCaller(address(proc), true);
+        proc.setDisputes(dm);
+        _request();
+        vm.prank(operator);
+        proc.claimByLP(CO_ID, LP_ID);
+        vm.prank(operator);
+        proc.recordProof(CO_ID, _sampleProof());
+        vm.prank(vendor);
+        proc.openDispute(CO_ID, keccak256("evidence"));
+        dm.assignToReview(CO_ID);
+        dm.decide(
+            CO_ID,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
+            keccak256("klaro.reason.DISPUTE_USER_FAULT"),
+            bytes32(0)
+        );
+
+        uint256 vendorBefore = usdc.balanceOf(vendor);
+        vm.prank(operator);
+        proc.resolveDispute(CO_ID, 0, keccak256("klaro.reason.DISPUTE_USER_FAULT"));
+
+        assertEq(usdc.balanceOf(vendor), vendorBefore + USDC_AMT);
+        assertEq(
+            uint8(proc.getOrder(CO_ID).status),
+            uint8(CashoutOrderProcessor.Status.RESOLVED_VENDOR_PAYS)
+        );
+        // no slash recorded on a release outcome
+        assertEq(staking.getLP(LP_ID).slashedTotal, 0);
+    }
+
+    // RELEASE/REFUND outcomes forbid a non-zero slash amount.
+    function test_resolveDispute_releaseWithSlash_reverts() public {
+        DisputeManager dm = new DisputeManager(operator);
+        dm.setTrustedCaller(address(proc), true);
+        proc.setDisputes(dm);
+        _request();
+        vm.prank(operator);
+        proc.claimByLP(CO_ID, LP_ID);
+        vm.prank(operator);
+        proc.recordProof(CO_ID, _sampleProof());
+        vm.prank(vendor);
+        proc.openDispute(CO_ID, keccak256("evidence"));
+        dm.assignToReview(CO_ID);
+        dm.decide(
+            CO_ID,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
+            keccak256("klaro.reason.DISPUTE_USER_FAULT"),
+            bytes32(0)
+        );
+        vm.prank(operator);
+        vm.expectRevert(CashoutOrderProcessor.SlashNotAllowed.selector);
+        proc.resolveDispute(CO_ID, 1, keccak256("klaro.reason.DISPUTE_USER_FAULT"));
+    }
+
     // regression: when LPStaking is paused independently
     // (owner investigating a staking bug), SLASH_LP resolution used to
     // revert wholesale — cashout stuck in DISPUTED, vendor not paid,
