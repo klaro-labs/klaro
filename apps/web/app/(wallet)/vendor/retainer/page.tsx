@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
-import {
-  mockListStreams,
-  vestedAmountFor,
-  withdrawableAmountFor,
-} from "@/lib/mockData";
+import { vestedAmountFor, withdrawableAmountFor } from "@/lib/mockData";
+import { listStreams } from "@/lib/repo/retainerStreams";
+import { supabaseLive } from "@/lib/env";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import {
   createStreamAction,
@@ -17,7 +15,15 @@ import { LiveCounter } from "./LiveCounter";
 export default async function RetainerPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
-  const streams = await mockListStreams(session.vendor.id);
+  const streams = await listStreams(session.vendor.id);
+  // The stream RECORD + its accounting persist (supabaseLive). The on-chain
+  // RetainerStream.createStream() funding leg needs the client (payer) to sign
+  // an approve+fund tx through an accept flow — no payer wallet is present in
+  // the single-vendor dashboard — so vesting is a local simulation, labeled.
+  const persisted = supabaseLive();
+  // Shared server render time, handed to every LiveCounter so SSR and the first
+  // client render agree on the per-second vested figure (no hydration mismatch).
+  const nowMs = Date.now();
 
   return (
     <div>
@@ -36,9 +42,26 @@ export default async function RetainerPage() {
               vested portion stays yours.
             </p>
           </div>
-          <Badge tone="info">
-            {streams.length} {streams.length === 1 ? "stream" : "streams"}
+          <Badge tone={persisted ? "info" : "sim"}>
+            {persisted
+              ? "Recorded · on-chain funding pending"
+              : "Simulated session"}
           </Badge>
+        </div>
+
+        <div className="mb-6 rounded border border-[var(--color-line)] bg-[var(--color-bg)] p-3 text-xs text-[var(--color-ink-muted)]">
+          <p className="font-medium text-[var(--color-ink)]">
+            Vesting is simulated (on-chain funding partner-pending)
+          </p>
+          <p className="mt-1">
+            Each stream is recorded in Klaro and vests linearly here so you can
+            preview the schedule. The on-chain{" "}
+            <code className="font-mono">RetainerStream.createStream()</code>{" "}
+            deposit requires the <strong>client</strong> to sign an approve+fund
+            transaction through an accept flow — no payer wallet is present in
+            this dashboard — so no USDC is locked or moved on-chain yet, and a
+            withdrawal here updates the record without a token transfer.
+          </p>
         </div>
 
         <h2 className="mb-3 font-display text-xl font-semibold">
@@ -103,9 +126,11 @@ export default async function RetainerPage() {
               Generate stream request
             </button>
             <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
-              Sends client a Klaro link to fund the stream via{" "}
-              <code className="font-mono">RetainerStream.createStream()</code>.
-              Funds lock immediately on accept.
+              Records the stream and starts the local vesting schedule. On-chain
+              funding via{" "}
+              <code className="font-mono">RetainerStream.createStream()</code>{" "}
+              is partner-pending — it needs the client to sign an approve+fund
+              tx through an accept flow, so no USDC locks on-chain yet.
             </p>
           </div>
         </form>
@@ -143,13 +168,14 @@ export default async function RetainerPage() {
                           : `ends ${relativeTime(s.endAt)}`}
                       </p>
                     </div>
-                    <Badge tone={cancelled ? "neutral" : "live"}>
-                      {cancelled ? "Cancelled" : "Streaming"}
+                    <Badge tone={cancelled ? "neutral" : "info"}>
+                      {cancelled ? "Cancelled" : "Vesting (simulated)"}
                     </Badge>
                   </div>
 
                   <div className="mt-4">
                     <LiveCounter
+                      nowMs={nowMs}
                       s={{
                         depositUsdcStr: s.depositUsdc.toString(),
                         withdrawnUsdcStr: s.withdrawnUsdc.toString(),

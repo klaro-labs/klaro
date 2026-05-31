@@ -1,12 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
-  mockCreateStream,
-  mockGetStream,
-  mockWithdrawFromStream,
-  mockCancelStream,
-} from "@/lib/mockData";
+import * as streamsRepo from "@/lib/repo/retainerStreams";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 import { record as auditRecord } from "@/lib/auditLog";
@@ -43,7 +38,7 @@ export async function createStreamAction(formData: FormData): Promise<void> {
     throw new Error("validation_days_out_of_range: days must be integer 1-365");
 
   try {
-    const stream = await mockCreateStream({
+    const stream = await streamsRepo.createStream({
       vendorId: session.vendor.id,
       payerLabel,
       payerAddress,
@@ -72,11 +67,11 @@ export async function withdrawStreamAction(
 ): Promise<void> {
   const session = await requireVendor();
   try {
-    const stream = await mockGetStream(streamId);
+    const stream = await streamsRepo.getStream(streamId);
     if (!stream) throw new Error("stream not found");
     if (stream.vendorId !== session.vendor.id)
       throw new Error("stream belongs to a different vendor");
-    await mockWithdrawFromStream(streamId, amountUsdcMicro);
+    await streamsRepo.withdrawFromStream(streamId, amountUsdcMicro);
     auditRecord({
       actor: session.vendor.id,
       action: "retainer.withdraw",
@@ -98,11 +93,11 @@ export async function withdrawStreamAction(
 export async function cancelStreamAction(streamId: Hex): Promise<void> {
   const session = await requireVendor();
   try {
-    const stream = await mockGetStream(streamId);
+    const stream = await streamsRepo.getStream(streamId);
     if (!stream) throw new Error("stream not found");
     if (stream.vendorId !== session.vendor.id)
       throw new Error("stream belongs to a different vendor");
-    await mockCancelStream(streamId);
+    await streamsRepo.cancelStream(streamId);
     auditRecord({
       actor: session.vendor.id,
       action: "retainer.cancel",

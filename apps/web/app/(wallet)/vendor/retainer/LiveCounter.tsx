@@ -12,6 +12,11 @@ interface Props {
     cancelledAtMs?: number;
     cancelledVestedStr?: string;
   };
+  /** Server render time, passed in so SSR and the first client render agree on
+   * `vested` (otherwise the per-second value diverges and React throws a
+   * hydration mismatch, which also disrupts the inline server-action forms on
+   * this page). After mount the effect switches to live wall-clock. */
+  nowMs: number;
 }
 
 function fmt(microUsdc: bigint): string {
@@ -34,14 +39,16 @@ function vestedAt(
   return (deposit * elapsed) / span;
 }
 
-export function LiveCounter({ s }: Props) {
+export function LiveCounter({ s, nowMs }: Props) {
   const deposit = BigInt(s.depositUsdcStr);
   const withdrawn = BigInt(s.withdrawnUsdcStr);
   const cancelledVested = s.cancelledVestedStr
     ? BigInt(s.cancelledVestedStr)
     : undefined;
 
-  const [now, setNow] = useState<number>(() => Date.now());
+  // Seed from the server render time so the hydration render matches the SSR
+  // output exactly; the effect below takes over with live time after mount.
+  const [now, setNow] = useState<number>(nowMs);
 
   useEffect(() => {
     if (s.cancelledAtMs) return;

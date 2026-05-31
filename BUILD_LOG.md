@@ -2,6 +2,25 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Retainer-stream persistence (T1 honest-mode #2): create/withdraw/cancel
+  wrote to `mockData` only — a created stream vanished on a cold start in live
+  mode, and the form falsely claimed "Funds lock immediately on accept" /
+  "RetainerStream.createStream()" as if USDC moved on-chain. New
+  `lib/repo/retainerStreams.ts` dual-mode wrapper persists the stream + its
+  vesting accounting to `retainer_streams` (**0041**, vendor-scoped RLS,
+  numeric(78,0) micro-USDC round-tripped through BigInt); the page reads from the
+  repo. Honest relabel: the on-chain funding leg needs the **client** (payer) to
+  sign an approve+fund tx through an accept flow (no payer wallet in the
+  single-vendor dashboard), so vesting is labeled a local **simulation** with a
+  "no USDC is locked or moved on-chain" banner; the active badge dropped its
+  green "live" tone for "Vesting (simulated)". Also fixed a `LiveCounter`
+  hydration mismatch (per-second value now seeded from a server `nowMs` prop).
+  **Verified like a real user** (`pb-retainer.ts`, magic-link on :3100): create →
+  `retainer_streams` row persists → (service-role backdates `start_at` to
+  simulate elapsed time) → Withdraw → `withdrawn_usdc` moves to the vested half →
+  Cancel → `cancelled_at` + `cancelled_vested` frozen, badge flips
+  (`RETAINER_E2E_OK`). Lint + 105 web tests + typecheck green.
+
 - ✅ Delegations persistence (T1 honest-mode #1): session-key issue/revoke wrote
   to `mockData` only — keys looked issued but vanished on a cold start in live
   mode. New `lib/repo/delegations.ts` dual-mode wrapper persists to a new
