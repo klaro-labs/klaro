@@ -46,6 +46,10 @@ vi.mock("@/lib/env", async (importOriginal) => ({
   supabaseLive: () => false,
 }));
 
+// The agent actions persist via lib/repo/agentJobs, which routes through
+// tryDb(). Force null so the repo uses the in-memory mock store the test seeds.
+vi.mock("@/lib/db", () => ({ tryDb: vi.fn(async () => null) }));
+
 async function seedJob() {
   const agentId = ("0xa9" + "0".repeat(62)) as Hex;
   const job = await mockCreateAgentJob({

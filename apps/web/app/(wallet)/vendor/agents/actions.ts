@@ -2,14 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import {
-  mockCreateAgentJob,
-  mockAdvanceAgentJob,
   mockGetAgent,
-  mockGetAgentJob,
   type AgentJobStatus,
 } from "@/lib/mockData";
+import * as agentJobsRepo from "@/lib/repo/agentJobs";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
-import { supabaseLive } from "@/lib/env";
 import { captureError } from "@/lib/sentry";
 import { record as auditRecord } from "@/lib/auditLog";
 import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
@@ -28,16 +25,6 @@ import type { Hex } from "@/lib/types";
 
 export async function createJobAction(formData: FormData): Promise<void> {
   const session = await requireVendor();
-  // refuse in live mode. The mock-driven path below writes to
-  // process memory only — vendor sees a "job created" toast, then on
-  // cold start the row is gone. Same honest-label class as 's
-  // mock-disputes leak (W87-4 fix) and 's W89-3 brand mock-leak.
-  // Persistence + AgentEscrow.createJob wiring land M11.
-  if (supabaseLive()) {
-    throw new Error(
-      "agents_not_yet_persistent: agent jobs persist only in dev/simulator mode; live AgentEscrow.createJob wiring + Supabase persistence land M11",
-    );
-  }
   assertVendorWalletProvisioned(session.vendor);
   const agentId = String(formData.get("agentId") ?? "");
   const amount = Number(formData.get("amount") ?? 0);
@@ -58,7 +45,7 @@ export async function createJobAction(formData: FormData): Promise<void> {
     // error instead of a stuck job that can never advance.
     if (!agent.active) throw new Error("agent is inactive — pick another");
 
-    const job = await mockCreateAgentJob({
+    const job = await agentJobsRepo.createJob({
       vendorId: session.vendor.id,
       agentId,
       agentLabel: agent.displayName,
@@ -108,14 +95,8 @@ export async function advanceJobAction(
   patch?: { deliverableHash?: Hex },
 ): Promise<void> {
   const session = await requireVendor();
-  // same M11 deferral as createJobAction.
-  if (supabaseLive()) {
-    throw new Error(
-      "agents_not_yet_persistent: agent job advancement requires AgentEscrow wiring (M11)",
-    );
-  }
   try {
-    const job = await mockGetAgentJob(jobId);
+    const job = await agentJobsRepo.getJob(jobId);
     if (!job) throw new Error("job not found");
     if (job.vendorId !== session.vendor.id)
       throw new Error("job belongs to a different vendor");
@@ -127,7 +108,7 @@ export async function advanceJobAction(
     if (to === "DELIVERED" && !patch?.deliverableHash) {
       throw new Error("deliverableHash required to mark DELIVERED");
     }
-    await mockAdvanceAgentJob(jobId, to, patch);
+    await agentJobsRepo.advanceJob(jobId, to, patch);
     auditRecord({
       actor: session.vendor.id,
       // F-2: was "agent.reactivate" (wrong code; audit log lied).

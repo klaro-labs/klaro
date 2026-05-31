@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
 import {
-  mockListAgentJobs,
   mockListAgents,
   type AgentJobStatus,
 } from "@/lib/mockData";
+import { listForVendor as listAgentJobs } from "@/lib/repo/agentJobs";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { createJobAction, advanceJobAction } from "./actions";
 import type { Hex } from "@/lib/types";
@@ -81,7 +81,7 @@ export default async function VendorAgentsPage({
       </div>
     );
   }
-  const jobs = await mockListAgentJobs(session.vendor.id);
+  const jobs = await listAgentJobs(session.vendor.id);
   const agents = await mockListAgents();
   const preselected = hire ? agents.find((a) => a.agentId === hire) : null;
 

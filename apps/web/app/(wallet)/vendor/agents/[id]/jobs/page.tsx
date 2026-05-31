@@ -2,7 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
-import { mockGetAgent, mockListAgentJobs } from "@/lib/mockData";
+import { mockGetAgent } from "@/lib/mockData";
+import { listForVendor as listAgentJobs } from "@/lib/repo/agentJobs";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 
 export const metadata = { title: "Agent jobs · Klaro" };
@@ -29,7 +30,7 @@ export default async function VendorAgentJobsPage({
   const agent = await mockGetAgent(id);
   if (!agent) notFound();
 
-  const allJobs = await mockListAgentJobs(session.vendor.id);
+  const allJobs = await listAgentJobs(session.vendor.id);
   const jobs = allJobs.filter((j) => j.agentId === id);
 
   return (
