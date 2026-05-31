@@ -2,6 +2,25 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Cashout fiat-leg honest labeling (Task 3): verified the on-chain legs are
+  real + DB-mirrored — `recordCashoutRequestedAction` reads `getOrder` and
+  requires on-chain `status==LOCKED` + vendor/amount/quoteHash match before
+  writing the row (LF-3, proof-beats-claims), and the daemon `cashoutAdvancer`
+  signs `claimByLP`/`recordProof`/`operatorConfirmReceived` on Arc then mirrors
+  the DB (and already refuses to anchor a `payout_proofs.simulated` proof
+  on-chain). The gap was the UI: in on-chain-live mode (`session.simulated=false`)
+  the detail page presented the **fiat** (local-currency) payout leg as real,
+  but no licensed money-transmitter exists on testnet. Added a `cashoutFiatLive()`
+  env flag (`CASHOUT_FIAT_PARTNER`, defaults false — none wired) and an honest
+  banner on `/vendor/cashout/[id]`: "Local-currency payout is partner-pending —
+  the USDC lock + release on Arc are real, but the INR leg is simulated (licensed
+  partner is mainnet-only)"; the UTR note now reads "simulated reference — no real
+  payout sent". **Verified like a real user** (`pb-cashout-fiat.ts`: service-role
+  provisions a PROOF_SUBMITTED order, vendor views it live, asserts the banner +
+  UTR caveat render while on-chain framing stays "real") — `CASHOUT_FIAT_E2E_OK`.
+  Documented the new env in `.env.example` (drift-guard test). Lint + 105 web
+  tests + typecheck green.
+
 - ✅ LP-profile persistence (T1 honest-mode #4 — final T1 surface): the LP write
   actions (invite / apply / submit-docs / approve / **stake** / **rotate payout
   wallet**) wrote to `mockData` only — every LP mutation vanished on a cold start

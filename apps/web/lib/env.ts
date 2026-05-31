@@ -55,6 +55,16 @@ export const SUPABASE_SERVICE_ROLE_KEY = opt("SUPABASE_SERVICE_ROLE_KEY");
 export const supabaseLive = (): boolean =>
   Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+/**
+ * Is a licensed local-currency (fiat) payout partner wired? The on-chain USDC
+ * lock + release run on Arc testnet, but the fiat leg (e.g. INR via UPI) needs a
+ * licensed money-transmitter partner, which is mainnet-only. Defaults false:
+ * until a partner is set, the cashout fiat leg is simulated and the UI must say
+ * so — even in on-chain-live mode (honest-mode rule). No env wires it today.
+ */
+export const cashoutFiatLive = (): boolean =>
+  Boolean(opt("CASHOUT_FIAT_PARTNER"));
+
 // ─── Circle Wallets (M4 vendor onboarding + signing) ─────────────────
 export const CIRCLE_CLIENT_KEY = pub(process.env.NEXT_PUBLIC_CIRCLE_CLIENT_KEY);
 export const CIRCLE_API_KEY = opt("CIRCLE_API_KEY");
@@ -146,7 +156,9 @@ export const KLARO_FEE_RECEIVER = pub(
 );
 
 // ─── MoonPay sandbox (M10) ───────────────────────────────────────────
-export const MOONPAY_PUBLIC_KEY = pub(process.env.NEXT_PUBLIC_MOONPAY_PUBLIC_KEY);
+export const MOONPAY_PUBLIC_KEY = pub(
+  process.env.NEXT_PUBLIC_MOONPAY_PUBLIC_KEY,
+);
 export const MOONPAY_SECRET_KEY = opt("MOONPAY_SECRET_KEY");
 export const moonpayLive = (): boolean => Boolean(MOONPAY_PUBLIC_KEY);
 

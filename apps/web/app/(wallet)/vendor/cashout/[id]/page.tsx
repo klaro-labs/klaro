@@ -7,6 +7,7 @@ import { getCurrentSession } from "@/lib/auth";
 import { getCashout } from "@/lib/repo/cashouts";
 import { formatUSDC, shortAddress, relativeTime } from "@/lib/money";
 import { getCorridor, formatPayout } from "@/lib/corridors";
+import { cashoutFiatLive } from "@/lib/env";
 import type { Hex, CashoutStatus, CashoutTimelineEvent } from "@/lib/types";
 
 /**
@@ -61,6 +62,11 @@ export default async function CashoutDetailPage({
   if (!order || order.vendorId !== session.vendor.id) notFound();
   const corridor = getCorridor(order.currency);
   const simulated = session.simulated;
+  // On-chain lock + release are real on Arc, but the local-currency payout leg
+  // needs a licensed fiat partner (mainnet-only). When the session is live yet
+  // no partner is wired, the fiat leg is simulated — say so explicitly so the
+  // "INR payout proof submitted" step isn't read as a real bank payout.
+  const fiatPartnerPending = !simulated && !cashoutFiatLive();
 
   return (
     <div>
@@ -92,6 +98,22 @@ export default async function CashoutDetailPage({
             {order.status.replace(/_/g, " ")}
           </Badge>
         </header>
+
+        {fiatPartnerPending ? (
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-medium text-amber-900">
+              Local-currency payout is partner-pending
+            </p>
+            <p className="mt-1 text-xs text-amber-900/80">
+              The USDC lock and release on Arc are real. The{" "}
+              {corridor?.currency ?? order.currency} payout leg has no licensed
+              fiat partner on testnet — a licensed money-transmitter ships on
+              mainnet — so the &ldquo;payout proof&rdquo; below is{" "}
+              <strong>simulated</strong> and no real{" "}
+              {corridor?.currency ?? order.currency} moves yet.
+            </p>
+          </div>
+        ) : null}
 
         <Section title="Order timeline">
           <Timeline
@@ -142,7 +164,9 @@ export default async function CashoutDetailPage({
                 <span className="font-mono">{order.utrReference}</span>
                 {simulated
                   ? " (demo reference; not submitted onchain)"
-                  : " (hashed onchain; raw value kept off-chain per Klaro PII rule)"}
+                  : fiatPartnerPending
+                    ? " (simulated reference — no real payout sent; fiat partner is mainnet-only)"
+                    : " (hashed onchain; raw value kept off-chain per Klaro PII rule)"}
               </p>
             ) : null}
           </Section>
