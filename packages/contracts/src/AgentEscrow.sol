@@ -202,7 +202,14 @@ contract AgentEscrow is ReentrancyGuard, Pausable, Ownable2Step {
             completedAt: 0
         });
 
-        // Interactions after effects.
+        // Interactions after effects. NB: unlike fund/start/deliver/complete
+        // (which wrap the hook in try/catch so a buggy hook can't lock
+        // escrowed funds), createJob lets a before-hook revert BLOCK creation
+        // by design — no funds are escrowed yet (that's fundJob), so fail-fast
+        // is correct and we don't want to create a job with a known-broken
+        // hook. Enforced by test_BeforeHook_RevertBlocks_CreateOnly. (Audit
+        // D2/D3a flagged the asymmetry as an inconsistency; investigated —
+        // it's intentional, no fund-lock risk at create time.)
         h.beforeAction(ACTION_CREATE, jobId, msg.sender, agent, amountUsdc);
         emit JobCreated(jobId, msg.sender, agentId, amountUsdc, fee);
         h.afterAction(ACTION_CREATE, jobId, msg.sender, agent, amountUsdc);
