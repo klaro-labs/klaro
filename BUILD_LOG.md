@@ -2,6 +2,21 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Delegations persistence (T1 honest-mode #1): session-key issue/revoke wrote
+  to `mockData` only — keys looked issued but vanished on a cold start in live
+  mode. New `lib/repo/delegations.ts` dual-mode wrapper persists to a new
+  `session_keys` table (**0040**, RLS-scoped to the owning vendor); the page now
+  reads from the repo and gained a real **Revoke** button (`RevokeSessionKeyButton`,
+  ownership-checked in the action). Also fixed an honesty bug — the badge claimed
+  "Circle Modular Wallets" whenever `NEXT_PUBLIC_CIRCLE_CLIENT_KEY` was merely
+  present, implying live ERC-6900 enforcement that isn't built; it now always
+  reads "Recorded · Circle enforcement pending" with a "not yet an enforced grant"
+  note (enforcement is genuinely partner-pending). **Verified like a real user**
+  (`pb-delegations.ts`, magic-link login on :3100): issue a `CASHOUT_REQUEST` key →
+  asserted the `session_keys` row persists (`revoked_at` null) → reload shows it →
+  Revoke → asserted `revoked_at` set + drops off the active list (`DELEGATIONS_E2E_OK`).
+  Web typecheck green.
+
 - ✅ Contract safety pass (sandbox, forge-verified 519 green): bounded LP `slashAmount` to the disputed order value (+test); `RetainerStream.pause/unpause` → owner-only (was hot operator key, +test update); `DisputeManager.setOperator(0)` guard. Investigated + DISPROVEN as non-bugs: `AgentEscrow.createJob` hook-revert-blocks-create is intentional (no funds escrowed at create; tested invariant) — left as-is with a doc note. REMAINING contract items (handed to follow-up, not rushed): `setOperator(0)` guard on the other 15 contracts (mechanical MEDIUM — each needs a ZeroAddress error added); `InvoiceEscrow` link-auth nonce/cap (HIGH, signature-scheme change). Coordination: contract work is isolated to packages/contracts; the other agent owns apps/web live-feature work in parallel.
 
 - ✅ Agents live UI + verified like a user (base gap #2 follow-through): removed

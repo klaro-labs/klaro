@@ -2,11 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import {
-  mockCreateSessionKey,
-  mockGetSessionKey,
-  mockRevokeSessionKey,
-} from "@/lib/mockData";
+import * as delegationsRepo from "@/lib/repo/delegations";
 import { requireVendor } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 import type { Hex } from "@/lib/types";
@@ -38,7 +34,7 @@ export async function createSessionKeyAction(
     throw new Error("ttl must be 1h-720h");
 
   try {
-    await mockCreateSessionKey({
+    await delegationsRepo.createSessionKey({
       vendorId: session.vendor.id,
       delegateAddress: delegate,
       label,
@@ -61,11 +57,11 @@ export async function createSessionKeyAction(
 export async function revokeSessionKeyAction(id: string): Promise<void> {
   const session = await requireVendor();
   try {
-    const key = await mockGetSessionKey(id);
+    const key = await delegationsRepo.getSessionKey(id);
     if (!key) throw new Error("session key not found");
     if (key.vendorId !== session.vendor.id)
       throw new Error("key belongs to a different vendor");
-    await mockRevokeSessionKey(id);
+    await delegationsRepo.revokeSessionKey(id, session.vendor.id);
     revalidatePath("/vendor/delegations");
   } catch (e) {
     captureError(e, {

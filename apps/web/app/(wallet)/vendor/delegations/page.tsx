@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
-import { mockListSessionKeys } from "@/lib/mockData";
+import { listSessionKeys } from "@/lib/repo/delegations";
 import { relativeTime, shortAddress } from "@/lib/money";
-import { circleVendorLive } from "@/lib/env";
+import { supabaseLive } from "@/lib/env";
 import { createSessionKeyAction } from "./actions";
+import { RevokeSessionKeyButton } from "./RevokeSessionKeyButton";
 
 const SCOPES: Array<{ value: string; label: string; desc: string }> = [
   {
@@ -32,7 +33,11 @@ const SCOPES: Array<{ value: string; label: string; desc: string }> = [
 export default async function DelegationsPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
-  const keys = await mockListSessionKeys(session.vendor.id);
+  const keys = await listSessionKeys(session.vendor.id);
+  // The delegation RECORD persists (supabaseLive). The Circle Modular Wallet /
+  // ERC-6900 session-key issuance + enforcement is NOT implemented yet — having
+  // a CIRCLE_CLIENT_KEY present does not make it real — so it's always pending.
+  const persisted = supabaseLive();
 
   return (
     <div>
@@ -47,29 +52,30 @@ export default async function DelegationsPage() {
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-[var(--color-ink-muted)]">
               Issue a scoped, expiring session key to a delegate address (e.g.
-              your accountant&apos;s wallet or an automation bot). Backed by
-              Circle Modular Wallets ERC-6900 custom module in live mode. Server
-              enforces scope + expiry on every request.
+              your accountant&apos;s wallet or an automation bot). The
+              delegation is recorded in Klaro; the Circle Modular Wallets
+              (ERC-6900) on-chain enforcement that actually gates the
+              delegate&apos;s authority is partner-pending.
             </p>
           </div>
-          <Badge tone={circleVendorLive() ? "live" : "sim"}>
-            {circleVendorLive()
-              ? "Circle Modular Wallets"
-              : "Simulated · CIRCLE_CLIENT_KEY not set"}
+          <Badge tone={persisted ? "info" : "sim"}>
+            {persisted
+              ? "Recorded · Circle enforcement pending"
+              : "Simulated session"}
           </Badge>
         </div>
 
         <div className="mb-4 rounded border border-[var(--color-line)] bg-[var(--color-bg)] p-3 text-xs text-[var(--color-ink-muted)]">
           <p className="font-medium text-[var(--color-ink)]">
-            Scope enforcement
+            Scope enforcement (partner-pending)
           </p>
           <p className="mt-1">
-            Every Klaro API request checks the session signature against the
-            stored scope + expiry. In live mode the ERC-6900 module also gates
-            on-chain calls: a <code className="font-mono">CASHOUT_REQUEST</code>{" "}
-            key cannot trigger{" "}
-            <code className="font-mono">InvoiceEscrow.settle()</code> even if
-            the server is compromised.
+            Each key stores a scope + expiry. Once Circle Modular Wallets is
+            wired, the ERC-6900 module gates on-chain calls — a{" "}
+            <code className="font-mono">CASHOUT_REQUEST</code> key could not
+            trigger <code className="font-mono">InvoiceEscrow.settle()</code>{" "}
+            even if the server were compromised. Until then a key is a recorded
+            intent, <strong>not yet an enforced grant</strong>.
           </p>
         </div>
 
@@ -151,7 +157,7 @@ export default async function DelegationsPage() {
               return (
                 <li
                   key={k.id}
-                  className="grid grid-cols-1 gap-2 px-6 py-4 md:grid-cols-[1.4fr_auto_auto_auto] md:items-center"
+                  className="grid grid-cols-1 gap-2 px-6 py-4 md:grid-cols-[1.4fr_auto_auto_auto_auto] md:items-center"
                 >
                   <div>
                     <div className="font-medium">{k.label}</div>
@@ -170,6 +176,7 @@ export default async function DelegationsPage() {
                   <span className="text-xs text-[var(--color-ink-subtle)]">
                     created {relativeTime(k.createdAt)}
                   </span>
+                  <RevokeSessionKeyButton id={k.id} />
                 </li>
               );
             })}
