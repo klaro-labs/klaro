@@ -254,16 +254,16 @@ contract RetainerStreamTest is Test {
     // ─── P1 (#92): operator + pause ─────────────────
 
     function test_Pause_BlocksCreateAndWithdraw() public {
-        vm.prank(OPERATOR);
-        rs.pause();
+        rs.pause(); // owner (test contract) pauses
         vm.prank(payer);
         vm.expectRevert(); // EnforcedPause
         rs.createStream(keccak256("blocked"), recipient, address(usdc), DEP, startT, endT);
     }
 
-    function test_Pause_NonOperator_Reverts() public {
-        vm.prank(address(0xBAD));
-        vm.expectRevert(RetainerStream.NotOperator.selector);
+    function test_Pause_NonOwner_Reverts() public {
+        // operator (hot key) can no longer pause — owner-only now (D3b HIGH-2).
+        vm.prank(OPERATOR);
+        vm.expectRevert();
         rs.pause();
     }
 

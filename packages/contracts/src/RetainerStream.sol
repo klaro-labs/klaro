@@ -130,11 +130,15 @@ contract RetainerStream is ReentrancyGuard, Ownable2Step, Pausable {
         klaroOperator = next;
     }
 
-    function pause() external onlyOperator {
+    // pause is owner-only (cold key), matching every other fund-holding
+    // contract (AgentEscrow/Cashout/InvoiceEscrow/LPStaking/…). Was
+    // onlyOperator (hot key) — a compromised operator must not be able to
+    // pause/unpause a contract holding 30-day retainers. (Audit D3b HIGH-2.)
+    function pause() external onlyOwner {
         _pause();
     }
 
-    function unpause() external onlyOperator {
+    function unpause() external onlyOwner {
         _unpause();
     }
 
