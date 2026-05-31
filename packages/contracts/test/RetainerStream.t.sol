@@ -392,6 +392,63 @@ contract RetainerStreamTest is Test {
         assertTrue(rs.getStream(SID).resolved);
     }
 
+    // C1 regression (company audit 2026-05-31): an auditor flagged a
+    // possible cross-stream drain — recipient withdraws vested USDC in the
+    // OPENED→DECIDED window, then payer wins and resolveDispute refunds
+    // `deposit - vestedNow`, allegedly exceeding the stream's own balance.
+    // This proves it does NOT: refund is bounded by the stream's balance
+    // (vesting is monotonic so withdrawn ≤ vestedNow), value is conserved,
+    // and a co-resident second stream is untouched.
+    function test_ResolveDispute_PayerWins_AfterRecipientWithdrew_NoCrossStreamDrain()
+        public
+    {
+        DisputeManager dm = new DisputeManager(OPERATOR);
+        _setupDisputeStream(dm); // creates SID, warps to half-vested
+
+        // Second co-resident stream funds the same contract.
+        address recipient2 = address(0xA3);
+        bytes32 SID2 = keccak256("stream-2");
+        vm.prank(payer);
+        rs.createStream(SID2, recipient2, address(usdc), DEP, startT, endT);
+        assertEq(usdc.balanceOf(address(rs)), DEP * 2);
+
+        // Payer opens; BEFORE decide (OPENED window) recipient drains the
+        // vested half — allowed because isDecided() is still false.
+        vm.prank(payer);
+        rs.openDispute(SID, keccak256("payer-evidence"));
+        vm.prank(recipient);
+        rs.withdraw(SID, DEP / 2);
+        assertEq(usdc.balanceOf(recipient), DEP / 2);
+
+        // Operator decides payer wins.
+        vm.prank(OPERATOR);
+        dm.assignToReview(SID);
+        vm.prank(OPERATOR);
+        dm.decide(
+            SID,
+            DisputeManager.Outcome.RELEASE_TO_CLAIMANT,
+            keccak256("klaro.reason.DISPUTE_USER_FAULT"),
+            bytes32(0)
+        );
+
+        uint256 payerBefore = usdc.balanceOf(payer);
+        vm.prank(OPERATOR);
+        rs.resolveDispute(SID);
+
+        // Refund = deposit - vestedNow = DEP - DEP/2 = DEP/2, bounded by the
+        // stream's own remaining balance (DEP - withdrawn = DEP/2).
+        assertEq(usdc.balanceOf(payer), payerBefore + DEP / 2);
+        // Stream 1 fully settled: recipient got DEP/2, payer got DEP/2.
+        assertEq(rs.withdrawableAmount(SID), 0);
+        // Cross-stream safety: the contract still holds exactly stream 2's
+        // full deposit — nothing was drained from it.
+        assertEq(usdc.balanceOf(address(rs)), DEP);
+        // And stream 2's recipient can still withdraw its full vested half.
+        vm.prank(recipient2);
+        rs.withdraw(SID2, DEP / 2);
+        assertEq(usdc.balanceOf(recipient2), DEP / 2);
+    }
+
     function test_ResolveDispute_RecipientWins_ContinuesVesting() public {
         DisputeManager dm = new DisputeManager(OPERATOR);
         _setupDisputeStream(dm);
