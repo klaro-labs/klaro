@@ -62,25 +62,35 @@ persists (these were silently failing live before 0036).
      (`pb-lp.ts`); on-chain `LPStaking` custody partner-pending (labeled). NOTE:
      LP notification/corridor prefs still need an `lp_preferences` table — those
      toggles already refuse honestly ("Coming soon"), so no mock leak.
-2. **Daemon dispute→escrow fan-out — ✅ built; fund-release E2E pending.** The
-   `disputeResolver` worker now auto-signs `resolveDispute` on the right escrow
-   from the `Decided` event for the deterministic outcomes (RELEASE/REFUND);
-   SLASH_LP/PENALIZE route to admin (need an operator-set amount). Routing is
-   unit-tested + a live integration smoke (`qa-dispute-resolve-route.ts`) proves
-   it drives the real CashoutOrderProcessor + simulate-skips safely. **You need
-   to do (to prove funds actually release):** run a funded dispute lifecycle on
-   testnet — fund an escrow (AgentEscrow job / RetainerStream deposit / cashout
-   LOCKED order) → `openDispute` → `DisputeManager.decide(caseId, RELEASE/REFUND)`
-   → confirm the daemon's `dispute-resolve` job moves the USDC + flips the escrow
-   state. Also set `RETAINER_STREAM_ADDRESS` in the daemon env for stream cases
-   (currently unset, so stream fan-out is a no-op-with-loud-error until wired).
-3. **Contract HIGHs (future redeploys):** bound LP slashAmount; wrap
+2. **Dispute decide→resolve loop — ✅ fully wired; funded-lifecycle E2E pending.**
+   The whole product path now exists: admin decide (live) → daemon `disputeDecide`
+   signs `DisputeManager.decide` → `Decided` event → arcSubscriber mirrors the DB +
+   enqueues → `disputeResolver` signs `resolveDispute` on the right escrow
+   (deterministic RELEASE/REFUND; SLASH/PENALIZE → admin for an operator-set
+   amount). Both legs unit-tested + live-contract smokes
+   (`qa-dispute-decide-route.ts`, `qa-dispute-resolve-route.ts`). **You need to do
+   (to prove funds actually move):** run ONE funded lifecycle on testnet — fund an
+   escrow (AgentEscrow job / RetainerStream deposit / cashout LOCKED order) →
+   `openDispute` → decide via the admin UI → confirm the daemon moves the USDC +
+   flips escrow state. Also set `RETAINER_STREAM_ADDRESS` in the daemon env for
+   stream-context cases (now in `.env.example`; still needs the deployed address).
+3. **Cashout vendor on-chain start — ✅ already wired; injected-wallet E2E pending.**
+   `RequestCashoutOnChain` (rendered by `CashoutRequestForm` whenever the vendor
+   has a provisioned payout wallet) drives the real LF-3 flow: vendor signs
+   `approve` + `requestAndLock` → `recordCashoutRequestedAction` verifies the
+   on-chain LOCKED state before writing the row; the daemon advances to RELEASED.
+   The on-chain lock + daemon legs are proven by `qa-cashout-daemon-legs.ts`
+   (3-wallet). The simulated DB-only `createCashoutAction` is correctly refused in
+   live mode (no-wallet sessions). **You need to do:** a browser injected-wallet
+   E2E with a funded vendor wallet + USDC to click through approve→lock→release
+   end-to-end (the underlying on-chain calls are already proven).
+4. **Contract HIGHs (future redeploys):** bound LP slashAmount; wrap
    AgentEscrow.createJob hook; zero-operator guard on the other 16 contracts;
    RetainerStream.pause→owner (needs a test update); link-auth nonce/cap. Each
    needs Foundry tests.
-4. **README overclaims:** "screened end to end" and Echidna/Halmos "coverage"
+5. **README overclaims:** "screened end to end" and Echidna/Halmos "coverage"
    aren't real yet — wire them or correct the copy before mainnet.
-5. MED/LOW: missing `revalidatePath` after some mutations, plaintext
+6. MED/LOW: missing `revalidatePath` after some mutations, plaintext
    `invoices.customer_email`, MultiChainRouter Pausable, a11y (MegaMenu
    keyboard nav, skip-link, inline form validation), CI lint gate, Dockerfile
    pin. Full list in the department files.

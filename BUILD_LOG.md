@@ -2,6 +2,20 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Cashout vendor-signing — confirmed wired + honest-label fix (COVERAGE_GAPS #2
+  P0, re-scoped): the gap doc flagged `createCashoutAction` as the stubbed vendor
+  entry point, but the **real live path is already wired** —
+  `CashoutRequestForm` renders `RequestCashoutOnChain` (vendor signs `approve` +
+  `requestAndLock` → `recordCashoutRequestedAction` verifies on-chain LOCKED →
+  daemon advances to RELEASED) for any vendor with a provisioned payout wallet;
+  the on-chain lock + daemon legs are proven by `qa-cashout-daemon-legs.ts`
+  (3-wallet). `createCashoutAction` is only the SIMULATED DB-only fallback for
+  no-wallet sessions, correctly refused in live mode. Fixed its stale/misleading
+  refusal message ("vendor-signing flow lands M11" — it already landed) to point
+  at the on-chain path, preserving the `_not_yet_*`→503 SDK classifier token.
+  Remaining: a browser injected-wallet E2E (funded USDC) to click approve→lock→
+  release — the underlying on-chain calls are already proven (HUMAN_ACTIONS).
+
 - ✅ Operator dispute-decide path wired (COVERAGE_GAPS #2 P0): the admin
   `decideDisputeAction` threw `dispute_decide_not_yet_wired` in live mode (the web
   can't hold the operator key, so nothing emitted `Decided` through the product —

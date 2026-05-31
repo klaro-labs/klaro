@@ -45,12 +45,19 @@ interface Input {
 // craft any quote params and submit.
 
 export async function createCashoutAction(input: Input): Promise<Hex> {
-  // F-4 (web audit): rename throw to match 's
-  // `_not_yet_(available|persistent|live)` classifier so live-mode SDK
-  // clients receive a 503 (deferred) instead of a 500 (server crash).
+  // This is the SIMULATED (DB-only) submission path — kept for demo/no-wallet
+  // sessions. The real live cashout is the vendor-signed on-chain lock
+  // (`prepareCashoutRequestAction` → wallet signs `requestAndLock` →
+  // `recordCashoutRequestedAction`), surfaced by `RequestCashoutOnChain` whenever
+  // the vendor has a provisioned payout wallet. So in live mode this simulated
+  // insert is correctly refused: a vendor without a wallet must provision one to
+  // cash out on-chain rather than have a fake DB row written. The `_not_yet_`
+  // classifier keeps SDK clients on a 503 (deferred), not a 500.
+  // Keep the `_not_yet_(available|persistent|live)` token so lib/api.ts maps SDK
+  // callers to a 503 (deferred), not a 500.
   if (supabaseLive() || isLiveOnChain()) {
     throw new Error(
-      "cashout_submission_not_yet_live: vendor-signing flow lands M11; simulator writes are disabled in live mode",
+      "cashout_simulated_submission_not_yet_available: connect a provisioned payout wallet to lock USDC on-chain (the vendor-signed requestAndLock path, RequestCashoutOnChain); the simulated DB-only submission is disabled in live mode",
     );
   }
   const session = await requireVendor();
