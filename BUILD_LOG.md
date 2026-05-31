@@ -2,6 +2,8 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Webhook persistence (base gap #4): `lib/repo/webhooks.ts` dual-mode; create/list/get/test-ping now persist to `webhooks` (+ best-effort `webhook_deliveries`). Per-endpoint secret generated + `pgp_sym_encrypt`-ed with the `WEBHOOK_ENC_KEY` vault secret via the `webhook_create` security-definer RPC (0035), revealed once; ownership enforced against `vendors.supabase_user_id = auth.uid()`. Delivery still signs with the global `WEBHOOK_HMAC_SECRET` (per-endpoint routing is M11). Gate-verified green (105 web tests). **Live-untested: the RPC/vault/pgcrypto path needs 0035 applied + one pooler run to confirm.**
+
 - ✅ Team persistence (base gap #3): `lib/repo/team.ts` dual-mode; invite/role/remove + team page now persist to `vendor_team_members` (klaro_role case-mapped; status from accepted_at/removed_at); migration 0034 makes `supabase_user_id` nullable for pending invites. Gate-verified green (105 web tests).
 
 - ✅ Agents persistence (base gap #2): `lib/repo/agentJobs.ts` dual-mode; `createJobAction`/`advanceJobAction` + agent read pages now persist to `agent_jobs` (dropped `agents_not_yet_persistent` gates); state-machine guards retained; schema aligned (0033). Gate-verified green (105 web tests).
