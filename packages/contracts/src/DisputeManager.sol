@@ -290,6 +290,11 @@ contract DisputeManager is Pausable, Ownable2Step {
     }
 
     function setOperator(address next) external onlyOwner {
+        // Guard against bricking dispute resolution: operator(0) would make
+        // every operator-gated path (assignToReview/decide and the
+        // AgentEscrow/Cashout/Retainer resolveDispute fan-out) permanently
+        // unreachable, stranding escrowed funds. (Audit D3b HIGH-1.)
+        if (next == address(0)) revert ZeroAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }
