@@ -27,7 +27,7 @@ export async function rotateWalletAction(formData: FormData): Promise<void> {
     await mockUpdateLP(lp.lpId, { wallet: next as Hex });
     auditRecord({
       actor: vendor.id,
-      action: "lp.admit",
+      action: "lp.rotate_wallet",
       subjectKind: "lp",
       subjectId: lp.lpId,
       noteMd: `Rotated payout wallet to ${next}`,
@@ -58,7 +58,7 @@ export async function toggleNotificationAction(
   const value = String(formData.get("value") ?? "") === "1";
   auditRecord({
     actor: vendor.id,
-    action: "lp.admit",
+    action: "lp.toggle_notification",
     subjectKind: "lp",
     subjectId: lp.lpId,
     noteMd: `notification.${key} → ${value ? "on" : "off"} (NOT PERSISTED — migration pending)`,
@@ -73,7 +73,7 @@ export async function toggleCorridorAction(formData: FormData): Promise<void> {
   if (!/^[A-Z]{3}$/.test(corridor)) throw new Error("Bad corridor code");
   auditRecord({
     actor: vendor.id,
-    action: "lp.admit",
+    action: "lp.toggle_corridor",
     subjectKind: "lp",
     subjectId: lp.lpId,
     noteMd: `corridor ${corridor} → ${enable ? "active" : "disabled"} (NOT PERSISTED — migration pending)`,

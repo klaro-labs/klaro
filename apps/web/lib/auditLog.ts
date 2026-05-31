@@ -44,6 +44,18 @@ export type AuditActionCode =
   | "vendor.unlockout"
   | "fx.quote.create"
   | "fx.quote.settle"
+  // Audit 2026-05-31 (D5 P4): LP onboarding + retainer actions all logged
+  // "lp.admit" regardless of operation, breaking audit-trail queries. Same
+  // class as the F-2 agent.* fix above. Distinct codes per operation:
+  | "lp.invite"
+  | "lp.apply"
+  | "lp.submit_docs"
+  | "lp.rotate_wallet"
+  | "lp.toggle_notification"
+  | "lp.toggle_corridor"
+  | "retainer.create"
+  | "retainer.withdraw"
+  | "retainer.cancel"
   | "lp.dispute.defend";
 
 export interface AuditEntry {

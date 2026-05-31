@@ -32,7 +32,7 @@ export async function createInviteAction(formData: FormData): Promise<void> {
     const lp = await mockCreateLPInvite({ contactEmail: email });
     auditRecord({
       actor: session.vendor.id,
-      action: "lp.admit",
+      action: "lp.invite",
       subjectKind: "lp",
       subjectId: lp.lpId,
       noteMd: `Invite sent to ${email}`,
@@ -68,7 +68,7 @@ export async function submitApplicationAction(
     });
     auditRecord({
       actor: vendor.id,
-      action: "lp.admit",
+      action: "lp.apply",
       subjectKind: "lp",
       subjectId: lp.lpId,
       noteMd: "Application submitted",
@@ -98,7 +98,7 @@ export async function submitDocsAction(): Promise<void> {
     });
     auditRecord({
       actor: vendor.id,
-      action: "lp.admit",
+      action: "lp.submit_docs",
       subjectKind: "lp",
       subjectId: lp.lpId,
       noteMd: "KYB docs submitted",

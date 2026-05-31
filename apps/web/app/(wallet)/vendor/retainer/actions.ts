@@ -54,7 +54,7 @@ export async function createStreamAction(formData: FormData): Promise<void> {
     });
     auditRecord({
       actor: session.vendor.id,
-      action: "lp.admit",
+      action: "retainer.create",
       subjectKind: "vendor",
       subjectId: session.vendor.id,
       noteMd: `Created retainer stream ${stream.streamId} from ${payerLabel}`,
@@ -79,7 +79,7 @@ export async function withdrawStreamAction(
     await mockWithdrawFromStream(streamId, amountUsdcMicro);
     auditRecord({
       actor: session.vendor.id,
-      action: "lp.admit",
+      action: "retainer.withdraw",
       subjectKind: "vendor",
       subjectId: session.vendor.id,
       noteMd: `Withdrew ${amountUsdcMicro}µUSDC from stream ${streamId}`,
@@ -105,7 +105,7 @@ export async function cancelStreamAction(streamId: Hex): Promise<void> {
     await mockCancelStream(streamId);
     auditRecord({
       actor: session.vendor.id,
-      action: "lp.admit",
+      action: "retainer.cancel",
       subjectKind: "vendor",
       subjectId: session.vendor.id,
       noteMd: `Cancelled retainer stream ${streamId}`,
