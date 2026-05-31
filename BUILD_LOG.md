@@ -2,6 +2,10 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Agent on-chain payments (base gap #5): daemon `JobCompleted` handler now flips the `agent_jobs` row to CLOSED from on-chain truth (proof-beats-claims), parallel to the disputes `Decided` handler. Daemon typecheck + 11 tests green. (Web→on-chain `createJob` remains the M11 client-signing piece, live-untested.)
+- ✅ RLS write-policy fix (migration 0036): added the INSERT/UPDATE policies for `vendor_team_members`, `disputes` (UPDATE), and `webhook_deliveries` (INSERT). **These were a real bug in this session's own disputes/team/webhooks repos** — the writes go through the RLS-scoped client but the policies were missing, so they silently failed live while mock-mode tests passed. Surfaced by the company-level audit (D6/D7 converged). Live-untested (pooler blocked).
+- ✅ Company-level codebase audit: 16-agent org-structured fleet (4 batches of ≤4), 8/13 departments (all high/critical-risk). Artifacts + `MASTER_AUDIT.md` in `.kiro/workflows/audit/`. Headline findings: CRITICAL RetainerStream cross-stream refund drain; systemic honest-mode breach (many write paths are mock-only and silently fail live); operator hot-key blast radius. 5 lower-risk departments queued.
+
 - ✅ Webhook persistence (base gap #4): `lib/repo/webhooks.ts` dual-mode; create/list/get/test-ping now persist to `webhooks` (+ best-effort `webhook_deliveries`). Per-endpoint secret generated + `pgp_sym_encrypt`-ed with the `WEBHOOK_ENC_KEY` vault secret via the `webhook_create` security-definer RPC (0035), revealed once; ownership enforced against `vendors.supabase_user_id = auth.uid()`. Delivery still signs with the global `WEBHOOK_HMAC_SECRET` (per-endpoint routing is M11). Gate-verified green (105 web tests). **Live-untested: the RPC/vault/pgcrypto path needs 0035 applied + one pooler run to confirm.**
 
 - ✅ Team persistence (base gap #3): `lib/repo/team.ts` dual-mode; invite/role/remove + team page now persist to `vendor_team_members` (klaro_role case-mapped; status from accepted_at/removed_at); migration 0034 makes `supabase_user_id` nullable for pending invites. Gate-verified green (105 web tests).
