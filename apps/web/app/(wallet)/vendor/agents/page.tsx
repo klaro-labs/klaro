@@ -4,10 +4,7 @@ import { keccak256, stringToBytes } from "viem";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
-import {
-  mockListAgents,
-  type AgentJobStatus,
-} from "@/lib/mockData";
+import { mockListAgents, type AgentJobStatus } from "@/lib/mockData";
 import { listForVendor as listAgentJobs } from "@/lib/repo/agentJobs";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { createJobAction, advanceJobAction } from "./actions";
@@ -47,40 +44,13 @@ export default async function VendorAgentsPage({
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
   const { hire } = await searchParams;
-  // agent-jobs persistence + AgentEscrow wiring is M11 work
-  // (same status as /v1/webhooks W89-4, /v1/disputes W87-4). In live
-  // mode render an honest "ships M11" panel instead of fake mock rows
-  // that vanish on cold start. Dev/simulator mode keeps full UI.
-  if (supabaseLive()) {
-    return (
-      <div>
-        <section className="mx-auto w-full max-w-[760px] px-6 py-16">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)]">
-            Agent jobs · partner-pending
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-            Agent marketplace lands in M11.
-          </h1>
-          <p className="mt-3 max-w-md text-sm text-[var(--color-ink-muted)]">
-            AgentEscrow wiring and per-job persistence land in M11. The 6-state
-            lifecycle, ACP hooks, and ERC-8004 agent identity are available in
-            dev mode for partner integration — the full flow wires to the live
-            escrow contract in M11.
-          </p>
-          <p className="mt-6 font-mono text-xs text-[var(--color-ink-subtle)]">
-            Track on the{" "}
-            <Link
-              href="/agents"
-              className="text-[var(--color-brand)] hover:underline"
-            >
-              public agent marketplace
-            </Link>{" "}
-            · {session.vendor.displayName}
-          </p>
-        </section>
-      </div>
-    );
-  }
+  // Agent-job lifecycle is PERSISTED for real (agent_jobs via lib/repo/agentJobs
+  // + migration 0033) — read/create/advance all hit Supabase in live mode. The
+  // on-chain AgentEscrow custody/release is NOT wired yet: it needs the agent to
+  // hold an on-chain identity + wallet (mock registry today), so no USDC moves
+  // in this flow. Surfaced honestly via the banner + per-stage labels below
+  // rather than hidden behind a placeholder.
+  const liveTracking = supabaseLive();
   const jobs = await listAgentJobs(session.vendor.id);
   const agents = await mockListAgents();
   const preselected = hire ? agents.find((a) => a.agentId === hire) : null;
@@ -104,13 +74,25 @@ export default async function VendorAgentsPage({
               >
                 the marketplace
               </Link>{" "}
-              or directly with an agent ID. Funds locked in{" "}
-              <code className="font-mono text-xs">AgentEscrow</code>; released
-              only when you accept the deliverable. ACP hooks fire before +
-              after every state change.
+              or directly with an agent ID, then track the engagement through
+              its 6-state lifecycle.
             </p>
           </div>
-          <Badge tone="info">{jobs.length} jobs</Badge>
+          <Badge tone={liveTracking ? "info" : "sim"}>
+            {liveTracking ? "Lifecycle tracked live" : "Simulated session"}
+          </Badge>
+        </div>
+
+        <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+          <span className="font-medium text-amber-900">
+            On-chain escrow is partner-pending.
+          </span>{" "}
+          The job lifecycle below is recorded in Klaro
+          {liveTracking ? " (persisted)" : " (simulated)"}, but{" "}
+          <strong>no USDC moves on-chain yet</strong> — real{" "}
+          <code className="font-mono">AgentEscrow</code> custody + release
+          activate once the agent holds an on-chain identity (ERC-8004) +
+          wallet.
         </div>
 
         <h2 className="mb-3 font-display text-xl font-semibold">
@@ -240,7 +222,7 @@ export default async function VendorAgentsPage({
                         {next.label} →
                       </button>
                       <span className="ml-2 text-[10px] text-[var(--color-ink-subtle)]">
-                        Live mode calls{" "}
+                        Records this stage in Klaro · on-chain{" "}
                         <code className="font-mono">
                           AgentEscrow.
                           {next.to === "FUNDED"
@@ -251,7 +233,8 @@ export default async function VendorAgentsPage({
                                 ? "submitDeliverable"
                                 : "markCompleted"}
                           ()
-                        </code>
+                        </code>{" "}
+                        settlement is partner-pending (no USDC moves)
                       </span>
                     </form>
                   )}

@@ -13,7 +13,7 @@ three are blocked on something only you can provide.
 | Cashout fiat-leg (real payout) | **blocked** | A signed/licensed payout LP for at least one corridor (INR). No rails exist today; the on-chain lock + daemon advance are already real. Without a partner the fiat leg stays simulated. |
 | Real screening provider | **blocked** | Chainalysis / TRM / Sumsub API credentials. Settlement currently fail-closes to manual review (correct). Wire a provider key to enable auto-screening. |
 | Team membership persistence | **code, schema wrinkle** | No credential needed — I can finish it. `vendor_team_members.supabase_user_id` is NOT NULL, but an invited teammate has no user id until they accept; needs a small migration to make it nullable for pending invites. Next code increment. |
-| Agents on-chain fund flow (AgentEscrow) | **partial** | Job persistence is done. Wiring real on-chain `AgentEscrow.createJob`/payout is the F8 fan-out item — needs the operator-signed daemon producer (next increment, code). |
+| Agents on-chain fund flow (AgentEscrow) | **persistence live-verified · escrow partner-pending** | Job lifecycle now persists + is UI-E2E-verified live (`pb-agents.ts`: hire→fund→start→deliver→close, every status + timestamp checked in the live DB). On-chain custody needs real agent **ERC-8004 identity + payout wallet** — production agents have none today (mock registry), and `startJob`/`submitDeliverable` must be signed by the agent. The daemon `JobCompleted`→CLOSED mirror handler is ready for when real agents onboard. **You need to provide:** the agent-onboarding rail (real ERC-8004 registrations with wallets) before on-chain escrow can be wired end-to-end. |
 
 ## 🟡 P1 — verification env for live multi-wallet E2E
 
