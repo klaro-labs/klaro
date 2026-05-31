@@ -9,7 +9,7 @@ On-chain receipts. Verified cashout. Built for the businesses USDC was supposed 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-1f6feb.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-43853d.svg)](.nvmrc)
 [![Solidity 0.8.28](https://img.shields.io/badge/Solidity-0.8.28-363636.svg)](packages/contracts/foundry.toml)
-[![500 tests](https://img.shields.io/badge/forge_tests-500-1f6feb.svg)](packages/contracts/test)
+[![523 tests](https://img.shields.io/badge/forge_tests-523-1f6feb.svg)](packages/contracts/test)
 
 [**Try the live testnet →**](https://klaro-peach.vercel.app)
 &nbsp; · &nbsp;
@@ -26,8 +26,8 @@ On-chain receipts. Verified cashout. Built for the businesses USDC was supposed 
 <table>
 <tr>
 <td align="center" width="25%"><b>20</b><br/><sub>deployed contracts</sub></td>
-<td align="center" width="25%"><b>500</b><br/><sub>Foundry tests</sub></td>
-<td align="center" width="25%"><b>37</b><br/><sub>tables, RLS on every one</sub></td>
+<td align="center" width="25%"><b>523</b><br/><sub>Foundry tests</sub></td>
+<td align="center" width="25%"><b>42</b><br/><sub>tables, RLS on every one</sub></td>
 <td align="center" width="25%"><b>0.55 USDC</b><br/><sub>full-protocol deploy cost</sub></td>
 </tr>
 </table>
@@ -38,7 +38,7 @@ On-chain receipts. Verified cashout. Built for the businesses USDC was supposed 
 
 A USDC transfer between two wallets is fast, final, and useless to a real business. It leaves no receipt anyone outside the two parties can verify. It leaves no audit trail an accountant can use at year end. It skips the sanctions screening every regulated payment provider runs. And it strands the vendor's USDC in a stablecoin their grocer doesn't accept.
 
-Klaro fixes that on Circle's Arc L1. A vendor issues an invoice, the buyer pays from any wallet, an audit‑grade receipt mints on chain, and the vendor cashes out to local currency through a verified liquidity partner. Every step is honest about its state: live, simulated, or pending. Every dollar of value is escrowed, screened, and traceable end to end.
+Klaro fixes that on Circle's Arc L1. A vendor issues an invoice, the buyer pays from any wallet, an audit‑grade receipt mints on chain, and the vendor cashes out to local currency through a verified liquidity partner. Every step is honest about its state: live, simulated, or pending. Every dollar of value is escrowed and traceable end to end; sanctions screening is wired into the settlement path and runs in simulation on testnet until a provider key (Chainalysis / TRM / Sumsub) is added.
 
 The protocol is open source. The testnet is live. Mainnet ships after the audit lands.
 
@@ -104,7 +104,7 @@ klaro/
 │   └── daemon/                Arc event listener + BullMQ workers + DLQ paging
 │
 ├── packages/
-│   ├── contracts/             22 Solidity contracts · 504 Foundry tests
+│   ├── contracts/             22 Solidity contracts · 523 Foundry tests
 │   ├── sdk/                   @klaro/sdk — TypeScript client
 │   ├── cli/                   klaro command-line entry point
 │   ├── receipt-badge/         Embeddable receipt React + web component
@@ -134,7 +134,7 @@ Twenty contracts, each scoped to one concern and audited in isolation. Deployed 
 | `FeeSplitter` | `ProofRegistry` | | | | |
 | `RoutePolicyEngine` | `RetainerStream` | | | | |
 
-Coverage runs against Foundry, Echidna, and Halmos. Attack surface and mitigations: [`packages/contracts/THREAT_MODEL.md`](packages/contracts/THREAT_MODEL.md).
+Coverage is 523 Foundry tests — unit, fuzz, and a deploy‑wiring regression suite that re‑runs the full deploy and asserts every permission. Echidna and Halmos harnesses are scaffolded for a future formal‑verification pass but are not yet wired, so we don't count them as coverage. Attack surface and mitigations: [`packages/contracts/THREAT_MODEL.md`](packages/contracts/THREAT_MODEL.md).
 
 ---
 
