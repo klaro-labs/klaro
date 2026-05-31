@@ -2,6 +2,28 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Test-coverage pass A+B (COVERAGE_GAPS.md #1+#2 — the highest risk-to-coverage
+  gaps). **A — daemon money-movers (0→31 tests):** new `test/helpers/fakeInfra.ts`
+  harness (chainable Supabase fake + queue/worker capture + arc client) drives the
+  previously-untested workers — `cashoutAdvancer` (idempotent claimByLP/recordProof/
+  operatorConfirmReceived, canonical on-chain amounts, **simulated-proof-never-advances**,
+  DB RELEASED only *after* the confirm tx), `disputeResolver` (routing+args,
+  chain-derived payToAgent, simulate-skip never writes, transient rethrows, SLASH→admin),
+  `screenAndSettle` (**simulated screening NEVER settles**), `receiptGenerate` (mint
+  Anchor + DB↔chain hash agreement, fail-loud on missing vendor), and the
+  `arcSubscriber` InvoicePaid/Decided/JobCompleted handlers (extracted those 3 inline
+  event bodies into exported named fns — no behavior change). 48 daemon tests, build
+  green. **B — live-branch repo harness (14 tests, 7 repos):** `test/helpers/liveDb.ts`
+  points a repo's `tryDb()` at a real client authenticated AS the test vendor (RLS),
+  so the live SQL the mock tests skip — real columns, joins, klaro_role/lp_status
+  enums, and the `advanceCashout`/`advanceJob` compare-and-swap preconditions — runs
+  against live Supabase. Covers cashouts/agentJobs/disputes/team + delegations/fxQuotes/
+  retainerStreams. Surfaced real schema constraints mock mode hides (e.g.
+  `cashout_orders.lp_id` FK). Opt-in via `KLARO_LIVE_DB_TESTS=1` (network + shared DB,
+  not part of the hermetic gate); default `pnpm test` = 105 pass + 14 skipped. Also
+  fixed `RETAINER_STREAM_ADDRESS` missing from the daemon `.env.example` (drift-guard
+  catch — COVERAGE_GAPS #2 P0).
+
 - ✅ Contract test-coverage pass (forge 525 green): one comprehensive test asserts all 17 operator-gated contracts reject `setOperator(0)`; covered `CashoutOrderProcessor.resolveDispute` RELEASE_TO_CLAIMANT fund branch + slash-not-allowed-on-release; InvoiceEscrow pause-guard (blocks create, owner-only). Investigated `WrongDisputeContext` — unreachable in the single-escrow flow (an escrow's `openDispute` sets context+status atomically; a colliding id reverts at `dm.open`), so it's belt-and-suspenders; no contrived test written. Verified the contracts `THREAT_MODEL` audit checklist is honest (Echidna/Halmos/Slither/Mythril are unchecked M12 TODO, not claims).
 - ✅ README corrected to reality: test count 500→523, tables 37→42, removed the false "Coverage runs against Foundry, Echidna, and Halmos" (now states 523 Foundry tests; harnesses scaffolded-not-wired), and the "screened end to end" claim now says screening runs in simulation until a provider key is added.
 
