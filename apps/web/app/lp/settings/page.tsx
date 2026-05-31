@@ -72,7 +72,8 @@ export default async function LPSettingsPage() {
                 </button>
               </div>
               <span className="text-[11px] text-[var(--color-ink-subtle)]">
-                48h cooldown. Klaro pings the existing wallet to confirm.
+                Recorded immediately as your payout wallet. (Production adds a
+                48h cooldown + a confirmation ping to the existing wallet.)
               </span>
             </label>
           </form>

@@ -45,20 +45,23 @@ invite a teammate, advance an agent job, add dispute evidence. Confirm each
 persists (these were silently failing live before 0036).
 
 ### 🟠 Deferred — needs dedicated, careful work (do NOT rush; I can do these next)
-1. **T1 honest-mode (highest):** LP stake/apply/approve and vendor/LP settings
-   still write to mock only — they look functional but vanish/no-op live. Each
-   needs a `lib/repo` dual-mode wrapper (+ a couple of migrations).
-   - ✅ **Delegations DONE** — `lib/repo/delegations.ts` + `session_keys` (0040),
-     issue/revoke persist + verified live (`pb-delegations.ts`); Circle ERC-6900
-     scope enforcement stays partner-pending (labeled honestly, not faked).
-   - ✅ **Retainer streams DONE** — `lib/repo/retainerStreams.ts` +
-     `retainer_streams` (0041), create/withdraw/cancel persist + verified live
-     (`pb-retainer.ts`); on-chain funding stays partner-pending (vesting labeled
-     simulated — no payer wallet in the dashboard to sign the fund tx).
-   - ✅ **FX corridors DONE** — `lib/repo/fxQuotes.ts` + `fx_quotes` (0042),
-     quote/settle persist + verified live (`pb-fx.ts`); StableFX (FxEscrow +
-     Permit2) access stays partner-pending ("settlement complete" = demo
-     terminal state, already labeled honestly).
+1. **T1 honest-mode — ✅ DONE (all four surfaces persisted + live-verified).**
+   The write paths that used to vanish in live mode now persist through dual-mode
+   `lib/repo` wrappers, each UI-verified on :3100 against live DB rows:
+   - ✅ **Delegations** — `lib/repo/delegations.ts` + `session_keys` (0040),
+     issue/revoke (`pb-delegations.ts`); Circle ERC-6900 enforcement
+     partner-pending (labeled honestly, not faked).
+   - ✅ **Retainer streams** — `lib/repo/retainerStreams.ts` + `retainer_streams`
+     (0041), create/withdraw/cancel (`pb-retainer.ts`); on-chain funding
+     partner-pending (vesting labeled simulated).
+   - ✅ **FX corridors** — `lib/repo/fxQuotes.ts` + `fx_quotes` (0042),
+     quote/settle (`pb-fx.ts`); StableFX access partner-pending.
+   - ✅ **LP profiles** — `lib/repo/lp.ts` (writes to `lp_profiles`),
+     invite/apply/docs/approve/stake/rotate-wallet; app↔DB `lp_status` enum
+     reconciled (DOCS_UPLOADED↔APPLIED). Rotate-wallet + stake UI-verified
+     (`pb-lp.ts`); on-chain `LPStaking` custody partner-pending (labeled). NOTE:
+     LP notification/corridor prefs still need an `lp_preferences` table — those
+     toggles already refuse honestly ("Coming soon"), so no mock leak.
 2. **Daemon dispute→escrow fan-out:** after a dispute is decided on-chain, an
    operator must still manually call resolveDispute on Agent/Retainer/Cashout.
    Needs an advancer worker with operator signing.

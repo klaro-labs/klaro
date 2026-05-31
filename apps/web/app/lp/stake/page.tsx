@@ -92,7 +92,7 @@ export default async function LPStakePage() {
           </div>
           <Badge
             tone={
-              lp.status === "STAKED" ? "live" : eligible ? "info" : "neutral"
+              lp.status === "STAKED" ? "info" : eligible ? "info" : "neutral"
             }
           >
             {lp.status === "STAKED"
@@ -161,10 +161,10 @@ export default async function LPStakePage() {
           </button>
         </form>
         <p className="mt-3 text-xs text-[var(--color-ink-subtle)]">
-          Live mode: pulls USDC from your wallet via{" "}
-          <code className="font-mono">LPStaking.register()</code> (already
-          approved at stake time). Simulator mode: updates mock store +
-          revalidates.
+          Records your stake amount + tier in Klaro. The on-chain{" "}
+          <code className="font-mono">LPStaking.register()</code> USDC custody
+          is partner-pending — no USDC is pulled or locked on-chain yet, so this
+          updates your LP record without a token transfer.
         </p>
       </section>
     </main>

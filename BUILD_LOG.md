@@ -2,6 +2,32 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ LP-profile persistence (T1 honest-mode #4 — final T1 surface): the LP write
+  actions (invite / apply / submit-docs / approve / **stake** / **rotate payout
+  wallet**) wrote to `mockData` only — every LP mutation vanished on a cold start
+  in live mode. New `lib/repo/lp.ts` dual-mode wrapper persists to `lp_profiles`;
+  all six actions (`app/lp/actions.ts` + `app/lp/settings/actions.ts`) route
+  through it. **Reconciled the app↔DB status divergence** that had deferred this:
+  the app's `LPApplicationStatus` carries `DRAFT/DOCS_UPLOADED/REJECTED` but the
+  DB `lp_status` enum uses `APPLIED` etc. — added a bidirectional map (e.g.
+  `DOCS_UPLOADED↔APPLIED`) so writes never hit an invalid-enum error and reads
+  never surface an unknown status; `lpRowToApplication` now lives in the repo and
+  is shared with the membership read path. `staked_usdc` is stored in whole-USDC
+  dollars (the app carries micro-USDC) — divide on write, multiply on read.
+  Honest relabel: the stake page claimed "Live mode: pulls USDC via
+  `LPStaking.register()`" — the action only persists the record, so it now reads
+  "no USDC is pulled or locked on-chain yet" (on-chain custody partner-pending);
+  the LP-settings rotate hint dropped its false "48h cooldown + confirmation ping"
+  for "recorded immediately (production adds the cooldown)". A real **webpack
+  `node:crypto` build break** surfaced only because the page actually rendered in
+  the browser test (lp.ts is in the `lib/auth` import chain, bundled for edge) —
+  switched to edge-safe Web Crypto. **Verified like a real user** (`pb-lp.ts`,
+  magic-link on :3100, service-role provisions an APPROVED LP whose
+  `supabase_user_id` = the vendor's auth uid so RLS passes): rotate payout wallet
+  → `lp_profiles.wallet` updates; stake $100 → `staked_usdc=100`, `tier=1`,
+  `status=STAKED` (enum-mapped) (`LP_E2E_OK`). Lint + 105 web tests + typecheck
+  green. **T1 honest-mode gap fully closed** (delegations + retainer + FX + LP).
+
 - ✅ FX-quote persistence (T1 honest-mode #3): the `/fx` quote + "Execute swap"
   paths wrote to `mockData` only — an issued quote and its settlement vanished on
   a cold start in live mode. New `lib/repo/fxQuotes.ts` dual-mode wrapper persists

@@ -2,10 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { keccak256, stringToBytes } from "viem";
-// swap cashout mocks → dual-mode repo
-// (live Supabase path engaged when DB is wired). LP-specific mocks have no
-// repo wrapper yet and stay direct.
-import { mockUpdateLP, mockCreateLPInvite } from "@/lib/mockData";
+// cashout + LP writes now route through dual-mode repos (live Supabase path
+// engaged when DB is wired; mockData fallback in dev).
+import { updateLp, createLpInvite } from "@/lib/repo/lp";
 import { getCashout, advanceCashout } from "@/lib/repo/cashouts";
 import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { requireOperator, requireLp } from "@/lib/auth";
@@ -29,7 +28,7 @@ export async function createInviteAction(formData: FormData): Promise<void> {
   const email = String(formData.get("contactEmail") ?? "");
   if (!email.includes("@")) throw new Error("invalid email");
   try {
-    const lp = await mockCreateLPInvite({ contactEmail: email });
+    const lp = await createLpInvite({ contactEmail: email });
     auditRecord({
       actor: session.vendor.id,
       action: "lp.invite",
@@ -60,7 +59,7 @@ export async function submitApplicationAction(
     throw new Error("Payout wallet cannot be the zero address");
   }
   try {
-    await mockUpdateLP(lp.lpId, {
+    await updateLp(lp.lpId, {
       legalEntityName: String(formData.get("legalEntityName") ?? ""),
       country: String(formData.get("country") ?? ""),
       wallet: (rawWallet || undefined) as Hex | undefined,
@@ -91,7 +90,7 @@ export async function submitDocsAction(): Promise<void> {
   try {
     // Real bundle hash comes from Supabase storage upload in live mode.
     const seed = `${lp.lpId}:${Date.now()}`;
-    await mockUpdateLP(lp.lpId, {
+    await updateLp(lp.lpId, {
       kybDocsHash: _hash(`kyb:${seed}`),
       payoutAccountHash: _hash(`payout:${seed}`),
       status: "UNDER_REVIEW",
@@ -128,7 +127,7 @@ export async function approveApplicationAction(
   const lpId = String(formData.get("lpId") ?? "").trim();
   if (!lpId) throw new Error("lpId required");
   try {
-    await mockUpdateLP(lpId, { status: "APPROVED" });
+    await updateLp(lpId, { status: "APPROVED" });
     auditRecord({
       actor: session.vendor.id,
       action: "lp.admit",
@@ -220,14 +219,15 @@ export async function stakeAction(formData: FormData): Promise<void> {
   // QA-052: shared validator catches Infinity/NaN that 'amount < 50' missed
   // (Infinity is NOT < 50 — passes — then dollarsToUSDC throws downstream).
   assertSafeUSDAmount(amount);
-  if (amount < 50) throw new Error("validation_min_stake: minimum T0 stake is $50");
+  if (amount < 50)
+    throw new Error("validation_min_stake: minimum T0 stake is $50");
   if (lp.status !== "APPROVED" && lp.status !== "STAKED") {
     throw new Error("LP must be approved before staking");
   }
   try {
     const tier: 0 | 1 | 2 | 3 | 4 =
       amount >= 2000 ? 3 : amount >= 500 ? 2 : amount >= 100 ? 1 : 0;
-    await mockUpdateLP(lp.lpId, {
+    await updateLp(lp.lpId, {
       stakedUsdc: dollarsToUSDC(amount),
       tier,
       status: "STAKED",

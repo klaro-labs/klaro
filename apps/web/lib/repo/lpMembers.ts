@@ -7,6 +7,7 @@
  * is derived from `(session.vendor.id → lp_members → lp_profiles)`.
  */
 import { tryDb } from "../db";
+import { lpRowToApplication } from "./lp";
 import {
   mockGetPrimaryLpForVendor,
   mockListLpMembershipsForVendor,
@@ -35,6 +36,8 @@ export async function getPrimaryLpForVendor(
     .lp_profiles;
   return lpRowToApplication(lp);
 }
+// lpRowToApplication now lives in ./lp (shared with the LP write path so reads
+// and writes agree on the status enum + micro-USDC conversions).
 
 export async function listMembershipsForVendor(
   vendorId: string,
@@ -53,24 +56,4 @@ export async function listMembershipsForVendor(
       role: r.role as LPMembership["role"],
     }),
   );
-}
-
-function lpRowToApplication(row: Record<string, unknown>): LPApplication {
-  return {
-    lpId: String(row.lp_id),
-    inviteCode: String(row.invite_code ?? ""),
-    legalEntityName: row.legal_entity_name as string | undefined,
-    contactEmail: String(row.contact_email),
-    country: row.country as string | undefined,
-    wallet: row.wallet as LPApplication["wallet"],
-    tier: Number(row.tier ?? 0) as LPApplication["tier"],
-    stakedUsdc: BigInt(Math.round(Number(row.staked_usdc ?? 0) * 1_000_000)),
-    kybDocsHash: row.kyb_record_hash as LPApplication["kybDocsHash"],
-    payoutAccountHash:
-      row.payout_account_hash as LPApplication["payoutAccountHash"],
-    status: String(row.status) as LPApplication["status"],
-    rejectReason: row.last_reason_hash as string | undefined,
-    createdAt: new Date(String(row.invited_at ?? row.updated_at)),
-    updatedAt: new Date(String(row.updated_at)),
-  };
 }

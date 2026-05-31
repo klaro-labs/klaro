@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { mockUpdateLP } from "@/lib/mockData";
+import { updateLp } from "@/lib/repo/lp";
 import { requireLp } from "@/lib/auth";
 import { captureError } from "@/lib/sentry";
 import { record as auditRecord } from "@/lib/auditLog";
@@ -24,7 +24,7 @@ export async function rotateWalletAction(formData: FormData): Promise<void> {
     throw new Error("That's already your current payout wallet");
   }
   try {
-    await mockUpdateLP(lp.lpId, { wallet: next as Hex });
+    await updateLp(lp.lpId, { wallet: next as Hex });
     auditRecord({
       actor: vendor.id,
       action: "lp.rotate_wallet",
