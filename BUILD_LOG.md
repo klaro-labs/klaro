@@ -2,6 +2,9 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Contract safety pass COMPLETE (sandbox, forge-verified 519 green): `setOperator(0)` zero-guard now on ALL 17 operator-gated contracts (added `ZeroOperatorAddress()` to the 15 that lacked it + DisputeManager earlier; CounterpartyRegistry already guarded) +test; LP `slashAmount` bounded to the disputed order value +test; `RetainerStream.pause/unpause` → owner-only +test. Investigated + left as intentional (non-bugs): `AgentEscrow.createJob` hook-revert-blocks-create (tested invariant, no funds at create); `RetainerStream` cross-stream "drain" (false positive, conservation test added); `FeeSplitter` dust-to-last-payee (the documented conservation mechanism).
+- ⏸️ NOT done — needs cross-layer coordination, not a sandbox contract-only fix: `InvoiceEscrow` link-auth cap. `LinkInvoiceAuthorization` is a permissive relayer credential bounded only by `authDeadline`; a per-link `maxUses` cap requires adding a field to the EIP-712 struct, which would break the web signer + 15 apps/web files (linkPublish.ts, abi.ts, link actions, QA scripts) and the reusable-link model. Must be done as one contract+web change with live re-test. Impact is bounded (vendor always payee; spurious invoices inert until a buyer pays).
+
 - ✅ Daemon dispute→escrow fan-out (Task 4): the `DisputeManager.Decided` handler
   previously mirrored the DB row + alerted an admin but **never released escrow** —
   a decided dispute left funds locked. New daemon worker `disputeResolver.ts`
