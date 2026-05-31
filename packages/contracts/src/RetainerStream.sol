@@ -125,7 +125,10 @@ contract RetainerStream is ReentrancyGuard, Ownable2Step, Pausable {
         emit OperatorChanged(address(0), klaroOperator);
     }
 
+    error ZeroOperatorAddress();
+
     function setOperator(address next) external onlyOwner {
+        if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }

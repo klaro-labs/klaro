@@ -167,7 +167,10 @@ contract LPRegistry is Ownable2Step {
         emit LPPayoutAccountUpdated(lpId, newHash);
     }
 
+    error ZeroOperatorAddress();
+
     function setOperator(address next) external onlyOwner {
+        if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }

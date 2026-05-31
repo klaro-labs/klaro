@@ -267,6 +267,13 @@ contract RetainerStreamTest is Test {
         rs.pause();
     }
 
+    // audit D3b MEDIUM-1: setOperator(0) would brick every operator-gated
+    // path; the owner can no longer fat-finger a zero operator.
+    function test_SetOperator_Zero_Reverts() public {
+        vm.expectRevert(RetainerStream.ZeroOperatorAddress.selector);
+        rs.setOperator(address(0));
+    }
+
     function test_SetOperator_OnlyOwner() public {
         vm.prank(address(0xBAD));
         vm.expectRevert();

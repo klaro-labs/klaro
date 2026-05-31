@@ -511,7 +511,10 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
         _unpause();
     }
 
+    error ZeroOperatorAddress();
+
     function setOperator(address next) external onlyOwner {
+        if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }

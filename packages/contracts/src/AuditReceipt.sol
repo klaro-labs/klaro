@@ -117,7 +117,10 @@ contract AuditReceipt is ERC721, Ownable2Step {
 
     // ─── Admin ──────────────────────────────────────────────────────────
 
+    error ZeroOperatorAddress();
+
     function setOperator(address next) external onlyOwner {
+        if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }

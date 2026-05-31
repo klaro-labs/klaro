@@ -321,7 +321,10 @@ contract LPStaking is ReentrancyGuard, EIP712, Pausable, Ownable2Step {
         emit ActiveChanged(lpId, active);
     }
 
+    error ZeroOperatorAddress();
+
     function setOperator(address next) external onlyOwner {
+        if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }

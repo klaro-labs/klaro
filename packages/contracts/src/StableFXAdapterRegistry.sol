@@ -98,7 +98,10 @@ contract StableFXAdapterRegistry is Ownable2Step, ReentrancyGuard, Pausable {
         policy = next;
     }
 
+    error ZeroOperatorAddress();
+
     function setOperator(address next) external onlyOwner {
+        if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }

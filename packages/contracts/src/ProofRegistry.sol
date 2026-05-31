@@ -104,7 +104,10 @@ contract ProofRegistry is Ownable2Step {
         return proofs[proofHash];
     }
 
+    error ZeroOperatorAddress();
+
     function setOperator(address next) external onlyOwner {
+        if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
     }
