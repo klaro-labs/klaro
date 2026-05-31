@@ -697,6 +697,26 @@ export function startArcListener() {
           const key = `job-completed:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
           await safeEvent("JobCompleted", key, async () => {
+            // proof-beats-claims: the on-chain JobCompleted event is the
+            // source of truth for an agent job's terminal state, not a web UI
+            // write. Flip the persisted row to CLOSED from chain truth
+            // (idempotent — claimOnce gates the event, the update is naturally
+            // idempotent).
+            if (ev.args.jobId) {
+              const { error } = await sb()
+                .from("agent_jobs")
+                .update({
+                  status: "CLOSED",
+                  closed_at: new Date().toISOString(),
+                })
+                .eq("job_id", ev.args.jobId);
+              if (error) {
+                log.error("agent_job.close_failed", {
+                  jobId: ev.args.jobId,
+                  error: error.message,
+                });
+              }
+            }
             await queue("notify-vendor").add(ev.args.jobId ?? "", {
               jobId: ev.args.jobId,
               kind: "agent.job.completed",
