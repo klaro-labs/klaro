@@ -300,6 +300,141 @@ export async function stopArcListener(): Promise<void> {
   _inflight.clear();
 }
 
+// ── Extracted event handlers ────────────────────────────────────────────
+// The per-event business logic lives in these named functions so it is unit
+// testable (test/arcSubscriberHandlers.test.ts). The `watch({onLogs})`
+// callbacks keep the claimOnce idempotency gate + safeEvent error wrapper and
+// delegate the DB/queue work here. No behavior change vs the prior inline form.
+
+type Ev<A> = { args: A; transactionHash: `0x${string}`; logIndex?: number };
+
+/** InvoiceEscrow.InvoicePaid → capture the buyer EIP-712 sig (best-effort),
+ * flip CREATED/ACCEPTED → PAID, then fan out the screen-and-settle job. */
+export async function handleInvoicePaidEvent(
+  ev: Ev<{ invoiceId?: `0x${string}`; buyer?: `0x${string}`; amount?: bigint }>,
+): Promise<void> {
+  let acceptanceSig: string | null = null;
+  try {
+    const tx = await arcPublic().getTransaction({ hash: ev.transactionHash });
+    const { args } = decodeFunctionData({
+      abi: parseAbi([
+        "function acceptAndPay(bytes32 invoiceId, bytes buyerSignature, address buyer)",
+      ]),
+      data: tx.input,
+    });
+    acceptanceSig = keccak256(args[1] as `0x${string}`);
+  } catch (e) {
+    log.error("event.InvoicePaid.sigCapture.failed", {
+      id: ev.args.invoiceId,
+      err: (e as Error)?.message,
+    });
+  }
+
+  // Conservative update: only flip CREATED/ACCEPTED → PAID, never clobber a row
+  // that already moved further (e.g. operator-settled).
+  const dbUpd = await sb()
+    .from("invoices")
+    .update({
+      status: "PAID",
+      accepted_by: ev.args.buyer,
+      accepted_at: new Date().toISOString(),
+      paid_tx_hash: ev.transactionHash,
+      ...(acceptanceSig ? { acceptance_sig: acceptanceSig } : {}),
+    })
+    .eq("id", ev.args.invoiceId)
+    .in("status", ["CREATED", "ACCEPTED"]);
+  if (dbUpd.error) {
+    log.error("event.InvoicePaid.dbSync.failed", {
+      id: ev.args.invoiceId,
+      err: dbUpd.error.message,
+    });
+    // Don't bail — still enqueue the screen job; the DB sync is best-effort.
+  }
+
+  await queue("screen-and-settle").add(
+    ev.args.invoiceId ?? "",
+    {
+      invoiceId: ev.args.invoiceId,
+      buyerAddress: ev.args.buyer,
+      amount: ev.args.amount?.toString() ?? "0",
+      paidTxHash: ev.transactionHash,
+    },
+    { jobId: `screen-and-settle_${ev.args.invoiceId}` },
+  );
+  log.info("event.InvoicePaid", { id: ev.args.invoiceId });
+}
+
+const DECIDED_DB_OUTCOME: Record<number, string> = {
+  1: "RELEASE_TO_CLAIMANT",
+  2: "REFUND_TO_RESPONDENT",
+  3: "SLASH_LP",
+  4: "PENALIZE_VENDOR",
+  5: "MUTUAL_RESOLVED",
+};
+
+/** DisputeManager.Decided → mirror the row from chain truth, alert an admin,
+ * and fan out to the escrow resolver (disputeResolver) so funds move. */
+export async function handleDecidedEvent(
+  ev: Ev<{
+    caseId?: `0x${string}`;
+    outcome?: number;
+    reasonHash?: `0x${string}`;
+  }>,
+): Promise<void> {
+  const outcome = DECIDED_DB_OUTCOME[Number(ev.args.outcome)];
+  if (ev.args.caseId) {
+    const { error } = await sb()
+      .from("disputes")
+      .update({
+        status: "DECIDED",
+        ...(outcome ? { outcome } : {}),
+        decision_reason_hash: ev.args.reasonHash ?? null,
+        decided_at: new Date().toISOString(),
+      })
+      .eq("case_id", ev.args.caseId);
+    if (error) {
+      log.error("event.Decided.dbSync.failed", {
+        caseId: ev.args.caseId,
+        err: error.message,
+      });
+    }
+  }
+  await queue("notify-admin").add(ev.args.caseId ?? "", {
+    kind: "dispute.decided",
+    detail: { caseId: ev.args.caseId, outcome: ev.args.outcome },
+  });
+  if (ev.args.caseId) {
+    await queue("dispute-resolve").add(
+      ev.args.caseId,
+      { caseId: ev.args.caseId },
+      { jobId: `dispute-resolve_${ev.args.caseId}` },
+    );
+  }
+}
+
+/** AgentEscrow.JobCompleted → flip the agent_jobs row to CLOSED from chain
+ * truth + notify the vendor. */
+export async function handleJobCompletedEvent(
+  ev: Ev<{ jobId?: `0x${string}` }>,
+): Promise<void> {
+  if (ev.args.jobId) {
+    const { error } = await sb()
+      .from("agent_jobs")
+      .update({ status: "CLOSED", closed_at: new Date().toISOString() })
+      .eq("job_id", ev.args.jobId);
+    if (error) {
+      log.error("agent_job.close_failed", {
+        jobId: ev.args.jobId,
+        error: error.message,
+      });
+    }
+  }
+  await queue("notify-vendor").add(ev.args.jobId ?? "", {
+    jobId: ev.args.jobId,
+    kind: "agent.job.completed",
+  });
+}
+
 export function startArcListener() {
   const client = arcPublic();
   // wrap every watchEvent registration so the unwatch
@@ -430,71 +565,7 @@ export function startArcListener() {
         for (const ev of logs) {
           const key = `invoice-paid:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
-          await safeEvent("InvoicePaid", key, async () => {
-            // QA-034 fix: capture buyer's EIP-712 signature from the
-            // acceptAndPay calldata so the receipt's acceptance_hash
-            // anchor is populated (instead of rendering "—" on
-            // /receipt/[hash]). Decoded async and non-fatal — if the
-            // tx fetch fails we still flip the row to PAID with a null
-            // signature (better than blocking the screen job).
-            let acceptanceSig: string | null = null;
-            try {
-              const tx = await client.getTransaction({
-                hash: ev.transactionHash,
-              });
-              const { args } = decodeFunctionData({
-                abi: parseAbi([
-                  "function acceptAndPay(bytes32 invoiceId, bytes buyerSignature, address buyer)",
-                ]),
-                data: tx.input,
-              });
-              acceptanceSig = keccak256(args[1] as `0x${string}`);
-            } catch (e) {
-              log.error("event.InvoicePaid.sigCapture.failed", {
-                id: ev.args.invoiceId,
-                err: (e as Error)?.message,
-              });
-            }
-
-            // QA-028 fix: sync DB before fanning out the screen job. Without
-            // this the world sees a PAID invoice on chain + screening_results
-            // rows in Supabase, but invoices.status stays 'CREATED' forever
-            // → vendor dashboard never reflects payment. Use a conservative
-            // update that only flips CREATED→PAID (don't clobber a row that
-            // somehow moved further, e.g. operator already settled).
-            const dbUpd = await sb()
-              .from("invoices")
-              .update({
-                status: "PAID",
-                accepted_by: ev.args.buyer,
-                accepted_at: new Date().toISOString(),
-                paid_tx_hash: ev.transactionHash,
-                ...(acceptanceSig ? { acceptance_sig: acceptanceSig } : {}),
-              })
-              .eq("id", ev.args.invoiceId)
-              .in("status", ["CREATED", "ACCEPTED"]);
-            if (dbUpd.error) {
-              log.error("event.InvoicePaid.dbSync.failed", {
-                id: ev.args.invoiceId,
-                err: dbUpd.error.message,
-              });
-              // Don't bail — keep enqueueing the screen job. The DB sync
-              // is best-effort defensive (a later reconciler could fix it
-              // from on-chain state).
-            }
-
-            await queue("screen-and-settle").add(
-              ev.args.invoiceId ?? "",
-              {
-                invoiceId: ev.args.invoiceId,
-                buyerAddress: ev.args.buyer,
-                amount: ev.args.amount?.toString() ?? "0",
-                paidTxHash: ev.transactionHash,
-              },
-              { jobId: `screen-and-settle_${ev.args.invoiceId}` },
-            );
-            log.info("event.InvoicePaid", { id: ev.args.invoiceId });
-          });
+          await safeEvent("InvoicePaid", key, () => handleInvoicePaidEvent(ev));
         }
       },
       onError: listenerError("InvoicePaid"),
@@ -696,32 +767,9 @@ export function startArcListener() {
         for (const ev of logs) {
           const key = `job-completed:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
-          await safeEvent("JobCompleted", key, async () => {
-            // proof-beats-claims: the on-chain JobCompleted event is the
-            // source of truth for an agent job's terminal state, not a web UI
-            // write. Flip the persisted row to CLOSED from chain truth
-            // (idempotent — claimOnce gates the event, the update is naturally
-            // idempotent).
-            if (ev.args.jobId) {
-              const { error } = await sb()
-                .from("agent_jobs")
-                .update({
-                  status: "CLOSED",
-                  closed_at: new Date().toISOString(),
-                })
-                .eq("job_id", ev.args.jobId);
-              if (error) {
-                log.error("agent_job.close_failed", {
-                  jobId: ev.args.jobId,
-                  error: error.message,
-                });
-              }
-            }
-            await queue("notify-vendor").add(ev.args.jobId ?? "", {
-              jobId: ev.args.jobId,
-              kind: "agent.job.completed",
-            });
-          });
+          await safeEvent("JobCompleted", key, () =>
+            handleJobCompletedEvent(ev),
+          );
         }
       },
       onError: listenerError("JobCompleted"),
@@ -774,55 +822,7 @@ export function startArcListener() {
         for (const ev of logs) {
           const key = `decided:${ev.transactionHash}:${ev.logIndex}`;
           if (!(await claimOnce(key))) continue;
-          await safeEvent("Decided", key, async () => {
-            // proof-beats-claims: the on-chain Decided event is the source
-            // of truth for a dispute's terminal state, not an operator UI
-            // write. Flip the persisted row from chain truth (idempotent —
-            // claimOnce gates the event; the update is naturally idempotent).
-            const DB_OUTCOME: Record<number, string> = {
-              1: "RELEASE_TO_CLAIMANT",
-              2: "REFUND_TO_RESPONDENT",
-              3: "SLASH_LP",
-              4: "PENALIZE_VENDOR",
-              5: "MUTUAL_RESOLVED",
-            };
-            const outcome = DB_OUTCOME[Number(ev.args.outcome)];
-            if (ev.args.caseId) {
-              const { error } = await sb()
-                .from("disputes")
-                .update({
-                  status: "DECIDED",
-                  ...(outcome ? { outcome } : {}),
-                  decision_reason_hash: ev.args.reasonHash ?? null,
-                  decided_at: new Date().toISOString(),
-                })
-                .eq("case_id", ev.args.caseId);
-              if (error) {
-                // Don't bail — notify-admin below must still fire so a human
-                // is alerted even if the DB sync failed; a reconciler can fix
-                // the row from on-chain truth. (Matches InvoicePaid pattern.)
-                log.error("event.Decided.dbSync.failed", {
-                  caseId: ev.args.caseId,
-                  err: error.message,
-                });
-              }
-            }
-            await queue("notify-admin").add(ev.args.caseId ?? "", {
-              kind: "dispute.decided",
-              detail: { caseId: ev.args.caseId, outcome: ev.args.outcome },
-            });
-            // Fan out to the escrow: the disputeResolver routes this case to the
-            // right contract's resolveDispute (operator-signed) so the funds
-            // actually move. Deterministic jobId collapses duplicate Decided
-            // deliveries; the worker is also idempotent on-chain.
-            if (ev.args.caseId) {
-              await queue("dispute-resolve").add(
-                ev.args.caseId,
-                { caseId: ev.args.caseId },
-                { jobId: `dispute-resolve_${ev.args.caseId}` },
-              );
-            }
-          });
+          await safeEvent("Decided", key, () => handleDecidedEvent(ev));
         }
       },
       onError: listenerError("Decided"),
