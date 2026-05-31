@@ -62,9 +62,18 @@ persists (these were silently failing live before 0036).
      (`pb-lp.ts`); on-chain `LPStaking` custody partner-pending (labeled). NOTE:
      LP notification/corridor prefs still need an `lp_preferences` table — those
      toggles already refuse honestly ("Coming soon"), so no mock leak.
-2. **Daemon dispute→escrow fan-out:** after a dispute is decided on-chain, an
-   operator must still manually call resolveDispute on Agent/Retainer/Cashout.
-   Needs an advancer worker with operator signing.
+2. **Daemon dispute→escrow fan-out — ✅ built; fund-release E2E pending.** The
+   `disputeResolver` worker now auto-signs `resolveDispute` on the right escrow
+   from the `Decided` event for the deterministic outcomes (RELEASE/REFUND);
+   SLASH_LP/PENALIZE route to admin (need an operator-set amount). Routing is
+   unit-tested + a live integration smoke (`qa-dispute-resolve-route.ts`) proves
+   it drives the real CashoutOrderProcessor + simulate-skips safely. **You need
+   to do (to prove funds actually release):** run a funded dispute lifecycle on
+   testnet — fund an escrow (AgentEscrow job / RetainerStream deposit / cashout
+   LOCKED order) → `openDispute` → `DisputeManager.decide(caseId, RELEASE/REFUND)`
+   → confirm the daemon's `dispute-resolve` job moves the USDC + flips the escrow
+   state. Also set `RETAINER_STREAM_ADDRESS` in the daemon env for stream cases
+   (currently unset, so stream fan-out is a no-op-with-loud-error until wired).
 3. **Contract HIGHs (future redeploys):** bound LP slashAmount; wrap
    AgentEscrow.createJob hook; zero-operator guard on the other 16 contracts;
    RetainerStream.pause→owner (needs a test update); link-auth nonce/cap. Each

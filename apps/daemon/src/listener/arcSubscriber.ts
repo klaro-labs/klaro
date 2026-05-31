@@ -10,7 +10,7 @@
  * CashoutOrderProcessor.ProofSubmitted → cashout-advance:proof-verify
  * CashoutOrderProcessor.OrderReleased → notify-lp
  * DisputeManager.CaseOpened → notify-admin
- * DisputeManager.Decided → notify-admin (fan-out to cashout/agent advancer is
+ * DisputeManager.Decided → DB mirror + notify-admin + dispute-resolve fan-out
  *   F8-pending — outcome-enum-driven business logic + advancer wiring not yet
  *   in scope; admin manually advances based on the notify-admin payload)
  * AgentEscrow.JobCompleted → notify-vendor + notify-agent
@@ -811,6 +811,17 @@ export function startArcListener() {
               kind: "dispute.decided",
               detail: { caseId: ev.args.caseId, outcome: ev.args.outcome },
             });
+            // Fan out to the escrow: the disputeResolver routes this case to the
+            // right contract's resolveDispute (operator-signed) so the funds
+            // actually move. Deterministic jobId collapses duplicate Decided
+            // deliveries; the worker is also idempotent on-chain.
+            if (ev.args.caseId) {
+              await queue("dispute-resolve").add(
+                ev.args.caseId,
+                { caseId: ev.args.caseId },
+                { jobId: `dispute-resolve_${ev.args.caseId}` },
+              );
+            }
           });
         }
       },

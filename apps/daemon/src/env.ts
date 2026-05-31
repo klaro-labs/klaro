@@ -34,6 +34,9 @@ const schema = z.object({
   AUDIT_RECEIPT_ADDRESS: z.string().optional(),
   CASHOUT_ORDER_PROCESSOR_ADDRESS: z.string().optional(),
   AGENT_ESCROW_ADDRESS: z.string().optional(),
+  // RetainerStream escrow — the dispute→escrow fan-out resolves stream-context
+  // cases against it (RetainerStream.resolveDispute(streamId)).
+  RETAINER_STREAM_ADDRESS: z.string().optional(),
   DISPUTE_MANAGER_ADDRESS: z.string().optional(),
 
   // Operator wallet (Circle Wallets or local keystore — for daemon-signed txs)

@@ -2,6 +2,33 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Daemon dispute→escrow fan-out (Task 4): the `DisputeManager.Decided` handler
+  previously mirrored the DB row + alerted an admin but **never released escrow** —
+  a decided dispute left funds locked. New daemon worker `disputeResolver.ts`
+  (+ pure, unit-tested `disputeRouting.ts`) fans out: the listener enqueues
+  `dispute-resolve`; the worker reads the dispute, routes by context, and signs
+  the right escrow's `resolveDispute` with the operator wallet so funds move —
+  `agent`→`AgentEscrow.resolveDispute(jobId, payToAgent)` (payToAgent derived
+  authoritatively from chain: `getCase().claimant == jobs().agent`),
+  `cashout`→`CashoutOrderProcessor.resolveDispute(id, 0, reasonHash)`,
+  `stream`→`RetainerStream.resolveDispute(id)`. Only the **deterministic** outcomes
+  (RELEASE_TO_CLAIMANT / REFUND_TO_RESPONDENT) auto-resolve — each escrow
+  re-derives them from DisputeManager so the daemon supplies no number it could
+  get wrong; `SLASH_LP`/`PENALIZE_VENDOR` need an operator-set amount (none stored
+  in `disputes`) → route to admin; `MUTUAL_RESOLVED`/invoice → skip. Idempotent +
+  fail-safe via simulate-then-write: a contract revert (already resolved, wrong
+  state, or `OutcomeMismatch`) is classified as a non-retryable skip — **never
+  moves funds on a wrong derivation**; transient errors rethrow for BullMQ retry.
+  Added `RETAINER_STREAM_ADDRESS` to the daemon env. **Verified:** routing policy
+  (`disputeRouting.test.ts`, 6 cases — incl. "slash/penalize never auto-sign");
+  17 daemon tests + build green; **live integration smoke** (`qa-dispute-resolve-route.ts`)
+  drives the real worker against the **live CashoutOrderProcessor** — routes →
+  encodes `resolveDispute` → simulates → safely skips on the on-chain revert (no
+  funds, no throw), proving the ABI/address/routing plumbing end-to-end
+  (`DISPUTE_ROUTE_SMOKE_OK`). NOT yet proven: a real fund release, which needs a
+  funded dispute lifecycle (escrow funded → openDispute → DisputeManager.decide →
+  resolve) — recipe documented in HUMAN_ACTIONS.
+
 - ✅ Cashout fiat-leg honest labeling (Task 3): verified the on-chain legs are
   real + DB-mirrored — `recordCashoutRequestedAction` reads `getOrder` and
   requires on-chain `status==LOCKED` + vendor/amount/quoteHash match before
