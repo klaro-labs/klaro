@@ -2,6 +2,23 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ Contract safety pass (sandbox, forge-verified 519 green): bounded LP `slashAmount` to the disputed order value (+test); `RetainerStream.pause/unpause` → owner-only (was hot operator key, +test update); `DisputeManager.setOperator(0)` guard. Investigated + DISPROVEN as non-bugs: `AgentEscrow.createJob` hook-revert-blocks-create is intentional (no funds escrowed at create; tested invariant) — left as-is with a doc note. REMAINING contract items (handed to follow-up, not rushed): `setOperator(0)` guard on the other 15 contracts (mechanical MEDIUM — each needs a ZeroAddress error added); `InvoiceEscrow` link-auth nonce/cap (HIGH, signature-scheme change). Coordination: contract work is isolated to packages/contracts; the other agent owns apps/web live-feature work in parallel.
+
+- ✅ Agents live UI + verified like a user (base gap #2 follow-through): removed
+  the page-level `supabaseLive()` M11 gate that hid the now-persisted `agent_jobs`
+  lifecycle behind a placeholder, and replaced the false "Live mode calls
+  AgentEscrow.fundJob()" button labels with honest "on-chain escrow
+  partner-pending · no USDC moves" labels + a banner. **Verified like a real
+  user** (`pb-agents.ts`, magic-link login on :3100): hire → Fund → Agent starts
+  → Submit deliverable → Accept+release, asserting `agent_jobs.status` + each
+  stage timestamp in the LIVE Supabase DB at every transition + the deliverable
+  hash anchored (`AGENTS_E2E_OK`). Applied **0033** to the live DB (was missing —
+  PGRST204 on `agent_label`). On-chain AgentEscrow custody stays partner-pending:
+  the mock agent registry has no agent wallets / ERC-8004 identity to escrow
+  against, and `startJob`/`submitDeliverable` need the agent to sign; the daemon
+  `JobCompleted`→CLOSED mirror handler already exists for when real agents
+  onboard. Lint + web typecheck green.
+
 - ✅ Company audit complete (13/13 departments, 20 agents) + fix pass. Fixed gate-verified: RLS write gaps (0036), agent-advance TOCTOU, live agent dispute-ownership, MUTUAL_RESOLVED map (0037), Decided notify ordering, middleware CSP allowlist, timing-safe cron, distinct LP/retainer audit codes, DisputeManager zero-operator guard. CRITICAL RetainerStream "drain" disproven with a regression test (518 forge green). Deferred (documented in HUMAN_ACTIONS): T1 systemic mock-only write paths, daemon dispute→escrow fan-out, remaining contract HIGHs, README overclaims.
 
 - ✅ Agent on-chain payments (base gap #5): daemon `JobCompleted` handler now flips the `agent_jobs` row to CLOSED from on-chain truth (proof-beats-claims), parallel to the disputes `Decided` handler. Daemon typecheck + 11 tests green. (Web→on-chain `createJob` remains the M11 client-signing piece, live-untested.)
