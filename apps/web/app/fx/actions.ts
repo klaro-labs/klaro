@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireVendor } from "@/lib/auth";
-import { mockCreateFxQuote, mockSettleFxQuote } from "@/lib/mockData";
+import * as fxRepo from "@/lib/repo/fxQuotes";
 import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
 import { record as auditRecord } from "@/lib/auditLog";
 
@@ -30,7 +30,7 @@ export async function quoteAction(formData: FormData): Promise<void> {
   const rate = RATES[`${src}->${dst}`];
   if (!rate) throw new Error("unsupported_pair");
 
-  await mockCreateFxQuote({
+  await fxRepo.createFxQuote({
     vendorId: vendor.id,
     srcToken: src,
     dstToken: dst,
@@ -53,7 +53,7 @@ export async function quoteAction(formData: FormData): Promise<void> {
 
 export async function settleQuoteAction(id: string): Promise<void> {
   const { vendor } = await requireVendor();
-  const result = await mockSettleFxQuote(id, vendor.id);
+  const result = await fxRepo.settleFxQuote(id, vendor.id);
   if (!result) throw new Error("quote_not_found_or_not_owner");
   auditRecord({
     actor: vendor.id,

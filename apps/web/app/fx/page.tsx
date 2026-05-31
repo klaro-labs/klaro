@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { FxNav } from "@/components/klaro/FxNav";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentSession } from "@/lib/auth";
-import { mockListFxQuotes, type FxStatus } from "@/lib/mockData";
+import { type FxStatus } from "@/lib/mockData";
+import { listFxQuotes } from "@/lib/repo/fxQuotes";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { quoteAction, settleQuoteAction } from "./actions";
 
@@ -45,7 +46,7 @@ export default async function FxPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin?next=/fx");
   const { vendor } = session;
-  const quotes = await mockListFxQuotes(vendor.id);
+  const quotes = await listFxQuotes(vendor.id);
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
       <FxNav />

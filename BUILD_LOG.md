@@ -2,6 +2,21 @@
 
 ## M3 — Pre-launch hardening
 
+- ✅ FX-quote persistence (T1 honest-mode #3): the `/fx` quote + "Execute swap"
+  paths wrote to `mockData` only — an issued quote and its settlement vanished on
+  a cold start in live mode. New `lib/repo/fxQuotes.ts` dual-mode wrapper persists
+  to `fx_quotes` (**0042**, vendor-scoped RLS, numeric(78,0) micro-USDC); page +
+  both actions read/write the repo. The FX labels were already honest (5-tone
+  simulated / live testnet / access pending / quote expired / demo completed,
+  "Demo only · a future live mode would call StableFXAdapterRegistry.swap()"), so
+  this was persistence-only — Circle StableFX (FxEscrow + Permit2) access stays
+  partner-pending and "settlement complete" remains the demo terminal state, not
+  an on-chain swap. **Verified like a real user** (`pb-fx.ts`, magic-link on
+  :3100): request a USDC→USYC quote → `fx_quotes` row persists (simulated, not
+  settled) → Execute swap → `status` = settlement complete + `settled_at` set,
+  badge flips to "Demo completed" (`FX_E2E_OK`). Lint + 105 web tests + typecheck
+  green.
+
 - ✅ Retainer-stream persistence (T1 honest-mode #2): create/withdraw/cancel
   wrote to `mockData` only — a created stream vanished on a cold start in live
   mode, and the form falsely claimed "Funds lock immediately on accept" /

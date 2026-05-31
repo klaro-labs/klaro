@@ -45,9 +45,9 @@ invite a teammate, advance an agent job, add dispute evidence. Confirm each
 persists (these were silently failing live before 0036).
 
 ### 🟠 Deferred — needs dedicated, careful work (do NOT rush; I can do these next)
-1. **T1 honest-mode (highest):** LP stake/apply/approve, FX corridors, vendor/LP
-   settings still write to mock only — they look functional but vanish/no-op
-   live. Each needs a `lib/repo` dual-mode wrapper (+ a couple of migrations).
+1. **T1 honest-mode (highest):** LP stake/apply/approve and vendor/LP settings
+   still write to mock only — they look functional but vanish/no-op live. Each
+   needs a `lib/repo` dual-mode wrapper (+ a couple of migrations).
    - ✅ **Delegations DONE** — `lib/repo/delegations.ts` + `session_keys` (0040),
      issue/revoke persist + verified live (`pb-delegations.ts`); Circle ERC-6900
      scope enforcement stays partner-pending (labeled honestly, not faked).
@@ -55,6 +55,10 @@ persists (these were silently failing live before 0036).
      `retainer_streams` (0041), create/withdraw/cancel persist + verified live
      (`pb-retainer.ts`); on-chain funding stays partner-pending (vesting labeled
      simulated — no payer wallet in the dashboard to sign the fund tx).
+   - ✅ **FX corridors DONE** — `lib/repo/fxQuotes.ts` + `fx_quotes` (0042),
+     quote/settle persist + verified live (`pb-fx.ts`); StableFX (FxEscrow +
+     Permit2) access stays partner-pending ("settlement complete" = demo
+     terminal state, already labeled honestly).
 2. **Daemon dispute→escrow fan-out:** after a dispute is decided on-chain, an
    operator must still manually call resolveDispute on Agent/Retainer/Cashout.
    Needs an advancer worker with operator signing.
