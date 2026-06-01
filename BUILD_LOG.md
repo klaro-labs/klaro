@@ -244,3 +244,15 @@ Code-fixable bucket from the full launch-readiness audit. Each batch tested + ve
 - ✓ Verified ALREADY-done (no work needed): webhook SSRF (store + DNS-rebind fetch guard), idempotency tenant-isolation, audit-log durable Sentry sink, listener cursor durability (Redis persist+resume+reorg-overlap) + claimOnce dedup, RLS write-policy gaps (0036).
 
 Suite after M4: 526 forge / 121 web (3 new) / 65 daemon (6 new) — all green; web + daemon typecheck clean.
+
+## M5 — Cashout on-chain fee withholding + redeploy (2026-06-01)
+
+User reversed the earlier testnet-free call ("do the redeploy, no compromise"). The cashout escrow now withholds the Klaro fee on-chain instead of releasing the full amount.
+
+- ✅ Contract (`1e6cc56`): `Order.klaroFee` (bounded `< usdcAmount`), `_payoutToLpWithFee` carves the fee on the 2 LP-payout paths (happy confirm + dispute REFUND_TO_RESPONDENT) → LP gets `usdcAmount − klaroFee`, fee → `klaroFeeReceiver`; the 4 vendor-refund paths return the full amount (no fee). Owner-rotatable fee sink, fail-closed `FeeReceiverUnset`, free-corridor (fee==0) pays full. 529 forge green.
+- ✅ Server-authoritative fee: `prepareCashoutRequestAction` recomputes the fee from the corridor (client can't zero it). `klaroFee` threaded into every ABI consumer at the correct tuple position; `CashoutOrderProcessor.json` regenerated.
+- ✅ ABI resync (`a92d62e`): 14 stale v1.0 ABIs (pre-existing ZeroOperatorAddress drift) regenerated so `check-abis` CI is green.
+- ✅ Redeployed COP → `0x347935A89B95fD2baD736dbADe4C14b0a5e9E6bd` via `RedeployCashoutForFee.s.sol`; re-pointed ProofRegistry.operator / LPStaking.slasher / DisputeManager+VendorReputation trusted / COP.disputes (all verified on-chain). `daemon/.env` + `web/.env.local` + DEPLOYMENT.md updated; `pnpm preflight` GO.
+- ✅ Pre-deploy gate: 6-agent adversarial audit (money-conservation + every release/refund path + ABI position-consistency + server-fee authority + rewire sequence) — caught a stale `requestAndLock` signature in `qa-dispute-drive.mjs` before broadcast.
+- ✅ Fee split PROVEN on-chain: a real 1.0 USDC cashout released exactly 0.997 to the LP + 0.003 to the fee receiver, escrow conserved to zero.
+- ✅ Honest label (`862d8f8`): cashout form now states the fee is withheld on-chain (dropped the stale "indicative / full amount released on testnet" note).
