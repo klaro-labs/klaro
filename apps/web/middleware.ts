@@ -95,7 +95,10 @@ const RATE_WINDOW_MS = 60_000;
 const RATE_LIMIT = 60;
 const buckets = new Map<string, { count: number; resetAt: number }>();
 
-function rateLimit(ip: string): {
+function rateLimit(
+  ip: string,
+  limit: number = RATE_LIMIT,
+): {
   ok: boolean;
   remaining: number;
   resetAt: number;
@@ -105,14 +108,57 @@ function rateLimit(ip: string): {
   if (!bucket || bucket.resetAt < now) {
     const reset = now + RATE_WINDOW_MS;
     buckets.set(ip, { count: 1, resetAt: reset });
-    return { ok: true, remaining: RATE_LIMIT - 1, resetAt: reset };
+    return { ok: true, remaining: limit - 1, resetAt: reset };
   }
   bucket.count += 1;
   return {
-    ok: bucket.count <= RATE_LIMIT,
-    remaining: Math.max(0, RATE_LIMIT - bucket.count),
+    ok: bucket.count <= limit,
+    remaining: Math.max(0, limit - bucket.count),
     resetAt: bucket.resetAt,
   };
+}
+
+// C7/I4: the in-memory bucket above is per-edge-node, so a request spread across
+// N nodes effectively gets N× the limit. When Upstash REST is configured we keep
+// a DURABLE shared counter (works from the edge runtime over HTTP), so the limit
+// is global. Fail-OPEN: a limiter outage must never block legitimate money
+// traffic, so any Upstash error falls back to the in-memory bucket.
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+async function durableRateLimit(
+  ip: string,
+  limit: number,
+): Promise<{ ok: boolean; remaining: number; resetAt: number }> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return rateLimit(ip, limit);
+  const windowSec = Math.floor(RATE_WINDOW_MS / 1000);
+  const window = Math.floor(Date.now() / RATE_WINDOW_MS);
+  const key = `klaro:rl:${ip}:${window}`;
+  const resetAt = (window + 1) * RATE_WINDOW_MS;
+  try {
+    // One round-trip: INCR the window counter + set its TTL on first hit (NX).
+    const res = await fetch(`${UPSTASH_URL}/pipeline`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${UPSTASH_TOKEN}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify([
+        ["INCR", key],
+        ["EXPIRE", key, String(windowSec), "NX"],
+      ]),
+    });
+    if (!res.ok) return rateLimit(ip, limit);
+    const out = (await res.json()) as Array<{ result?: number }>;
+    const count = Number(out?.[0]?.result ?? 0);
+    return {
+      ok: count <= limit,
+      remaining: Math.max(0, limit - count),
+      resetAt,
+    };
+  } catch {
+    return rateLimit(ip, limit); // fail-open
+  }
 }
 
 function clientIp(req: NextRequest): string {
@@ -126,13 +172,16 @@ function clientIp(req: NextRequest): string {
   if (realIp) return realIp;
   const xff = req.headers.get("x-forwarded-for");
   if (xff) {
-    const hops = xff.split(",").map((s) => s.trim()).filter(Boolean);
+    const hops = xff
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (hops.length) return hops[hops.length - 1];
   }
   return "unknown";
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const host = req.headers.get("host")?.toLowerCase() ?? "";
 
@@ -151,9 +200,18 @@ export function middleware(req: NextRequest) {
     return secure(NextResponse.rewrite(url));
   }
 
-  // Rate limit /api/* — every environment, not just prod.
-  if (path.startsWith("/api/")) {
-    const { ok, remaining, resetAt } = rateLimit(clientIp(req));
+  // Rate limit /api/* AND the public, unauthenticated, money-facing pages
+  // (/pay, /i, /receipt) — every environment. C7/I4: previously only /api/ was
+  // throttled, so the public hosted-checkout + invoice + receipt pages were
+  // wide open to scrapers / gas-drain-adjacent abuse. Durable (Upstash) when
+  // configured, in-memory otherwise; fail-open on any limiter error.
+  const isApi = path.startsWith("/api/");
+  const isPublicMoneyPage = /^\/(pay|i|receipt)(\/|$)/.test(effectivePath);
+  if (isApi || isPublicMoneyPage) {
+    const { ok, remaining, resetAt } = await durableRateLimit(
+      clientIp(req),
+      RATE_LIMIT,
+    );
     if (!ok) {
       return secure(
         new NextResponse(JSON.stringify({ error: "rate limit exceeded" }), {
@@ -167,10 +225,13 @@ export function middleware(req: NextRequest) {
         }),
       );
     }
-    const res = NextResponse.next();
-    res.headers.set("x-ratelimit-remaining", String(remaining));
-    res.headers.set("x-ratelimit-reset", String(Math.ceil(resetAt / 1000)));
-    if (!path.startsWith("/admin")) return secure(res);
+    if (isApi) {
+      const res = NextResponse.next();
+      res.headers.set("x-ratelimit-remaining", String(remaining));
+      res.headers.set("x-ratelimit-reset", String(Math.ceil(resetAt / 1000)));
+      if (!path.startsWith("/admin")) return secure(res);
+    }
+    // public money pages: limit passed → fall through to the security-header path.
   }
 
   // Admin first-line redirect — fast 302 to /signin when no session cookie
@@ -179,8 +240,7 @@ export function middleware(req: NextRequest) {
   // 2026-05-25): it calls `requireOperator()` and bounces non-operators to
   // /vendor. Defence-in-depth — neither this middleware nor the layout alone
   // is the gate.
-  if (process.env.NODE_ENV !== "production")
-    return secure(NextResponse.next());
+  if (process.env.NODE_ENV !== "production") return secure(NextResponse.next());
   // read via env.ts (was a direct process.env.X === "1" string
   // compare here AND in lib/auth.ts — typo risk × 2). Single declared
   // boolean in env.ts now.
