@@ -1226,21 +1226,28 @@ now, shipped + verified) or its precise blocker. Suite: 528 forge / 121 web / 65
   (`prepareCashoutRequestAction`) — reads `vendors.max_cashout_usdc_daily`
   (0/unset → $10k/day default), sums the last 24h, fails closed before any on-chain lock.
 
-### 🔨 REMAINING build-left — codeable next (specced, not yet done)
-- **A4 — invoice 1% fee**: `InvoiceEscrow` already settles via `splitsHash`→FeeSplitter
-  (no redeploy needed); the default create path just never injects a split. Fix =
-  `createInvoice` injects a vendor(99%)+treasury(1%) split + matching `splitsHash`
-  through create→publish→buyer-EIP-712→settle, OR drop the 1% claim from `pricing.ts`.
-  Intricate (the buyer signs over `splitsHash`); needs the invoice E2E to verify, so
-  deferred to a focused batch rather than rushed.
-- **Contract invariants A1/A2** (test-only, no redeploy): Foundry `StdInvariant` suites
-  for InvoiceEscrow conservation + CashoutOrderProcessor no-double-release, + wire the
-  Echidna bodies (still `revert EchidnaHarnessNotWired`). Template exists
-  (`FeeSplitterConservation.t.sol`); each needs its multi-contract handler.
-- **I4/C7 — durable rate limiter over server actions + `/pay`**: the limiter today runs
-  only inside `if(path.startsWith('/api/'))` in **edge** middleware (can't reach Redis).
-  A durable, action+`/pay`-covering limiter needs a Node-context (non-edge) limiter or a
-  per-route guard + Upstash REST. Partial-by-architecture; specced.
+### ✅ DONE — second build-left pass (commits `5fa2bfb` / `25ed65a` / `bc50244`)
+- **Contract invariants A1/A2** — live Foundry `StdInvariant` suites:
+  `InvoiceConservation.t.sol` (I1) + `CashoutConservation.t.sol` (I2: conservation
+  + no-double-release), each 256 runs × 128k calls, 0 reverts. Echidna header updated
+  (all three invariants now have forge coverage; stubs stay fail-closed). **531 forge green.**
+- **I4/C7 — durable rate limiter** — limiter is now Upstash-REST-backed (shared across
+  edge nodes, fail-open) AND covers the public money pages `/pay`, `/i`, `/receipt` in
+  addition to `/api/*`. The "unthrottled `/pay`" gap is closed.
+- **A4 — invoice fee, resolved honestly** — NOT a testnet bug: `pricing.ts` already
+  labels invoice fee `testnet: Free` / `standard: 1.0%` (mainnet-only), which MATCHES the
+  code (0% on the default path on testnet). The real 1% withholding (inject a
+  vendor/treasury split through create→buyer-EIP-712→settle) is genuine MAINNET work,
+  needs the invoice E2E to verify → see Blocked/mainnet. **Fixed the actual live
+  mismatch the cashout redeploy created**: `pricing.ts` said cashout was "Free
+  (simulated)" on testnet but it now withholds 0.3% on-chain — corrected the comparison
+  row + the mainnet-pricing FAQ.
+
+### 🔨 REMAINING build-left — none code-completable for testnet
+All clean, no-external-dependency build-left is now done (C1, I3, A7, I2, A1/A2, I4/C7,
+A4-reconciliation). What remains is either mainnet-scoped or externally blocked (below).
+The mainnet invoice-1% withholding (split injection) is the one feature a future
+testnet→mainnet decision could pull forward, but it needs the runnable invoice E2E first.
 
 ### 🚫 BLOCKED build-left — cannot be completed in-repo (needs redeploy / economic design / external)
 - **A10/H2 — operator-key blast-radius**: on-chain velocity / per-order co-sign guard =
