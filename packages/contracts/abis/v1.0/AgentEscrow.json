@@ -1007,6 +1007,11 @@
       "type": "error",
       "name": "WrongDisputeContext",
       "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ZeroOperatorAddress",
+      "inputs": []
     }
   ]
 }

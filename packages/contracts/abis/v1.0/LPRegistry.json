@@ -749,6 +749,11 @@
     },
     {
       "type": "error",
+      "name": "ZeroOperatorAddress",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "ZeroWallet",
       "inputs": []
     }

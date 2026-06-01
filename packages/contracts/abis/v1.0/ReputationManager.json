@@ -595,6 +595,11 @@
           "internalType": "uint256"
         }
       ]
+    },
+    {
+      "type": "error",
+      "name": "ZeroOperatorAddress",
+      "inputs": []
     }
   ]
 }

@@ -644,6 +644,11 @@
     },
     {
       "type": "error",
+      "name": "ZeroOperatorAddress",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "ZeroPayee",
       "inputs": []
     }

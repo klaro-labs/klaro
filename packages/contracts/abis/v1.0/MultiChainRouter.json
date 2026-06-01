@@ -746,6 +746,11 @@
       "type": "error",
       "name": "ZeroMintRecipient",
       "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ZeroOperatorAddress",
+      "inputs": []
     }
   ]
 }
