@@ -1181,6 +1181,8 @@ File each bug as: route · persona · steps · expected · actual · severity (�
 8. **Verified-webhook side effects** — CCTP/Circle/Gateway routes wire NO `onVerified` handler (a verified inbound settlement is a no-op); wire + test ledger change + duplicate-event idempotency.
 9. **Honest-mode UI sweep + auth/route crawl + error-state drive + XSS on `/i,/receipt,/pay` + SSRF on brand-logo** (only `/^https?/` regex, not `assertPublicHttpUrl`).
 10. **Reconciler robustness** — mixed-batch partial-RPC-failure, CAS-loses-to-concurrent-write, forced post-tx-DB-failure self-heal, BullMQ retry-exhaustion→DLQ+alert.
+11. **Multi-currency** — the cashout is one on-chain mechanism across corridors (INR/BRL/MXN/PHP/KES/NGN/EUR…); only rate + fiat partner differ, and ALL have `realFiatMoves:false`. TEST: quote→fee→lock→release across 2–3 corridors (rate/fee math per currency) + the StableFX USDC↔EURC swap (`pb-fx.ts` + `stableFxAdapter`). NOT testable on testnet: the non-USD fiat PAYOUT (simulated, partner-pending → mainnet/external).
+12. **Multi-chain (CCTP cross-chain receive)** — ⚠️ PART BUILD-GAP, not just untested: `api/webhooks/cctp/route.ts` verifies the inbound webhook but has **no `onVerified` handler** → a verified cross-chain deposit settles nothing; `/api/status` hardcodes CCTP "operational" (overclaim). BUILD: wire the CCTP/Circle/Gateway `onVerified` → settle-the-invoice effect + make `/api/status` probe real. THEN test cross-chain pay→settle (`pb-pay-edge.ts`) + duplicate-event idempotency. Until wired, cross-chain receive is NOT end-to-end functional — label honestly, don't claim verified.
 
 ## 🌐 OPS / EXTERNAL-LEFT (not in the code)
 
