@@ -256,3 +256,18 @@ User reversed the earlier testnet-free call ("do the redeploy, no compromise"). 
 - ✅ Pre-deploy gate: 6-agent adversarial audit (money-conservation + every release/refund path + ABI position-consistency + server-fee authority + rewire sequence) — caught a stale `requestAndLock` signature in `qa-dispute-drive.mjs` before broadcast.
 - ✅ Fee split PROVEN on-chain: a real 1.0 USDC cashout released exactly 0.997 to the LP + 0.003 to the fee receiver, escrow conserved to zero.
 - ✅ Honest label (`862d8f8`): cashout form now states the fee is withheld on-chain (dropped the stale "indicative / full amount released on testnet" note).
+
+## M6 — Launch-ready audit + build-left bucket (2026-06-01)
+
+7-agent launch-readiness audit → `QA_TEST_PLAN.md` §20 (grade C+/~45%; testnet-demo B-/~70%; mainnet D/NO-GO). Then worked the 🔨 build-left bucket; §20.1 is the execution log.
+
+- ✅ **C1** (`0043`, live): LP-claim RLS policy — staked LP can claim a REQUESTED order; live-mode claims no longer strand.
+- ✅ **I3** (`0044`, live + `3183d68`): `audit_logs` append-only trigger (immutable even to service role) + admin UI reads the durable table.
+- ✅ **A7** (`0045`, live): terminal-money disposition columns + daemon writes release disposition from chain truth.
+- ✅ **I2** (`056a44f`): server-side daily cashout cap in the live gate ($10k/day default, fails closed).
+- ✅ **A1/A2 invariants** (`5fa2bfb`): live Foundry StdInvariant for InvoiceEscrow conservation + Cashout conservation/no-double-release (256×128k each). **531 forge green.**
+- ✅ **I4/C7** (`25ed65a`): durable Upstash-backed rate limiter + throttle public `/pay`,`/i`,`/receipt`.
+- ✅ **A4** (`bc50244`): invoice testnet-free is correct + labeled (1% is mainnet); fixed the stale cashout pricing row (now 0.3% withheld on-chain, not "simulated").
+- 🚫 Blocked (mainnet/external): A10 operator co-sign (redeploy+signer), I1 LP-solvency (economic), external [SIMULATED] legs (provider accounts).
+
+Suite: 531 forge / 121 web / 65 daemon green. Migrations 0043–0045 applied to live DB.
