@@ -229,3 +229,18 @@
 - ✅ Step 10: /signin quiet rewrite — reduced glow, passkey CTA, fixed hover + error copy
 - ✅ Step 11: /onboarding — 4-step flow (business, wallet, verification, first invoice)
 - ✅ Step 12: AppShell — VendorNav (5 items), MobileShell (Lucide icons + safe-area) already adopted in PREMIUM_FIX_PLAN; vendor pages use consistent layout
+
+## M4 — Launch-readiness hardening (2026-06-01)
+
+Code-fixable bucket from the full launch-readiness audit. Each batch tested + verified green before commit.
+
+- ✅ Money-correctness (`f764d15`): retainer-stream withdraw is now an optimistic CAS (no double-withdraw under concurrency); cashout payout + FX dst-amount are pure-bigint (no float drift); LP stake→tier adds the previously-missing T4 (≥$10k). Extracted `lib/lpTiers.ts` + `lib/slugs.ts`.
+- ✅ Honest fee labeling (`73aa05b`): cashout form marks Klaro fee + LP spread "· indicative" — on testnet the full USDC is released; on-chain withholding ships with the mainnet contract. No implied cut today.
+- ✅ Daemon reconciler + chain-first release idempotency (`dfaa8e6`): release branch reads chain state before signing (an already-RELEASED order is mirrored, not re-signed → no revert/DLQ/strand); a 5-min reconcile sweep repairs any DB row lagging a RELEASED on-chain order via atomic CAS + drift alert. Read-only on-chain.
+- ✅ Latent build fix (`8f7757e`): committed `lib/slugs.ts` — HEAD imported it but it was untracked, so a clean clone failed typecheck. Wired `isValidSlug` into `/pay/[slug]` as a pre-DB format filter; unit-covered.
+- ✅ Deployment preflight + prod boot gate (`f00b046`): `assertBootConfig()` refuses to start prod if money-critical config is missing (no-network, can't flap); `pnpm preflight` actively probes RPC chain-id, contract bytecode, operator gas, Redis, Supabase. Verified live GO.
+- ✅ FeeSplitter conservation invariant (`91a17dc`): live Foundry stateful-fuzz for THREAT_MODEL I3 (256 runs × 128k calls, 0 reverts) — replaces the unwired Echidna stub for I3. I1/I2 remain honest stubs.
+- ✅ Invoice orphan-prevention (`5fea6b8`): a line-items insert failure now compensating-deletes the invoice + throws (both errors surfaced if cleanup fails) instead of stranding a header-only invoice. True atomic RPC deferred to mainnet.
+- ✓ Verified ALREADY-done (no work needed): webhook SSRF (store + DNS-rebind fetch guard), idempotency tenant-isolation, audit-log durable Sentry sink, listener cursor durability (Redis persist+resume+reorg-overlap) + claimOnce dedup, RLS write-policy gaps (0036).
+
+Suite after M4: 526 forge / 121 web (3 new) / 65 daemon (6 new) — all green; web + daemon typecheck clean.
