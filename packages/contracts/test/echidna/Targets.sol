@@ -18,6 +18,14 @@ import { CashoutOrderProcessor } from "../../src/CashoutOrderProcessor.sol";
 /// We expose state-changing entry points to Echidna's fuzzer + assert the
 /// invariants between calls. Concrete bodies land alongside the first Echidna
 /// CI run; this file pins the target shape so the config + tests don't drift.
+///
+/// STATUS: I3 (FeeSplitter dust-conservation) now has LIVE coverage via a
+/// Foundry-native stateful-fuzz invariant — see
+/// `test/invariant/FeeSplitterConservation.t.sol` (256 runs × 128k calls, 0
+/// reverts), which runs in the existing `forge test` lane without needing the
+/// Echidna binary. I1 (InvoiceEscrow conservation) + I2 (Cashout no-double-
+/// release) remain unwired here and fail-closed below.
+///
 /// @dev Custom error so any Echidna run loudly fails-closed until the bodies
 /// are wired. the previous
 /// `return true` made every invariant a vacuous green — Echidna would
@@ -39,6 +47,9 @@ contract EchidnaTargets {
         revert EchidnaHarnessNotWired();
     }
 
+    /// @dev Covered live by FeeSplitterConservation.t.sol (Foundry invariant).
+    /// Left fail-closed here so an Echidna run can't claim vacuous green; the
+    /// real proof lives in the forge lane.
     function echidna_invariant_splitter_dust_conservation() public pure returns (bool) {
         revert EchidnaHarnessNotWired();
     }
