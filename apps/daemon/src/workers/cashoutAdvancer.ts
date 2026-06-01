@@ -368,6 +368,10 @@ export function startCashoutAdvancer() {
           }
           const wallet = arcWallet();
           const addr = env.CASHOUT_ORDER_PROCESSOR_ADDRESS;
+          // A7: the settling tx hash, captured when we sign so the disposition
+          // row records HOW the money moved (null on the idempotent-repair path
+          // where a prior attempt already released on-chain).
+          let releaseTxHash: string | undefined;
           if (wallet && addr && row?.id && row?.vendor_wallet) {
             // Chain-FIRST idempotency: if a prior attempt already moved the
             // order to RELEASED on-chain but the DB UPDATE below failed (leaving
@@ -396,6 +400,7 @@ export function startCashoutAdvancer() {
                   account: wallet.account!,
                 });
                 await arcPublic().waitForTransactionReceipt({ hash });
+                releaseTxHash = hash;
                 log.info("cashout.release.onchain", { orderId, hash });
               } catch (e) {
                 log.error("cashout.release.onchain.failed", {
@@ -427,11 +432,35 @@ export function startCashoutAdvancer() {
             const { requireArcWalletInProd } = await import("../arc.js");
             requireArcWalletInProd(`cashoutAdvancer.release(${orderId})`);
           }
+          // A7: record terminal-money disposition from CHAIN TRUTH so a RELEASED
+          // row is distinguishable from a refund — who got paid (LP wallet),
+          // the net amount (gross − fee), and the fee withheld. Read-only; a
+          // disposition-read blip must not block the RELEASED flip.
+          let disposition: Record<string, string | undefined> = {};
+          try {
+            if (addr) {
+              const ocFinal = await onChainOrder(addr, orderId);
+              const fee = BigInt(ocFinal.klaroFee ?? 0n);
+              const gross = BigInt(ocFinal.usdcAmount ?? 0n);
+              disposition = {
+                released_to: ocFinal.lpWallet as string,
+                amount_paid: (gross - fee).toString(),
+                fee_collected: fee.toString(),
+                disposition_tx: releaseTxHash,
+              };
+            }
+          } catch (e) {
+            log.warn("cashout.release.disposition_read_failed", {
+              orderId,
+              err: (e as Error).message,
+            });
+          }
           const upReleased = await sb()
             .from("cashout_orders")
             .update({
               status: "RELEASED",
               resolved_at: new Date().toISOString(),
+              ...disposition,
             })
             .eq("id", orderId);
           if (upReleased.error) throw upReleased.error;

@@ -2,7 +2,13 @@
 
 // dual-mode via repo so live Supabase
 // path is exercised; previously mock-only. Money-flow critical surface.
-import { createCashout, advanceCashout, getCashout } from "@/lib/repo/cashouts";
+import {
+  createCashout,
+  advanceCashout,
+  getCashout,
+  sumActiveCashoutUsdcSince,
+  vendorDailyCashoutCapUsdc,
+} from "@/lib/repo/cashouts";
 import * as disputesRepo from "@/lib/repo/disputes";
 import { getCorridor } from "@/lib/corridors";
 import { requireVendor, assertVendorWalletProvisioned } from "@/lib/auth";
@@ -17,6 +23,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { keccak256, stringToBytes } from "viem";
 import type { Hex } from "@/lib/types";
+
+/** I2: per-vendor daily cashout ceiling applied when the vendor has no explicit
+ *  vendors.max_cashout_usdc_daily set. 6-dec micro-USDC ($10,000/day). A launch
+ *  AML guardrail — operators can raise/lower per vendor in the DB. */
+const DEFAULT_DAILY_CASHOUT_CAP_USDC = 10_000_000_000n;
 
 /**
  * Cashout flow. Live path (M11+) calls `CashoutOrderProcessor.requestAndLock`
@@ -224,6 +235,27 @@ export async function prepareCashoutRequestAction(
   if (canonical.klaroFeeUsdc >= usdcAmount) {
     throw new Error("fee must be less than the cashout amount");
   }
+
+  // I2 (AML velocity perimeter, launch audit 2026-06-01): enforce a per-vendor
+  // daily cashout ceiling SERVER-SIDE before we let the vendor lock funds. The
+  // schema carried vendors.max_cashout_usdc_daily but nothing read it. Cap is in
+  // 6-dec micro-USDC (same unit as usdcAmount); 0/unset → DEFAULT_DAILY_CAP.
+  // Fail-closed: over the cap → refuse the prepare so no on-chain lock happens.
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const [cap, used] = await Promise.all([
+    vendorDailyCashoutCapUsdc(
+      session.vendor.id,
+      DEFAULT_DAILY_CASHOUT_CAP_USDC,
+    ),
+    sumActiveCashoutUsdcSince(session.vendor.id, since),
+  ]);
+  if (used + usdcAmount > cap) {
+    const fmt = (v: bigint) => (Number(v) / 1_000_000).toLocaleString();
+    throw new Error(
+      `cashout_daily_limit_exceeded: this cashout ($${fmt(usdcAmount)}) plus today's $${fmt(used)} exceeds the $${fmt(cap)} daily limit — try a smaller amount or wait for the 24h window to roll`,
+    );
+  }
+
   const { randomBytes } = await import("node:crypto");
   return {
     cashoutId: ("0x" + randomBytes(32).toString("hex")) as Hex,

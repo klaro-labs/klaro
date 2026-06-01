@@ -62,6 +62,57 @@ export async function listForVendor(vendorId: string): Promise<CashoutOrder[]> {
   return (data ?? []).map((r) => fromRow(r as DbCashoutOrder));
 }
 
+/**
+ * I2 (AML velocity): total USDC the vendor has cashed out since `sinceIso`,
+ * in 6-dec micro-USDC (same unit as usdc_amount). Counts every order EXCEPT
+ * CANCELLED / EXPIRED (those returned the funds, so they don't consume the
+ * daily allowance). Mock mode → 0n (no cap in dev). Used to enforce a per-day
+ * ceiling before a new cashout is allowed to lock funds.
+ */
+export async function sumActiveCashoutUsdcSince(
+  vendorId: string,
+  sinceIso: string,
+): Promise<bigint> {
+  const c = await tryDb();
+  if (!c) return 0n;
+  const { data, error } = await c
+    .from("cashout_orders")
+    .select("usdc_amount, status")
+    .eq("vendor_id", vendorId)
+    .gte("requested_at", sinceIso);
+  if (error) throw error;
+  let sum = 0n;
+  for (const r of data ?? []) {
+    const status = (r as { status: string }).status;
+    if (status === "CANCELLED" || status === "EXPIRED") continue;
+    sum += numericToBigInt((r as { usdc_amount: string | number }).usdc_amount);
+  }
+  return sum;
+}
+
+/**
+ * I2: the vendor's per-day cashout ceiling in 6-dec micro-USDC. Reads
+ * vendors.max_cashout_usdc_daily (numeric(38,6), same unit as usdc_amount);
+ * 0/unset → the supplied `defaultCap`. Mock mode → defaultCap.
+ */
+export async function vendorDailyCashoutCapUsdc(
+  vendorId: string,
+  defaultCap: bigint,
+): Promise<bigint> {
+  const c = await tryDb();
+  if (!c) return defaultCap;
+  const { data, error } = await c
+    .from("vendors")
+    .select("max_cashout_usdc_daily")
+    .eq("id", vendorId)
+    .maybeSingle();
+  if (error) throw error;
+  const raw = (data as { max_cashout_usdc_daily?: number | string } | null)
+    ?.max_cashout_usdc_daily;
+  const cap = raw == null ? 0n : numericToBigInt(String(raw));
+  return cap > 0n ? cap : defaultCap;
+}
+
 export async function getCashout(id: Hex): Promise<CashoutOrder | null> {
   const c = await tryDb();
   if (!c) return mockGetCashout(id);
