@@ -209,8 +209,15 @@ export async function createInvoice(args: {
       metadataHash: args.metadataHash,
     });
   }
-  // Live: insert invoice row + line items in a transaction-like batch.
-  // (Supabase JS doesn't expose true tx; service-role daemon does atomic writes; here we accept best-effort.)
+  // Live: insert the invoice row, then its line items. Supabase JS has no true
+  // multi-statement transaction, so these are two round-trips. To avoid leaving
+  // an ORPHAN invoice (header persisted, items insert failed), the line-items
+  // failure path compensates by deleting the just-inserted invoice and throwing
+  // — the caller sees a clean failure to retry rather than a half-written
+  // invoice. (A SECURITY-INVOKER `create_invoice_with_items` RPC is the true
+  // all-or-nothing fix; deferred to mainnet hardening. The on-chain amount lives
+  // on `amount_usdc`, not the item sum, so a transient orphan is never a
+  // money-amount bug — only a missing itemization.)
   const insert = await c
     .from("invoices")
     .insert({
@@ -239,7 +246,19 @@ export async function createInvoice(args: {
         position: i,
       })),
     );
-    if (li.error) throw li.error;
+    if (li.error) {
+      // Compensating delete so we don't strand an orphan invoice. Best-effort:
+      // if the cleanup itself fails, surface BOTH errors in the throw so the
+      // orphan can't disappear silently (the action layer captures to Sentry).
+      const cleanup = await c.from("invoices").delete().eq("id", args.id);
+      if (cleanup.error) {
+        throw new Error(
+          `invoice_line_items insert failed (${li.error.message}); ` +
+            `orphan invoice ${args.id} cleanup ALSO failed (${cleanup.error.message}) — needs manual removal`,
+        );
+      }
+      throw li.error;
+    }
   }
   // hydrate vendorWallet from the args (caller passed
   // session.vendor.wallet after assertVendorWalletProvisioned). Insert
