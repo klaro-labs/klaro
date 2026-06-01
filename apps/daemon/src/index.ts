@@ -32,6 +32,7 @@ import { startStableFxAdapter } from "./workers/stableFxAdapter.js";
 import { startProofVerifier } from "./workers/proofVerifier.js";
 import { startDisputeResolver } from "./workers/disputeResolver.js";
 import { startDisputeDecider } from "./workers/disputeDecide.js";
+import { startReconciler } from "./workers/reconciler.js";
 import { startLifecycleReminders } from "./workers/lifecycleReminders.js";
 import { watchDlq, stopDlqWatch } from "./workers/_dlq.js";
 
@@ -72,6 +73,13 @@ async function scheduleCrons() {
     { source: "UN" },
     { repeat: { pattern: "0 2 * * *" }, jobId: "sanctions:un:daily" },
   );
+  // Ledger↔chain reconcile sweep — repairs any cashout whose DB lags a RELEASED
+  // on-chain order (post-tx DB-write failures). Read-only on-chain; alerts on drift.
+  await queue("reconcile").add(
+    "tick",
+    { tick: new Date().toISOString() },
+    { repeat: { pattern: "*/5 * * * *" }, jobId: "reconcile:5min" },
+  );
 }
 
 async function boot() {
@@ -99,6 +107,7 @@ async function boot() {
   startProofVerifier();
   startDisputeResolver();
   startDisputeDecider();
+  startReconciler();
   startLifecycleReminders();
 
   // Arc event subscriptions (only when contract addresses are pinned in env)
@@ -127,6 +136,9 @@ async function boot() {
     "admin-risk",
     "fx-execute",
     "proof-verify",
+    "dispute-resolve",
+    "dispute-decide",
+    "reconcile",
     "lifecycle-reminders",
   ]);
 

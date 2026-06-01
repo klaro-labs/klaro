@@ -212,6 +212,10 @@ describe("cashout-advance worker switch", () => {
         return { data: null, error: null };
       },
     };
+    // chain not yet RELEASED (PROOF_SUBMITTED=4) → the precheck proceeds to sign
+    H.arc = makeArc({
+      reads: { getOrder: { status: ON_CHAIN_STATUS.PROOF_SUBMITTED } },
+    });
     await run({ orderId: ID, kind: "release" });
     expect(H.arc.writes).toHaveLength(1);
     expect(H.arc.writes[0].functionName).toBe("operatorConfirmReceived");
@@ -220,6 +224,38 @@ describe("cashout-advance worker switch", () => {
     expect(
       H.q.adds.some((a: { queue: string }) => a.queue === "notify-lp"),
     ).toBe(true);
+  });
+
+  it("release chain-first idempotency: chain already RELEASED → NO re-sign, DB repaired", async () => {
+    // Partial-failure replay: a prior attempt RELEASED on-chain but the DB write
+    // failed (still PROOF_SUBMITTED). The retry must NOT re-sign (would revert →
+    // DLQ → stranded) — it skips the tx and repairs the DB to RELEASED.
+    const order_updates: string[] = [];
+    H.sbHandlers = {
+      cashout_orders: (c: {
+        op: string;
+        payload?: Record<string, unknown>;
+      }) => {
+        if (c.op === "select")
+          return {
+            data: {
+              id: ID,
+              status: "PROOF_SUBMITTED",
+              vendor_wallet: "0xvw",
+              usdc_amount: "1000",
+            },
+            error: null,
+          };
+        if (c.op === "update") order_updates.push(String(c.payload?.status));
+        return { data: null, error: null };
+      },
+    };
+    H.arc = makeArc({
+      reads: { getOrder: { status: ON_CHAIN_STATUS.RELEASED } },
+    });
+    await run({ orderId: ID, kind: "release" });
+    expect(H.arc.writes).toHaveLength(0); // did NOT re-sign
+    expect(order_updates).toEqual(["RELEASED"]); // DB still repaired
   });
 
   it("release is idempotent: already-RELEASED order does nothing", async () => {

@@ -369,29 +369,41 @@ export function startCashoutAdvancer() {
           const wallet = arcWallet();
           const addr = env.CASHOUT_ORDER_PROCESSOR_ADDRESS;
           if (wallet && addr && row?.id && row?.vendor_wallet) {
-            try {
-              // call operatorConfirmReceived instead of
-              // the vendor-only confirmReceived. Daemon signs as the
-              // operator key; contract validates the passed vendor.
-              const hash = await wallet.writeContract({
-                address: addr as `0x${string}`,
-                abi: CASHOUT_ABI,
-                functionName: "operatorConfirmReceived",
-                args: [
-                  row.id as `0x${string}`,
-                  row.vendor_wallet as `0x${string}`,
-                ],
-                chain: null,
-                account: wallet.account!,
-              });
-              await arcPublic().waitForTransactionReceipt({ hash });
-              log.info("cashout.release.onchain", { orderId, hash });
-            } catch (e) {
-              log.error("cashout.release.onchain.failed", {
-                orderId,
-                err: (e as Error).message,
-              });
-              throw e;
+            // Chain-FIRST idempotency: if a prior attempt already moved the
+            // order to RELEASED on-chain but the DB UPDATE below failed (leaving
+            // status=CONFIRMED), a BullMQ retry must NOT re-sign
+            // operatorConfirmReceived — the contract would revert
+            // InvalidStatus(PROOF_SUBMITTED, RELEASED) → DLQ → vendor USDC
+            // stranded with DB diverged from chain. Read chain truth; if already
+            // RELEASED, skip the tx and fall through to repair the DB mirror.
+            const oc = await onChainOrder(addr, orderId);
+            if (Number(oc.status) === ON_CHAIN_STATUS.RELEASED) {
+              log.info("cashout.release.onchain.already", { orderId });
+            } else {
+              try {
+                // call operatorConfirmReceived instead of
+                // the vendor-only confirmReceived. Daemon signs as the
+                // operator key; contract validates the passed vendor.
+                const hash = await wallet.writeContract({
+                  address: addr as `0x${string}`,
+                  abi: CASHOUT_ABI,
+                  functionName: "operatorConfirmReceived",
+                  args: [
+                    row.id as `0x${string}`,
+                    row.vendor_wallet as `0x${string}`,
+                  ],
+                  chain: null,
+                  account: wallet.account!,
+                });
+                await arcPublic().waitForTransactionReceipt({ hash });
+                log.info("cashout.release.onchain", { orderId, hash });
+              } catch (e) {
+                log.error("cashout.release.onchain.failed", {
+                  orderId,
+                  err: (e as Error).message,
+                });
+                throw e;
+              }
             }
           } else {
             // route through
