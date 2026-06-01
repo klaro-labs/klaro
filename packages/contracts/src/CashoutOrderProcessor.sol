@@ -46,6 +46,11 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
         address vendor; // vendor wallet that requested
         address token; // USDC ERC-20 on Arc (6 dec)
         uint256 usdcAmount; // amount locked
+        // protocol fee carved from `usdcAmount` and paid to `klaroFeeReceiver`
+        // on a SUCCESSFUL release (LP payout = usdcAmount − klaroFee). 0 for free
+        // corridors. NEVER withheld on a vendor refund (dispute/expire/cancel) —
+        // those return the full locked amount. Bound `< usdcAmount` at lock time.
+        uint256 klaroFee;
         uint256 inrAmount; // quoted INR (× 100 = paise)
         bytes32 lpId; // LP claimed assignment (set on CLAIMED)
         // snapshot of
@@ -75,6 +80,12 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
     LPRegistry public immutable registry;
     DisputeManager public disputes; // set via setDisputes() post-deploy
     address public klaroOperator;
+    /// @notice Recipient of the protocol fee carved from each successful cashout.
+    /// Mirrors AgentEscrow's `klaroFeeReceiver` convention. Owner-settable so the
+    /// fee sink can rotate (e.g. EOA → FeeSplitter) without a redeploy. May be
+    /// zero only while every live order has klaroFee == 0; a fee>0 release
+    /// fails-closed (FeeReceiverUnset) rather than stranding the fee.
+    address public klaroFeeReceiver;
 
     bytes32 internal constant CASHOUT_DISPUTE_CONTEXT = keccak256("klaro.dispute.cashout");
 
@@ -138,6 +149,11 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
     event SlashWrittenOff(
         bytes32 indexed cashoutId, bytes32 indexed lpId, uint256 amount, bytes32 writeOffReasonHash
     );
+    /// @notice Emitted on a successful release when a protocol fee was carved
+    /// from the locked amount. `OrderReleased.usdcAmount` stays the GROSS order
+    /// size; this records the carve-out so the LP-net = gross − fee is derivable.
+    event CashoutFeeWithheld(bytes32 indexed cashoutId, address indexed receiver, uint256 fee);
+    event FeeReceiverChanged(address indexed previous, address indexed next);
 
     // ─── Errors ─────────────────────────────────────────────────────────
     error InvalidStatus(Status expected, Status actual);
@@ -163,6 +179,11 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
     error WrongDisputeContext();
     // retrySlash gates.
     error NoPendingSlash();
+    /// @notice A fee>0 order tried to release but no fee sink is configured.
+    /// Fail-closed (mirrors AgentEscrow) — never strand the fee in escrow.
+    error FeeReceiverUnset();
+    /// @notice klaroFee must leave the LP a positive payout (fee < usdcAmount).
+    error FeeExceedsAmount(uint256 fee, uint256 amount);
 
     modifier onlyOperator() {
         if (msg.sender != klaroOperator) revert NotOperator();
@@ -174,7 +195,8 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
         ProofRegistry proofs_,
         LPStaking staking_,
         LPRegistry registry_,
-        address operator_
+        address operator_,
+        address feeReceiver_
     ) Ownable(msg.sender) {
         KlaroConfig.requireArcTestnet();
         usdc = IERC20(usdc_);
@@ -182,7 +204,9 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
         staking = staking_;
         registry = registry_;
         klaroOperator = operator_;
+        klaroFeeReceiver = feeReceiver_;
         emit OperatorChanged(address(0), operator_);
+        emit FeeReceiverChanged(address(0), feeReceiver_);
     }
 
     // ─── Vendor side ────────────────────────────────────────────────────
@@ -192,12 +216,16 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
     function requestAndLock(
         bytes32 cashoutId,
         uint256 usdcAmount,
+        uint256 klaroFee,
         uint256 inrAmount,
         bytes32 corridor,
         uint64 quoteExpiresAt,
         bytes32 quoteHash
     ) external whenNotPaused nonReentrant {
         if (usdcAmount == 0) revert AmountZero();
+        // The vendor authorizes the fee by locking with it (they are msg.sender
+        // moving their own USDC). It must leave the LP a positive payout.
+        if (klaroFee >= usdcAmount) revert FeeExceedsAmount(klaroFee, usdcAmount);
         if (orders[cashoutId].status != Status.NONE) revert AlreadyExists();
         if (block.timestamp > quoteExpiresAt) revert QuoteExpired();
 
@@ -205,6 +233,7 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
             vendor: msg.sender,
             token: address(usdc),
             usdcAmount: usdcAmount,
+            klaroFee: klaroFee,
             inrAmount: inrAmount,
             lpId: bytes32(0),
             lpWallet: address(0),
@@ -264,10 +293,25 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
         }
 
         o.status = Status.RELEASED;
-        // Canonical LP wallet lives in LPRegistry, not LPStaking.
-        address lpAddr = o.lpWallet;
         emit OrderConfirmed(cashoutId);
-        usdc.safeTransfer(lpAddr, o.usdcAmount);
+        _payoutToLpWithFee(o, cashoutId);
+    }
+
+    /// @dev Successful-cashout payout. The LP (canonical wallet snapshotted in
+    /// `o.lpWallet` at claim time) receives the locked amount MINUS the protocol
+    /// fee carved at lock; the fee goes to `klaroFeeReceiver`. Conservation:
+    /// toLp + fee == o.usdcAmount, so the contract's balance for this order nets
+    /// to zero. Called ONLY where the cashout completed (vendor got fiat) — never
+    /// on a refund. `OrderReleased.usdcAmount` stays the gross order size.
+    function _payoutToLpWithFee(Order storage o, bytes32 cashoutId) private {
+        uint256 fee = o.klaroFee;
+        if (fee > 0 && klaroFeeReceiver == address(0)) revert FeeReceiverUnset();
+        uint256 toLp = o.usdcAmount - fee; // fee < usdcAmount enforced at lock
+        usdc.safeTransfer(o.lpWallet, toLp);
+        if (fee > 0) {
+            usdc.safeTransfer(klaroFeeReceiver, fee);
+            emit CashoutFeeWithheld(cashoutId, klaroFeeReceiver, fee);
+        }
         emit OrderReleased(cashoutId, o.lpId, o.usdcAmount);
     }
 
@@ -416,14 +460,15 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
         }
 
         DisputeManager.Outcome decision = disputes.outcomeOf(cashoutId);
-        address lpAddr = o.lpWallet;
         if (decision == DisputeManager.Outcome.REFUND_TO_RESPONDENT) {
             if (slashAmount != 0) revert SlashNotAllowed();
+            // LP won the dispute → the cashout DID complete (LP fronted fiat),
+            // so this is a successful payout and the protocol fee applies, same
+            // as the happy-path confirm.
             Status outcome = Status.RESOLVED_LP_PAYS;
             o.status = outcome;
-            usdc.safeTransfer(lpAddr, o.usdcAmount);
             emit OrderResolved(cashoutId, outcome, 0, reasonHash);
-            emit OrderReleased(cashoutId, o.lpId, o.usdcAmount);
+            _payoutToLpWithFee(o, cashoutId);
         } else if (decision == DisputeManager.Outcome.RELEASE_TO_CLAIMANT) {
             if (slashAmount != 0) revert SlashNotAllowed();
             Status outcome = Status.RESOLVED_VENDOR_PAYS;
@@ -517,6 +562,14 @@ contract CashoutOrderProcessor is ReentrancyGuard, Pausable, Ownable2Step {
         if (next == address(0)) revert ZeroOperatorAddress();
         emit OperatorChanged(klaroOperator, next);
         klaroOperator = next;
+    }
+
+    /// @notice Rotate the protocol-fee sink (e.g. EOA → FeeSplitter). Owner-only
+    /// (multisig in prod). Zero is permitted only while no fee>0 order is live;
+    /// a fee>0 release against a zero sink fails-closed (FeeReceiverUnset).
+    function setFeeReceiver(address next) external onlyOwner {
+        emit FeeReceiverChanged(klaroFeeReceiver, next);
+        klaroFeeReceiver = next;
     }
 
     // ─── Views ──────────────────────────────────────────────────────────

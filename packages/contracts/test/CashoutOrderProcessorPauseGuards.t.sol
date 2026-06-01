@@ -59,7 +59,8 @@ contract CashoutOrderProcessorPauseGuardsTest is Test {
         proofs = new ProofRegistry(operator);
         staking = new LPStaking(address(usdc), signingOperator);
         registry = new LPRegistry(operator);
-        proc = new CashoutOrderProcessor(address(usdc), proofs, staking, registry, operator);
+        proc =
+            new CashoutOrderProcessor(address(usdc), proofs, staking, registry, operator, operator);
         proofs.setOperator(address(proc));
 
         usdc.mint(vendor, USDC_AMT * 10);
@@ -93,7 +94,13 @@ contract CashoutOrderProcessorPauseGuardsTest is Test {
     function _lockedOrder() internal {
         vm.prank(vendor);
         proc.requestAndLock(
-            CO_ID, USDC_AMT, INR_AMT, CORRIDOR, uint64(block.timestamp + 5 minutes), keccak256("q")
+            CO_ID,
+            USDC_AMT,
+            0,
+            INR_AMT,
+            CORRIDOR,
+            uint64(block.timestamp + 5 minutes),
+            keccak256("q")
         );
     }
 

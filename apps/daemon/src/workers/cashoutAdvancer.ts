@@ -35,7 +35,7 @@ export const CASHOUT_ABI = parseAbi([
   "function operatorConfirmReceived(bytes32 cashoutId, address expectedVendor) external",
   "function claimByLP(bytes32 cashoutId, bytes32 lpId) external",
   "function recordProof(bytes32 cashoutId, (bytes32 cashoutId, bytes32 lpId, bytes32 vendorId, uint256 inrAmount, uint256 usdcAmount, bytes32 utrReferenceHash, bytes32 screenshotHash, uint64 submittedAt, bytes32 lpSignatureHash, bytes32 verifierSignatureHash) p) external",
-  "function getOrder(bytes32 cashoutId) view returns ((address vendor, address token, uint256 usdcAmount, uint256 inrAmount, bytes32 lpId, address lpWallet, bytes32 corridor, uint64 requestedAt, uint64 quoteExpiresAt, bytes32 quoteHash, bytes32 proofHash, uint8 status))",
+  "function getOrder(bytes32 cashoutId) view returns ((address vendor, address token, uint256 usdcAmount, uint256 klaroFee, uint256 inrAmount, bytes32 lpId, address lpWallet, bytes32 corridor, uint64 requestedAt, uint64 quoteExpiresAt, bytes32 quoteHash, bytes32 proofHash, uint8 status))",
 ]);
 
 // CashoutOrderProcessor.Status enum ordinals (must mirror the Solidity enum

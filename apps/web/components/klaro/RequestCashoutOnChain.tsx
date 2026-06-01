@@ -132,6 +132,7 @@ export function RequestCashoutOnChain({
         args: [
           p.cashoutId,
           usdc,
+          BigInt(p.klaroFee),
           BigInt(p.inrAmount),
           p.corridor,
           BigInt(p.quoteExpiresAtSecs),

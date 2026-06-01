@@ -50,7 +50,8 @@ contract CashoutOrderProcessorRevertsTest is Test {
         proofs = new ProofRegistry(operator);
         staking = new LPStaking(address(usdc), operator);
         registry = new LPRegistry(operator);
-        proc = new CashoutOrderProcessor(address(usdc), proofs, staking, registry, operator);
+        proc =
+            new CashoutOrderProcessor(address(usdc), proofs, staking, registry, operator, operator);
         proofs.setOperator(address(proc));
         staking.setSlasher(address(proc));
         usdc.mint(vendor, USDC_AMT * 10);
@@ -64,7 +65,13 @@ contract CashoutOrderProcessorRevertsTest is Test {
     function _request() internal {
         vm.prank(vendor);
         proc.requestAndLock(
-            CO_ID, USDC_AMT, INR_AMT, CORRIDOR, uint64(block.timestamp + 5 minutes), keccak256("q")
+            CO_ID,
+            USDC_AMT,
+            0,
+            INR_AMT,
+            CORRIDOR,
+            uint64(block.timestamp + 5 minutes),
+            keccak256("q")
         );
     }
 
@@ -73,7 +80,26 @@ contract CashoutOrderProcessorRevertsTest is Test {
     function test_requestAndLock_AmountZero_Reverts() public {
         vm.prank(vendor);
         vm.expectRevert(CashoutOrderProcessor.AmountZero.selector);
-        proc.requestAndLock(CO_ID, 0, 0, CORRIDOR, uint64(block.timestamp + 60), keccak256("q"));
+        proc.requestAndLock(CO_ID, 0, 0, 0, CORRIDOR, uint64(block.timestamp + 60), keccak256("q"));
+    }
+
+    function test_requestAndLock_FeeExceedsAmount_Reverts() public {
+        // klaroFee must leave the LP a positive payout (fee < usdcAmount).
+        vm.prank(vendor);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                CashoutOrderProcessor.FeeExceedsAmount.selector, USDC_AMT, USDC_AMT
+            )
+        );
+        proc.requestAndLock(
+            CO_ID,
+            USDC_AMT,
+            USDC_AMT,
+            INR_AMT,
+            CORRIDOR,
+            uint64(block.timestamp + 60),
+            keccak256("q")
+        );
     }
 
     function test_requestAndLock_AlreadyExists_Reverts() public {
@@ -81,7 +107,7 @@ contract CashoutOrderProcessorRevertsTest is Test {
         vm.prank(vendor);
         vm.expectRevert(CashoutOrderProcessor.AlreadyExists.selector);
         proc.requestAndLock(
-            CO_ID, USDC_AMT, INR_AMT, CORRIDOR, uint64(block.timestamp + 60), keccak256("q")
+            CO_ID, USDC_AMT, 0, INR_AMT, CORRIDOR, uint64(block.timestamp + 60), keccak256("q")
         );
     }
 
@@ -91,7 +117,7 @@ contract CashoutOrderProcessorRevertsTest is Test {
         vm.prank(vendor);
         vm.expectRevert(CashoutOrderProcessor.QuoteExpired.selector);
         proc.requestAndLock(
-            CO_ID, USDC_AMT, INR_AMT, CORRIDOR, uint64(block.timestamp - 1), keccak256("q")
+            CO_ID, USDC_AMT, 0, INR_AMT, CORRIDOR, uint64(block.timestamp - 1), keccak256("q")
         );
     }
 
@@ -144,7 +170,7 @@ contract CashoutOrderProcessorRevertsTest is Test {
         vm.prank(vendor);
         vm.expectRevert(); // Pausable: paused
         proc.requestAndLock(
-            CO_ID, USDC_AMT, INR_AMT, CORRIDOR, uint64(block.timestamp + 60), keccak256("q")
+            CO_ID, USDC_AMT, 0, INR_AMT, CORRIDOR, uint64(block.timestamp + 60), keccak256("q")
         );
     }
 }

@@ -58,6 +58,9 @@ export const CASHOUT_ORDER_PROCESSOR_ABI = [
     inputs: [
       { name: "cashoutId", type: "bytes32" },
       { name: "usdcAmount", type: "uint256" },
+      // protocol fee carved from usdcAmount on a successful release (LP gets
+      // usdcAmount − klaroFee). Must be < usdcAmount; 0 for free corridors.
+      { name: "klaroFee", type: "uint256" },
       { name: "inrAmount", type: "uint256" },
       { name: "corridor", type: "bytes32" },
       { name: "quoteExpiresAt", type: "uint64" },
@@ -77,6 +80,7 @@ export const CASHOUT_ORDER_PROCESSOR_ABI = [
           { name: "vendor", type: "address" },
           { name: "token", type: "address" },
           { name: "usdcAmount", type: "uint256" },
+          { name: "klaroFee", type: "uint256" },
           { name: "inrAmount", type: "uint256" },
           { name: "lpId", type: "bytes32" },
           { name: "lpWallet", type: "address" },

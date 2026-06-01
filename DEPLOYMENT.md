@@ -17,7 +17,7 @@
 | LPRegistry              | `0xCF591a1fA140c5Ca04686dDD7De006Da78C2180b` |
 | LPStaking               | `0x4b36eD428b47F4254737215454BE6e9b99A1bD1f` |
 | ProofRegistry           | `0xb0a2c7815D75EeBF73f8869C810EC8da5FcCbC33` |
-| CashoutOrderProcessor   | `0x4047ecf1f67dE098aF919bD2Ce9137b4414d226c` |
+| CashoutOrderProcessor   | `0x347935A89B95fD2baD736dbADe4C14b0a5e9E6bd` |
 | MultiChainRouter        | `0xAF636EbC33D9FCB124E21C567F174f1EA5e2A241` |
 | DisputeManager          | `0xee9561BE93312625C7F622D3f63B9092Af23aE5F` |
 | RetainerStream          | `0xD6891F3E074F80Ea54a25E68009eDA1a1AdC360A` |

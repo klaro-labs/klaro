@@ -181,6 +181,10 @@ export interface PreparedCashoutRequest {
   cashoutId: Hex;
   vendorWallet: Hex;
   usdcAmount: string; // 6-dec USDC
+  // Protocol fee the contract withholds on a successful release (6-dec USDC).
+  // SERVER-canonical: recomputed from the corridor here, NOT trusted from the
+  // client — a tampered client can't zero out the fee it pays.
+  klaroFee: string;
   inrAmount: string; // payout minor units (×100)
   corridor: Hex; // keccak256(currency)
   quoteExpiresAtSecs: number;
@@ -212,11 +216,20 @@ export async function prepareCashoutRequestAction(
   if (Number.isNaN(+expiresAt) || expiresAt < new Date()) {
     throw new Error("quote expired — request a fresh quote");
   }
+  // Recompute the fee server-side from the corridor so the amount the contract
+  // withholds can't be tampered down by a hostile client. quoteCashout returns
+  // non-null here (corridor existence checked above).
+  const canonical = quoteCashout(usdcAmount, input.currency);
+  if (!canonical) throw new Error(`Unknown corridor ${input.currency}`);
+  if (canonical.klaroFeeUsdc >= usdcAmount) {
+    throw new Error("fee must be less than the cashout amount");
+  }
   const { randomBytes } = await import("node:crypto");
   return {
     cashoutId: ("0x" + randomBytes(32).toString("hex")) as Hex,
     vendorWallet,
     usdcAmount: usdcAmount.toString(),
+    klaroFee: canonical.klaroFeeUsdc.toString(),
     inrAmount: input.payoutMinor,
     corridor: keccak256(stringToBytes(input.currency)),
     quoteExpiresAtSecs: Math.floor(+expiresAt / 1000),

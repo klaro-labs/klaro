@@ -26,6 +26,8 @@ const CASHOUT_ABI = [
     inputs: [
       { name: "cashoutId", type: "bytes32" },
       { name: "usdcAmount", type: "uint256" },
+      // protocol fee carved from usdcAmount on a successful release (< usdcAmount)
+      { name: "klaroFee", type: "uint256" },
       { name: "inrAmount", type: "uint256" },
       { name: "corridor", type: "bytes32" },
       { name: "quoteExpiresAt", type: "uint64" },
@@ -62,6 +64,8 @@ export class Cashout {
   async requestAndLock(args: {
     cashoutId: Hex;
     usdcAmount: bigint;
+    /** protocol fee carved from usdcAmount on a successful release (< usdcAmount) */
+    klaroFee: bigint;
     inrAmount: bigint;
     corridor: Hex;
     quoteExpiresAt: bigint;
@@ -75,6 +79,7 @@ export class Cashout {
       args: [
         args.cashoutId,
         args.usdcAmount,
+        args.klaroFee,
         args.inrAmount,
         args.corridor,
         args.quoteExpiresAt,

@@ -37,10 +37,18 @@ contract CashoutOrderProcessorTest is Test {
     // for proc.claimByLP / recordProof in tests, AND owner of staking.
     address operator;
 
+    // Protocol fee sink — distinct from vendor / LP / operator so the split is
+    // unambiguously observable. (0xFEE is already the staking slash sink.)
+    address feeReceiver = address(0xFEE2);
+
     bytes32 constant CO_ID = keccak256("co-001");
     bytes32 constant LP_ID = keccak256("lp-aakash");
     bytes32 constant CORRIDOR = keccak256("INR");
     uint256 constant USDC_AMT = 2_400_000_000;
+    // 0.3% of USDC_AMT — the Klaro fee carved on a successful release. Every
+    // `_request()` locks with this fee so the happy/dispute-LP-win paths exercise
+    // the split and the refund paths prove the full amount is returned (no fee).
+    uint256 constant KLARO_FEE = 7_200_000;
     uint256 constant INR_AMT = 20_136_000;
 
     // LPStaking.register now needs an operator-signed auth. Sign
@@ -62,7 +70,9 @@ contract CashoutOrderProcessorTest is Test {
         // the dispute-loss → slash flow.
         staking.setFeeReceiver(address(0xFEE));
         registry = new LPRegistry(operator);
-        proc = new CashoutOrderProcessor(address(usdc), proofs, staking, registry, operator);
+        proc = new CashoutOrderProcessor(
+            address(usdc), proofs, staking, registry, operator, feeReceiver
+        );
 
         // Wire ownership so cashout proc can call staking.slash (operator),
         // and proof submission (operator). For this test all three share
@@ -108,6 +118,7 @@ contract CashoutOrderProcessorTest is Test {
         proc.requestAndLock(
             CO_ID,
             USDC_AMT,
+            KLARO_FEE,
             INR_AMT,
             CORRIDOR,
             uint64(block.timestamp + 5 minutes),
@@ -145,7 +156,13 @@ contract CashoutOrderProcessorTest is Test {
         vm.expectRevert(CashoutOrderProcessor.QuoteExpired.selector);
         vm.prank(vendor);
         proc.requestAndLock(
-            CO_ID, USDC_AMT, INR_AMT, CORRIDOR, uint64(block.timestamp - 1), keccak256("quote-blob")
+            CO_ID,
+            USDC_AMT,
+            KLARO_FEE,
+            INR_AMT,
+            CORRIDOR,
+            uint64(block.timestamp - 1),
+            keccak256("quote-blob")
         );
     }
 
@@ -161,12 +178,16 @@ contract CashoutOrderProcessorTest is Test {
         proc.recordProof(CO_ID, _sampleProof());
 
         uint256 lpBefore = usdc.balanceOf(lpWallet);
+        uint256 feeBefore = usdc.balanceOf(feeReceiver);
 
-        // vendor confirms INR landed → USDC released to LP
+        // vendor confirms INR landed → USDC released to LP, fee carved to Klaro
         vm.prank(vendor);
         proc.confirmReceived(CO_ID);
 
-        assertEq(usdc.balanceOf(lpWallet), lpBefore + USDC_AMT);
+        // LP receives the net (gross − fee); the fee lands at the sink; the two
+        // sum to the locked amount (conservation).
+        assertEq(usdc.balanceOf(lpWallet), lpBefore + USDC_AMT - KLARO_FEE);
+        assertEq(usdc.balanceOf(feeReceiver), feeBefore + KLARO_FEE);
         assertEq(uint8(proc.getOrder(CO_ID).status), uint8(CashoutOrderProcessor.Status.RELEASED));
     }
 
@@ -195,11 +216,58 @@ contract CashoutOrderProcessorTest is Test {
         proc.recordProof(CO_ID, _sampleProof());
 
         uint256 lpBefore = usdc.balanceOf(lpWallet);
+        uint256 feeBefore = usdc.balanceOf(feeReceiver);
         vm.prank(operator);
         proc.operatorConfirmReceived(CO_ID, vendor);
 
-        assertEq(usdc.balanceOf(lpWallet), lpBefore + USDC_AMT);
+        assertEq(usdc.balanceOf(lpWallet), lpBefore + USDC_AMT - KLARO_FEE);
+        assertEq(usdc.balanceOf(feeReceiver), feeBefore + KLARO_FEE);
         assertEq(uint8(proc.getOrder(CO_ID).status), uint8(CashoutOrderProcessor.Status.RELEASED));
+    }
+
+    /// Free corridor (e.g. USD): klaroFee == 0 → LP receives the FULL amount and
+    /// no fee is carved (the fee sink is untouched).
+    function test_release_zeroFee_paysFullAmountToLP() public {
+        bytes32 freeId = keccak256("co-free");
+        vm.prank(vendor);
+        proc.requestAndLock(
+            freeId,
+            USDC_AMT,
+            0,
+            INR_AMT,
+            CORRIDOR,
+            uint64(block.timestamp + 5 minutes),
+            keccak256("q")
+        );
+        vm.prank(operator);
+        proc.claimByLP(freeId, LP_ID);
+        ProofRegistry.Proof memory p = _sampleProof();
+        p.cashoutId = freeId;
+        vm.prank(operator);
+        proc.recordProof(freeId, p);
+
+        uint256 lpBefore = usdc.balanceOf(lpWallet);
+        uint256 feeBefore = usdc.balanceOf(feeReceiver);
+        vm.prank(operator);
+        proc.operatorConfirmReceived(freeId, vendor);
+
+        assertEq(usdc.balanceOf(lpWallet), lpBefore + USDC_AMT);
+        assertEq(usdc.balanceOf(feeReceiver), feeBefore); // untouched
+    }
+
+    /// Fail-closed: a fee>0 order must NOT release while the fee sink is unset —
+    /// stranding the fee in escrow is worse than reverting (mirrors AgentEscrow).
+    function test_release_feeReceiverUnset_reverts() public {
+        proc.setFeeReceiver(address(0)); // owner = this
+        _request(); // locks with KLARO_FEE > 0
+        vm.prank(operator);
+        proc.claimByLP(CO_ID, LP_ID);
+        vm.prank(operator);
+        proc.recordProof(CO_ID, _sampleProof());
+
+        vm.prank(operator);
+        vm.expectRevert(CashoutOrderProcessor.FeeReceiverUnset.selector);
+        proc.operatorConfirmReceived(CO_ID, vendor);
     }
 
     function test_operatorConfirmReceived_nonOperator_reverts() public {
@@ -286,14 +354,10 @@ contract CashoutOrderProcessorTest is Test {
         vm.prank(operator);
         vm.expectRevert(
             abi.encodeWithSelector(
-                CashoutOrderProcessor.SlashExceedsOrder.selector,
-                USDC_AMT + 1,
-                USDC_AMT
+                CashoutOrderProcessor.SlashExceedsOrder.selector, USDC_AMT + 1, USDC_AMT
             )
         );
-        proc.resolveDispute(
-            CO_ID, USDC_AMT + 1, keccak256("klaro.reason.SLASH_LP_BAD_PROOF")
-        );
+        proc.resolveDispute(CO_ID, USDC_AMT + 1, keccak256("klaro.reason.SLASH_LP_BAD_PROOF"));
     }
 
     // audit COVERAGE_contracts P0: the RELEASE_TO_CLAIMANT fund-moving branch
@@ -431,11 +495,15 @@ contract CashoutOrderProcessorTest is Test {
         );
 
         uint256 lpBefore = usdc.balanceOf(lpWallet);
+        uint256 feeBefore = usdc.balanceOf(feeReceiver);
 
         vm.prank(operator);
         proc.resolveDispute(CO_ID, 0, keccak256("klaro.reason.DISPUTE_USER_FAULT"));
 
-        assertEq(usdc.balanceOf(lpWallet), lpBefore + USDC_AMT);
+        // LP won the dispute → the cashout completed → fee applies, same split
+        // as the happy path.
+        assertEq(usdc.balanceOf(lpWallet), lpBefore + USDC_AMT - KLARO_FEE);
+        assertEq(usdc.balanceOf(feeReceiver), feeBefore + KLARO_FEE);
         assertEq(
             uint8(proc.getOrder(CO_ID).status), uint8(CashoutOrderProcessor.Status.RESOLVED_LP_PAYS)
         );

@@ -49,7 +49,7 @@ const LP_REGISTRY = "0xCF591a1fA140c5Ca04686dDD7De006Da78C2180b" as Hex;
 
 const VENDOR_ABI = parseAbi([
   "function usdc() view returns (address)",
-  "function requestAndLock(bytes32 cashoutId, uint256 usdcAmount, uint256 inrAmount, bytes32 corridor, uint64 quoteExpiresAt, bytes32 quoteHash) external",
+  "function requestAndLock(bytes32 cashoutId, uint256 usdcAmount, uint256 klaroFee, uint256 inrAmount, bytes32 corridor, uint64 quoteExpiresAt, bytes32 quoteHash) external",
 ]);
 const REG_ABI = parseAbi([
   "function registerLP(bytes32 lpId, address wallet, uint8 tier, bytes32 kybRecordHash, bytes32 payoutAccountHash) external",
@@ -222,6 +222,8 @@ await mined(
     args: [
       cashoutId,
       usdcAmount,
+      0n, // klaroFee — this leg-advancement driver locks fee-free; the
+      // on-chain fee split is proven by the forge tests + the UI E2E.
       inrAmount,
       corridor,
       quoteExpiresAt,

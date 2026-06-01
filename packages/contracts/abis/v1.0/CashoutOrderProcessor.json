@@ -29,6 +29,11 @@
           "name": "operator_",
           "type": "address",
           "internalType": "address"
+        },
+        {
+          "name": "feeReceiver_",
+          "type": "address",
+          "internalType": "address"
         }
       ],
       "stateMutability": "nonpayable"
@@ -155,6 +160,11 @@
               "internalType": "uint256"
             },
             {
+              "name": "klaroFee",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
               "name": "inrAmount",
               "type": "uint256",
               "internalType": "uint256"
@@ -200,6 +210,19 @@
               "internalType": "enum CashoutOrderProcessor.Status"
             }
           ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "klaroFeeReceiver",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
         }
       ],
       "stateMutability": "view"
@@ -276,6 +299,11 @@
         },
         {
           "name": "usdcAmount",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "klaroFee",
           "type": "uint256",
           "internalType": "uint256"
         },
@@ -520,6 +548,11 @@
           "internalType": "uint256"
         },
         {
+          "name": "klaroFee",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
           "name": "inrAmount",
           "type": "uint256",
           "internalType": "uint256"
@@ -587,6 +620,19 @@
           "name": "next",
           "type": "address",
           "internalType": "contract DisputeManager"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setFeeReceiver",
+      "inputs": [
+        {
+          "name": "next",
+          "type": "address",
+          "internalType": "address"
         }
       ],
       "outputs": [],
@@ -671,6 +717,31 @@
     },
     {
       "type": "event",
+      "name": "CashoutFeeWithheld",
+      "inputs": [
+        {
+          "name": "cashoutId",
+          "type": "bytes32",
+          "indexed": true,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "receiver",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "fee",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
       "name": "DisputeOpenedInManager",
       "inputs": [
         {
@@ -691,6 +762,25 @@
     {
       "type": "event",
       "name": "DisputesContractChanged",
+      "inputs": [
+        {
+          "name": "previous",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "next",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "FeeReceiverChanged",
       "inputs": [
         {
           "name": "previous",
@@ -1123,6 +1213,27 @@
     },
     {
       "type": "error",
+      "name": "FeeExceedsAmount",
+      "inputs": [
+        {
+          "name": "fee",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "FeeReceiverUnset",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "InvalidStatus",
       "inputs": [
         {
@@ -1208,6 +1319,22 @@
     },
     {
       "type": "error",
+      "name": "SlashExceedsOrder",
+      "inputs": [
+        {
+          "name": "requested",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "max",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "error",
       "name": "SlashNotAllowed",
       "inputs": []
     },
@@ -1235,6 +1362,11 @@
     {
       "type": "error",
       "name": "WrongDisputeContext",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ZeroOperatorAddress",
       "inputs": []
     }
   ]

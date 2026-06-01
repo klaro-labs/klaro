@@ -88,7 +88,7 @@ contract Deploy is Script {
 
     function _runDeploy(address operator, address owner, address feeReceiver) internal {
         _deployCore(operator);
-        _deployLPAndCashout(operator);
+        _deployLPAndCashout(operator, feeReceiver);
         _deployM8M10(operator, feeReceiver);
         _wire();
         if (owner != address(0) && owner != tx.origin && owner != address(this)) {
@@ -149,12 +149,13 @@ contract Deploy is Script {
         refunds = new RefundProtocol(escrow);
     }
 
-    function _deployLPAndCashout(address operator) internal {
+    function _deployLPAndCashout(address operator, address feeReceiver) internal {
         lpRegistry = new LPRegistry(operator);
         lpStaking = new LPStaking(KlaroConfig.USDC, operator);
         proofs = new ProofRegistry(operator);
-        cashout =
-            new CashoutOrderProcessor(KlaroConfig.USDC, proofs, lpStaking, lpRegistry, operator);
+        cashout = new CashoutOrderProcessor(
+            KlaroConfig.USDC, proofs, lpStaking, lpRegistry, operator, feeReceiver
+        );
     }
 
     function _deployM8M10(address operator, address feeReceiver) internal {

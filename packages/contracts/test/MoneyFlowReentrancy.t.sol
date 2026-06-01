@@ -177,7 +177,9 @@ contract CashoutOrderProcessorReentrancyTest is Test {
         proofs = new ProofRegistry(operator);
         registry = new LPRegistry(operator);
         staking = new LPStaking(address(hostile), operator);
-        cashout = new CashoutOrderProcessor(address(hostile), proofs, staking, registry, operator);
+        cashout = new CashoutOrderProcessor(
+            address(hostile), proofs, staking, registry, operator, operator
+        );
 
         hostile.mint(vendor, AMOUNT * 2);
         vm.prank(vendor);
@@ -189,6 +191,7 @@ contract CashoutOrderProcessorReentrancyTest is Test {
             CashoutOrderProcessor.requestAndLock.selector,
             ID,
             AMOUNT,
+            0, // klaroFee
             AMOUNT * 83,
             keccak256("INR"),
             uint64(block.timestamp + 1 hours),
@@ -200,6 +203,7 @@ contract CashoutOrderProcessorReentrancyTest is Test {
         cashout.requestAndLock(
             ID,
             AMOUNT,
+            0, // klaroFee
             AMOUNT * 83,
             keccak256("INR"),
             uint64(block.timestamp + 1 hours),

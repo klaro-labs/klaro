@@ -21,17 +21,17 @@ const ARC = {
   nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
   rpcUrls: { default: { http: ["https://rpc.testnet.arc.network"] } },
 };
-const COP = "0x4047ecf1f67dE098aF919bD2Ce9137b4414d226c";
+const COP = "0x347935A89B95fD2baD736dbADe4C14b0a5e9E6bd";
 const DISPUTE_MGR = "0xee9561BE93312625C7F622D3f63B9092Af23aE5F";
 const LP_REGISTRY = "0xCF591a1fA140c5Ca04686dDD7De006Da78C2180b";
 
 const COP_ABI = parseAbi([
   "function usdc() view returns (address)",
-  "function requestAndLock(bytes32 cashoutId, uint256 usdcAmount, uint256 inrAmount, bytes32 corridor, uint64 quoteExpiresAt, bytes32 quoteHash) external",
+  "function requestAndLock(bytes32 cashoutId, uint256 usdcAmount, uint256 klaroFee, uint256 inrAmount, bytes32 corridor, uint64 quoteExpiresAt, bytes32 quoteHash) external",
   "function claimByLP(bytes32 cashoutId, bytes32 lpId) external",
   "function openDispute(bytes32 cashoutId, bytes32 openingEvidenceHash) external",
   "function resolveDispute(bytes32 cashoutId, uint256 slashAmount, bytes32 reasonHash) external",
-  "function getOrder(bytes32 cashoutId) view returns ((address vendor, address token, uint256 usdcAmount, uint256 inrAmount, bytes32 lpId, address lpWallet, bytes32 corridor, uint64 requestedAt, uint64 quoteExpiresAt, bytes32 quoteHash, bytes32 proofHash, uint8 status))",
+  "function getOrder(bytes32 cashoutId) view returns ((address vendor, address token, uint256 usdcAmount, uint256 klaroFee, uint256 inrAmount, bytes32 lpId, address lpWallet, bytes32 corridor, uint64 requestedAt, uint64 quoteExpiresAt, bytes32 quoteHash, bytes32 proofHash, uint8 status))",
 ]);
 const DM_ABI = parseAbi([
   "function trustedCallers(address) view returns (bool)",
@@ -108,7 +108,7 @@ const allowance = await pub.readContract({ address: usdc, abi: ERC20_ABI, functi
 if (allowance < usdcAmount) { console.log("approve…"); await mined(await veW.writeContract({ address: usdc, abi: ERC20_ABI, functionName: "approve", args: [COP, usdcAmount] }), "approve"); }
 const lpBefore = await pub.readContract({ address: usdc, abi: ERC20_ABI, functionName: "balanceOf", args: [lpWallet] });
 console.log("1. requestAndLock…");
-await mined(await veW.writeContract({ address: COP, abi: COP_ABI, functionName: "requestAndLock", args: [cashoutId, usdcAmount, 850000n, corridor, BigInt(Math.floor(Date.now()/1000)+3600), keccak256(toHex("qa.quote"))] }), "requestAndLock");
+await mined(await veW.writeContract({ address: COP, abi: COP_ABI, functionName: "requestAndLock", args: [cashoutId, usdcAmount, 0n /* klaroFee — fee-free dispute drive */, 850000n, corridor, BigInt(Math.floor(Date.now()/1000)+3600), keccak256(toHex("qa.quote"))] }), "requestAndLock");
 console.log("2. claimByLP…");
 await mined(await opW.writeContract({ address: COP, abi: COP_ABI, functionName: "claimByLP", args: [cashoutId, lpId] }), "claimByLP");
 console.log("   order:", await oStat());
