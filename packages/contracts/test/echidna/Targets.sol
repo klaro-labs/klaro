@@ -19,12 +19,14 @@ import { CashoutOrderProcessor } from "../../src/CashoutOrderProcessor.sol";
 /// invariants between calls. Concrete bodies land alongside the first Echidna
 /// CI run; this file pins the target shape so the config + tests don't drift.
 ///
-/// STATUS: I3 (FeeSplitter dust-conservation) now has LIVE coverage via a
-/// Foundry-native stateful-fuzz invariant — see
-/// `test/invariant/FeeSplitterConservation.t.sol` (256 runs × 128k calls, 0
-/// reverts), which runs in the existing `forge test` lane without needing the
-/// Echidna binary. I1 (InvoiceEscrow conservation) + I2 (Cashout no-double-
-/// release) remain unwired here and fail-closed below.
+/// STATUS: ALL THREE invariants now have LIVE coverage via Foundry-native
+/// stateful-fuzz suites in the existing `forge test` lane (no Echidna binary
+/// needed), each 256 runs × 128k calls, 0 reverts:
+///   I1 → test/invariant/InvoiceConservation.t.sol
+///   I2 → test/invariant/CashoutConservation.t.sol (conservation + no-double-release)
+///   I3 → test/invariant/FeeSplitterConservation.t.sol
+/// These Echidna stubs are kept fail-closed (revert) so an Echidna run can never
+/// claim vacuous green; the real, runnable proofs live in the forge lane above.
 ///
 /// @dev Custom error so any Echidna run loudly fails-closed until the bodies
 /// are wired. the previous
