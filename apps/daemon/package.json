@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node --enable-source-maps dist/index.js",
+    "preflight": "tsx --env-file-if-exists=.env src/preflight.ts",
     "build": "tsup src/index.ts --format esm --target node22 --out-dir dist --sourcemap --no-splitting",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

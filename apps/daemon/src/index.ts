@@ -12,6 +12,7 @@ import { startHttp } from "./http.js";
 import { closeAll, queue } from "./queue.js";
 import { startArcListener, stopArcListener } from "./listener/arcSubscriber.js";
 import { assertListenerEventSigs } from "./listener/abiAssert.js";
+import { assertBootConfig } from "./preflight.js";
 
 import { startWebhookDelivery } from "./workers/webhookDelivery.js";
 import { startScreenAndSettle } from "./workers/screenAndSettle.js";
@@ -84,6 +85,13 @@ async function scheduleCrons() {
 
 async function boot() {
   log.info("daemon.boot", { env: env.NODE_ENV });
+
+  // Production config gate (pure, no network). The env schema declares the
+  // contract addresses + operator signer as optional so dev/simulator can run
+  // without them — but in prod that would let the money workers silently no-op
+  // (flip DB rows to SETTLED/RELEASED while never signing). Refuse to start
+  // instead. Deterministic + instant, so it can't flap a restart loop.
+  assertBootConfig();
 
   // ABI drift guard. Throws at boot if any listener event sig diverges
   // from the canonical forge ABI — prevents the QA-027 family from ever
