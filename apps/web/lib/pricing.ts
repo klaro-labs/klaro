@@ -96,24 +96,79 @@ export interface CompareRow {
 }
 
 export const COMPARE_ROWS: readonly CompareRow[] = [
-  { feature: "Per-invoice fee", testnet: "Free", standard: "1.0% of settled USDC", scale: "Negotiated" },
-  { feature: "Cashout fee (Klaro)", testnet: "Free (simulated)", standard: "0.3% + LP spread", scale: "Negotiated" },
-  { feature: "Monthly minimum", testnet: "None", standard: "None", scale: "None" },
+  {
+    feature: "Per-invoice fee",
+    testnet: "Free",
+    standard: "1.0% of settled USDC",
+    scale: "Negotiated",
+  },
+  {
+    feature: "Cashout fee (Klaro)",
+    testnet: "0.3% withheld on-chain (fiat payout simulated)",
+    standard: "0.3% + LP spread",
+    scale: "Negotiated",
+  },
+  {
+    feature: "Monthly minimum",
+    testnet: "None",
+    standard: "None",
+    scale: "None",
+  },
   { feature: "Per-seat fee", testnet: "None", standard: "None", scale: "None" },
-  { feature: "Supported settlement assets", testnet: "USDC, EURC (Arc testnet)", standard: "USDC, EURC (Arc mainnet)", scale: "USDC, EURC + new corridors on request" },
-  { feature: "Cross-chain receive", testnet: "CCTP V2 + App Kit", standard: "CCTP V2 + App Kit", scale: "Same + private routing rules" },
-  { feature: "Webhook delivery", testnet: "HMAC + retries", standard: "HMAC + retries + DLQ replay", scale: "Same + custom delivery SLAs" },
-  { feature: "ERP sync", testnet: "Tally / Xero (read-only beta)", standard: "Tally / QuickBooks / Xero / Zoho", scale: "Same + custom mapping" },
-  { feature: "Dispute support", testnet: "Self-serve console", standard: "Operator-assisted · 4h response", scale: "Operator-assisted · 1h response" },
-  { feature: "Audit log retention", testnet: "90 days", standard: "2 years", scale: "7 years" },
-  { feature: "SOC 2 evidence pack", testnet: "Public Trust Center", standard: "Public Trust Center", scale: "On-request, NDA-gated" },
-  { feature: "Support channel", testnet: "Community + email", standard: "Priority email + Slack Connect", scale: "Dedicated Slack + 24×7 on-call" },
+  {
+    feature: "Supported settlement assets",
+    testnet: "USDC, EURC (Arc testnet)",
+    standard: "USDC, EURC (Arc mainnet)",
+    scale: "USDC, EURC + new corridors on request",
+  },
+  {
+    feature: "Cross-chain receive",
+    testnet: "CCTP V2 + App Kit",
+    standard: "CCTP V2 + App Kit",
+    scale: "Same + private routing rules",
+  },
+  {
+    feature: "Webhook delivery",
+    testnet: "HMAC + retries",
+    standard: "HMAC + retries + DLQ replay",
+    scale: "Same + custom delivery SLAs",
+  },
+  {
+    feature: "ERP sync",
+    testnet: "Tally / Xero (read-only beta)",
+    standard: "Tally / QuickBooks / Xero / Zoho",
+    scale: "Same + custom mapping",
+  },
+  {
+    feature: "Dispute support",
+    testnet: "Self-serve console",
+    standard: "Operator-assisted · 4h response",
+    scale: "Operator-assisted · 1h response",
+  },
+  {
+    feature: "Audit log retention",
+    testnet: "90 days",
+    standard: "2 years",
+    scale: "7 years",
+  },
+  {
+    feature: "SOC 2 evidence pack",
+    testnet: "Public Trust Center",
+    standard: "Public Trust Center",
+    scale: "On-request, NDA-gated",
+  },
+  {
+    feature: "Support channel",
+    testnet: "Community + email",
+    standard: "Priority email + Slack Connect",
+    scale: "Dedicated Slack + 24×7 on-call",
+  },
 ];
 
 export const FAQ = [
   {
     q: "When does mainnet pricing start?",
-    a: "After the external security audit completes and Arc mainnet deploys. Until then, testnet is free for everyone.",
+    a: "After the external security audit completes and Arc mainnet deploys. Until then invoices settle free on testnet; the cashout flow already withholds Klaro's 0.3% fee on-chain (its fiat payout leg is simulated).",
   },
   {
     q: "What counts as settled volume?",
