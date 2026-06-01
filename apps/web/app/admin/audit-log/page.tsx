@@ -1,11 +1,12 @@
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
 import { recent } from "@/lib/auditLog";
+import { listRecentAudit } from "@/lib/repo/auditLogs";
 import { relativeTime } from "@/lib/money";
 
 export const metadata = { title: "Audit log · Klaro admin" };
 
-const KIND_TONE = {
+const KIND_TONE: Record<string, "info" | "sim" | "live"> = {
   vendor: "info",
   lp: "info",
   agent: "info",
@@ -14,10 +15,40 @@ const KIND_TONE = {
   corridor: "sim",
   contract: "sim",
   dispute: "live",
-} as const;
+};
 
-export default function AdminAuditLogPage() {
-  const entries = recent(200);
+type Row = {
+  id: string;
+  subjectKind: string;
+  action: string;
+  subjectId: string;
+  reasonHash?: string;
+  at: Date;
+};
+
+// I3: read the DURABLE audit_logs table (RLS-scoped to admins). The in-memory
+// ring is a per-process dev fallback only — it loses history on restart and was
+// never the real trail. Falls back to the ring when there's no live DB (dev).
+export default async function AdminAuditLogPage() {
+  const persisted = await listRecentAudit(200).catch(() => []);
+  const live = persisted.length > 0;
+  const entries: Row[] = live
+    ? persisted.map((r) => ({
+        id: r.id,
+        subjectKind: r.subject_kind,
+        action: r.action,
+        subjectId: r.subject_id,
+        reasonHash: r.reason_hash ?? undefined,
+        at: new Date(r.at),
+      }))
+    : recent(200).map((e) => ({
+        id: e.id,
+        subjectKind: e.subjectKind,
+        action: e.action,
+        subjectId: e.subjectId,
+        reasonHash: e.reasonHash,
+        at: e.at,
+      }));
 
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
@@ -26,7 +57,10 @@ export default function AdminAuditLogPage() {
         <header className="mb-6 flex items-end justify-between">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Operator audit · in-memory ring buffer (last 200)
+              Operator audit ·{" "}
+              {live
+                ? "durable audit_logs (append-only, last 200)"
+                : "in-memory ring (dev fallback, last 200)"}
             </p>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Audit log
@@ -53,7 +87,9 @@ export default function AdminAuditLogPage() {
                 key={e.id}
                 className="grid grid-cols-1 gap-2 px-6 py-3 md:grid-cols-[auto_auto_1fr_auto_auto] md:items-center"
               >
-                <Badge tone={KIND_TONE[e.subjectKind]}>{e.subjectKind}</Badge>
+                <Badge tone={KIND_TONE[e.subjectKind] ?? "info"}>
+                  {e.subjectKind}
+                </Badge>
                 <code className="font-mono text-xs font-medium text-[var(--color-brand)]">
                   {e.action}
                 </code>
