@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Logo } from "@/components/klaro/Logo";
 import { PayFromLink } from "@/components/klaro/PayFromLink";
 import { getLinkBySlug, incrementLinkView } from "@/lib/repo/links";
+import { isValidSlug } from "@/lib/slugs";
 import { formatUSDC, shortAddress } from "@/lib/money";
 
 /**
@@ -16,6 +17,9 @@ export default async function PayLinkPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  // Cheap format pre-filter: reject malformed/scanning input before a DB
+  // round-trip. A well-formed slug is exactly 8 base58 chars.
+  if (!isValidSlug(slug)) notFound();
   const link = await getLinkBySlug(slug);
   if (!link) notFound();
 
@@ -27,11 +31,15 @@ export default async function PayLinkPage({
   }
 
   const off = Boolean(link.deactivatedAt);
-  const expired = Boolean(link.expiresAt && link.expiresAt.getTime() < Date.now());
+  const expired = Boolean(
+    link.expiresAt && link.expiresAt.getTime() < Date.now(),
+  );
   const notReady = !link.vendorWallet;
   const vendorName =
     link.vendorDisplayName ??
-    (link.vendorWallet ? `Vendor ${shortAddress(link.vendorWallet)}` : "Vendor");
+    (link.vendorWallet
+      ? `Vendor ${shortAddress(link.vendorWallet)}`
+      : "Vendor");
   const initials = vendorName
     .split(" ")
     .map((w) => w[0])
@@ -55,9 +63,15 @@ export default async function PayLinkPage({
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
           Payment link
         </p>
-        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-3 max-w-md text-sm text-[var(--color-ink-muted)]">{body}</p>
-        <p className="mt-6 font-mono text-xs text-[var(--color-ink-subtle)]">pay.klaro.so/{slug}</p>
+        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
+          {title}
+        </h1>
+        <p className="mt-3 max-w-md text-sm text-[var(--color-ink-muted)]">
+          {body}
+        </p>
+        <p className="mt-6 font-mono text-xs text-[var(--color-ink-subtle)]">
+          pay.klaro.so/{slug}
+        </p>
       </main>
     );
   }
