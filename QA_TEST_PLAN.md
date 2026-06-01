@@ -1113,3 +1113,94 @@ Every critic finding below was confirmed in source. Corrections applied where th
   scoped money-move proofs in §8.
 
 File each bug as: route · persona · steps · expected · actual · severity (💰 = P0).
+
+---
+
+# §20 — LAUNCH-READY STATUS (2026-06-01)
+
+> Source: 7-agent adversarial launch-readiness audit (contracts / daemon workers / web
+> journeys / simulated features / test gaps / 54-check gate + ops). Reconciled against
+> the live repo. Honest framing — a script *existing* is not proof it *passed*.
+
+## Verdict & grade
+
+- **Overall: C+ / ~45% launch-ready.** Engineering of the on-chain primitives + the
+  honesty discipline (every unreal leg is flag-gated + `[SIMULATED]`, no silent
+  fake-success) is strong (B+ at the unit/contract layer). But "launch-ready end-to-end"
+  is graded on proven fund-movement + custody + isolation + ops, and there it collapses.
+- **Honestly-labelled testnet DEMO (no real user funds): B− / ~70% — close.**
+- **Mainnet / moving real USDC: D / NO-GO.**
+- **Single biggest gap is not a feature — it's custody/key/economic safety** (single raw
+  env hot key, EOA contract owner, fire-and-forget audit log, no velocity/AML limits, no
+  LP-solvency predicate, unthrottled server actions + `/pay`).
+- Test counts at audit: **528 forge / 121 web / 65 daemon green.**
+
+## ✅ PROVEN end-to-end (durable evidence in-repo)
+
+1. **Klaro Link** — the ONLY flow with a committed passing artifact: `apps/web/e2e/.pb-link.log`
+   ends `LINK_E2E_OK=true` with on-chain `status 3` + real tx hashes; backed by
+   `qa-link-onchain.mjs` (asserts vendor delta == amount) + the 2-wallet UI E2E `pb-link.ts`.
+2. **Contract-layer correctness** of every core money state machine — 528 Foundry tests
+   (InvoiceEscrow, CashoutOrderProcessor incl. the new on-chain `klaroFee` carve + fail-closed
+   `FeeReceiverUnset`, DisputeManager, AgentEscrow, RetainerStream conservation fuzz, LPStaking,
+   AuditReceipt). Proves correctness *in isolation*, not that the live addresses were driven E2E.
+3. **FeeSplitter value-conservation invariant (I3)** — the one live `StdInvariant`, 256×128k calls, 0 reverts.
+4. **Daemon money-mover honesty invariants** at the unit level — cashoutAdvancer (SIMULATED-proof-
+   never-advances), screenAndSettle (never auto-settles while simulated), disputeDecide/resolver, reconciler.
+5. Cashout happy-path + dispute-resolve were driven viem-direct (3 wallets) — **but against the
+   OLD fee-free COP `0x4047…226c` with `klaroFee=0n`, no committed tx-hash artifact** → credible, not durably proven.
+
+## 🔨 BUILD-LEFT (not real yet — code/feature work)
+
+- **A4 (silent revenue no-op):** standard invoice path pays 100% gross to the vendor
+  (`InvoiceEscrow.sol:409`) while `pricing.ts` still advertises 1% — inject a vendor+treasury
+  split on the default path, or drop the 1% claim.
+- **A7:** add terminal-money disposition columns (`released_to`/`amount_paid`/`fee_collected`/`refunded_to`) to `cashout_orders` + `agent_jobs`, populated on every terminal transition.
+- **A10/H2:** on-chain velocity / per-order co-sign guard so a leaked operator key can't drain every LOCKED order.
+- **I1:** LP-float solvency — enforce stake ≥ corridor exposure at claim + a make-whole path, or gate PARTNER-PENDING.
+- **I2:** enforce per-vendor daily / per-corridor / new-account velocity+AML caps server-side (schema cols exist; `cashout/actions.ts` reads zero caps).
+- **I3:** durable append-only audit log — `appendAudit` is fire-and-forget into an in-memory ring; point the admin UI at `audit_logs`, hard-block on failure, deny-UPDATE/DELETE RLS.
+- **I4/C7:** rate limiter only covers `/api/*` — server actions + public `/pay` are unthrottled; add a durable Redis-backed limiter + gas floor + auto-publish caps.
+- **C1 (live-mode strander):** the only `cashout_orders` UPDATE policy is vendor-scoped, so a staked LP's RLS-respecting UI claim would be DENIED → cashouts strand. Add an LP UPDATE policy or daemon-route the claim.
+- **Contract invariants I1/I2/A1/A2/A3:** wire the Echidna `escrow_conservation` + `cashout_no_double_release` bodies (still `revert EchidnaHarnessNotWired`) + StdInvariant suites for InvoiceEscrow conservation & cashout no-double-release.
+- **All `[SIMULATED]` surfaces needing an EXTERNAL ACCOUNT** (see §below + Ops): screening, fiat payout, FX, ERP, agents custody, retainer funding, session keys, card on-ramp, wallet passes.
+
+## 🧪 TEST-LEFT (built but not proven end-to-end)
+
+1. **Re-prove cashout against the LIVE fee-bearing COP `0x347935…`** with a NON-ZERO `klaroFee`
+   (3-wallet drive + `pb-cashout.ts` UI E2E), assert LP delta == amount−fee, fee→receiver, escrow→0,
+   capture tx hashes. *(BUILD_LOG claims a real 0.997/0.003 split but no committed script reproduces it
+   — the throwaway proof script was deleted. This is the cheapest way to restore a true proof.)*
+2. Invoice **create→publish→pay→settle→receipt as one chained on-chain run against the CURRENT escrow**
+   (`qa-pay/settle` scripts hardcode a stale escrow `0xF5Cfe431…` ≠ DEPLOYMENT `0xA76edAd6…`); assert `receipt_hash` == contract-derived.
+3. **RUN the authored-but-never-run E2E fixtures** after applying their live migrations: `pb-disputes.ts` (0036/0039), `pb-team.ts` (0034/0036), `pb-webhooks.ts` (0035 + vault) → capture `*_E2E_OK=true`.
+4. **Daemon real-fund dispute paths** — `advanceDisputeDecide` + `advanceDisputeResolution` are routing/ABI smoke-only (random caseIds → simulate-revert→skip, by their own headers); drive a funded dispute lifecycle so the daemon lands a real decision + moves real USDC.
+5. **Tenant-isolation negatives** — add `TEST_VENDOR_B`, prove cross-tenant read/write DENIED for cashout_orders/agent_jobs/disputes/invoices/team + direct-PostgREST self-decide attacks.
+6. **True concurrency** — `Promise.all` race: exactly one of two simultaneous LP claims / advances / resolves wins against live Postgres CAS+RLS; daemon signs once.
+7. **HTTP boundary tests (0 route tests today)** — `/api/v1/cashouts|disputes|invoices`, `/api/agents/[id]/call` (402/503 money guard), `/api/admin/pause`, `/api/auth/magic` (replay/rate-limit).
+8. **Verified-webhook side effects** — CCTP/Circle/Gateway routes wire NO `onVerified` handler (a verified inbound settlement is a no-op); wire + test ledger change + duplicate-event idempotency.
+9. **Honest-mode UI sweep + auth/route crawl + error-state drive + XSS on `/i,/receipt,/pay` + SSRF on brand-logo** (only `/^https?/` regex, not `assertPublicHttpUrl`).
+10. **Reconciler robustness** — mixed-batch partial-RPC-failure, CAS-loses-to-concurrent-write, forced post-tx-DB-failure self-heal, BullMQ retry-exhaustion→DLQ+alert.
+
+## 🌐 OPS / EXTERNAL-LEFT (not in the code)
+
+- **H1:** transfer all ~20 fund-holding contracts from the deployer EOA to a timelocked multisig (Safe) + accept Ownable2Step.
+- **H2/secrets:** move operator key + service-role + HMAC + pgcrypto keys into KMS/HSM; wire the Circle DCW signer; run a `setOperator` rotation drill.
+- **Monitoring/on-call:** confirm Sentry DSN in prod, PagerDuty + real on-call rotation; make `/api/status` probe Arc RPC + Circle for real.
+- **DB durability/DR:** Supabase PITR + restore drill (F4: Redis loss + DB restore re-syncs via reconciler, no double-move); make the listener cursor durable in Postgres + alarm on loss.
+- **RPC redundancy:** add a second Arc RPC / failover.
+- **Prod env flips (config):** RESEND, VAPID, WEBHOOK_HMAC_SECRET, funded relayer wallet, reputation/counterparty addresses (deployed, unwired).
+- **Runbooks (F3):** dispute resolve, stuck cashout, paused contract, operator-key leak, relayer gas refill.
+- **SLOs/alerts**, durable rate limiter, **legal** (8 `/legal/*` pages real content; INR fiat needs money-transmitter licensing — mainnet-blocking), **DNS/TLS** certs + HSTS, **CI E2E** (no `playwright.config` + no e2e CI step today — green is a one-time manual artifact, not a gate).
+
+## Critical path — ordered minimum to honestly say "everything works end-to-end"
+
+1. **Custody + key safety first** (highest blast-radius): multisig owner + Ownable2Step (H1); operator key → KMS/HSM + on-chain velocity/co-sign guard (H2/A10).
+2. **Close the redeploy drift:** re-run cashout 3-wallet drive + `pb-cashout` UI E2E against the live fee-bearing COP `0x347935…` with a non-zero fee, capture tx hashes.
+3. **Fix the two silent-correctness bugs:** A4 (withhold the advertised 1% or drop the claim) + C1 (LP-claim RLS policy / daemon-route).
+4. **Make the ledger trustworthy:** durable append-only audit log (I3) + disposition columns (A7) + a real reconciler self-heal proof (B1/B2).
+5. **Enforce the AML/abuse perimeter:** server-side velocity/corridor caps (I2) + durable rate limiter over actions + `/pay` (C7/I4) + LP solvency gate (I1) + brand-logo SSRF guard (C8).
+6. **Prove isolation + run the authored E2Es:** apply migrations 0034/0035/0036/0039 live, run pb-disputes/team/webhooks to green; add `TEST_VENDOR_B` cross-tenant + concurrent-claim race; one funded daemon dispute lifecycle.
+7. **Wire conservation invariants + coverage into CI:** Echidna bodies + StdInvariant suites (A1/A2/A3) + a `playwright.config` + CI e2e job so green is repeatable.
+8. **Stand up ops:** Sentry + PagerDuty on-call + Supabase PITR + DR drill + RPC failover + the five runbooks; flip prod env keys; verify legal + DNS/TLS.
+9. **Only then, for MAINNET:** replace each honest `[SIMULATED]` leg that needs an external provider/license (fiat payout + proof verifier, screening, FX, agents custody, ERP).
