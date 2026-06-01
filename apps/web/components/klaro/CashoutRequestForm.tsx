@@ -138,15 +138,31 @@ export function CashoutRequestForm({
             <dd>
               {formatUSDC(quote.klaroFeeUsdc)} (
               {(corridor.klaroFee * 100).toFixed(2)}%)
+              <span className="text-[var(--color-ink-subtle)]">
+                {" "}
+                · indicative
+              </span>
             </dd>
             <dt>LP spread</dt>{" "}
             <dd>
               {formatUSDC(quote.lpSpreadUsdc)} (
               {(corridor.lpSpread * 100).toFixed(2)}%)
+              <span className="text-[var(--color-ink-subtle)]">
+                {" "}
+                · indicative
+              </span>
             </dd>
             <dt>ETA</dt> <dd>≈ {corridor.etaMinutes} min</dd>
             <dt>Quote expires</dt> <dd>2 min</dd>
           </dl>
+          {/* Honest-mode: the cashout contract currently releases the full USDC
+              amount to the LP — the fee + spread are NOT withheld on testnet
+              (on-chain withholding ships with the mainnet contract). Don't imply
+              Klaro keeps a cut today. */}
+          <p className="mt-2 text-[10px] leading-relaxed text-[var(--color-ink-subtle)]">
+            Fee &amp; spread are indicative. On testnet the full USDC amount is
+            released — on-chain fee withholding ships with the mainnet contract.
+          </p>
         </div>
       ) : null}
     </>
