@@ -37,12 +37,30 @@ export async function GET() {
       scope: "infra",
       status: supabaseOk ? "operational" : "outage",
     },
-    { name: "Circle Gateway", scope: "integration", status: "operational" },
-    { name: "CCTP V2", scope: "integration", status: "operational" },
+    // Honesty fix (launch audit): these were hardcoded "operational" but the
+    // cross-chain integrations are SIMULATED on testnet — the inbound
+    // CCTP/Gateway settlement handler isn't wired (see /vendor/transit, which
+    // labels them "Simulated · integration pending"). Report them as `pending`
+    // so the public status page never overclaims a live integration.
+    {
+      name: "Circle Gateway",
+      scope: "integration",
+      status: "pending",
+      note: "integration pending — testnet simulated",
+    },
+    {
+      name: "CCTP V2",
+      scope: "integration",
+      status: "pending",
+      note: "integration pending — testnet simulated",
+    },
   ];
-  const overall = services.every((s) => s.status === "operational")
+  // Pending (not-yet-launched) integrations don't count toward the live rollup —
+  // they're neither operational nor degraded, just not shipped yet.
+  const live = services.filter((s) => s.status !== "pending");
+  const overall = live.every((s) => s.status === "operational")
     ? "operational"
-    : services.some((s) => s.status === "outage")
+    : live.some((s) => s.status === "outage")
       ? "outage"
       : "degraded";
   return ok({
