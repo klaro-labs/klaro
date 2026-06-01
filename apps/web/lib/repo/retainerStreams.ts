@@ -121,12 +121,23 @@ export async function withdrawFromStream(
   if (amount <= 0n) throw new Error("amount must be positive");
   if (amount > withdrawable)
     throw new Error(`amount ${amount} exceeds withdrawable ${withdrawable}`);
-  const next = stream.withdrawnUsdc + amount;
-  const { error } = await rs(c)
+  const prior = stream.withdrawnUsdc;
+  const next = prior + amount;
+  // Optimistic CAS on the prior withdrawn_usdc: a non-atomic read-modify-write let
+  // two concurrent full withdrawals both read the same base and lost-update
+  // (recipient paid twice, ledger advanced once). Same compare-and-swap the
+  // cashout (eq status) + agent-job (eq status) repos use. numeric(78,0) returns a
+  // suffix-free decimal string, so prior.toString() matches the stored canonical form.
+  const { data, error } = await rs(c)
     .update({ withdrawn_usdc: next.toString() })
     .eq("stream_id", id)
-    .is("cancelled_at", null);
+    .is("cancelled_at", null)
+    .eq("withdrawn_usdc", prior.toString())
+    .select()
+    .maybeSingle();
   if (error) throw error;
+  if (!data)
+    throw new Error("withdraw_conflict: stream changed, refresh and retry");
   return amount;
 }
 

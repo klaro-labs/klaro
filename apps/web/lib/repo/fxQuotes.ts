@@ -75,9 +75,11 @@ export async function createFxQuote(input: {
   const c = await tryDb();
   if (!c) return mockCreateFxQuote(input);
   const id = `fx_${randomBytes(6).toString("hex")}`;
-  const dstAmount = BigInt(
-    Math.floor(Number(input.srcAmountUsdc) * input.rate),
-  );
+  // Pure bigint: the old `Number(srcAmountUsdc) * rate` double path silently lost
+  // precision past 2^53 for large amounts, writing a wrong vendor-facing dst_amount.
+  // rate is a config number (≤6dp) → scale by 1e6, divide last (matches floor intent).
+  const rateScaled = BigInt(Math.round(input.rate * 1_000_000));
+  const dstAmount = (input.srcAmountUsdc * rateScaled) / 1_000_000n;
   const quoteHash = ("0x" + randomBytes(32).toString("hex")) as Hex;
   const expiresAt = new Date(Date.now() + 60_000);
   const { data, error } = await fx(c)

@@ -228,10 +228,12 @@ export function quoteCashout(
     (usdcAmount * BigInt(Math.round(corridor.lpSpread * 1_000_000))) /
     1_000_000n;
   const netUsdc = usdcAmount - klaroFeeUsdc - lpSpreadUsdc;
-  // Convert: payoutMinor = (netUsdc / 1e6) * rate * 100
-  const payoutMinor = BigInt(
-    Math.round((Number(netUsdc) / 1_000_000) * corridor.rate * 100),
-  );
+  // payoutMinor = (netUsdc / 1e6) * rate * 100, in PURE bigint so the value the
+  // quoteHash anchors can't drift from a re-derivation at large amounts / high-rate
+  // corridors (the old `Number(netUsdc)` double path lost precision past 2^53).
+  // rate is a config constant (≤6dp) → scale once by 1e6, divide LAST (one truncation).
+  const rateScaled = BigInt(Math.round(corridor.rate * 1_000_000));
+  const payoutMinor = (netUsdc * rateScaled * 100n) / 1_000_000_000_000n;
 
   return {
     corridor,

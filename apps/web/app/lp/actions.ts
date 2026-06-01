@@ -7,6 +7,7 @@ import { keccak256, stringToBytes } from "viem";
 import { updateLp, createLpInvite } from "@/lib/repo/lp";
 import { getCashout, advanceCashout } from "@/lib/repo/cashouts";
 import { dollarsToUSDC, assertSafeUSDAmount } from "@/lib/money";
+import { stakeTier } from "@/lib/lpTiers";
 import { requireOperator, requireLp } from "@/lib/auth";
 import { record as auditRecord } from "@/lib/auditLog";
 import { captureError } from "@/lib/sentry";
@@ -225,8 +226,9 @@ export async function stakeAction(formData: FormData): Promise<void> {
     throw new Error("LP must be approved before staking");
   }
   try {
-    const tier: 0 | 1 | 2 | 3 | 4 =
-      amount >= 2000 ? 3 : amount >= 500 ? 2 : amount >= 100 ? 1 : 0;
+    // T4 (≥ $10k) was missing here (capped at T3 forever) — derive from the shared
+    // `stakeTier` so the granted tier can't drift from the advertised tiers.
+    const tier = stakeTier(amount);
     await updateLp(lp.lpId, {
       stakedUsdc: dollarsToUSDC(amount),
       tier,
