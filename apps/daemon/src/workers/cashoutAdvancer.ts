@@ -9,6 +9,7 @@ import { sb } from "../db.js";
 import { log } from "../log.js";
 import { arcWallet, arcPublic, requireArcWalletInProd } from "../arc.js";
 import { env } from "../env.js";
+import { recordReputation, REP_KIND } from "../reputation.js";
 
 // previously called `confirmReceived(bytes32)` which is
 // vendor-only. The daemon's operator wallet is NOT the vendor → contract
@@ -358,7 +359,7 @@ export function startCashoutAdvancer() {
           // pass amountUsdc; jobId dedup picks whichever fires first).
           const { data: row, error: rowErr } = await sb()
             .from("cashout_orders")
-            .select("id, status, vendor_wallet, usdc_amount")
+            .select("id, status, vendor_wallet, usdc_amount, vendor_id")
             .eq("id", orderId)
             .single();
           if (rowErr) throw rowErr;
@@ -464,6 +465,16 @@ export function startCashoutAdvancer() {
             })
             .eq("id", orderId);
           if (upReleased.error) throw upReleased.error;
+          // #3: on-chain reputation — a successful cashout is a positive signal.
+          // Best-effort; never blocks the release.
+          if (row?.vendor_id) {
+            await recordReputation(
+              row.vendor_id as string,
+              REP_KIND.CASHOUT_RELEASED,
+              10,
+              (releaseTxHash ?? orderId) as `0x${string}`,
+            );
+          }
           // same jobId-dedup pattern as
           // D79-2/3 — both this advancer release branch and the
           // arcSubscriber OrderReleased handler enqueue notify-lp

@@ -14,6 +14,7 @@ import { sb } from "../db.js";
 import { log } from "../log.js";
 import { arcWallet, arcPublic } from "../arc.js";
 import { env } from "../env.js";
+import { recordReputation, REP_KIND } from "../reputation.js";
 
 const ESCROW_ABI = parseAbi([
   "function recordScreening(bytes32 invoiceId, bytes32 screeningHash) external",
@@ -241,6 +242,23 @@ export function startScreenAndSettle() {
         })
         .eq("id", invoiceId);
       if (upSettled.error) throw upSettled.error;
+      // #3: on-chain reputation — a settled invoice is a positive signal.
+      // Best-effort (never blocks settlement); only on the real on-chain settle.
+      if (settleTxHash) {
+        const { data: invRow } = await sb()
+          .from("invoices")
+          .select("vendor_id")
+          .eq("id", invoiceId)
+          .maybeSingle();
+        if (invRow?.vendor_id) {
+          await recordReputation(
+            invRow.vendor_id as string,
+            REP_KIND.INVOICE_SETTLED,
+            12,
+            settleTxHash,
+          );
+        }
+      }
       // previous code passed `paidTxHash` here, but the
       // listener-side enqueue (arcSubscriber InvoiceSettled handler)
       // passes `ev.transactionHash` (the actual settle tx). The receipt

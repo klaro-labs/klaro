@@ -38,6 +38,10 @@ const schema = z.object({
   // cases against it (RetainerStream.resolveDispute(streamId)).
   RETAINER_STREAM_ADDRESS: z.string().optional(),
   DISPUTE_MANAGER_ADDRESS: z.string().optional(),
+  // VendorReputation — operator-signed reputation event writes at settle/release.
+  VENDOR_REPUTATION_ADDRESS: z.string().optional(),
+  // StableFXAdapterRegistry — on-chain USDC<->EURC swap (mock adapter on testnet).
+  STABLEFX_REGISTRY_ADDRESS: z.string().optional(),
 
   // Operator wallet (Circle Wallets or local keystore — for daemon-signed txs)
   DAEMON_OPERATOR_WALLET_ID: z.string().optional(),
