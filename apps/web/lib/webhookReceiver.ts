@@ -70,3 +70,48 @@ export function makeWebhookReceiver(opts: WebhookReceiverOpts) {
     return ok({ received: true, provider: opts.provider });
   };
 }
+
+/**
+ * #12: an onVerified handler that idempotently records the verified inbound
+ * event into inbound_webhook_events, keyed by (provider, event_id). Previously
+ * the cctp/gateway/circle receivers verified the signature and then did NOTHING
+ * — a valid signed delivery was a no-op. Now it leaves a durable, de-duplicated
+ * trail (and the CCTP poller #5 is the actual cross-chain settle path). Best-
+ * effort: a logging blip never fails the 200 ack.
+ */
+export function logInboundEvent(
+  provider: string,
+): (payload: unknown) => Promise<void> {
+  return async (payload: unknown): Promise<void> => {
+    const { serviceDb, isLive } = await import("./db");
+    if (!isLive()) return;
+    try {
+      const p = payload as Record<string, unknown> | null;
+      const { createHash } = await import("node:crypto");
+      const eventId =
+        (p?.id as string) ??
+        (p?.event_id as string) ??
+        (p?.messageId as string) ??
+        createHash("sha256")
+          .update(JSON.stringify(payload ?? {}))
+          .digest("hex")
+          .slice(0, 32);
+      const db = serviceDb() as unknown as {
+        from: (t: string) => {
+          upsert: (
+            v: object,
+            o: object,
+          ) => Promise<{ error: { message: string } | null }>;
+        };
+      };
+      await db
+        .from("inbound_webhook_events")
+        .upsert(
+          { provider, event_id: eventId, payload },
+          { onConflict: "provider,event_id", ignoreDuplicates: true },
+        );
+    } catch (e) {
+      captureError(e, { where: "logInboundEvent", provider });
+    }
+  };
+}
