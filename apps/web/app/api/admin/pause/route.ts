@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireOperator } from "@/lib/auth";
 import { record } from "@/lib/auditLog";
 import { isLiveOnChain } from "@/lib/arcClient";
+import { setContractsPaused, adminPauseLive } from "@/lib/adminChain";
 import { keccak256, stringToBytes } from "viem";
 
 /** ReasonCodes that map 1:1 to packages/contracts/src/lib/ReasonCodes.sol.
@@ -39,6 +40,7 @@ const REASON_CODES = [
 const Req = z.object({
   contract: z.enum(["all", "invoice", "cashout", "agent", "retainer", "fx"]),
   reasonCode: z.enum(REASON_CODES),
+  action: z.enum(["pause", "unpause"]).default("pause"),
 });
 
 export const POST = handle(Req, async (input) => {
@@ -52,23 +54,56 @@ export const POST = handle(Req, async (input) => {
   // so the admin UI can render an honest "demo only" banner. Audit log
   // entry records the intent in either case so the operator's action is
   // traceable.
+  const reasonHash = keccak256(
+    stringToBytes(`klaro.reason.${input.reasonCode}`),
+  );
+
+  // Live on-chain (#7): sign pause()/unpause() over the targeted Pausable
+  // contracts with the operator/owner key. Each call is idempotent + isolated.
+  if (isLiveOnChain() && adminPauseLive()) {
+    const results = await setContractsPaused(input.contract, input.action);
+    record({
+      actor: session.vendor.id,
+      action: input.action === "pause" ? "contract.pause" : "contract.unpause",
+      subjectKind: "contract",
+      subjectId: input.contract,
+      reasonHash,
+      noteMd: `On-chain ${input.action} via /api/admin/pause: ${results
+        .map((r) => `${r.address.slice(0, 8)}…=${r.status}`)
+        .join(", ")}`,
+    });
+    return {
+      contract: input.contract,
+      action: input.action,
+      at: new Date().toISOString(),
+      results,
+    };
+  }
+
+  // Live mode but no admin signing key configured → fail loud (don't pretend).
+  if (isLiveOnChain()) {
+    record({
+      actor: session.vendor.id,
+      action: "contract.pause",
+      subjectKind: "contract",
+      subjectId: input.contract,
+      reasonHash,
+      noteMd: `Pause REFUSED — ADMIN_PAUSE_PRIVATE_KEY not configured`,
+    });
+    throw new Error(
+      "pause_not_configured: set ADMIN_PAUSE_PRIVATE_KEY (the contract owner key) to enable on-chain pause",
+    );
+  }
+
+  // Simulated (no live chain) — honest demo response.
   record({
     actor: session.vendor.id,
     action: "contract.pause",
     subjectKind: "contract",
     subjectId: input.contract,
-    reasonHash: keccak256(stringToBytes(`klaro.reason.${input.reasonCode}`)),
-    noteMd: isLiveOnChain()
-      ? `Operator-attempted pause via /api/admin/pause (REFUSED — on-chain wiring not yet shipped; trigger pause out-of-band)`
-      : `Operator-initiated pause via /api/admin/pause (simulated — no on-chain tx)`,
+    reasonHash,
+    noteMd: `Operator-initiated ${input.action} via /api/admin/pause (simulated — no on-chain tx)`,
   });
-
-  if (isLiveOnChain()) {
-    throw new Error(
-      "pause_not_yet_wired: on-chain pause must be triggered directly against each Pausable contract until M11 wiring ships",
-    );
-  }
-
   return {
     paused: input.contract,
     at: new Date().toISOString(),
