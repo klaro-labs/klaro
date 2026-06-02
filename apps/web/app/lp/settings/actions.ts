@@ -43,12 +43,33 @@ export async function rotateWalletAction(formData: FormData): Promise<void> {
   }
 }
 
-/// LP notification preferences require an `lp_preferences` table that has
-/// not shipped yet. Until then, these toggle actions refuse with an explicit
-/// "not yet shipped" error so the UI can disable the controls behind a badge
-/// instead of pretending a click persists.
-const PREFS_NOT_PERSISTED =
-  "lp_preferences_not_yet_shipped: preference persistence is not yet available";
+/// #14: LP preferences now persist to the `lp_preferences` table (keyed by
+/// vendor_id, RLS vendor-scoped). Upserts via the RLS client; mock/dev is a
+/// best-effort no-op so the toggle still renders.
+async function upsertLpPref(
+  vendorId: string,
+  key: string,
+  value: boolean,
+): Promise<void> {
+  const { tryDb } = await import("@/lib/db");
+  const c = await tryDb();
+  if (!c) return;
+  const db = c as unknown as {
+    from: (t: string) => {
+      upsert: (
+        v: object,
+        o: object,
+      ) => Promise<{ error: { message: string } | null }>;
+    };
+  };
+  const { error } = await db
+    .from("lp_preferences")
+    .upsert(
+      { vendor_id: vendorId, pref_key: key, pref_value: value },
+      { onConflict: "vendor_id,pref_key" },
+    );
+  if (error) throw new Error(error.message);
+}
 
 export async function toggleNotificationAction(
   formData: FormData,
@@ -56,14 +77,16 @@ export async function toggleNotificationAction(
   const { vendor, lp } = await requireLp();
   const key = String(formData.get("key") ?? "");
   const value = String(formData.get("value") ?? "") === "1";
+  if (!/^[a-z_.]{1,40}$/.test(key)) throw new Error("Bad preference key");
+  await upsertLpPref(vendor.id, `notification.${key}`, value);
   auditRecord({
     actor: vendor.id,
     action: "lp.toggle_notification",
     subjectKind: "lp",
     subjectId: lp.lpId,
-    noteMd: `notification.${key} → ${value ? "on" : "off"} (NOT PERSISTED — migration pending)`,
+    noteMd: `notification.${key} → ${value ? "on" : "off"}`,
   });
-  throw new Error(PREFS_NOT_PERSISTED);
+  revalidatePath("/lp/settings");
 }
 
 export async function toggleCorridorAction(formData: FormData): Promise<void> {
@@ -71,14 +94,15 @@ export async function toggleCorridorAction(formData: FormData): Promise<void> {
   const corridor = String(formData.get("corridor") ?? "");
   const enable = String(formData.get("enable") ?? "") === "1";
   if (!/^[A-Z]{3}$/.test(corridor)) throw new Error("Bad corridor code");
+  await upsertLpPref(vendor.id, `corridor.${corridor}`, enable);
   auditRecord({
     actor: vendor.id,
     action: "lp.toggle_corridor",
     subjectKind: "lp",
     subjectId: lp.lpId,
-    noteMd: `corridor ${corridor} → ${enable ? "active" : "disabled"} (NOT PERSISTED — migration pending)`,
+    noteMd: `corridor ${corridor} → ${enable ? "active" : "disabled"}`,
   });
-  throw new Error(PREFS_NOT_PERSISTED);
+  revalidatePath("/lp/settings");
 }
 
 export async function beginExitAction(): Promise<void> {

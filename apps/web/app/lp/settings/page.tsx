@@ -1,10 +1,37 @@
 import { LPNav } from "@/components/klaro/LPNav";
-import { Badge } from "@/components/ui/Badge";
 import { requireLp } from "@/lib/auth";
 import { shortAddress } from "@/lib/money";
-import { rotateWalletAction, beginExitAction } from "./actions";
+import {
+  rotateWalletAction,
+  beginExitAction,
+  toggleNotificationAction,
+  toggleCorridorAction,
+} from "./actions";
 
 export const metadata = { title: "Settings · Klaro LP" };
+
+/**
+ * #14: load the LP's persisted preference rows (lp_preferences, vendor-scoped
+ * RLS). Returns a flat { pref_key: bool } map so the toggles render their real
+ * current state. Best-effort: mock/dev returns {} and the toggles fall back to
+ * their declared defaults.
+ */
+async function loadPrefs(): Promise<Record<string, boolean>> {
+  const { tryDb } = await import("@/lib/db");
+  const c = await tryDb();
+  if (!c) return {};
+  const db = c as unknown as {
+    from: (t: string) => {
+      select: (cols: string) => Promise<{
+        data: { pref_key: string; pref_value: boolean }[] | null;
+      }>;
+    };
+  };
+  const { data } = await db.from("lp_preferences").select("pref_key,pref_value");
+  const map: Record<string, boolean> = {};
+  for (const row of data ?? []) map[row.pref_key] = row.pref_value;
+  return map;
+}
 
 const CORRIDORS = [
   { code: "INR", label: "India · INR via UPI" },
@@ -23,6 +50,7 @@ const NOTIFICATIONS = [
 export default async function LPSettingsPage() {
   const { lp } = await requireLp();
   const entityName = lp.legalEntityName ?? lp.contactEmail;
+  const prefs = await loadPrefs();
 
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
@@ -80,63 +108,50 @@ export default async function LPSettingsPage() {
         </Section>
 
         <Section title="Active corridors">
-          {/* Iter 73 honesty: same lp_preferences gap as Notifications below.
-              Corridor enable/disable previewed; persistence ships M11. */}
-          <p className="border-b border-[var(--color-line)] bg-amber-50 px-6 py-3 text-xs text-amber-900">
-            Corridor enable/disable ships soon. The list below shows the
-            corridors Klaro currently allow-lists for LPs at large.
+          <p className="border-b border-[var(--color-line)] px-6 py-3 text-xs text-[var(--color-ink-muted)]">
+            Enable the corridors you want to be matched against. Saved to your
+            LP profile immediately.
           </p>
           <ul className="divide-y divide-[var(--color-line)]">
-            {CORRIDORS.map((c) => (
-              <li
-                key={c.code}
-                className="grid grid-cols-[1fr_auto_auto] items-center gap-3 px-6 py-3"
-              >
-                <span className="text-sm">{c.label}</span>
-                <Badge tone="sim">no data</Badge>
-                <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900">
-                  Coming soon
-                </span>
-              </li>
-            ))}
+            {CORRIDORS.map((c) => {
+              const on = prefs[`corridor.${c.code}`] ?? false;
+              return (
+                <li
+                  key={c.code}
+                  className="flex items-center justify-between gap-3 px-6 py-3"
+                >
+                  <span className="text-sm">{c.label}</span>
+                  <form action={toggleCorridorAction}>
+                    <input type="hidden" name="corridor" value={c.code} />
+                    <input type="hidden" name="enable" value={on ? "0" : "1"} />
+                    <Toggle on={on} />
+                  </form>
+                </li>
+              );
+            })}
           </ul>
         </Section>
 
         <Section title="Notifications">
-          {/*
-            Per-LP notification preferences need an `lp_preferences` table.
-            Until that migration ships, the toggles render disabled with a
-            "Coming soon" badge so the LP doesn't believe a click persists.
-          */}
-          <p className="border-b border-[var(--color-line)] bg-amber-50 px-6 py-3 text-xs text-amber-900">
-            Notification preferences are coming soon — the toggles below preview
-            the defaults Klaro will fire. Email
-            <a
-              className="ml-1 underline hover:text-amber-700"
-              href="mailto:lp@klaro.so?subject=LP%20notification%20preferences"
-            >
-              lp@klaro.so
-            </a>{" "}
-            for ad-hoc opt-outs before then.
+          <p className="border-b border-[var(--color-line)] px-6 py-3 text-xs text-[var(--color-ink-muted)]">
+            Choose which emails Klaro sends you. Changes save immediately.
           </p>
-          {NOTIFICATIONS.map((n) => (
-            <div
-              key={n.key}
-              className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-3 last:border-b-0"
-            >
-              <span className="text-sm">{n.label}</span>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`rounded border px-3 py-1 text-xs ${n.defaultOn ? "border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] text-[var(--color-brand)]" : "border-[var(--color-line)] text-[var(--color-ink-muted)]"}`}
-                >
-                  {n.defaultOn ? "On (default)" : "Off (default)"}
-                </span>
-                <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-900">
-                  Coming soon
-                </span>
+          {NOTIFICATIONS.map((n) => {
+            const on = prefs[`notification.${n.key}`] ?? n.defaultOn;
+            return (
+              <div
+                key={n.key}
+                className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-3 last:border-b-0"
+              >
+                <span className="text-sm">{n.label}</span>
+                <form action={toggleNotificationAction}>
+                  <input type="hidden" name="key" value={n.key} />
+                  <input type="hidden" name="value" value={on ? "0" : "1"} />
+                  <Toggle on={on} />
+                </form>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </Section>
 
         <Section title="Danger zone">
@@ -175,6 +190,27 @@ function Section({
         {children}
       </div>
     </section>
+  );
+}
+
+/**
+ * A submit button styled as an on/off pill. The enclosing <form> carries the
+ * hidden inputs + server action; clicking flips the persisted value. Rendered
+ * as a real submit (not JS state) so it works without client hydration.
+ */
+function Toggle({ on }: { on: boolean }) {
+  return (
+    <button
+      type="submit"
+      aria-pressed={on}
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+        on
+          ? "border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] text-[var(--color-brand)] hover:bg-[var(--color-brand)]/15"
+          : "border-[var(--color-line)] text-[var(--color-ink-muted)] hover:bg-[var(--color-bg)]"
+      }`}
+    >
+      {on ? "On" : "Off"}
+    </button>
   );
 }
 
