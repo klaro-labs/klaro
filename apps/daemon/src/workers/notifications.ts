@@ -18,6 +18,7 @@
  */
 import { createHash } from "node:crypto";
 import { Resend } from "resend";
+import webpush from "web-push";
 import { startWorker } from "../queue.js";
 import { env } from "../env.js";
 import { sb } from "../db.js";
@@ -54,6 +55,58 @@ async function sendEmail(to: string, subject: string, html: string) {
   await resend.emails.send({ from: env.RESEND_FROM, to, subject, html });
 }
 
+// Web Push (build #10): the send-half. The push_subscriptions table + the
+// client subscribe route already existed; the worker only ever emailed. VAPID is
+// a self-generated keypair (no account). Best-effort: a push blip never fails the
+// notification job, and a 404/410 (expired/revoked sub) prunes the dead row.
+let _vapidReady: boolean | null = null;
+function vapidReady(): boolean {
+  if (_vapidReady !== null) return _vapidReady;
+  if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
+    _vapidReady = false;
+    return false;
+  }
+  webpush.setVapidDetails(
+    env.VAPID_SUBJECT,
+    env.VAPID_PUBLIC_KEY,
+    env.VAPID_PRIVATE_KEY,
+  );
+  _vapidReady = true;
+  return true;
+}
+
+async function pushVendor(vendorId: string, title: string): Promise<void> {
+  if (!vapidReady()) return;
+  const { data } = await sb()
+    .from("push_subscriptions")
+    .select("id, endpoint, p256dh, auth")
+    .eq("vendor_id", vendorId);
+  for (const s of (data ?? []) as Array<{
+    id: string;
+    endpoint: string;
+    p256dh: string;
+    auth: string;
+  }>) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+        JSON.stringify({ title, body: "Tap to view in Klaro." }),
+      );
+    } catch (e) {
+      const code = (e as { statusCode?: number }).statusCode;
+      if (code === 404 || code === 410) {
+        await sb().from("push_subscriptions").delete().eq("id", s.id);
+        log.info("notify.push.pruned_dead", { vendorId, id: s.id });
+      } else {
+        log.warn("notify.push.failed", {
+          vendorId,
+          err: (e as Error).message,
+        });
+      }
+    }
+  }
+}
+
 async function emailVendor(vendorId: string, subject: string, html: string) {
   // previously destructured `data` only. A transient
   // PostgREST failure rendered v as null → `no_email` warn + silent
@@ -69,6 +122,8 @@ async function emailVendor(vendorId: string, subject: string, html: string) {
     return;
   }
   await sendEmail(v.email, subject, html);
+  // #10: also push to the vendor's subscribed browsers (best-effort).
+  await pushVendor(vendorId, subject);
 }
 
 async function emailBuyer(invoiceId: string, subject: string, html: string) {

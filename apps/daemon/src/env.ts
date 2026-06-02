@@ -64,7 +64,10 @@ const schema = z.object({
   // consumer is implemented.
   CHAINALYSIS_API_KEY: z.string().optional(),
   SUMSUB_APP_TOKEN: z.string().optional(),
+  // Web Push (build #10) — VAPID is a self-generated keypair (no account).
   VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().default("mailto:support@klaro.so"),
 });
 
 const parsed = schema.safeParse(process.env);
