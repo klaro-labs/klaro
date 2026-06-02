@@ -42,6 +42,9 @@ const schema = z.object({
   VENDOR_REPUTATION_ADDRESS: z.string().optional(),
   // StableFXAdapterRegistry — on-chain USDC<->EURC swap (mock adapter on testnet).
   STABLEFX_REGISTRY_ADDRESS: z.string().optional(),
+  // EURC token (MockEURC on testnet until Circle StableFX TEST access). The FX
+  // worker resolves the USDC<->EURC pair to real on-chain token addresses.
+  EURC_ADDRESS: z.string().optional(),
 
   // Operator wallet (Circle Wallets or local keystore — for daemon-signed txs)
   DAEMON_OPERATOR_WALLET_ID: z.string().optional(),
