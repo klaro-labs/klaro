@@ -150,19 +150,11 @@ export async function requestEvidenceAction(
   askFor: string,
 ): Promise<void> {
   const session = await requireOperator();
-  // sibling decideDisputeAction refused in live mode
-  // ( honest-label sweep); requestEvidenceAction +
-  // assignToReviewAction were missed. Operator clicked "Request
-  // evidence" in live mode → UI refreshed + appeared to succeed →
-  // state vanished on next cold start. Same divergence pattern.
-  const { isLiveOnChain } = await import("@/lib/arcClient");
-  if (isLiveOnChain()) {
-    throw new Error(
-      "dispute_request_evidence_not_yet_persistent: mock dispute store does not survive serverless cold starts; persistent disputes ship M11",
-    );
-  }
+  // #9: persist through the dual-mode repo (Supabase live, mock fallback) — the
+  // disputes/dispute_evidence tables + RLS already exist (0032/0014). Previously
+  // this threw in live mode while decideDisputeAction was already wired.
   if (askFor.length < 3) throw new Error("evidence request must be specific");
-  await mockAddEvidence(caseId, {
+  await disputesRepo.addEvidence(caseId, {
     by: "operator",
     at: new Date(),
     note: `Operator requested: ${askFor}`,
@@ -181,14 +173,8 @@ export async function requestEvidenceAction(
 
 export async function assignToReviewAction(caseId: Hex): Promise<void> {
   const session = await requireOperator();
-  // same honest-label refusal as requestEvidenceAction.
-  const { isLiveOnChain } = await import("@/lib/arcClient");
-  if (isLiveOnChain()) {
-    throw new Error(
-      "dispute_assign_review_not_yet_persistent: mock dispute store does not survive serverless cold starts; persistent disputes ship M11",
-    );
-  }
-  await mockAssignDisputeToReview(caseId);
+  // #9: dual-mode repo (Supabase live, mock fallback) — see requestEvidenceAction.
+  await disputesRepo.assignToReview(caseId);
   auditRecord({
     actor: session.vendor.id,
     action: "dispute.assign_review",

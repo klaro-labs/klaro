@@ -2,48 +2,61 @@ import { handle, handleGet } from "@/lib/api";
 import { WebhookCreateReq } from "@/lib/apiSchemas";
 import { requireVendor } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
+import { assertPublicHttpUrl } from "@/lib/safeFetchUrl";
+import * as webhooksRepo from "@/lib/repo/webhooks";
 
-// previously stored subscriptions
-// in a process-level Map. On Vercel cold start (every ~15 min of idle)
-// every vendor's webhook subscription disappeared silently — the POST
-// kept returning 201 with a fake `wh_xxx` id while the GET listed
-// nothing. Vendors' downstream services stopped receiving events with
-// zero warning, in violation of (overclaiming live behavior).
-// Until the persistence wiring lands (Supabase insert + per-vendor
-// secret encryption per Workstream G), the route refuses in live mode
-// and returns simulated rows tagged `simulated: true` in dev so the
-// settings UI can render an honest "not yet available — track on the
-// roadmap" banner.
-const _webhooks = new Map<
+/**
+ * Build #8: the REST webhooks surface now persists to Supabase via the same
+ * repo the vendor settings UI uses (lib/repo/webhooks.ts — table + per-vendor
+ * encrypted signing secret, migration 0035). Previously this route kept
+ * subscriptions in a process-level Map that vanished on every Vercel cold start
+ * and 503'd in live mode. Now: real, durable, SSRF-guarded, RLS-scoped.
+ */
+const _devWebhooks = new Map<
   string,
   Array<{ id: string; url: string; events: string[]; createdAt: Date }>
 >();
 
-function liveModeNotAvailable(): never {
-  throw new Error(
-    "webhooks_not_yet_available: subscription persistence + secret encryption are pending; the in-memory stub does not survive serverless cold starts",
-  );
-}
-
 export const GET = handleGet(async () => {
   const session = await requireVendor();
-  if (supabaseLive()) liveModeNotAvailable();
-  const list = _webhooks.get(session.vendor.id) ?? [];
-  return { webhooks: list, simulated: true };
+  if (!supabaseLive()) {
+    return {
+      webhooks: _devWebhooks.get(session.vendor.id) ?? [],
+      simulated: true,
+    };
+  }
+  const webhooks = await webhooksRepo.listWebhooks(session.vendor.id);
+  return { webhooks };
 });
 
 export const POST = handle(WebhookCreateReq, async (input) => {
   const session = await requireVendor();
-  if (supabaseLive()) liveModeNotAvailable();
-  const id = "wh_" + Math.random().toString(36).slice(2, 12);
-  const row = {
-    id,
+  // SSRF guard at store time (re-checked at delivery time inside the worker) —
+  // a vendor must not register http://169.254.169.254 / localhost as an endpoint.
+  await assertPublicHttpUrl(input.url);
+
+  if (!supabaseLive()) {
+    const id = "wh_" + Math.random().toString(36).slice(2, 12);
+    const row = {
+      id,
+      url: input.url,
+      events: input.events,
+      createdAt: new Date(),
+    };
+    const arr = _devWebhooks.get(session.vendor.id) ?? [];
+    arr.push(row);
+    _devWebhooks.set(session.vendor.id, arr);
+    return { webhook: row, simulated: true };
+  }
+
+  const created = await webhooksRepo.createWebhook({
+    vendorId: session.vendor.id,
     url: input.url,
     events: input.events,
-    createdAt: new Date(),
+  });
+  // The signing secret is revealed ONCE on create (encrypted at rest thereafter).
+  return {
+    webhook: { id: created.id, url: created.url, events: input.events },
+    secret: created.signingSecret,
   };
-  const arr = _webhooks.get(session.vendor.id) ?? [];
-  arr.push(row);
-  _webhooks.set(session.vendor.id, arr);
-  return { webhook: row, simulated: true };
 });
