@@ -67,17 +67,30 @@ export async function deleteMyAccountAction(): Promise<void> {
   const session = await getCurrentSession();
   if (!session) throw new Error("not signed in");
   try {
-    // In live mode: enqueue privacy-export.delete in BullMQ + Supabase RPC
-    // marking vendors.deleted_at + AML retention starts (7y per FATF). We
-    // record the request on the audit log so it survives a restart even in
-    // mock mode — operator can see the user asked.
+    // #15: persist the soft-delete + AML retention deadline. The vendor row is
+    // marked deleted_at = now and aml_retention_until = now + 30d; a daemon
+    // purge (privacy-purge cron) hard-deletes/anonymizes after that instant.
+    // The vendors-self-update RLS policy allows the caller to set their own row.
+    const { tryDb } = await import("@/lib/db");
+    const c = await tryDb();
+    const now = new Date();
+    const retentionUntil = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    if (c) {
+      const { error } = await c
+        .from("vendors")
+        .update({
+          deleted_at: now.toISOString(),
+          aml_retention_until: retentionUntil.toISOString(),
+        })
+        .eq("id", session.vendor.id);
+      if (error) throw error;
+    }
     auditRecord({
       actor: session.vendor.id,
       action: "vendor.lockout",
       subjectKind: "vendor",
       subjectId: session.vendor.id,
-      noteMd:
-        "[SIMULATED] privacy delete requested — AML retention countdown starts in live mode",
+      noteMd: `Privacy delete requested — account soft-deleted; AML retention until ${retentionUntil.toISOString().slice(0, 10)}, then purge.`,
     });
     revalidatePath("/account/privacy");
   } catch (e) {

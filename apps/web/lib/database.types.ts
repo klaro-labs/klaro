@@ -1577,9 +1577,11 @@ export type Database = {
       };
       vendors: {
         Row: {
+          aml_retention_until: string | null;
           brand_color: string | null;
           brand_logo_url: string | null;
           circle_wallet_id: string | null;
+          deleted_at: string | null;
           country: string | null;
           created_at: string;
           display_name: string;
@@ -1592,11 +1594,13 @@ export type Database = {
           wallet_provisioned_at: string | null;
         };
         Insert: {
+          aml_retention_until?: string | null;
           brand_color?: string | null;
           brand_logo_url?: string | null;
           circle_wallet_id?: string | null;
           country?: string | null;
           created_at?: string;
+          deleted_at?: string | null;
           display_name: string;
           email: string;
           id?: string;
@@ -1607,10 +1611,12 @@ export type Database = {
           wallet_provisioned_at?: string | null;
         };
         Update: {
+          aml_retention_until?: string | null;
           brand_color?: string | null;
           brand_logo_url?: string | null;
           circle_wallet_id?: string | null;
           country?: string | null;
+          deleted_at?: string | null;
           created_at?: string;
           display_name?: string;
           email?: string;
