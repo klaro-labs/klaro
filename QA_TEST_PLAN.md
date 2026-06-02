@@ -1261,3 +1261,433 @@ testnet→mainnet decision could pull forward, but it needs the runnable invoice
   proof verifier (money-transmitter license), StableFX (Circle), ERP (6 OAuth apps),
   agents on-chain custody, card on-ramp, wallet passes — each needs a provider account /
   license before it can be built real. Deliberately flag-gated + labelled today.
+
+---
+---
+
+# PART II — EXHAUSTIVE COVERAGE (the "miss nothing" layer)
+
+> Part I (§0–§20.1) is the **flow + risk** plan: how a human walks the product and the
+> money/security/ops categories a flow plan would pass while still broken. It is strong but
+> (a) flow-organized, so individual pages are implicit, and (b) written before the
+> 2026-06-02 build pass, so several honest-status labels and "fails today" notes are now
+> stale. Part II makes coverage **literal and total**: every route, every API, every action,
+> every worker, every contract, every device — each enumerated exactly once with an explicit
+> desktop **and** mobile pass, for **both** primary user types (vendor & LP) plus buyer,
+> admin, and agent-dev. Nothing here may be "covered by implication." A surface absent from
+> these tables is a coverage bug in THIS document.
+>
+> **How Part II is used:** Part I tells you *how* to test (the act→audit visual loop §VISUAL,
+> the multi-user matrix, the money/security gates). Part II tells you *what* must be tested so
+> none of it is skipped. Run every row through the Part I **Universal verification rubric**
+> (§"Universal verification rubric", 10 checks) and the **Per-screen visual checklist**
+> (§VISUAL, layout/text/images/data/interaction/feedback/honesty/responsive). Every ☐ below is
+> shorthand for "apply both rubrics, on this surface, at this viewport."
+
+## II.0 — STATUS RECONCILIATION (read first — supersedes stale labels in Part I)
+
+> Part I's feature-inventory honest-status cells and several "this test FAILS today" notes
+> predate the 2026-06-02 build pass. Where Part I and this table disagree, **this table is
+> current truth** — test for the expected outcome here, not the older label. Each item now has
+> a repeatable on-chain proof in `apps/web/scripts/` (run from `apps/web/`).
+
+| Part I ref | Old label / claim | **Now (2026-06-02)** | Proof / source | New expected outcome to test |
+|---|---|---|---|---|
+| **G5** LP prefs | "Coming soon (refuses)" | **LIVE** — `lp_preferences` table (migr 0048), vendor-scoped RLS | `app/lp/settings/{actions,page}.tsx` | Toggle notification + corridor → persists; reload shows saved state; **no "Coming soon" badge**. Mock/dev = best-effort no-op. |
+| **F1** Retainer | "on-chain funding PARTNER-PENDING" | **PROVEN ON-CHAIN** on `RetainerStream` | `qa-retainer-stream-proof.mjs` ✅ | createStream escrows USDC; withdraw pays vested; cancel refunds unvested; `deposit==withdrawn+refund+claimable` holds. Vesting is real, not simulated. |
+| **F2** FX | "StableFX PARTNER-PENDING / demo completed" | **REAL on-chain swap** USDC↔EURC | `qa-fx-swap-proof.mjs` ✅; `MockEURC 0xbe3EB8…6ACF3` | `registry.swap` 1 USDC→0.92 EURC; pulled from payer, paid from adapter liquidity, `SwapExecuted`. Daemon `stableFxAdapter` worker signs the real swap (was `[SIMULATED]` skip). |
+| **E1** Agent escrow | "PARTNER-PENDING" | **PROVEN ON-CHAIN** on `AgentEscrow` | `qa-agent-escrow-proof.mjs` ✅ | register(operator EIP-712)→fund→start→deliver→complete; agent paid, 1% fee carved, escrow drained, job CLOSED. |
+| **I3 / §20#12** CCTP | "build-gap: no onVerified, /api/status overclaims" | **Outbound PROVEN; integration built** | `qa-cctp-burn-proof.mjs` ✅; `apps/daemon/src/cctp.ts` | Arc `depositForBurn`→Circle Iris `complete` attestation. Inbound `receiveOnArc` code + unit tests done. `onVerified` now logs (`logInboundEvent`). **Inbound E2E still needs a source-chain burn — the one external-testnet dependency.** |
+| **§10.2 / A5** Cashout fee | "fee never withheld; LP gets gross" | **WITHHELD ON-CHAIN** — COP redeployed `0x347935…E6bd` | `qa-cashout-fee-proof.mjs` ✅ | LP receives `amount − klaroFee`; fee → receiver; `CashoutFeeWithheld` event; escrow→0. Old fee-free COP `0x4047…226c` is DEAD — re-point any stale script. |
+| **§12 / B1** Reconciler | "no standing DB↔chain reconciler exists" | **BUILT** — `reconciler.ts` worker (5-min cron) | `apps/daemon/src/workers/reconciler.ts` | A drift between DB status and on-chain `getOrder` is detected + alerted; still verify the self-heal + partial-failure robustness (TEST-LEFT §20 #10). |
+| **§11 / A2** Invariants | "Echidna stubs revert; ZERO Foundry invariant suites" | **LIVE Foundry `StdInvariant`** | `test/invariant/{Cashout,Invoice}Conservation.t.sol`, `FeeSplitter` I3 | Conservation + no-double-release fuzz pass (256×128k, 0 reverts). Echidna stubs intentionally fail-closed. |
+| **A7** Disposition | "terminal state doesn't encode who got paid" | **COLUMNS ADDED** (migr 0045) | `released_to/amount_paid/fee_collected/refunded_to/disposition_tx` | Each terminal money transition writes disposition from chain truth; DB row alone reconstructs the payee. |
+| **C1** LP-claim RLS | "no UPDATE policy → claim strands" | **POLICY ADDED** (migr 0043) | `0043` | Staked LP claims REQUESTED→CLAIMED for an owned LP profile; cross-tenant LP write still denied. |
+| **I2** Velocity cap | "zero cap enforcement on money path" | **DAILY CAP ENFORCED** | `prepareCashoutRequestAction` | Cashout over `vendors.max_cashout_usdc_daily` (default $10k) fails closed before lock. Per-corridor + new-account caps still BUILD-LEFT. |
+| **I4/C7** Rate limit | "only `/api/*`; `/pay` unthrottled" | **DURABLE limiter** (Upstash) covers `/pay /i /receipt` + `/api` | `middleware.ts` | Burst the public money pages → throttled. Server-action throttle still verify. |
+
+**Still genuinely open (do NOT mark green):** A10/H2 operator-key blast-radius (needs redeploy +
+multisig/KMS), I1 LP-float solvency (contract + economic design), H1 multisig owner transfer,
+external `[SIMULATED]` surfaces (screening, fiat payout, ERP, card on-ramp, wallet passes), and
+**CCTP inbound-into-Arc E2E** (needs a source-chain burn). These remain NO-GO/PARTNER-PENDING per
+Part I gates.
+
+**Fresh inventory counts (verified against the tree 2026-06-02):** **89 UI pages · 26 API routes ·
+24 server-action files · 17 daemon workers · 22 contracts (+ MockEURC).** (Part I's header said
+85/30/22 — drift means new surfaces exist; they are all enumerated below so none is skipped.)
+
+---
+
+## II.A — COMPLETE ROUTE × VIEWPORT MATRIX (all 89 pages, desktop 🖥️ 1280×800 + mobile 📱 390×844)
+
+> Every route in the app, grouped by persona/auth-state, each tested at BOTH viewports. "What
+> must be right" is the page-specific bar **on top of** the universal rubric + visual checklist.
+> Auth column: 🌐 public · 🔑 vendor · 💧 LP · 🛡️ admin/operator · 👤 buyer (no-auth money) · 🤖 agent-dev.
+> Tick 🖥️ and 📱 only when the page passes the full visual checklist at that width.
+
+### A1. Public · marketing / static / legal (🌐 logged-out must work; also re-check logged-in nav)
+| Route | What must be right | 🖥️ | 📱 |
+|---|---|---|---|
+| `/` | hero renders, mega-menu (Product/Resources) opens + routes, all CTAs land, testnet metrics show honest `live/simulated` source, no console error | ☐ | ☐ |
+| `/pricing` | 3 tiers (Free / 1.0% / Custom), FAQ; **numbers match `pricing.ts` reality** (testnet Free vs mainnet 1%); cashout 0.3% row matches the now-live on-chain carve | ☐ | ☐ |
+| `/product` | overview renders, links to all 5 subpages resolve | ☐ | ☐ |
+| `/product/invoicing` | feature copy accurate, no dead CTA | ☐ | ☐ |
+| `/product/cashout` | corridor/fee claims match reality (0.3% now real) | ☐ | ☐ |
+| `/product/stablefx` | USDC↔EURC story; **honest that swap is now live-testnet via MockEURC**, USYC still pending | ☐ | ☐ |
+| `/product/receipts` | on-chain receipt claim accurate | ☐ | ☐ |
+| `/product/reputation` | reputation claim matches live-read/sim state | ☐ | ☐ |
+| `/build` | developer landing renders | ☐ | ☐ |
+| `/developers` | renders (or 301→/build) — confirm no 404 | ☐ | ☐ |
+| `/docs` | docs index renders, internal links resolve | ☐ | ☐ |
+| `/resources` | renders | ☐ | ☐ |
+| `/resources/flows` | flow diagrams render, no broken images | ☐ | ☐ |
+| `/company` | renders | ☐ | ☐ |
+| `/company/contact` | submit contact form → honest confirmation; **message actually routes somewhere or says where**; spam/empty/oversized handled | ☐ | ☐ |
+| `/fx` | FX quote UI; src/dst select; quote shows; honest `simulated`/`access-pending`/now-live label per pair | ☐ | ☐ |
+| `/fx/[corridor]` | corridor detail (eurc, mxnb, …) renders, spread/route copy accurate | ☐ | ☐ |
+| `/agents` | agent marketplace listing renders (empty + populated) | ☐ | ☐ |
+| `/agents/[agentId]` | agent profile; pricing endpoint; honest if no real agents | ☐ | ☐ |
+| `/brand-kit` | logo/color assets render + download | ☐ | ☐ |
+| `/roadmap` | renders | ☐ | ☐ |
+| `/help` | help index; search if any; links resolve | ☐ | ☐ |
+| `/trust` | trust-center copy accurate to real controls | ☐ | ☐ |
+| `/status` | **probes real CCTP/Gateway/RPC state, not hardcoded "operational"** (the overclaim fix); reflects honest CCTP status | ☐ | ☐ |
+| `/x402-demo` | x402 negotiation demo; honest SIM unless `X402_ENABLED` | ☐ | ☐ |
+| `/legal/terms` | real content (not lorem); renders | ☐ | ☐ |
+| `/legal/privacy` | real content | ☐ | ☐ |
+| `/legal/cookies` | real content | ☐ | ☐ |
+| `/legal/dpa` | real content | ☐ | ☐ |
+| `/legal/disclosures` | real content; INR money-transmitter disclosure honest | ☐ | ☐ |
+| `/legal/subprocessors` | list matches actual subprocessors (Supabase/Circle/Resend/Sentry…) | ☐ | ☐ |
+| `/legal/acceptable-use` | real content | ☐ | ☐ |
+| `/offline` | PWA offline fallback renders when network down | ☐ | ☐ |
+| `/account/privacy` | privacy-choices form → `deleteMyAccountAction` persists `deleted_at` + `aml_retention_until` (now+30d); honest countdown | ☐ | ☐ |
+
+### A2. Auth & onboarding
+| Route | What must be right | 🖥️ | 📱 |
+|---|---|---|---|
+| `/signin` (magic-link) | enter email → email arrives → click → lands `/vendor`; session persists reload + new tab; expired/used link → honest error not crash | ☐ | ☐ |
+| `/signin` (passkey) | WebAuthn register then assert on next visit; reject → recover; no identity leak | ☐ | ☐ |
+| `/onboarding` | 4 steps (business→wallet→verification→first-invoice); each persists; refresh mid-flow resumes; completes → `vendors` row + wallet; wallet step honest if simulated | ☐ | ☐ |
+
+### A3. Public payment surfaces (👤 buyer, no auth — money 💰🔗)
+| Route | What must be right | 🖥️ | 📱 |
+|---|---|---|---|
+| `/i/[id]` | opens for NON-vendor; vendor branding + amount + "Pay with USDC"; connect wallet → `acceptAndPay` → flips PAID; InvoicePaid→screening→settle pipeline; **wallet popup shows correct network+contract+amount**; insufficient-USDC / wrong-chain / rejected-sig / already-paid all honest | ☐ | ☐ |
+| `/pay/[slug]` | reusable link pay; `getOrCreateInvoiceForLink` materializes + publishes; **per-(slug,wallet) dedup caps row/gas amplification**; same buyer edge cases | ☐ | ☐ |
+| `/receipt/[hash]` | public receipt "Verified on Arc"; **`receipt_hash` == contract-derived hash**; renders for logged-out; bad hash → honest 404 | ☐ | ☐ |
+
+### A4. Vendor (🔑 — the core product; logged-out → /signin, cross-tenant → 404)
+| Route | What must be right | 🖥️ | 📱 |
+|---|---|---|---|
+| `/vendor` | dashboard: balances, recent activity, empty state for new vendor, no N+1 lag | ☐ | ☐ |
+| `/vendor/invoices` | list: empty→populated, filters, status badges, pagination at scale (1k rows) | ☐ | ☐ |
+| `/vendor/invoices/new` | create (line items, customer, amount) → `invoices` row persists; bad/`Infinity`/`NaN` amount rejected; line-items sum == total; **orphan-free if line-item insert fails** | ☐ | ☐ |
+| `/vendor/invoices/[id]` | detail: status timeline, copy hosted link, branding preview, PII handling, publish-on-chain CTA | ☐ | ☐ |
+| `/vendor/invoices/[id]/screening` | screening surface — **SIMULATED → "manual review", never silent "passed"** | ☐ | ☐ |
+| `/vendor/invoices/import` | bulk CSV import → rows created, bad rows reported honestly | ☐ | ☐ |
+| `/vendor/invoices/recurring` | create schedule → persists; **honest whether it auto-fires**; verify daemon `lifecycleReminders` actually fires it | ☐ | ☐ |
+| `/vendor/links` | list payment links; usage count; deactivate | ☐ | ☐ |
+| `/vendor/links/new` | create reusable link → persists | ☐ | ☐ |
+| `/vendor/links/[id]` | detail; deactivate; usage; copy URL | ☐ | ☐ |
+| `/vendor/cashout` 💰🔗🏷️ | quote builder (amount+corridor), live quote refresh, fee/spread/rate shown; with wallet → `requestAndLock` → LOCKED (on-chain==DB); **without wallet → refused honestly, no fake success**; **daily cap enforced** (over `max_cashout_usdc_daily` fails closed); quote-expiry boundary clean | ☐ | ☐ |
+| `/vendor/cashout/[id]` | 6-state timeline locked→claimed→proof→confirmed→released; **fiat leg labeled partner-pending even in live**; UTR "simulated reference" honest; disposition (released_to/amount_paid/fee_collected) shown post-release | ☐ | ☐ |
+| `/vendor/retainer` 💰 | create stream (payer/amount/days) → **now REAL on-chain** (RetainerStream); withdraw vested, cancel refunds unvested; vesting counter accurate; **label no longer "no USDC locked"** | ☐ | ☐ |
+| `/vendor/agents` 💰 | hire agent (select/amount/brief) → `agent_jobs` row; advance fund→start→deliver→accept; **on-chain AgentEscrow now real** (1% fee carve) | ☐ | ☐ |
+| `/vendor/agents/[id]/jobs` | job history for an agent; each status+timestamp persists | ☐ | ☐ |
+| `/vendor/delegations` | issue scoped session key → `session_keys` row; revoke → revoked_at; **"Circle ERC-6900 enforcement pending" label honest** | ☐ | ☐ |
+| `/vendor/disputes` | list of vendor's cases | ☐ | ☐ |
+| `/vendor/disputes/[caseId]` 💰 | open dispute, add evidence → EVIDENCE_SUBMITTED; **vendor can't self-decide (403 + RLS-denied direct)**; two-table write persists | ☐ | ☐ |
+| `/vendor/bills` 💰🔗 | bills vendor owes; list/empty | ☐ | ☐ |
+| `/vendor/bills/[id]` | pay-a-bill flow; auth + wallet checks; honest state | ☐ | ☐ |
+| `/vendor/team` | invite (role) → row; change role; remove (soft); **owner self-row logic (not wrongly blocked)**; **cross-tenant role-escalation RLS-denied** | ☐ | ☐ |
+| `/vendor/settings` | branding (name/color/logo) persists + shows on invoice/receipt; **logo URL must be https + SSRF-guarded (reject data:/internal/IMDS)** | ☐ | ☐ |
+| `/vendor/integrations/webhooks` | create endpoint → **secret revealed ONCE + stored encrypted**; test-ping delivery; deactivate; **SSRF guard on endpoint URL** | ☐ | ☐ |
+| `/vendor/integrations/erp` | ERP connect — honest planned/simulated label | ☐ | ☐ |
+| `/vendor/exports` | export CSV/PDF → file downloads, content correct, RLS-scoped (only own data) | ☐ | ☐ |
+| `/vendor/reputation` | renders real VendorReputation read (now written by daemon at settle/release) | ☐ | ☐ |
+| `/vendor/trust-center` | honest about real vs preview controls | ☐ | ☐ |
+| `/vendor/transit` | cross-chain transit dashboard — **honest "simulated · integration pending" badge** (CCTP code now exists but inbound E2E pending source burn); mock list clearly labeled | ☐ | ☐ |
+| `/vendor/financing` | renders, honest preview vs real | ☐ | ☐ |
+
+### A5. LP — liquidity provider (💧; logged-out → /signin, cross-LP → 404)
+| Route | What must be right | 🖥️ | 📱 |
+|---|---|---|---|
+| `/lp` | overview renders | ☐ | ☐ |
+| `/lp/apply` | submit application (entity/country/wallet) → persists DOCS_UPLOADED; RLS: only this LP sees it | ☐ | ☐ |
+| `/lp/docs` | submit KYB docs → UNDER_REVIEW | ☐ | ☐ |
+| `/lp/dashboard` | real numbers (stake, claims, earnings); empty state | ☐ | ☐ |
+| `/lp/queue` 💰 | claim a cashout (must be STAKED + payout wallet); **CAS race: two LPs can't both claim**; **live-mode claim works (0043 policy), cross-tenant denied** | ☐ | ☐ |
+| `/lp/stake` 💰 | stake → STAKED + tier; below-min rejected; **"LPStaking partner-pending" honest**; tier from bigint not lossy display | ☐ | ☐ |
+| `/lp/settings` | rotate payout wallet persists (same-wallet rejected); **notification + corridor toggles now PERSIST (lp_preferences) — no "Coming soon"** | ☐ | ☐ |
+| `/lp/reputation` | renders real scores | ☐ | ☐ |
+| `/lp/disputes` | LP-side dispute list | ☐ | ☐ |
+| `/lp/disputes/[caseId]` 💰 | LP dispute view + evidence; LP can't self-decide | ☐ | ☐ |
+| `/lp/disputes-explainer` | renders | ☐ | ☐ |
+| `/lp/walkthrough` | onboarding walkthrough renders | ☐ | ☐ |
+
+### A6. Admin / operator (🛡️; non-operator → forbidden, never leak surface)
+| Route | What must be right | 🖥️ | 📱 |
+|---|---|---|---|
+| `/admin` | dashboard queues+KPIs; non-operator forbidden | ☐ | ☐ |
+| `/admin/disputes` 💰 | decide (outcome+note) → **enqueues daemon `DisputeManager.decide`, NOT a fake DB flip**; request-evidence path | ☐ | ☐ |
+| `/admin/manual-review` | screening review queue; approve/hold; honest sim | ☐ | ☐ |
+| `/admin/risk-holds` | risk-hold queue; release/hold | ☐ | ☐ |
+| `/admin/sanctions` | sanctions review; honest about list-refresh sim | ☐ | ☐ |
+| `/admin/case-management` | case ops render + act | ☐ | ☐ |
+| `/admin/limits` | protocol limits render; **note: display vs enforced — daily cap now enforced, corridor/new-acct still display** | ☐ | ☐ |
+| `/admin/audit-log` | **reads durable `audit_logs` (not in-memory ring) after restart**; every operator action recorded; append-only | ☐ | ☐ |
+| `/internal/kpi` | KPI aggregation renders from real `kpi_snapshots` (daemon cron); honest on any static reference rows | ☐ | ☐ |
+
+> **Per-viewport gate:** a route is "done" only when BOTH 🖥️ and 📱 pass the full visual
+> checklist. Log every defect with the route, viewport, screenshot, and the failing checklist item.
+
+---
+
+## II.B — COMPLETE API ENDPOINT MATRIX (all 26 routes)
+
+> For EACH: happy path (correct auth/payload), **auth-negative** (no/forged key, wrong tenant),
+> **payload-negative** (tampered amount/hash, oversized, malformed), **idempotency** (replay an
+> `Idempotency-Key`; cross-tenant key isolation), and the **error class** (deferred → 503 not 500).
+
+| Method · Route | Happy | Auth-neg | Payload/abuse-neg | Money? |
+|---|---|---|---|---|
+| `POST /api/v1/invoices` | create via API key → row | wrong/absent key → 401 | bad amount → 4xx not 500 | 💰 |
+| `GET /api/v1/invoices/[id]` | read own | cross-tenant id → 404/forbid | — | |
+| `POST /api/v1/cashouts` | create → quote-bound order | non-owner → denied | tampered quoteHash → rejected; over daily cap → refused | 💰 |
+| `POST /api/v1/cashouts/quotes` | quote returns fee/spread + hash | unauth → 401 | quote-hash recompute matches; expiry honored | 💰 |
+| `POST /api/v1/disputes` | open via API | non-party → denied | self-decide payload → rejected | 💰 |
+| `POST /api/v1/fx/quotes` | quote returns rate+mode | unauth → 401 | **honest live/sim per pair**; precision (no float drift) | 🏷️ |
+| `GET /api/v1/receipts/[hash]` | public verify; hash==chain | — | bad hash → 404 | 🔗 |
+| `GET/POST /api/v1/webhooks` | register via live repo (not dead Map) | unauth → 401 | SSRF guard on URL; secret once | 🏷️ |
+| `POST /api/v1/push/subscriptions` | store push sub (vendor_id,endpoint,p256dh,auth) | unauth → 401 | dup-endpoint upsert; prune 404/410 | |
+| `POST /api/v1/webauthn/register/options` | challenge minted | — | bound to vendor | 🔒 |
+| `POST /api/v1/webauthn/register/verify` | credential stored | — | replay/expiry rejected | 🔒 |
+| `POST /api/v1/webauthn/assert/options` | challenge minted | — | — | 🔒 |
+| `POST /api/v1/webauthn/assert/verify` | `{verified:true}` only | mismatch → 403 `credential_vendor_mismatch` | **no vendor_id/email/token in body**; stale counter → 401 | 🔒 |
+| `POST /api/agents/[agentId]/call` | x402 402-negotiate → 200 on pay | — | **deferred → 503 not 500**; honest SIM unless enabled | 🏷️ |
+| `POST /api/admin/pause` | operator pause/unpause signs on-chain | non-operator → forbidden | honest if it refuses on-chain | 💰 |
+| `POST /api/auth/magic` | OTP issued, redirect allowlist-clamped | — | **off-allowlist redirect stripped**; rate-limited; uniform enum response | 🔒 |
+| `GET /api/health` | real liveness | — | — | |
+| `GET /api/status` | **probes real CCTP/Gateway/RPC** (no hardcode) | — | reflects honest CCTP build state | 🏷️ |
+| `GET /api/openapi` | spec accurate to routes | — | — | |
+| `GET /api/cron/lifecycle-reminders` | fires reminders | **timing-safe auth secret**; unauth → 401 | idempotent per window | |
+| `POST /api/moonpay/buy` | sandbox widget params | unauth? | honest SIM unless `MOONPAY_*` | 🏷️ |
+| `POST /api/webhooks/cctp` | verify sig → **`logInboundEvent` (onVerified now wired)** | bad sig → 401 (no oracle) | replay>300s → reject; dup-delivery → idempotent | 💰 |
+| `POST /api/webhooks/circle` | verify → log inbound | bad sig → 401 | replay/dup rejected | 💰 |
+| `POST /api/webhooks/gateway` | verify → log inbound | bad sig → 401 | replay/dup rejected | 💰 |
+| `POST /api/webhooks/stripe` | verify → handle | bad sig → 401 | replay rejected | 💰 |
+| `POST /api/webhooks/erp` | verify → handle | bad sig → 401 | SSRF-redirect → refused | |
+
+---
+
+## II.C — COMPLETE SERVER-ACTION MATRIX (all 24 action files)
+
+> Server actions POST to the PAGE route, so the `/api/*` rate limiter does NOT see them (§16.1).
+> For EACH action: success persists to the **live** source of truth; **direct invocation as the
+> wrong tenant / unauth is refused server-side** (UI gating ≠ security); double-submit is
+> idempotent; the honest-label is correct. Attack each by calling it directly, not just via the UI.
+
+| Action file | Key actions | Must prove |
+|---|---|---|
+| `i/[id]/actions.ts` | acceptAndPay glue | buyer pays → PAID; no auth needed but payload bound to invoice | 
+| `pay/[slug]/actions.ts` | getOrCreateInvoiceForLink | **unauth-callable** → (slug,wallet) dedup caps rows/gas; format-validate wallet |
+| `vendor/agents/actions.ts` | hire/advance job, register agent | `agent_jobs` mirrors on-chain; cross-tenant job advance denied |
+| `vendor/bills/[id]/actions.ts` | pay bill | wallet+auth checks; idempotent |
+| `vendor/cashout/actions.ts` | prepare/request, quote-verify | quote-hash recompute; **daily cap fail-closed**; tampered amount rejected |
+| `vendor/delegations/actions.ts` | issue/revoke session key | `session_keys` row; revoke drops from list |
+| `vendor/disputes/actions.ts` | open/add-evidence | EVIDENCE_SUBMITTED; **no self-decide**; cross-tenant denied |
+| `vendor/exports/actions.ts` | export CSV/PDF | RLS-scoped to own data only |
+| `vendor/integrations/webhooks/actions.ts` | create/test/deactivate | secret once + encrypted; **`assertPublicHttpUrl` SSRF guard** |
+| `vendor/invoices/new/actions.ts` | createInvoice | row persists; line-items sum==total; **orphan-free on partial fail** |
+| `vendor/invoices/recurring/actions.ts` | create schedule | persists; honest auto-fire |
+| `vendor/links/[id]/actions.ts` | deactivate/update link | persists; usage correct |
+| `vendor/links/new/actions.ts` | create link | persists |
+| `vendor/retainer/actions.ts` | create/withdraw/cancel stream | **now on-chain real**; vesting math; CAS on withdraw (no double) |
+| `vendor/settings/actions.ts` | branding | persists; **logo URL needs `assertPublicHttpUrl` (currently `^https?` only — SSRF gap §16.6)** |
+| `vendor/team/actions.ts` | invite/changeRole/remove | RLS WITH CHECK; **cross-tenant role-escalation denied** |
+| `account/privacy/actions.ts` | deleteMyAccount | `deleted_at` + `aml_retention_until` persist |
+| `admin/disputes/actions.ts` | requestEvidence/assignToReview/decide | operator-only; daemon-routed decide |
+| `company/contact/actions.ts` | submit contact | routes somewhere honestly; spam-safe |
+| `fx/actions.ts` | quote/settle | honest live/sim per pair; quote-owner check on settle |
+| `lp/actions.ts` | apply/stake/rotate/claim | status transitions; CAS claim; cross-LP denied |
+| `lp/disputes/actions.ts` | evidence | LP-side; no self-decide |
+| `lp/settings/actions.ts` | toggleNotification/toggleCorridor/rotate | **now persist to lp_preferences (key validated)** |
+| `onboarding/actions.ts` | step persistence + provision | resumes on refresh; provisions vendor+wallet |
+
+---
+
+## II.D — MOBILE & DEVICE PROTOCOL (both user types live on mobile)
+
+> "Both users will have mobile" — vendors AND LPs operate from phones; buyers almost always open
+> `/i/[id]` / `/pay/[slug]` from a mobile in-app browser (WhatsApp/email/Telegram). Mobile is a
+> first-class pass, not an afterthought. Run the **entire** II.A matrix at mobile width, plus:
+
+**Viewport / device matrix (run the money flows on each):**
+- [ ] **390×844 iPhone (Safari)** — primary; passkey + WalletConnect quirks; PWA install + offline (`/offline`).
+- [ ] **360×800 Android (Chrome)** — primary; injected-wallet (MetaMask mobile) deep-link.
+- [ ] **375×667 small (iPhone SE)** — the cashout 6-state machine + invoice create must not clip.
+- [ ] **768×1024 tablet** — layout doesn't strand in a broken mid-breakpoint.
+- [ ] **In-app browsers** — WhatsApp / Gmail / Telegram webview opening `/i/[id]` + `/pay/[slug]`: wallet-connect handoff works or degrades honestly.
+
+**Mobile-specific checklist — judge on every page + every money flow:**
+- [ ] On-screen keyboard does NOT cover the active input or the submit button (cashout amount, invoice amount, dispute note, sign-in email).
+- [ ] Tap targets ≥ 44px; no two interactive elements so close a thumb hits both.
+- [ ] **No horizontal scroll** at any width; long USDC amounts + 0x addresses ellipsise, never overflow.
+- [ ] Bottom-nav / hamburger reachable one-handed; mega-menu usable; sticky CTAs don't trap content.
+- [ ] Wallet popup / passkey sheet returns to the right step (no lost state on app-switch).
+- [ ] The cashout state machine renders each of its 6 states correctly on the smallest width.
+- [ ] Tables (invoices, queue, audit-log) reflow to cards or scroll-contained — not a clipped grid.
+- [ ] Modals/drawers are dismissible; focus returns; back-gesture doesn't break flow.
+- [ ] Pull-to-refresh / scroll-restore mid-flow doesn't double-submit a money action.
+- [ ] Image/QR/avatar load on slow 3G throttle; skeleton→content transition, no infinite shimmer.
+
+**A11y (real users aren't all sighted/mouse):** keyboard-only through a full pay flow; screen-reader
+labels on money buttons + amounts; visible focus; no focus trap in modals; contrast passes the
+existing `axe-contrast-scan.mjs`.
+
+**Locale:** ₹ vs $ formatting, timezone-correct timestamps, long-unicode names, RTL smoke.
+
+---
+
+## II.E — CROSS-FEATURE COMBINATION MATRIX (end-to-end means end-to-end)
+
+> §8 has the 4 core money chains. "Every combination" means the **cross-feature** journeys where
+> one feature's output feeds another, plus each flow crossed with each **adverse condition**. Run
+> each as ONE continuous multi-context flow; verify every surface + the source of truth at each hop.
+
+**E1. Feature-chaining journeys (output of one = input of next):**
+- [ ] 💰🔗 Invoice → paid → **disputed** → operator decide → **RefundProtocol** returns USDC to buyer (not just settle).
+- [ ] 💰🔗 Invoice paid → vendor **cashout** the proceeds → LP claim → proof → release (+ on-chain fee carve) → **reputation tick**.
+- [ ] 💰🔗 Cashout → **dispute** opened → operator decide → `resolveDispute` slashes/refunds the CORRECT party → disposition row.
+- [ ] 💰🔗 Agent job funded → **dispute** → resolveDispute pays agent or refunds principal (derived from on-chain outcome).
+- [ ] 💰🔗 Retainer stream → **dispute** → resolve freezes vesting + refunds unvested to payer.
+- [ ] 💰🔗 Vendor receives USDC → **FX swap** USDC→EURC (now real) → (future: **CCTP burn** EURC/USDC out to another chain).
+- [ ] 💰🔗 **CCTP inbound** (buyer burns on Base/Eth Sepolia) → daemon `receiveOnArc` mints → settles an invoice (⚠️ needs source-chain burn — gated).
+- [ ] 💰🔗 Payment **link** → buyer pays → invoice materializes → settle → **receipt** mints → verify hash.
+- [ ] **Recurring** invoice schedule → daemon fires → buyer pays → settle (prove it actually auto-fires).
+- [ ] **Bulk import** → publish each on-chain → pay a subset → reconcile.
+- [ ] **LP full lifecycle**: apply → docs → operator approve → stake → claim → proof → release → reputation → settings/corridor toggle.
+- [ ] **Team RBAC crossed with every vendor action**: an Admin-role teammate performs invoice/cashout/dispute; a Viewer-role is blocked on each.
+- [ ] **Webhook** subscription → triggering event (invoice paid / cashout released) → signed delivery → retry on 5xx → DLQ on exhaustion → operator sees it.
+- [ ] **Multi-currency cashout** across INR / BRL / MXN / PHP / EUR: per-currency rate+fee math, quote→lock→release; the non-USD fiat PAYOUT stays simulated/partner-pending (honest).
+
+**E2. Each core flow × each adverse condition (the combinatorial grid — run the cell, not just the row):**
+
+| Flow ↓ \ Condition → | Quote expiry at boundary | Daemon/Redis down mid-flow | Wrong wallet / wrong chain | Rejected signature | Double-submit | Contract paused | Cross-tenant attempt | Back/refresh mid-flow |
+|---|---|---|---|---|---|---|---|---|
+| Invoice pay | n/a | honest "processing", completes on recover | popup blocks, honest | clean recover | idempotent | settle blocked honestly | B can't pay A's as A | no double-pay |
+| Cashout | expired → refresh, no stale exec | order stuck→reconciler/honest | refused | clean | one row | requestAndLock reverts honestly | B can't advance A's | no double-lock |
+| Dispute | n/a | decide queues, honest | n/a | n/a | one case | resolve blocked honestly | non-party denied | no dup evidence |
+| Agent job | n/a | advance queues | refused | clean | one job | transitions blocked | non-principal denied | no double-fund |
+| Retainer | n/a | n/a (on-chain direct) | refused | clean | **CAS: no double-withdraw** | cancel/withdraw paused | non-payer/-recipient denied | no double-withdraw |
+| FX swap | quote stale → re-quote | worker queues | refused | clean | idempotent (quoteId) | swap paused honestly | operator-gated | no double-swap |
+| LP claim | n/a | n/a | refused | clean | **exactly one winner** | n/a | cross-LP denied | clean |
+
+> Fill EVERY cell. A blank cell is an untested combination. The grid is the literal meaning of
+> "every single combination."
+
+---
+
+## II.F — DAEMON WORKER × TRIGGER × OUTCOME MATRIX (17 workers — the back-of-house UI testing misses)
+
+> The UI shows intent; the daemon moves money. Each worker: what triggers it, the happy outcome,
+> idempotency under BullMQ retry, and the honest behavior when it can't run.
+
+| Worker | Trigger | Happy outcome | Retry idempotency | If it can't run |
+|---|---|---|---|---|
+| `cashoutAdvancer` | OrderClaimed/Proof events + cron | claim→proof→release legs signed; disposition written | chain-first status guard; no double-release | order honest "processing", reconciler heals |
+| `screenAndSettle` | InvoicePaid | screen → settle (only after pass) | never re-settles | never auto-settles while simulated |
+| `proofVerifier` | proof submitted | anchors verified proof | idempotent | manual-review queue |
+| `disputeDecide` | admin decide | DisputeManager.decide signed | once | not faked |
+| `disputeResolver` | Decided event | resolveDispute on right escrow | once; deterministic outcomes only | slash/penalize → admin |
+| `disputeRouting` | dispute opened | routes to correct escrow context | — | — |
+| `receiptGenerate` | settle | AuditReceipt mint; hash==chain | no dup receipt | — |
+| `reconciler` (B1) | 5-min cron | DB↔chain drift detected + alerted | — | **the safety net** |
+| `notifications` | lifecycle | email (Resend) + **web-push fan-out** | dedup jobId | console/no-op honest |
+| `webhookDelivery` | outbound event | signed delivery + retry→DLQ | dedup | DLQ + alert |
+| `erpSync` | ERP event | sync push | — | honest planned/sim |
+| `sanctionsRefresh` | daily cron | list refresh | — | honest sim |
+| `kpiAggregator` | hourly+daily cron | real `kpi_snapshots` rollup (soft-delete-filtered) | bucketed upsert (no dup) | — |
+| `lifecycleReminders` | hourly cron | recurring-invoice + reminder fires | — | — |
+| `adminRisk` | 15-min cron | risk escalation | — | — |
+| `stableFxAdapter` | fx-execute | **real `registry.swap` USDC→EURC** | DB-backed (status+tx_hash) | requireArcWalletInProd fail-loud |
+| `_dlq` | failed jobs | dead-letter capture + watch | — | operator visibility |
+
+---
+
+## II.G — CONTRACT × UI-TOUCHPOINT MATRIX (22 + MockEURC — every contract maps to a test)
+
+> Foundry covers each in isolation (531 green). Here: the live UI/daemon touchpoint to spot-check
+> against the deployed address, so "tested in isolation" becomes "driven end-to-end."
+
+| Contract | Live touchpoint | Spot-check |
+|---|---|---|
+| `InvoiceEscrow` | invoice pay/settle | escrow holds then releases; receipt hash |
+| `CashoutOrderProcessor` (`0x347935…`) | cashout flow | lock→release; **fee carve** (`qa-cashout-fee-proof`) |
+| `DisputeManager` | disputes | decide→outcome drives escrow |
+| `AgentEscrow` (`0xedCd31…`) | `/vendor/agents` | `qa-agent-escrow-proof` lifecycle + fee |
+| `AgentRegistry` (`0x3cb3b0…`) | agent register | operator EIP-712 co-sign |
+| `AgentBudgetWallet` | agent spend caps | testnet |
+| `RetainerStream` (`0xd6891f…`) | `/vendor/retainer` | `qa-retainer-stream-proof` conservation |
+| `StableFXAdapterRegistry` (`0x9B8336…`) | `/fx` + daemon | `qa-fx-swap-proof` swap |
+| `MockStableFXAdapter` (`0xba4714…`) | FX liquidity | rate 0.92 + EURC pool seeded |
+| `MockEURC` (`0xbe3EB8…`) | FX dst token | balances/transfers; 6-dp |
+| `LPStaking` / `LPRegistry` | `/lp/stake`, `/lp/queue` | stake/tier; claim CAS |
+| `FeeSplitter` (`0x3b2e07…`) | fee display vs split | I3 invariant; dust direction |
+| `AuditReceipt` (`0x19d44E…`) | `/receipt/[hash]` | mint + verify hash |
+| `ProofRegistry` (`0xb0a2c7…`) | cashout proof | anchor behind C4 |
+| `VendorReputation` (`0xb44CE8…`) | `/vendor/reputation` | daemon writes at settle/release |
+| `ReputationManager` (`0xe9272c…`) | reputation read | renders score |
+| `RefundProtocol` (`0x3467b6…`) | invoice/dispute refund | returns USDC |
+| `RoutePolicyEngine` (`0xb33f84…`) | corridor routing | policy gate |
+| `MultiChainRouter` (`0xaf636e…`) | transit/CCTP | route selection |
+| `CounterpartyRegistry` (`0x59cec2…`) | denylist | blocks denied counterparty |
+| `PrivacyVeil` (`0x73660e…`) | masked amounts | never plaintext leak |
+| `KlaroConfig` / `ReasonCodes` | internal | Foundry-only; reason hashes |
+| **CCTP** TokenMessengerV2 `0x8FE6B9…` / MessageTransmitterV2 `0xE737e5…` | transit + daemon `cctp.ts` | `qa-cctp-burn-proof` outbound; inbound code |
+
+---
+
+## II.H — LIVE PROOF-SCRIPT REGRESSION (run before any release; tx hashes in output)
+
+> The five committed proof scripts ARE the repeatable on-chain regression for the money-movers
+> proven this pass. Run each from `apps/web/` against Arc testnet; each prints `*_OK=true` + tx
+> hashes. A red run = a money regression = NO-GO. Fold into CI once a `playwright.config` + e2e
+> job exist (Gate F5).
+
+- [ ] `node scripts/qa-cashout-fee-proof.mjs` → `FEE_PROOF_OK=true` (LP gets amount−fee, fee→receiver, escrow→0)
+- [ ] `node scripts/qa-agent-escrow-proof.mjs` → `AGENT_ESCROW_PROOF_OK=true` (paid + 1% fee + CLOSED)
+- [ ] `node scripts/qa-retainer-stream-proof.mjs` → `RETAINER_STREAM_PROOF_OK=true` (withdraw+refund+conservation)
+- [ ] `node scripts/qa-fx-swap-proof.mjs` → `FX_SWAP_PROOF_OK=true` (1 USDC→0.92 EURC)
+- [ ] `node scripts/qa-cctp-burn-proof.mjs` → `CCTP_BURN_PROOF_OK=true` (burn + Circle attestation)
+- [ ] `node scripts/qa-link-onchain.mjs` → `LINK_E2E_OK=true` (vendor delta == amount)
+
+> **Every proof asserts on gas-independent quantities** (contract balances + event amounts), never a
+> signer's wallet delta — because Arc pays gas in native USDC and would confound it. Preserve that
+> property in any new proof.
+
+---
+
+## II.Z — 100% COVERAGE SIGN-OFF (the meta-gate: prove nothing was skipped)
+
+> The plan is "100%" only when this closes with zero blanks. This is the audit that the rest of the
+> plan was actually executed — the guard against a green-looking but partial pass.
+
+- [ ] **Route ledger:** all 89 routes in II.A ticked at BOTH 🖥️ and 📱, OR explicitly marked N/A with a reason.
+- [ ] **API ledger:** all 26 endpoints in II.B have happy + auth-neg + payload-neg + idempotency proof.
+- [ ] **Action ledger:** all 24 action files in II.C proven to persist + refuse-cross-tenant on direct call.
+- [ ] **Worker ledger:** all 17 workers in II.F proven for happy + retry-idempotency + can't-run-honesty.
+- [ ] **Contract ledger:** all 22+CCTP+MockEURC in II.G have a driven touchpoint (not just a unit test).
+- [ ] **Combination grid:** every cell of II.E2 filled; every II.E1 chain run end-to-end.
+- [ ] **Device grid:** II.D viewport matrix run for the money flows; mobile checklist clean per page.
+- [ ] **Status reconciliation:** II.0 verified — no test chased an already-fixed bug; new live labels confirmed.
+- [ ] **Part I gates:** the 54-check launch gate (Gates A–I) re-evaluated against current state; each P0 red is a NO-GO.
+- [ ] **Living regression:** the route/API/action/worker ledgers are wired into a CI coverage audit that FAILS on any new untested surface (Gate F5) — a one-time 100% rots without it.
+- [ ] **Human verdict:** beyond pass/fail, the friction/trust read recorded per major flow (§VISUAL "human verdict").
+
+> **Definition of 100%:** not "every test passed" — it is *"every surface in this codebase has a
+> named, executed check, at both viewports, for every user who touches it, including the adverse
+> and cross-tenant paths, with the result verified against the source of truth (DB/on-chain), and a
+> CI gate that fails the moment a new surface appears untested."* Anything less is a sample, not a
+> cover.
