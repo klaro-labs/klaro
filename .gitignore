@@ -124,3 +124,6 @@ apps/web/e2e/.playwright-data/
 .claude/scheduled_tasks.json
 
 .vercel
+*.log.err
+*.stackdump
+*.daemon.log.err
