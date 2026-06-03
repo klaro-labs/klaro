@@ -1,6 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
+import { buttonVariants } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 import { mockGetAgent } from "@/lib/mockData";
 import { listForVendor as listAgentJobs } from "@/lib/repo/agentJobs";
@@ -45,9 +47,7 @@ export default async function VendorAgentJobsPage({
 
         <header className="mt-4 mb-8 flex items-end justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              ERC-8183 escrow · jobs you funded
-            </p>
+            <Eyebrow>Agent escrow · jobs you funded</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               {agent.displayName}
             </h1>
@@ -55,12 +55,13 @@ export default async function VendorAgentJobsPage({
               {jobs.length} job{jobs.length === 1 ? "" : "s"} ·{" "}
               <code className="font-mono text-xs">
                 {shortAddress(agent.owner)}
-              </code>
+              </code>{" "}
+              · escrow custody via the ERC-8004 agent-identity standard
             </p>
           </div>
           <Link
             href={`/agents/${id}`}
-            className="rounded-full border border-[var(--color-line)] bg-white px-4 py-2 text-sm font-medium hover:border-[var(--color-brand)]"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
             View agent
           </Link>

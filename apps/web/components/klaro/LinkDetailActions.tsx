@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { CheckIcon } from "@/components/ui/CheckIcon";
 import { deactivateLinkAction } from "@/app/(wallet)/vendor/links/[id]/actions";
 
 /**
@@ -52,15 +54,21 @@ export function LinkDetailActions({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <Button size="md" onClick={() => void copy()}>
-          {copied ? "Copied ✓" : "Copy link"}
+          {copied ? (
+            <>
+              <CheckIcon className="size-4" /> Copied
+            </>
+          ) : (
+            "Copy link"
+          )}
         </Button>
         <a
           href={publicUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center rounded-pill border border-[var(--color-line)] bg-white px-4 py-2 text-sm font-medium hover:border-[var(--color-line-2)]"
+          className="inline-flex items-center gap-1.5 rounded-pill border border-[var(--color-line)] bg-white px-4 py-2 text-sm font-medium hover:border-[var(--color-line-2)]"
         >
-          Open ↗
+          Open <ArrowUpRight className="size-4" />
         </a>
         {!deactivated ? (
           confirming ? (

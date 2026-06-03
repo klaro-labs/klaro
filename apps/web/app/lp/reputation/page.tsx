@@ -1,35 +1,13 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { requireLp } from "@/lib/auth";
 import { getLpReputation } from "@/lib/repo/lpReputation";
 import { formatUSDC, relativeTime } from "@/lib/money";
+import { LP_TIERS } from "@/lib/lpTiers";
 
 export const metadata = { title: "Reputation · Klaro LP" };
-
-const TIERS = [
-  {
-    tier: 1,
-    label: "T1 · Small",
-    min: "$5k",
-    max: "$1k per claim",
-    color: "#7280A0",
-  },
-  {
-    tier: 2,
-    label: "T2 · Medium",
-    min: "$25k",
-    max: "$5k per claim",
-    color: "#C7522A",
-  },
-  {
-    tier: 3,
-    label: "T3 · Large",
-    min: "$100k",
-    max: "$25k per claim",
-    color: "#F5B100",
-  },
-];
 
 export default async function LPReputationPage() {
   const { lp } = await requireLp();
@@ -43,9 +21,7 @@ export default async function LPReputationPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <header className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Reputation · demo preview
-            </p>
+            <Eyebrow>Reputation · demo preview</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Score & history
             </h1>
@@ -94,8 +70,8 @@ export default async function LPReputationPage() {
         <h2 className="mb-3 font-display text-xl font-semibold">
           Tier progression
         </h2>
-        <div className="grid gap-3 md:grid-cols-3">
-          {TIERS.map((t) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {LP_TIERS.map((t) => (
             <div
               key={t.tier}
               className={`rounded-lg border bg-white p-5 ${
@@ -117,11 +93,11 @@ export default async function LPReputationPage() {
                 <span className="text-[var(--color-ink-subtle)]">
                   Min stake
                 </span>
-                <span className="text-right font-mono">{t.min}</span>
+                <span className="text-right font-mono">{t.minLabel}</span>
                 <span className="text-[var(--color-ink-subtle)]">
-                  Per claim
+                  Per order
                 </span>
-                <span className="text-right font-mono">{t.max}</span>
+                <span className="text-right font-mono">{t.cap}</span>
               </div>
               <div className="mt-3 text-xs text-[var(--color-ink-subtle)]">
                 Your stake: {formatUSDC(lp.stakedUsdc)}

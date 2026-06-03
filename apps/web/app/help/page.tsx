@@ -1,7 +1,10 @@
 import Link from "next/link";
 import type { Metadata, Route } from "next";
+import { Search } from "lucide-react";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
   title: "Help · Klaro",
@@ -62,15 +65,13 @@ export default function HelpPage() {
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
       <Nav />
-      <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
-        <div className="mb-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Help center
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+      <section className="klaro-container w-full py-10">
+        <header className="mb-8 max-w-3xl">
+          <Eyebrow>Help center</Eyebrow>
+          <h1 className="mt-4 font-display text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] tracking-tight">
             How can we help?
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-[var(--color-ink-muted)]">
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--color-ink-muted)] md:text-lg">
             Full-text search via Algolia DocSearch lands soon (docs.klaro.so
             cuts over to Mintlify). For now: jump to the topic that matches your
             question, or email{" "}
@@ -82,19 +83,15 @@ export default function HelpPage() {
             </a>{" "}
             — 4-hour response during business hours.
           </p>
-        </div>
+        </header>
 
-        <div className="mb-6">
-          <label className="block text-sm">
-            <span className="sr-only">Search help</span>
-            <input
-              type="search"
-              placeholder="Search Klaro help"
-              aria-label="Search help — full-text search arrives later"
-              disabled
-              className="w-full rounded-lg border border-[var(--color-line)] bg-white px-4 py-3 text-sm outline-none disabled:opacity-50"
-            />
-          </label>
+        <div
+          className="mb-6 flex items-center gap-2.5 rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-4 py-3 text-sm text-[var(--color-ink-muted)]"
+          role="note"
+          aria-label="Full-text help search is coming soon"
+        >
+          <Search aria-hidden className="size-4 shrink-0 text-[var(--color-ink-subtle)]" />
+          <span>Full-text search coming soon — for now, pick a topic below.</span>
         </div>
 
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -102,7 +99,7 @@ export default function HelpPage() {
             <li key={t.title}>
               <Link
                 href={t.href}
-                className="block rounded-lg border border-[var(--color-line)] bg-white p-5 hover:border-[var(--color-brand)]"
+                className="block rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5 hover:border-[var(--color-brand)]"
               >
                 <div className="font-display text-lg font-semibold">
                   {t.title}
@@ -115,6 +112,7 @@ export default function HelpPage() {
           ))}
         </ul>
       </section>
+      <FinalCta />
       <Footer />
     </main>
   );

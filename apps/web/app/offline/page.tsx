@@ -5,7 +5,7 @@ import { Logo } from "@/components/klaro/Logo";
 
 export default function OfflinePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-paper)] px-6 text-center text-[var(--color-ink)]">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg-warm)] px-6 text-center text-[var(--color-ink)]">
       <Logo size={28} />
       <h1 className="mt-8 font-display text-3xl font-semibold tracking-tight">
         You&apos;re offline

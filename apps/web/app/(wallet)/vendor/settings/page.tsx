@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { mockGetVendor } from "@/lib/mockData";
 import { updateBrandingAction } from "./actions";
@@ -9,15 +12,13 @@ export default async function SettingsPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
   const v = (await mockGetVendor(session.vendor.id)) ?? session.vendor;
-  const color = v.brandColor ?? "#C7522A";
+  const color = v.brandColor ?? "#BC4C26";
 
   return (
     <div className="mx-auto w-full max-w-[1000px] px-4 py-6 md:px-6 md:py-10">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Settings
-          </p>
+          <Eyebrow>Settings</Eyebrow>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             Branding
           </h1>
@@ -38,22 +39,18 @@ export default async function SettingsPage() {
       >
         <label className="flex flex-col gap-1.5 text-sm md:col-span-2">
           <span className="text-[var(--color-ink-muted)]">Display name</span>
-          <input
-            name="displayName"
-            defaultValue={v.displayName}
-            className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
-          />
+          <Input name="displayName" defaultValue={v.displayName} />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="text-[var(--color-ink-muted)]">
             Brand color (hex)
           </span>
-          <input
+          <Input
             name="brandColor"
             defaultValue={color}
             pattern="^#[0-9a-fA-F]{6}$"
-            placeholder="#C7522A"
-            className="rounded border border-[var(--color-line)] px-3 py-2 font-mono outline-none focus:border-[var(--color-brand)]"
+            placeholder="#BC4C26"
+            className="font-mono"
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
@@ -61,20 +58,16 @@ export default async function SettingsPage() {
             Logo URL (public https only — data: URIs rejected to avoid
             injection)
           </span>
-          <input
+          <Input
             name="brandLogoUrl"
             defaultValue={v.brandLogoUrl ?? ""}
             placeholder="https://acme.com/logo.png"
-            className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
           />
         </label>
         <div className="md:col-span-2">
-          <button
-            type="submit"
-            className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-          >
+          <Button type="submit" size="sm">
             Save branding
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -82,7 +75,7 @@ export default async function SettingsPage() {
       <div className="rounded-lg border border-[var(--color-line)] bg-white p-6">
         <div className="flex items-center gap-4 border-b border-[var(--color-line)] pb-4">
           <div
-            className="inline-flex size-12 items-center justify-center rounded text-sm font-semibold text-white"
+            className="inline-flex size-12 items-center justify-center rounded-md text-sm font-semibold text-white"
             style={{ backgroundColor: color }}
           >
             {v.brandLogoUrl ? (
@@ -92,7 +85,7 @@ export default async function SettingsPage() {
                 width={48}
                 height={48}
                 unoptimized
-                className="h-12 w-12 rounded object-cover"
+                className="h-12 w-12 rounded-md object-cover"
               />
             ) : (
               v.displayName.slice(0, 2).toUpperCase()
@@ -107,7 +100,7 @@ export default async function SettingsPage() {
           <button
             type="button"
             style={{ backgroundColor: color }}
-            className="ml-auto rounded px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+            className="ml-auto rounded-pill px-4 py-2 text-sm font-medium text-white hover:opacity-90"
           >
             Pay with USDC
           </button>

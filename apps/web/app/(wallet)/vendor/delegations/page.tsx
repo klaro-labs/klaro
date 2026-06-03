@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { listSessionKeys } from "@/lib/repo/delegations";
 import { relativeTime, shortAddress } from "@/lib/money";
@@ -44,9 +47,7 @@ export default async function DelegationsPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Session keys
-            </p>
+            <Eyebrow>Session keys</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Delegations
             </h1>
@@ -85,23 +86,22 @@ export default async function DelegationsPage() {
         >
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">Label</span>
-            <input
+            <Input
               name="label"
               required
               placeholder="Accounting bot · Stripe payouts"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">
               Delegate address (Arc)
             </span>
-            <input
+            <Input
               name="delegate"
               required
               placeholder="0x…"
               pattern="^0x[0-9a-fA-F]{40}$"
-              className="rounded border border-[var(--color-line)] px-3 py-2 font-mono outline-none focus:border-[var(--color-brand)]"
+              className="font-mono"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
@@ -109,7 +109,7 @@ export default async function DelegationsPage() {
             <select
               name="scope"
               defaultValue="INVOICES_CREATE"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+              className="h-11 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
             >
               {SCOPES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -122,23 +122,19 @@ export default async function DelegationsPage() {
             <span className="text-[var(--color-ink-muted)]">
               Expires in (hours · max 720 = 30 days)
             </span>
-            <input
+            <Input
               name="ttlHours"
               type="number"
               min="1"
               max="720"
               defaultValue="24"
               required
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <div className="md:col-span-2">
-            <button
-              type="submit"
-              className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-            >
+            <Button type="submit" size="sm">
               Issue session key
-            </button>
+            </Button>
           </div>
         </form>
 

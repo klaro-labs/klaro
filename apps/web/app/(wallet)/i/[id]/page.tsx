@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { Logo } from "@/components/klaro/Logo";
-import { BrandMark } from "@/components/klaro/BrandMark";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { CheckIcon } from "@/components/ui/CheckIcon";
 import { PayWithUSDC } from "@/components/klaro/PayWithUSDC";
 // Public invoice fetch via SECURITY DEFINER RPC (migration 0022) — anon
 // callers resolve an invoice by id without exposing the invoices table.
@@ -61,9 +63,9 @@ export default async function HostedInvoicePage({
         : "The vendor voided this invoice before payment. Ask them to send a fresh link if this was a mistake.";
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg)] px-6 text-center text-[var(--color-ink)]">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+        <Eyebrow>
           Invoice {isExpired ? "expired" : invoice.status.toLowerCase()}
-        </p>
+        </Eyebrow>
         <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
           {title}
         </h1>
@@ -87,9 +89,7 @@ export default async function HostedInvoicePage({
   if (!vendorWalletMaybe) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg)] px-6 text-center text-[var(--color-ink)]">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-          Invoice not yet ready
-        </p>
+        <Eyebrow>Invoice not yet ready</Eyebrow>
         <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
           Vendor wallet not provisioned
         </h1>
@@ -132,9 +132,9 @@ export default async function HostedInvoicePage({
   );
 
   return (
-    <>
+    <main className="min-h-screen bg-[var(--color-bg)]">
       {/* ─── MOBILE (<md) — hosted invoice (default) + paid (done) states ─── */}
-      <main className="flex min-h-screen flex-col bg-[var(--color-bg)] md:hidden">
+      <div className="flex min-h-screen flex-col md:hidden">
         {!isPaid ? (
           <>
             <header className="flex items-center justify-between px-5 pt-5">
@@ -161,21 +161,24 @@ export default async function HostedInvoicePage({
                 <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-ink-subtle)]">
                   Amount due
                 </p>
-                <p className="mt-1 font-display text-5xl font-semibold tracking-tight">
+                <p className="mt-1 font-display text-[clamp(2rem,9vw,3rem)] font-semibold tracking-tight tabular-nums break-words">
                   {formatUSDC(invoice.amount)}
                 </p>
                 <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
-                  {(Number(invoice.amount) / 1_000_000).toLocaleString()} USDC ·
-                  {isLiveOnChain() ? " settles on Arc" : " simulated checkout"}
+                  {(Number(invoice.amount) / 1_000_000).toLocaleString()} USDC ·{" "}
+                  {isLiveOnChain() ? "settles on Arc" : "simulated checkout"}
                 </p>
               </article>
 
               {invoice.lineItems.length > 0 && (
-                <article className="mt-3 rounded-2xl border border-[var(--color-line)] bg-white px-5 py-3">
-                  {invoice.lineItems.slice(0, 1).map((l, i) => (
-                    <div key={i} className="flex items-center justify-between">
+                <article className="mt-3 divide-y divide-[var(--color-line)] rounded-2xl border border-[var(--color-line)] bg-white px-5">
+                  {invoice.lineItems.map((l, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between gap-4 py-3"
+                    >
                       <p className="text-sm">{l.description}</p>
-                      <p className="font-mono text-sm font-medium">
+                      <p className="shrink-0 font-mono text-sm font-medium tabular-nums">
                         {formatUSDC(l.amount)}
                       </p>
                     </div>
@@ -204,14 +207,14 @@ export default async function HostedInvoicePage({
                 </div>
               </div>
 
-              <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs text-emerald-800">
+              <p className="mt-4 rounded-xl border border-[color-mix(in_oklab,var(--color-success)_30%,transparent)] bg-[color-mix(in_oklab,var(--color-success)_8%,white)] px-4 py-2.5 text-xs text-[color-mix(in_oklab,var(--color-success)_70%,var(--color-ink))]">
                 {isLiveOnChain()
                   ? "Onchain receipt mints when you pay. Verifiable forever."
                   : "Simulator receipt preview appears after payment. No onchain receipt is minted."}
               </p>
             </section>
 
-            <div className="sticky bottom-0 border-t border-[var(--color-line)] bg-white p-4">
+            <div className="sticky bottom-0 border-t border-[var(--color-line)] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               {/* Reuses the same PayWithUSDC client component as desktop. */}
               <PayWithUSDC
                 invoiceId={invoice.id}
@@ -228,17 +231,17 @@ export default async function HostedInvoicePage({
             <header className="flex items-center px-5 pt-5">
               <Link
                 href="/"
-                className="text-sm font-medium text-[var(--color-brand)]"
+                className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-brand)]"
               >
-                ‹ Done
+                <ChevronLeft className="size-4" aria-hidden /> Done
               </Link>
             </header>
             <section className="px-5 pb-10 pt-12 text-center">
               <span
                 aria-hidden
-                className="mx-auto grid size-20 place-items-center rounded-full bg-emerald-100 text-3xl text-emerald-700"
+                className="mx-auto grid size-20 place-items-center rounded-full bg-[color-mix(in_oklab,var(--color-success)_15%,white)] text-[var(--color-success)]"
               >
-                ✓
+                <CheckIcon className="size-9" />
               </span>
               <h1 className="mt-6 font-display text-2xl font-semibold tracking-tight">
                 You paid {vendorFirstName}
@@ -256,10 +259,7 @@ export default async function HostedInvoicePage({
               <dl className="divide-y divide-[var(--color-line)] rounded-2xl border border-[var(--color-line)] bg-white px-5">
                 <DefRow
                   k="From you"
-                  v={shortAddress(
-                    invoice.acceptedBy ??
-                      "0x0000000000000000000000000000000000000000",
-                  )}
+                  v={invoice.acceptedBy ? shortAddress(invoice.acceptedBy) : "—"}
                 />
                 <DefRow
                   k={`To ${vendorFirstName}`}
@@ -291,10 +291,10 @@ export default async function HostedInvoicePage({
             </section>
           </>
         )}
-      </main>
+      </div>
 
       {/* ─── DESKTOP (≥md) — existing layout ─── */}
-      <main className="hidden min-h-screen bg-[var(--color-bg)] md:block">
+      <div className="hidden md:block">
         {/* Minimal header — no marketing nav on the checkout */}
         <header className="border-b border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
           <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-6">
@@ -305,7 +305,7 @@ export default async function HostedInvoicePage({
             <Badge tone={isLiveOnChain() ? "live" : "sim"}>
               <span
                 aria-hidden
-                className={`inline-block size-1.5 rounded-full ${isLiveOnChain() ? "bg-emerald-500" : "bg-amber-500"}`}
+                className={`inline-block size-1.5 rounded-full ${isLiveOnChain() ? "bg-[var(--color-success)]" : "bg-[var(--color-warning)]"}`}
               />
               {isLiveOnChain()
                 ? "Live on Arc testnet"
@@ -333,7 +333,7 @@ export default async function HostedInvoicePage({
               <p className="text-xs text-[var(--color-ink-subtle)]">
                 Amount due
               </p>
-              <p className="mt-1 font-display text-5xl font-semibold tracking-tight">
+              <p className="mt-1 font-display text-[clamp(2rem,9vw,3rem)] font-semibold tracking-tight tabular-nums break-words">
                 {formatUSDC(invoice.amount)}
               </p>
               <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
@@ -346,18 +346,46 @@ export default async function HostedInvoicePage({
             <dl className="mt-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
               <dt className="text-[var(--color-ink-subtle)]">To</dt>
               <dd>{shortAddress(vendorWallet)}</dd>
-              <dt className="text-[var(--color-ink-subtle)]">For</dt>
-              <dd>{invoice.lineItems[0]?.description ?? "—"}</dd>
+              {invoice.lineItems.length > 1 ? (
+                <>
+                  <dt className="self-start text-[var(--color-ink-subtle)]">
+                    For
+                  </dt>
+                  <dd>
+                    <ul className="space-y-1.5">
+                      {invoice.lineItems.map((l, i) => (
+                        <li
+                          key={i}
+                          className="flex items-center justify-between gap-4"
+                        >
+                          <span>{l.description}</span>
+                          <span className="shrink-0 font-mono tabular-nums text-[var(--color-ink-muted)]">
+                            {formatUSDC(l.amount)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </>
+              ) : (
+                <>
+                  <dt className="text-[var(--color-ink-subtle)]">For</dt>
+                  <dd>{invoice.lineItems[0]?.description ?? "—"}</dd>
+                </>
+              )}
               <dt className="text-[var(--color-ink-subtle)]">Due</dt>
               <dd>{invoice.dueAt.toLocaleDateString()}</dd>
             </dl>
 
             <div className="mt-8 border-t border-[var(--color-line)] pt-6">
               {isPaid ? (
-                <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-900 ring-1 ring-inset ring-emerald-200">
-                  ✓ This invoice is already paid.{" "}
+                <p className="flex items-center gap-1.5 rounded-md bg-[color-mix(in_oklab,var(--color-success)_8%,white)] px-3 py-2 text-sm text-[color-mix(in_oklab,var(--color-success)_75%,var(--color-ink))] ring-1 ring-inset ring-[color-mix(in_oklab,var(--color-success)_30%,transparent)]">
+                  <CheckIcon className="size-4 shrink-0" />
+                  This invoice is already paid.{" "}
                   <Link
-                    href={`/receipt/${invoice.id}` as `/receipt/${string}`}
+                    href={
+                      `/receipt/${invoice.receiptHash ?? invoice.id}` as `/receipt/${string}`
+                    }
                     className="ml-1 underline"
                   >
                     View receipt →
@@ -394,8 +422,8 @@ export default async function HostedInvoicePage({
             money moves
           </p>
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 

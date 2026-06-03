@@ -12,7 +12,9 @@
 export const BRAND_MARK_VIEWBOX = "0 0 24 24";
 
 export const INK_HEX = "#0A0A0A";
-export const BRAND_HEX = "#C7522A";
+// LF-4 AA hardening: brand terracotta darkened from #C7522A → #BC4C26 to match
+// --color-klaro-orange in globals.css. Feeds favicon/Apple-touch/OG/PWA marks.
+export const BRAND_HEX = "#BC4C26";
 
 export function BrandMark({
   size = 22,

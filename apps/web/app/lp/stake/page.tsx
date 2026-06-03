@@ -1,47 +1,13 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { getCurrentLpSession } from "@/lib/auth";
 import { formatUSDC } from "@/lib/money";
+import { LP_TIERS } from "@/lib/lpTiers";
 import { stakeAction } from "../actions";
-
-const TIERS = [
-  {
-    tier: 0,
-    label: "T0",
-    min: 50,
-    cap: "Quote-only",
-    description: "No payouts yet — learn the queue rhythm",
-  },
-  {
-    tier: 1,
-    label: "T1",
-    min: 100,
-    cap: "Up to $100 / order",
-    description: "Manual-claim small orders",
-  },
-  {
-    tier: 2,
-    label: "T2",
-    min: 500,
-    cap: "Up to $500 / order",
-    description: "Auto-claim eligible",
-  },
-  {
-    tier: 3,
-    label: "T3",
-    min: 2000,
-    cap: "Up to $2,000 / order",
-    description: "Priority routing + reduced spread",
-  },
-  {
-    tier: 4,
-    label: "T4",
-    min: 10000,
-    cap: "Custom institutional",
-    description: "Governance-gated, contact Klaro BD",
-  },
-];
 
 export default async function LPStakePage() {
   // Audit fix (loop ): derive LP from session, not array[0].
@@ -77,9 +43,7 @@ export default async function LPStakePage() {
       <section className="mx-auto w-full max-w-[1000px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Step 3 of 6 · Stake
-            </p>
+            <Eyebrow>Step 3 of 6 · Stake</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Post collateral
             </h1>
@@ -103,8 +67,8 @@ export default async function LPStakePage() {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-          {TIERS.map((t) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {LP_TIERS.map((t) => (
             <div
               key={t.tier}
               className={`rounded-lg border bg-white p-4 text-sm ${
@@ -118,7 +82,7 @@ export default async function LPStakePage() {
                   {t.label}
                 </span>
                 <span className="text-xs text-[var(--color-ink-subtle)]">
-                  ${t.min}+
+                  {t.minLabel}+
                 </span>
               </div>
               <div className="mt-2 text-xs text-[var(--color-ink-muted)]">
@@ -139,7 +103,7 @@ export default async function LPStakePage() {
             <span className="text-[var(--color-ink-muted)]">
               Stake amount (USDC)
             </span>
-            <input
+            <Input
               name="amount"
               type="number"
               min="50"
@@ -149,16 +113,16 @@ export default async function LPStakePage() {
                 lp.stakedUsdc ? Number(lp.stakedUsdc) / 1_000_000 : 500
               }
               disabled={!eligible}
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)] disabled:opacity-50"
             />
           </label>
-          <button
+          <Button
             type="submit"
+            size="sm"
             disabled={!eligible}
-            className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-50"
+            className="h-11 w-full md:h-9 md:w-auto"
           >
             {lp.status === "STAKED" ? "Update stake" : "Confirm stake →"}
-          </button>
+          </Button>
         </form>
         <p className="mt-3 text-xs text-[var(--color-ink-subtle)]">
           Records your stake amount + tier in Klaro. The on-chain{" "}

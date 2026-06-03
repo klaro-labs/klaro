@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentLpSession } from "@/lib/auth";
 import { mockListClaimableCashouts } from "@/lib/mockData";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
@@ -21,9 +23,7 @@ export default async function LPQueuePage() {
       <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
         <LPNav entityName="Klaro LP" />
         <section className="mx-auto w-full max-w-[700px] px-6 py-16 text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            LP queue
-          </p>
+          <Eyebrow>LP queue</Eyebrow>
           <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
             You&apos;re not an admitted LP.
           </h1>
@@ -40,7 +40,7 @@ export default async function LPQueuePage() {
           </p>
           <Link
             href="/lp"
-            className="mt-6 inline-flex rounded-full border border-[var(--color-ink)]/20 bg-white px-5 py-2.5 text-sm font-medium hover:border-[var(--color-ink)]/40"
+            className={`mt-6 ${buttonVariants({ variant: "secondary", size: "sm" })}`}
           >
             Back to LP overview
           </Link>
@@ -60,9 +60,7 @@ export default async function LPQueuePage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Step 5 of 6 · Demo queue
-            </p>
+            <Eyebrow>Step 5 of 6 · Demo queue</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Claimable orders
             </h1>
@@ -132,13 +130,14 @@ export default async function LPQueuePage() {
                   </div>
                   <form action={claimOrderAction}>
                     <input type="hidden" name="orderId" value={o.id} />
-                    <button
+                    <Button
                       type="submit"
+                      size="sm"
                       disabled={!eligible || o.status !== "REQUESTED"}
-                      className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-40"
+                      className="h-11 w-full rounded-pill md:h-9 md:w-auto"
                     >
                       {o.status === "REQUESTED" ? "Claim" : o.status}
-                    </button>
+                    </Button>
                   </form>
                 </li>
               );

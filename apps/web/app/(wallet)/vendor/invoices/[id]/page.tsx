@@ -294,7 +294,13 @@ export default async function InvoiceDetailPage({
             </p>
           </Section>
           <Section title="Due">
-            <p className="text-sm">{invoice.dueAt.toLocaleDateString()}</p>
+            <p className="text-sm">
+              {invoice.dueAt.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
           </Section>
           {isHeld ? (
             <Link

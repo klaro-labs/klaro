@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 import { mockListBills } from "@/lib/mockData";
 import { getT } from "@/lib/i18n";
@@ -17,9 +18,7 @@ export default async function BillsPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              {t("bills.title")}
-            </p>
+            <Eyebrow>Bills</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               {t("bills.title")}
             </h1>
@@ -63,16 +62,16 @@ export default async function BillsPage() {
                 <li key={b.id}>
                   <Link
                     href={`/vendor/bills/${b.id}`}
-                    className="flex items-center justify-between py-3 text-sm hover:bg-[var(--color-bg)]"
+                    className="grid grid-cols-1 gap-1 py-3 text-sm hover:bg-[var(--color-bg)] md:grid-cols-[1.4fr_1.6fr_auto_auto] md:items-center md:gap-4"
                   >
                     <span className="font-medium">{b.fromName}</span>
                     <span className="text-[var(--color-ink-muted)]">
                       {b.description}
                     </span>
-                    <span className="font-mono">
+                    <span className="font-mono md:text-right">
                       {formatUSDC(b.amountUsdc)} USDC
                     </span>
-                    <span className="text-xs text-[var(--color-ink-subtle)]">
+                    <span className="text-xs text-[var(--color-ink-subtle)] md:text-right">
                       due {relativeTime(b.dueAt)}
                     </span>
                   </Link>

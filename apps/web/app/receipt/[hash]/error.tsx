@@ -4,7 +4,7 @@ export default function ReceiptError({
   error,
   reset,
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
@@ -16,8 +16,14 @@ export default function ReceiptError({
         We couldn&apos;t load this receipt.
       </h1>
       <p className="mt-3 max-w-md text-sm text-[var(--color-ink-muted)]">
-        {error.message}
+        This receipt page hit a temporary error. Refresh in a moment — if it
+        keeps happening, the link may be invalid.
       </p>
+      {error.digest && (
+        <p className="mt-2 font-mono text-xs text-[var(--color-ink-subtle)]">
+          Reference {error.digest}
+        </p>
+      )}
       <div className="mt-8 flex gap-3">
         <button
           onClick={reset}

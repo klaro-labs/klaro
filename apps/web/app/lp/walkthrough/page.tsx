@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { buttonVariants } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentLpSession } from "@/lib/auth";
 
 const STEPS = [
@@ -41,9 +43,7 @@ export default async function LPWalkthroughPage() {
       <section className="mx-auto w-full max-w-[800px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Step 4 of 6 · Walkthrough
-            </p>
+            <Eyebrow>Step 4 of 6 · Walkthrough</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               How a Klaro cashout works
             </h1>
@@ -69,16 +69,13 @@ export default async function LPWalkthroughPage() {
           ))}
         </ol>
 
-        <div className="mt-8 flex gap-3">
-          <Link
-            href="/lp/queue"
-            className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-          >
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link href="/lp/queue" className={buttonVariants({ size: "sm" })}>
             Go to demo queue →
           </Link>
           <Link
             href="/lp/disputes-explainer"
-            className="rounded border border-[var(--color-line)] bg-white px-4 py-2 text-sm font-medium hover:border-[var(--color-brand)]"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
           >
             Read disputes explainer
           </Link>

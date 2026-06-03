@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { mockListRecurring } from "@/lib/mockData";
 import { formatUSDC, relativeTime } from "@/lib/money";
@@ -17,9 +20,7 @@ export default async function RecurringPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              {t("recurring.title")}
-            </p>
+            <Eyebrow>Recurring</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               {t("recurring.title")}
             </h1>
@@ -38,34 +39,31 @@ export default async function RecurringPage() {
             <span className="text-[var(--color-ink-muted)]">
               Customer email
             </span>
-            <input
+            <Input
               name="customerEmail"
               type="email"
               required
               placeholder="lina@buyerco.com"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">Amount (USDC)</span>
-            <input
+            <Input
               name="amount"
               type="number"
               step="0.01"
               min="1"
               required
               placeholder="500.00"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm md:col-span-2">
             <span className="text-[var(--color-ink-muted)]">Description</span>
-            <input
+            <Input
               name="description"
               type="text"
               required
               placeholder="Monthly retainer — design"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
@@ -73,7 +71,7 @@ export default async function RecurringPage() {
             <select
               name="frequency"
               defaultValue="monthly"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+              className="h-11 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
             >
               <option value="weekly">Weekly</option>
               <option value="biweekly">Biweekly</option>
@@ -82,12 +80,9 @@ export default async function RecurringPage() {
             </select>
           </label>
           <div className="flex items-end">
-            <button
-              type="submit"
-              className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-            >
+            <Button type="submit" size="sm">
               {t("recurring.addRecurring")}
-            </button>
+            </Button>
           </div>
         </form>
 

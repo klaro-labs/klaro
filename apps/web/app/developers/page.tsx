@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { SectionHeader } from "@/components/klaro/SectionHeader";
 
 export const metadata: Metadata = {
@@ -63,10 +64,10 @@ console.log(ok); // true → on-chain AuditReceipt contract confirms the anchor`
 
 export default function DevelopersPage() {
   return (
-    <main className="bg-[var(--color-paper)] text-[var(--color-ink)]">
+    <main className="bg-[var(--color-bg-warm)] text-[var(--color-ink)]">
       <Nav />
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-12">
+      <section className="klaro-container w-full pt-24 pb-12">
         <SectionHeader
           eyebrow="Developers"
           title={
@@ -100,7 +101,7 @@ export default function DevelopersPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-12">
+      <section className="klaro-container w-full py-12">
         <h2 className="font-display text-2xl font-semibold">
           Create an invoice
         </h2>
@@ -111,7 +112,7 @@ export default function DevelopersPage() {
         <Snippet code={SNIPPET_CREATE_INVOICE} />
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-12">
+      <section className="klaro-container w-full py-12">
         <h2 className="font-display text-2xl font-semibold">
           Receive webhooks
         </h2>
@@ -122,7 +123,7 @@ export default function DevelopersPage() {
         <Snippet code={SNIPPET_WEBHOOK} />
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-12">
+      <section className="klaro-container w-full py-12">
         <h2 className="font-display text-2xl font-semibold">
           Verify a receipt
         </h2>
@@ -133,7 +134,7 @@ export default function DevelopersPage() {
         <Snippet code={SNIPPET_RECEIPT} />
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-20">
+      <section className="klaro-container w-full py-20">
         <SectionHeader eyebrow="Reference" title="Everything else." />
         <div className="mt-10 grid gap-3 md:grid-cols-3">
           <RefCard
@@ -169,6 +170,7 @@ export default function DevelopersPage() {
         </div>
       </section>
 
+      <FinalCta />
       <Footer />
     </main>
   );
@@ -176,7 +178,7 @@ export default function DevelopersPage() {
 
 function Snippet({ code }: { code: string }) {
   return (
-    <pre className="mt-6 overflow-x-auto rounded-2xl border border-[var(--color-ink)]/10 bg-[var(--color-ink)] p-6 font-mono text-[13px] leading-relaxed text-white">
+    <pre className="mt-6 overflow-x-auto rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-ink)] p-6 font-mono text-[13px] leading-relaxed text-white">
       <code>{code}</code>
     </pre>
   );
@@ -193,7 +195,7 @@ function RefCard({
 }) {
   const isExternal = href.startsWith("http");
   const className =
-    "rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6 transition-colors hover:border-[var(--color-brand)]/40";
+    "rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6 transition-colors hover:border-[var(--color-brand)]/40";
   const content = (
     <>
       <h3 className="font-display text-base font-semibold">{title}</h3>

@@ -85,7 +85,7 @@ export function FinalCta() {
 
 function PulsePanel() {
   return (
-    <aside className="rounded-lg border border-white/10 bg-[#0F0F12] p-6">
+    <aside className="rounded-lg border border-white/10 bg-[var(--color-bg-dark-2)] p-6">
       <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-white/55">
         <span>Sample · testnet pulse</span>
         <span className="text-emerald-300">arc · preview</span>

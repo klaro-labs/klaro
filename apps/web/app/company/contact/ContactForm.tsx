@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { buttonVariants } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import { submitContactAction } from "./actions";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -131,7 +133,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={busy}
-        className="h-11 rounded-pill bg-[var(--color-ink)] px-6 text-sm font-medium text-white transition-all duration-150 hover:bg-black active:scale-[0.97] disabled:opacity-60"
+        className={cn(buttonVariants({ size: "md" }))}
       >
         {busy ? "Sending…" : "Send message"}
       </button>

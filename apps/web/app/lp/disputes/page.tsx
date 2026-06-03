@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { listAll } from "@/lib/repo/disputes";
 import { getCashout } from "@/lib/repo/cashouts";
 import { getCurrentLpSession } from "@/lib/auth";
@@ -52,9 +54,7 @@ export default async function LPDisputesPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Active disputes
-            </p>
+            <Eyebrow>Active disputes</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Defense queue
             </h1>
@@ -135,14 +135,11 @@ export default async function LPDisputesPage() {
                       minLength={5}
                       rows={3}
                       placeholder="Bank-side UTR confirmation pulled from HDFC API — funds did land. See attached log."
-                      className="w-full rounded border border-[var(--color-line)] px-3 py-2 text-sm outline-none focus:border-[var(--color-brand)]"
+                      className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm transition-colors placeholder:text-[var(--color-ink-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
                     />
-                    <button
-                      type="submit"
-                      className="mt-2 rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-                    >
+                    <Button type="submit" size="sm" className="mt-2">
                       Submit defense
-                    </button>
+                    </Button>
                   </form>
                 )}
               </li>

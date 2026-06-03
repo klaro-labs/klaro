@@ -90,25 +90,25 @@ export default function SubprocessorsPage() {
         Material changes notified 30 days in advance per the DPA.
       </p>
       <div className="mt-6 overflow-x-auto rounded-lg border border-[var(--color-line)] bg-white">
-        <table className="w-full text-sm">
-          <thead className="border-b border-[var(--color-line)] text-xs uppercase text-[var(--color-ink-subtle)]">
+        <table className="w-full min-w-[640px] text-sm">
+          <thead className="border-b border-[var(--color-line)] text-xs uppercase tracking-[0.12em] text-[var(--color-ink-subtle)]">
             <tr>
-              <th className="px-4 py-2 text-left">Vendor</th>
-              <th className="px-4 py-2 text-left">Purpose</th>
-              <th className="px-4 py-2 text-left">Region</th>
-              <th className="px-4 py-2 text-left">Data</th>
+              <th className="px-4 py-3 text-left">Vendor</th>
+              <th className="px-4 py-3 text-left">Purpose</th>
+              <th className="px-4 py-3 text-left">Region</th>
+              <th className="px-4 py-3 text-left">Data</th>
             </tr>
           </thead>
           <tbody>
             {SUBPROCESSORS.map((s) => (
               <tr
                 key={s.name}
-                className="border-b border-[var(--color-line)] last:border-0"
+                className="border-b border-[var(--color-line)] last:border-0 hover:bg-[var(--color-bg-warm)]"
               >
-                <td className="px-4 py-2 font-medium">{s.name}</td>
-                <td className="px-4 py-2">{s.purpose}</td>
-                <td className="px-4 py-2">{s.region}</td>
-                <td className="px-4 py-2">{s.data}</td>
+                <td className="px-4 py-3 font-medium">{s.name}</td>
+                <td className="px-4 py-3">{s.purpose}</td>
+                <td className="px-4 py-3">{s.region}</td>
+                <td className="px-4 py-3">{s.data}</td>
               </tr>
             ))}
           </tbody>

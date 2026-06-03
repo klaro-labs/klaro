@@ -1,21 +1,17 @@
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { type DisputeOutcome } from "@/lib/mockData";
 import { listAll } from "@/lib/repo/disputes";
+import { DISPUTE_STATUS_TONE, disputeStatusLabel } from "@/lib/disputeStatus";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import {
   decideDisputeAction,
   requestEvidenceAction,
   assignToReviewAction,
 } from "./actions";
-
-const STATUS_TONE = {
-  OPENED: "info",
-  EVIDENCE_REQUESTED: "sim",
-  EVIDENCE_SUBMITTED: "info",
-  UNDER_REVIEW: "sim",
-  DECIDED: "live",
-} as const;
 
 const OUTCOMES: { value: DisputeOutcome; label: string; desc: string }[] = [
   {
@@ -54,9 +50,7 @@ export default async function AdminDisputesPage() {
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Operator queue
-            </p>
+            <Eyebrow>Operator queue</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Disputes
             </h1>
@@ -79,7 +73,7 @@ export default async function AdminDisputesPage() {
             {cases.map((c) => (
               <li
                 key={c.caseId}
-                className="rounded-lg border border-[var(--color-line)] bg-white p-6"
+                className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -103,8 +97,8 @@ export default async function AdminDisputesPage() {
                       {relativeTime(c.updatedAt)}
                     </p>
                   </div>
-                  <Badge tone={STATUS_TONE[c.status]}>
-                    {c.status.replace(/_/g, " ")}
+                  <Badge tone={DISPUTE_STATUS_TONE[c.status]}>
+                    {disputeStatusLabel(c.status)}
                   </Badge>
                 </div>
 
@@ -119,14 +113,15 @@ export default async function AdminDisputesPage() {
                       }}
                       className="flex gap-2"
                     >
-                      <input
+                      <Input
                         name="askFor"
+                        aria-label="Evidence to request from the parties"
                         placeholder="Ask for: bank statement, additional screenshot…"
-                        className="flex-1 rounded border border-[var(--color-line)] px-3 py-2 text-sm outline-none focus:border-[var(--color-brand)]"
+                        className="h-9 flex-1"
                       />
-                      <button className="rounded border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium hover:border-[var(--color-brand)]">
+                      <Button type="submit" variant="secondary" size="sm">
                         Request evidence
-                      </button>
+                      </Button>
                     </form>
                     {c.status !== "UNDER_REVIEW" && (
                       <form
@@ -135,9 +130,9 @@ export default async function AdminDisputesPage() {
                           await assignToReviewAction(c.caseId);
                         }}
                       >
-                        <button className="rounded border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium hover:border-[var(--color-brand)]">
+                        <Button type="submit" variant="secondary" size="sm">
                           Assign to panel
-                        </button>
+                        </Button>
                       </form>
                     )}
                   </div>
@@ -173,7 +168,7 @@ export default async function AdminDisputesPage() {
                           />
                           <button
                             title={o.desc}
-                            className="w-full rounded border border-[var(--color-line)] bg-white px-3 py-3 text-left text-xs font-medium hover:border-[var(--color-brand)]"
+                            className="w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-3 text-left text-xs font-medium transition-colors hover:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
                           >
                             <div className="font-semibold">{o.label}</div>
                             <div className="mt-1 text-[10px] text-[var(--color-ink-subtle)]">

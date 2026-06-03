@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { getTaxPackAction, getAuditPackAction } from "./actions";
 
 const DEFAULT_FROM = new Date(Date.now() - 365 * 86_400_000)
@@ -72,30 +74,28 @@ export function ExportsClient() {
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">From</span>
-            <input
+            <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">To</span>
-            <input
+            <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
-          <button
+          <Button
             type="button"
+            size="sm"
             onClick={onTaxPack}
             disabled={pending}
-            className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-50"
           >
             {pending ? "Generating…" : "Download CSV"}
-          </button>
+          </Button>
         </div>
         {summary && (
           <p className="mt-3 text-xs text-[var(--color-ink-subtle)]">
@@ -115,17 +115,18 @@ export function ExportsClient() {
           listings, partner integrations. Schema version stamped so consumers
           know which Klaro release produced the file.
         </p>
-        <button
+        <Button
           type="button"
+          size="sm"
           onClick={onAuditPack}
           disabled={pending}
-          className="mt-4 rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-50"
+          className="mt-4"
         >
           {pending ? "Generating…" : "Download JSON"}
-        </button>
+        </Button>
         <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
           Schema <code className="font-mono">klaro.audit-pack.v1</code> · PDF
-          render lands M12 polish
+          export coming soon
         </p>
       </div>
     </div>

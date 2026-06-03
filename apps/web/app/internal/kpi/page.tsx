@@ -1,4 +1,6 @@
+import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { latestSnapshotsByWindow } from "@/lib/repo/kpiSnapshots";
 import { relativeTime } from "@/lib/money";
 
@@ -45,12 +47,22 @@ const CORRIDORS_STATIC = [
   },
 ];
 
-const SLO = [
-  { name: "Settlement p95", target: "< 5s", actual: "—", ok: true },
-  { name: "Webhook delivery p95", target: "< 30s", actual: "—", ok: true },
-  { name: "Dispute resolution", target: "< 24h", actual: "—", ok: true },
-  { name: "API availability", target: "≥ 99.9%", actual: "—", ok: true },
-  { name: "RPC fallback rate", target: "< 0.5%", actual: "—", ok: true },
+// `actual` is null until Prometheus is wired — the SLO panels read from the
+// static spec, so every row is currently un-measured. Rendering an empty "—"
+// inside a green "live" pill read as a bug; instead un-measured rows show a
+// muted "awaiting data" chip and only flip to met/breach once a real number
+// lands.
+const SLO: {
+  name: string;
+  target: string;
+  actual: string | null;
+  breached?: boolean;
+}[] = [
+  { name: "Settlement p95", target: "< 5s", actual: null },
+  { name: "Webhook delivery p95", target: "< 30s", actual: null },
+  { name: "Dispute resolution", target: "< 24h", actual: null },
+  { name: "API availability", target: "≥ 99.9%", actual: null },
+  { name: "RPC fallback rate", target: "< 0.5%", actual: null },
 ];
 
 export default async function InternalKpiPage() {
@@ -59,12 +71,11 @@ export default async function InternalKpiPage() {
 
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
+      <AdminNav />
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <header className="mb-8 flex items-end justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Internal · powered by daemon&apos;s KPIAggregator
-            </p>
+            <Eyebrow>Internal · powered by daemon&apos;s KPIAggregator</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               KPI
             </h1>
@@ -85,7 +96,7 @@ export default async function InternalKpiPage() {
           {snapshots.map((s) => (
             <div
               key={s.windowLabel}
-              className="rounded-lg border border-[var(--color-line)] bg-white p-5"
+              className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5"
             >
               <div className="flex items-baseline justify-between">
                 <span className="text-xs uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
@@ -108,44 +119,66 @@ export default async function InternalKpiPage() {
         </div>
 
         <h2 className="mb-3 font-display text-xl font-semibold">Corridors</h2>
-        <ul className="mb-10 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
-          {CORRIDORS_STATIC.map((c) => (
-            <li
-              key={c.corridor}
-              className="grid grid-cols-1 gap-2 px-6 py-4 md:grid-cols-[1fr_auto_auto_auto_auto] md:items-center"
-            >
-              <span className="font-medium">{c.corridor}</span>
-              <span className="text-sm">{c.volume7d}</span>
-              <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                {c.spread}
-              </span>
-              <span className="text-xs text-[var(--color-ink-subtle)]">
-                {c.lps} LPs
-              </span>
-              <Badge tone={c.status === "live" ? "live" : "sim"}>
-                {c.status}
-              </Badge>
-            </li>
-          ))}
+        <ul className="mb-10 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
+          {CORRIDORS_STATIC.map((c) => {
+            const measured = c.volume7d !== "—";
+            return (
+              <li
+                key={c.corridor}
+                className="grid grid-cols-1 gap-2 px-6 py-4 md:grid-cols-[1fr_auto_auto_auto_auto] md:items-center"
+              >
+                <span className="font-medium">{c.corridor}</span>
+                {measured ? (
+                  <span className="text-sm">{c.volume7d}</span>
+                ) : (
+                  <span className="text-xs text-[var(--color-ink-subtle)]">
+                    awaiting data
+                  </span>
+                )}
+                <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
+                  {c.spread}
+                </span>
+                <span className="text-xs text-[var(--color-ink-subtle)]">
+                  {c.lps} LPs
+                </span>
+                <Badge tone={c.status === "live" ? "live" : "sim"}>
+                  {c.status}
+                </Badge>
+              </li>
+            );
+          })}
         </ul>
 
         <h2 className="mb-3 font-display text-xl font-semibold">SLOs</h2>
-        <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
-          {SLO.map((s) => (
-            <li
-              key={s.name}
-              className="grid grid-cols-1 gap-2 px-6 py-3 md:grid-cols-[1.4fr_auto_auto_auto] md:items-center"
-            >
-              <span className="font-medium">{s.name}</span>
-              <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                target {s.target}
-              </span>
-              <span className="text-sm">{s.actual}</span>
-              <Badge tone={s.ok ? "live" : "sim"}>
-                {s.ok ? "—" : "breach"}
-              </Badge>
-            </li>
-          ))}
+        <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
+          {SLO.map((s) => {
+            const measured = s.actual !== null;
+            return (
+              <li
+                key={s.name}
+                className="grid grid-cols-1 gap-2 px-6 py-3 md:grid-cols-[1.4fr_auto_auto_auto] md:items-center"
+              >
+                <span className="font-medium">{s.name}</span>
+                <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
+                  target {s.target}
+                </span>
+                {measured ? (
+                  <span className="text-sm">{s.actual}</span>
+                ) : (
+                  <span className="text-xs text-[var(--color-ink-subtle)]">
+                    awaiting data
+                  </span>
+                )}
+                {measured ? (
+                  <Badge tone={s.breached ? "warning" : "live"}>
+                    {s.breached ? "breach" : "met"}
+                  </Badge>
+                ) : (
+                  <Badge tone="neutral">awaiting data</Badge>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </section>
     </main>

@@ -48,7 +48,7 @@ export function LegalLayout({
             {lastUpdated}
           </p>
         </aside>
-        <article className="prose max-w-none text-[var(--color-ink)]">
+        <article className="prose max-w-none text-[var(--color-ink)] [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-[var(--color-ink)]">
           <h1 className="font-display text-3xl font-semibold tracking-tight">
             {title}
           </h1>

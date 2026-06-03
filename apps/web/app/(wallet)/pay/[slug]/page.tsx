@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Logo } from "@/components/klaro/Logo";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PayFromLink } from "@/components/klaro/PayFromLink";
 import { getLinkBySlug, incrementLinkView } from "@/lib/repo/links";
 import { isValidSlug } from "@/lib/slugs";
@@ -60,9 +61,7 @@ export default async function PayLinkPage({
         : "The seller hasn't finished wallet setup. Try again shortly.";
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg)] px-6 text-center text-[var(--color-ink)]">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-          Payment link
-        </p>
+        <Eyebrow>Payment link</Eyebrow>
         <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
           {title}
         </h1>
@@ -100,7 +99,7 @@ export default async function PayLinkPage({
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
             Amount
           </p>
-          <p className="mt-1 font-display text-5xl font-semibold tracking-tight">
+          <p className="mt-1 font-display text-[clamp(2rem,9vw,3rem)] font-semibold tracking-tight tabular-nums break-words">
             {formatUSDC(link.amount)}
           </p>
           <p className="mt-2 text-sm text-[var(--color-ink-muted)]">

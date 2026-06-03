@@ -4,7 +4,7 @@ export default function HostedInvoiceError({
   error,
   reset,
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
@@ -16,8 +16,14 @@ export default function HostedInvoiceError({
         We couldn&apos;t load this invoice.
       </h1>
       <p className="mt-3 max-w-md text-sm text-[var(--color-ink-muted)]">
-        {error.message}
+        This payment page hit a temporary error. Refresh in a moment — if it
+        keeps happening, ask the seller to resend the link.
       </p>
+      {error.digest && (
+        <p className="mt-2 font-mono text-xs text-[var(--color-ink-subtle)]">
+          Reference {error.digest}
+        </p>
+      )}
       <div className="mt-8 flex gap-3">
         <button
           onClick={reset}

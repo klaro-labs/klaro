@@ -48,7 +48,7 @@ export function LPNav({ entityName }: { entityName: string }) {
           </span>
           <span
             aria-hidden
-            className="inline-flex size-8 items-center justify-center rounded-full bg-[var(--color-klaro-orange-deep)] text-xs font-medium text-white"
+            className="inline-flex size-8 items-center justify-center rounded-full bg-[var(--color-ink)] text-xs font-medium text-white"
           >
             {entityName
               .split(" ")
@@ -81,7 +81,7 @@ export function LPNav({ entityName }: { entityName: string }) {
                 <Link
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block py-2 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
+                  className="flex min-h-[48px] items-center text-base text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
                 >
                   {item.label}
                 </Link>

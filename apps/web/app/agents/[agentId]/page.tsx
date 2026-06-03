@@ -2,7 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { buttonVariants } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import { mockGetAgent, mockListAgents } from "@/lib/mockData";
 import { formatUSDC, shortAddress } from "@/lib/money";
 
@@ -33,7 +37,7 @@ export default async function AgentDetailPage({
   if (!agent) notFound();
 
   return (
-    <main className="bg-[var(--color-paper)] text-[var(--color-ink)]">
+    <main className="bg-[var(--color-bg-warm)] text-[var(--color-ink)]">
       <Nav />
       <section className="mx-auto w-full max-w-[1100px] px-6 pt-16 pb-12">
         <Link
@@ -45,9 +49,7 @@ export default async function AgentDetailPage({
 
         <div className="mt-6 flex items-start justify-between gap-6">
           <div>
-            <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
-              {agent.category}
-            </p>
+            <Eyebrow>{agent.category}</Eyebrow>
             <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
               {agent.displayName}
             </h1>
@@ -80,7 +82,7 @@ export default async function AgentDetailPage({
         </div>
 
         <div className="mt-10 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6">
+          <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
             <h2 className="font-display text-lg font-semibold">
               Pricing endpoint
             </h2>
@@ -93,7 +95,7 @@ export default async function AgentDetailPage({
             </code>
           </div>
 
-          <div className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6">
+          <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
             <h2 className="font-display text-lg font-semibold">Settlement</h2>
             <p className="mt-2 text-sm text-[var(--color-ink)]/80">
               Jobs are escrowed via ERC-8183 (AgentEscrow). Funds release on
@@ -111,7 +113,7 @@ export default async function AgentDetailPage({
             {agent.active ? (
               <Link
                 href={`/vendor/agents?hire=${agent.agentId}`}
-                className="mt-4 inline-block rounded-full bg-[var(--color-ink)] px-5 py-2 text-sm font-medium text-white hover:opacity-90"
+                className={cn(buttonVariants({ size: "md" }), "mt-4")}
               >
                 Hire from vendor app →
               </Link>
@@ -123,7 +125,7 @@ export default async function AgentDetailPage({
           </div>
         </div>
 
-        <div className="mt-10 rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6">
+        <div className="mt-10 rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
           <h2 className="font-display text-lg font-semibold">Agent ID</h2>
           <p className="mt-2 text-sm text-[var(--color-ink)]/80">
             Permanent ERC-8004 identifier. Used in every on-chain job escrow
@@ -134,6 +136,7 @@ export default async function AgentDetailPage({
           </code>
         </div>
       </section>
+      <FinalCta />
       <Footer />
     </main>
   );
@@ -151,7 +154,7 @@ function Stat({
   mono?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-5">
+    <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5">
       <div className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
         {label}
       </div>

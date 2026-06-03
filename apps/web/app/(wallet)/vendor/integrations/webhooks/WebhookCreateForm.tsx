@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { createWebhookAction, type CreateWebhookState } from "./actions";
 
 /**
@@ -31,21 +33,16 @@ export function WebhookCreateForm({
       >
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="text-[var(--color-ink-muted)]">{urlLabel}</span>
-          <input
+          <Input
             name="url"
             type="url"
             required
             placeholder="https://yourapp.com/klaro-webhook"
-            className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
           />
         </label>
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-50"
-        >
+        <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Adding…" : addLabel}
-        </button>
+        </Button>
       </form>
 
       {state && !state.ok && state.error ? (

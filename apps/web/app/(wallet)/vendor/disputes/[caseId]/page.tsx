@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getDispute } from "@/lib/repo/disputes";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { getCurrentSession } from "@/lib/auth";
-import { addEvidenceAction } from "../actions";
+import { AddEvidenceForm } from "./AddEvidenceForm";
 import type { Hex } from "@/lib/types";
 
 const STATUS_TONE = {
@@ -54,9 +55,9 @@ export default async function DisputeDetailPage({
 
         <div className="mt-3 mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+            <Eyebrow>
               Case {shortAddress(c.caseId)} · {c.context}
-            </p>
+            </Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               vs. {c.respondentLabel}
             </h1>
@@ -174,31 +175,7 @@ export default async function DisputeDetailPage({
             </p>
           </div>
         ) : (
-          <form
-            id="add-evidence"
-            action={async (formData: FormData) => {
-              "use server";
-              const note = String(formData.get("note") ?? "");
-              await addEvidenceAction(c.caseId, note);
-            }}
-            className="scroll-mt-24 rounded-lg border border-[var(--color-line)] bg-white p-5"
-          >
-            <h2 className="font-medium">Add evidence</h2>
-            <textarea
-              name="note"
-              required
-              minLength={5}
-              rows={3}
-              placeholder="Attach demo evidence details for operator review."
-              className="mt-2 w-full rounded border border-[var(--color-line)] px-3 py-2 text-sm outline-none focus:border-[var(--color-brand)]"
-            />
-            <button
-              type="submit"
-              className="mt-3 rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-            >
-              Submit evidence
-            </button>
-          </form>
+          <AddEvidenceForm caseId={c.caseId} />
         )}
       </section>
     </div>

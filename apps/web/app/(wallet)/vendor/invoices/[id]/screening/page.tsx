@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo.
 import { getInvoice } from "@/lib/repo/invoices";
@@ -54,10 +55,10 @@ const SAMPLE_SCREENS: Screen[] = [
   },
 ];
 
-const RESULT_STYLE: Record<Screen["result"], string> = {
-  pass: "bg-emerald-100 text-emerald-800",
-  fail: "bg-red-100 text-red-800",
-  review: "bg-amber-100 text-amber-800",
+const RESULT_TONE: Record<Screen["result"], "live" | "danger" | "info"> = {
+  pass: "live",
+  fail: "danger",
+  review: "info",
 };
 
 export default async function ScreeningPage({
@@ -82,9 +83,7 @@ export default async function ScreeningPage({
       <section className="mx-auto w-full max-w-[900px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Screening detail
-            </p>
+            <Eyebrow>Screening detail</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               3-of-3 screening result
             </h1>
@@ -110,11 +109,9 @@ export default async function ScreeningPage({
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="font-medium">{s.provider}</span>
-                <span
-                  className={`inline-flex rounded-pill px-3 py-1 text-xs font-medium ${RESULT_STYLE[s.result]}`}
-                >
+                <Badge tone={RESULT_TONE[s.result]} className="capitalize">
                   {s.result}
-                </span>
+                </Badge>
               </div>
               <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
                 {s.detail}

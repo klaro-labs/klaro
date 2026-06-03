@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 import { listWebhooks } from "@/lib/repo/webhooks";
 import { relativeTime } from "@/lib/money";
@@ -8,6 +9,14 @@ import { getT } from "@/lib/i18n";
 import { WebhookCreateForm } from "./WebhookCreateForm";
 import { DeactivateWebhookButton } from "./DeactivateWebhookButton";
 import { TestPingButton } from "./TestPingButton";
+
+/** Mask a webhook signing secret on the list view — the full value is shown
+ *  exactly once at creation (see WebhookCreateForm). We surface only the
+ *  `whsec_` prefix and the last 4 chars so a row never leaks a usable credential. */
+function maskSecret(secret: string): string {
+  const last4 = secret.slice(-4);
+  return `whsec_••••••••${last4}`;
+}
 
 export default async function WebhooksPage() {
   const t = await getT();
@@ -20,9 +29,7 @@ export default async function WebhooksPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              {t("webhooks.title")}
-            </p>
+            <Eyebrow>Webhooks</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               {t("webhooks.title")}
             </h1>
@@ -31,7 +38,9 @@ export default async function WebhooksPage() {
             </p>
           </div>
           <Badge tone={queueLive() ? "live" : "sim"}>
-            {queueLive() ? "BullMQ live" : "Inline queue · REDIS_URL not set"}
+            {queueLive()
+              ? "BullMQ live"
+              : "Test mode (deliveries queued inline)"}
           </Badge>
         </div>
 
@@ -71,21 +80,18 @@ export default async function WebhooksPage() {
                     <div className="mt-1 text-xs text-[var(--color-ink-subtle)]">
                       Signing secret:{" "}
                       <code className="rounded bg-[var(--color-bg)] px-1.5 py-0.5 font-mono">
-                        {w.signingSecret}
-                      </code>
+                        {maskSecret(w.signingSecret)}
+                      </code>{" "}
+                      <span className="text-[var(--color-ink-muted)]">
+                        (revealed once at creation)
+                      </span>
                     </div>
                     {w.lastDeliveryAt && (
-                      <div className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-                        Last delivery {relativeTime(w.lastDeliveryAt)} ·{" "}
-                        <span
-                          className={
-                            w.lastStatus === "ok"
-                              ? "text-green-700"
-                              : "text-red-700"
-                          }
-                        >
-                          {w.lastStatus}
-                        </span>
+                      <div className="mt-1 flex items-center gap-1.5 text-xs text-[var(--color-ink-subtle)]">
+                        <span>Last delivery {relativeTime(w.lastDeliveryAt)}</span>
+                        <Badge tone={w.lastStatus === "ok" ? "live" : "sim"}>
+                          {w.lastStatus === "ok" ? "Delivered" : "Failed"}
+                        </Badge>
                       </div>
                     )}
                   </div>

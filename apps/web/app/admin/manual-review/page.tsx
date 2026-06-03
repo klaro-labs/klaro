@@ -1,17 +1,12 @@
 import Link from "next/link";
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { mockAdminQueueItems } from "@/lib/mockData";
+import { SEVERITY_TONE } from "@/lib/severityTone";
 import { formatUSDC, shortAddress, relativeTime } from "@/lib/money";
 
 export const metadata = { title: "Manual review · Klaro admin" };
-
-const SEVERITY_TONE = {
-  low: "info",
-  med: "info",
-  high: "sim",
-  critical: "sim",
-} as const;
 
 export default async function AdminManualReviewPage() {
   const screening = await mockAdminQueueItems("screening-fail");
@@ -27,9 +22,7 @@ export default async function AdminManualReviewPage() {
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <header className="mb-6 flex items-end justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Admin · Manual review
-            </p>
+            <Eyebrow>Admin · Manual review</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Manual review
             </h1>
@@ -45,13 +38,13 @@ export default async function AdminManualReviewPage() {
         </header>
 
         {all.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-white p-8 text-sm text-[var(--color-ink-muted)]">
+          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 text-sm text-[var(--color-ink-muted)]">
             Nothing in review. Daemon pushes here when 3-of-3 screening returns
             review, when a refund authorization needs operator countersign, or
             when an ACPHook flags an agent.
           </p>
         ) : (
-          <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
+          <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
             {all.map((it) => (
               <li
                 key={`${it.kind}-${it.id}`}

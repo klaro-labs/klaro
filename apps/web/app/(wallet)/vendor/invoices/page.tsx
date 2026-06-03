@@ -2,9 +2,11 @@ import Link from "next/link";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 import { listInvoicesForVendor } from "@/lib/repo/invoices";
 import { formatUSDC, relativeTime } from "@/lib/money";
+import { statusDotClass } from "@/lib/statusDot";
 import type { InvoiceStatus } from "@/lib/types";
 
 /**
@@ -67,9 +69,7 @@ export default async function VendorInvoicesPage({
     <div className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6 md:py-10">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Invoices
-          </p>
+          <Eyebrow>Invoices</Eyebrow>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             All invoices
           </h1>
@@ -184,13 +184,7 @@ export default async function VendorInvoicesPage({
                   >
                     <span
                       aria-hidden
-                      className={`mt-1 inline-block size-2 shrink-0 rounded-full ${
-                        inv.status === "PAID" || inv.status === "SETTLED"
-                          ? "bg-emerald-500"
-                          : inv.status === "ACCEPTED"
-                            ? "bg-[var(--color-brand)]"
-                            : "bg-amber-400"
-                      }`}
+                      className={`mt-1 inline-block size-2 shrink-0 rounded-full ${statusDotClass(inv.status)}`}
                     />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">

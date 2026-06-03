@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 
@@ -58,11 +59,11 @@ const SAMPLE: Transit[] = [
   },
 ];
 
-const STATE_STYLE: Record<Transit["state"], string> = {
-  burning: "bg-amber-100 text-amber-800",
-  attesting: "bg-blue-100 text-blue-800",
-  minting: "bg-indigo-100 text-indigo-800",
-  settled: "bg-emerald-100 text-emerald-800",
+const STATE_TONE: Record<Transit["state"], "live" | "info"> = {
+  burning: "info",
+  attesting: "info",
+  minting: "info",
+  settled: "live",
 };
 
 export default async function TransitPage() {
@@ -74,9 +75,7 @@ export default async function TransitPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Cross-chain transit
-            </p>
+            <Eyebrow>Cross-chain transit</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               In-flight to Arc
             </h1>
@@ -108,11 +107,9 @@ export default async function TransitPage() {
               <div className="text-xs text-[var(--color-ink-subtle)]">
                 {t.route} · started {relativeTime(t.startedAt)}
               </div>
-              <span
-                className={`inline-flex w-fit rounded-pill px-3 py-1 text-xs font-medium ${STATE_STYLE[t.state]}`}
-              >
+              <Badge tone={STATE_TONE[t.state]} className="w-fit capitalize">
                 {t.state}
-              </span>
+              </Badge>
             </li>
           ))}
         </ul>

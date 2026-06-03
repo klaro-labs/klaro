@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { Badge } from "@/components/ui/Badge";
+import { PageHero } from "@/components/ui/PageHero";
 
 export const metadata: Metadata = {
   title: "Trust · Klaro",
@@ -83,27 +85,18 @@ export default function TrustPage() {
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
       <Nav />
-      <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
-        <div className="mb-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Trust Center
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-            11 things we promise + prove
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-[var(--color-ink-muted)]">
-            We earn trust by being explicit about what we are + what we are not.
-            No marketing words — just the 11 invariants Klaro enforces in code,
-            in audits, and in operations.
-          </p>
-        </div>
-
+      <PageHero
+        eyebrow="Trust center"
+        title="11 things we promise + prove"
+        sub="We earn trust by being explicit about what we are + what we are not. No marketing words — just the 11 invariants Klaro enforces in code, in audits, and in operations."
+      />
+      <section className="klaro-container w-full pb-10">
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {EXPLANATIONS.map((e) => (
             <li
               key={e.id}
               id={e.id}
-              className="rounded-lg border border-[var(--color-line)] bg-white p-5"
+              className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5"
             >
               <div className="flex items-baseline justify-between gap-3">
                 <h2 className="font-display text-lg font-semibold">
@@ -120,7 +113,7 @@ export default function TrustPage() {
           ))}
         </ul>
 
-        <div className="mt-10 rounded-lg border border-[var(--color-line)] bg-white p-6 text-sm">
+        <div className="mt-10 rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6 text-sm">
           <p className="font-medium">More questions?</p>
           <p className="mt-1 text-[var(--color-ink-muted)]">
             Read the full{" "}
@@ -155,6 +148,7 @@ export default function TrustPage() {
           </p>
         </div>
       </section>
+      <FinalCta />
       <Footer />
     </main>
   );

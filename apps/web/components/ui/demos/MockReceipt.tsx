@@ -1,3 +1,5 @@
+import { CheckIcon } from "@/components/ui/CheckIcon";
+
 /**
  * Static demo receipt — mirrors the rows shipped by /receipt/[hash] without
  * pulling on-chain data. Fields are clearly labelled `demo` so the visual
@@ -27,8 +29,8 @@ export function MockReceipt() {
           </p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-pill bg-[var(--color-klaro-gold-soft)] px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--color-klaro-gold-deep)]">
-          <span aria-hidden className="inline-flex size-4 items-center justify-center rounded-full bg-[var(--color-klaro-gold)] text-[10px] text-[var(--color-ink)]">
-            ✓
+          <span aria-hidden className="inline-flex size-4 items-center justify-center rounded-full bg-[var(--color-klaro-gold)] text-[var(--color-ink)]">
+            <CheckIcon className="size-2.5" />
           </span>
           Verified
         </span>

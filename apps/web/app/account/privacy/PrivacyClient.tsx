@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Button } from "@/components/ui/Button";
 import { exportMyDataAction, deleteMyAccountAction } from "./actions";
 
 export function PrivacyClient() {
@@ -38,7 +39,7 @@ export function PrivacyClient() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-[var(--color-line)] bg-white p-6">
+      <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
         <h2 className="font-display text-xl font-semibold">Export my data</h2>
         <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
           GDPR Art. 20 portability. Receive everything Klaro holds about you in
@@ -47,17 +48,18 @@ export function PrivacyClient() {
           On-chain anchors are listed; the off-chain bundle of each anchor is
           included inline.
         </p>
-        <button
+        <Button
+          size="sm"
           onClick={onExport}
           disabled={pending}
-          className="mt-4 rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-50"
+          className="mt-4"
         >
           {pending ? "Building…" : "Download my data"}
-        </button>
+        </Button>
       </div>
 
-      <div className="rounded-lg border border-red-200 bg-white p-6">
-        <h2 className="font-display text-xl font-semibold text-red-800">
+      <div className="rounded-lg border border-[color-mix(in_oklab,var(--color-danger)_30%,transparent)] bg-[color-mix(in_oklab,var(--color-danger)_5%,var(--color-bg-elevated))] p-6">
+        <h2 className="font-display text-xl font-semibold text-[var(--color-danger)]">
           Delete my account
         </h2>
         <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
@@ -69,7 +71,7 @@ export function PrivacyClient() {
         <button
           onClick={onDelete}
           disabled={pending}
-          className="mt-4 rounded border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-50 disabled:opacity-50"
+          className="mt-4 inline-flex h-9 items-center justify-center rounded-pill border border-[color-mix(in_oklab,var(--color-danger)_40%,transparent)] px-4 text-sm font-medium text-[var(--color-danger)] transition-colors hover:bg-[color-mix(in_oklab,var(--color-danger)_10%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-danger)] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
         >
           Request delete
         </button>

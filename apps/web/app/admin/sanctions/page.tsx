@@ -1,5 +1,6 @@
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { listRecentScreenCache } from "@/lib/repo/counterpartyCache";
 import {
   isCounterpartyLiveOnChain,
@@ -67,9 +68,7 @@ export default async function AdminSanctionsPage() {
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <header className="mb-6 flex items-end justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Admin · Sanctions
-            </p>
+            <Eyebrow>Admin · Sanctions</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Sanctions cache
             </h1>
@@ -89,7 +88,7 @@ export default async function AdminSanctionsPage() {
         </header>
 
         <h2 className="mb-3 font-display text-xl font-semibold">Providers</h2>
-        <ul className="mb-10 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
+        <ul className="mb-10 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
           {providers.map((p) => (
             <li
               key={p.name}
@@ -123,23 +122,31 @@ export default async function AdminSanctionsPage() {
           Bundle hash anchors the off-chain evidence bundle the daemon wrote.
         </p>
         {recent.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-white p-8 text-sm text-[var(--color-ink-muted)]">
+          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 text-sm text-[var(--color-ink-muted)]">
             No cached decisions yet. The cache fills as buyers complete checkout
             + the daemon&apos;s screen-and-settle worker runs.
           </p>
         ) : (
-          <ul className="mb-10 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
+          <ul className="mb-10 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
             {recent.map((d) => (
               <li
                 key={d.buyerAddress}
                 className="grid grid-cols-1 gap-2 px-6 py-3 md:grid-cols-[1.2fr_1fr_1.4fr_auto] md:items-center"
               >
-                <span className="font-mono text-sm">{d.buyerAddress}</span>
+                <span
+                  className="truncate font-mono text-sm"
+                  title={d.buyerAddress}
+                >
+                  {shortAddress(d.buyerAddress)}
+                </span>
                 <span className="text-xs text-[var(--color-ink-subtle)]">
                   TTL {d.ttlSeconds}s
                 </span>
-                <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                  {d.bundleHash}
+                <span
+                  className="truncate font-mono text-xs text-[var(--color-ink-subtle)]"
+                  title={d.bundleHash}
+                >
+                  {shortAddress(d.bundleHash)}
                 </span>
                 <span className="text-xs text-[var(--color-ink-subtle)]">
                   {relativeTime(d.decidedAt)}
@@ -176,19 +183,21 @@ export default async function AdminSanctionsPage() {
         </p>
 
         {denylist.entries.length === 0 ? (
-          <p className="mt-3 rounded-lg border border-dashed border-[var(--color-line)] bg-white p-8 text-sm text-[var(--color-ink-muted)]">
+          <p className="mt-3 rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 text-sm text-[var(--color-ink-muted)]">
             {isCounterpartyLiveOnChain()
               ? "No active denylist entries on chain."
               : "Empty until CounterpartyRegistry is deployed (NEXT_PUBLIC_COUNTERPARTY_REGISTRY_ADDRESS)."}
           </p>
         ) : (
-          <ul className="mt-3 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
+          <ul className="mt-3 divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
             {denylist.entries.map((e) => (
               <li
                 key={e.buyer}
                 className="grid grid-cols-1 gap-2 px-6 py-3 md:grid-cols-[1.2fr_1fr_1fr_auto] md:items-center"
               >
-                <span className="font-mono text-sm">{e.buyer}</span>
+                <span className="truncate font-mono text-sm" title={e.buyer}>
+                  {shortAddress(e.buyer)}
+                </span>
                 <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
                   reason {shortAddress(e.reasonHash)}
                 </span>

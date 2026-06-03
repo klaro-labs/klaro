@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FxNav } from "@/components/klaro/FxNav";
+import { Footer } from "@/components/klaro/Footer";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { buttonVariants } from "@/components/ui/Button";
 import { getCurrentSession } from "@/lib/auth";
 import { type FxStatus } from "@/lib/mockData";
 import { listFxQuotes } from "@/lib/repo/fxQuotes";
@@ -53,9 +56,7 @@ export default async function FxPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Stablecoin FX
-            </p>
+            <Eyebrow>Stablecoin FX</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               USDC ↔ EURC · USYC
             </h1>
@@ -119,10 +120,7 @@ export default async function FxPage() {
               className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
-          <button
-            type="submit"
-            className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-          >
+          <button type="submit" className={buttonVariants({ size: "md" })}>
             Quote
           </button>
         </form>
@@ -194,7 +192,7 @@ export default async function FxPage() {
                       }}
                       className="mt-3"
                     >
-                      <button className="rounded bg-[var(--color-ink)] px-4 py-2 text-xs font-medium text-white hover:bg-black">
+                      <button className={buttonVariants({ size: "sm" })}>
                         Execute swap →
                       </button>
                       <span className="ml-2 text-[10px] text-[var(--color-ink-subtle)]">
@@ -210,6 +208,7 @@ export default async function FxPage() {
           })}
         </ul>
       </section>
+      <Footer />
     </main>
   );
 }

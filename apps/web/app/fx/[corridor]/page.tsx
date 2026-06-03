@@ -1,9 +1,22 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { FxNav } from "@/components/klaro/FxNav";
-import { Badge } from "@/components/ui/Badge";
+import { Footer } from "@/components/klaro/Footer";
+import { Badge, type BadgeProps } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { buttonVariants } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 export const metadata = { title: "FX corridor · Klaro" };
+
+const STATUS_COPY: Record<
+  CorridorSpec["partnerStatus"],
+  { label: string; tone: BadgeProps["tone"] }
+> = {
+  simulated: { label: "Simulated", tone: "sim" },
+  "partner-pending": { label: "Partner pending", tone: "verified" },
+  "access-gated": { label: "Access gated", tone: "info" },
+};
 
 interface CorridorSpec {
   slug: string;
@@ -126,9 +139,7 @@ export default async function FxCorridorPage({
 
         <header className="mt-4 mb-8 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Stablecoin FX · {spec.partnerLabel}
-            </p>
+            <Eyebrow>Stablecoin FX · {spec.partnerLabel}</Eyebrow>
             <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight">
               {spec.pair}
             </h1>
@@ -136,16 +147,8 @@ export default async function FxCorridorPage({
               {spec.description}
             </p>
           </div>
-          <Badge
-            tone={
-              spec.partnerStatus === "simulated"
-                ? "sim"
-                : spec.partnerStatus === "access-gated"
-                  ? "info"
-                  : "sim"
-            }
-          >
-            {spec.partnerStatus}
+          <Badge tone={STATUS_COPY[spec.partnerStatus].tone}>
+            {STATUS_COPY[spec.partnerStatus].label}
           </Badge>
         </header>
 
@@ -176,14 +179,12 @@ export default async function FxCorridorPage({
             and on-chain partner verification are not enabled in the current
             testnet demo.
           </p>
-          <Link
-            href="/fx"
-            className="mt-4 inline-block rounded-full bg-[var(--color-ink)] px-5 py-2 text-sm font-medium text-white hover:opacity-90"
-          >
+          <Link href="/fx" className={cn(buttonVariants({ size: "md" }), "mt-4")}>
             Open FX dashboard →
           </Link>
         </div>
       </section>
+      <Footer />
     </main>
   );
 }

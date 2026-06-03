@@ -334,7 +334,7 @@ export function AppShell({
               className={`relative flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
                 active
                   ? "text-[var(--color-brand)]"
-                  : "text-[var(--color-ink-subtle)]"
+                  : "text-[var(--color-ink-muted)]"
               }`}
             >
               {it.icon}
@@ -356,7 +356,7 @@ export function AppShell({
           className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
             isMoreActive
               ? "text-[var(--color-brand)]"
-              : "text-[var(--color-ink-subtle)]"
+              : "text-[var(--color-ink-muted)]"
           }`}
         >
           <IconMore />

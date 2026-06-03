@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { SectionHeader } from "@/components/klaro/SectionHeader";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
   title: "Company · Klaro",
@@ -39,10 +41,10 @@ const PRINCIPLES = [
 
 export default function CompanyPage() {
   return (
-    <main className="bg-[var(--color-paper)] text-[var(--color-ink)]">
+    <main className="bg-[var(--color-bg-warm)] text-[var(--color-ink)]">
       <Nav />
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-16">
+      <section className="klaro-container w-full pt-24 pb-16">
         <SectionHeader
           eyebrow="Klaro"
           title={
@@ -56,12 +58,10 @@ export default function CompanyPage() {
         />
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-12">
+      <section className="klaro-container w-full py-12">
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:p-10">
-            <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
-              Mission
-            </p>
+          <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 md:p-10">
+            <Eyebrow>Mission</Eyebrow>
             <h2 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight">
               Make every payment a vendor receives feel like they were paid by
               their best customer.
@@ -72,10 +72,8 @@ export default function CompanyPage() {
               chain ID is.
             </p>
           </div>
-          <div className="rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:p-10">
-            <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
-              North star
-            </p>
+          <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 md:p-10">
+            <Eyebrow>North star</Eyebrow>
             <h2 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight">
               One billion vendors paid faithfully.
             </h2>
@@ -88,7 +86,7 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-20">
+      <section className="klaro-container w-full py-20">
         <SectionHeader
           eyebrow="How we work"
           title="Six rules that govern every decision."
@@ -98,7 +96,7 @@ export default function CompanyPage() {
           {PRINCIPLES.map((p) => (
             <div
               key={p.title}
-              className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6"
+              className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6"
             >
               <h3 className="font-display text-lg font-semibold">{p.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink)]/80">
@@ -109,7 +107,7 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-20">
+      <section className="klaro-container w-full py-20">
         <SectionHeader eyebrow="Stack" title="Built on Arc + Circle." />
         <div className="mt-10 grid gap-3 md:grid-cols-3">
           {[
@@ -140,7 +138,7 @@ export default function CompanyPage() {
           ].map(([k, v]) => (
             <div
               key={k}
-              className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-5"
+              className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5"
             >
               <h4 className="font-display text-base font-semibold">{k}</h4>
               <p className="mt-2 text-sm text-[var(--color-ink)]/80">{v}</p>
@@ -149,11 +147,9 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-16">
-        <div className="rounded-3xl border border-[var(--color-ink)]/10 bg-white p-8 md:p-10">
-          <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
-            Who we are
-          </p>
+      <section className="klaro-container w-full py-16">
+        <div className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 md:p-10">
+          <Eyebrow>Who we are</Eyebrow>
           <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight">
             A small team, working in public.
           </h2>
@@ -165,12 +161,12 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 py-20">
+      <section className="klaro-container w-full py-20">
         <SectionHeader eyebrow="Get in touch" title="Three doors in." />
         <div className="mt-10 grid gap-3 md:grid-cols-3">
           <Link
             href="/signin"
-            className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6 transition-colors hover:border-[var(--color-brand)]/40"
+            className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6 transition-colors hover:border-[var(--color-brand)]/40"
           >
             <h4 className="font-display text-lg font-semibold">Try the product</h4>
             <p className="mt-2 text-sm text-[var(--color-ink)]/80">
@@ -182,7 +178,7 @@ export default function CompanyPage() {
           </Link>
           <Link
             href="/build"
-            className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6 transition-colors hover:border-[var(--color-brand)]/40"
+            className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6 transition-colors hover:border-[var(--color-brand)]/40"
           >
             <h4 className="font-display text-lg font-semibold">Build on us</h4>
             <p className="mt-2 text-sm text-[var(--color-ink)]/80">
@@ -194,7 +190,7 @@ export default function CompanyPage() {
           </Link>
           <Link
             href="/company/contact"
-            className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-6 transition-colors hover:border-[var(--color-brand)]/40"
+            className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6 transition-colors hover:border-[var(--color-brand)]/40"
           >
             <h4 className="font-display text-lg font-semibold">Partnerships</h4>
             <p className="mt-2 text-sm text-[var(--color-ink)]/80">
@@ -207,6 +203,7 @@ export default function CompanyPage() {
         </div>
       </section>
 
+      <FinalCta />
       <Footer />
     </main>
   );

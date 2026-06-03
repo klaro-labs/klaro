@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { SectionHeader } from "@/components/klaro/SectionHeader";
 
 export const metadata: Metadata = {
@@ -12,10 +13,10 @@ export const metadata: Metadata = {
 type Status = "live" | "wip" | "next" | "later";
 
 const STATUS_META: Record<Status, { label: string; color: string }> = {
-  live: { label: "Live testnet", color: "var(--color-brand)" },
-  wip: { label: "In progress", color: "#F5B100" },
-  next: { label: "Next up", color: "#7280A0" },
-  later: { label: "Later", color: "#C0C5D0" },
+  live: { label: "Live testnet", color: "var(--color-klaro-orange)" },
+  wip: { label: "In progress", color: "var(--color-klaro-gold)" },
+  next: { label: "Next up", color: "var(--color-muted)" },
+  later: { label: "Later", color: "var(--color-line-2)" },
 };
 
 const ITEMS: {
@@ -150,14 +151,14 @@ export default function RoadmapPage() {
   }));
 
   return (
-    <main className="bg-[var(--color-paper)] text-[var(--color-ink)]">
+    <main className="bg-[var(--color-bg-warm)] text-[var(--color-ink)]">
       <Nav />
-      <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-12">
+      <section className="klaro-container w-full pt-24 pb-12">
         <SectionHeader
           eyebrow="Roadmap"
           title={
             <>
-              Now, next, later.
+              In progress, next, later.
               <br />
               <span className="text-[var(--color-brand)]">No vapor.</span>
             </>
@@ -166,7 +167,7 @@ export default function RoadmapPage() {
         />
       </section>
 
-      <section className="mx-auto w-full max-w-[1200px] px-6 pb-24">
+      <section className="klaro-container w-full pb-24">
         {grouped
           .filter(({ items }) => items.length > 0)
           .map(({ status, items }) => (
@@ -187,7 +188,7 @@ export default function RoadmapPage() {
                 {items.map((it) => (
                   <article
                     key={it.title}
-                    className="rounded-2xl border border-[var(--color-ink)]/10 bg-white p-5"
+                    className="rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5"
                   >
                     <div className="flex items-baseline justify-between">
                       <h3 className="font-display text-base font-semibold">
@@ -207,6 +208,7 @@ export default function RoadmapPage() {
           ))}
       </section>
 
+      <FinalCta />
       <Footer />
     </main>
   );

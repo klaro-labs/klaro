@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { listTeam } from "@/lib/repo/team";
 import { relativeTime } from "@/lib/money";
@@ -25,6 +28,15 @@ const ROLE_TONE: Record<string, "live" | "info" | "neutral" | "sim"> = {
   ReadOnly: "neutral",
 };
 
+/** Informative access-level label per role — the role-description card badge
+ *  used to render the literal word "role" (meaningless, color-only). */
+const ROLE_ACCESS: Record<string, string> = {
+  Owner: "Full access",
+  Admin: "All operations",
+  Member: "Limited",
+  ReadOnly: "View only",
+};
+
 export default async function TeamPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
@@ -34,9 +46,7 @@ export default async function TeamPage() {
     <div className="mx-auto w-full max-w-[1100px] px-4 py-6 md:px-6 md:py-10">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Team &amp; roles
-          </p>
+          <Eyebrow>Team &amp; roles</Eyebrow>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             Team
           </h1>
@@ -61,7 +71,7 @@ export default async function TeamPage() {
           >
             <div className="flex items-center justify-between">
               <span className="font-medium">{role}</span>
-              <Badge tone={ROLE_TONE[role]}>role</Badge>
+              <Badge tone={ROLE_TONE[role]}>{ROLE_ACCESS[role]}</Badge>
             </div>
             <p className="mt-2 text-xs text-[var(--color-ink-muted)]">{desc}</p>
           </div>
@@ -74,12 +84,11 @@ export default async function TeamPage() {
       >
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="text-[var(--color-ink-muted)]">Email address</span>
-          <input
+          <Input
             name="email"
             type="email"
             required
             placeholder="teammate@company.com"
-            className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
@@ -87,19 +96,16 @@ export default async function TeamPage() {
           <select
             name="role"
             defaultValue="Member"
-            className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+            className="h-11 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
           >
             <option>Admin</option>
             <option>Member</option>
             <option>ReadOnly</option>
           </select>
         </label>
-        <button
-          type="submit"
-          className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-        >
+        <Button type="submit" size="sm">
           Invite
-        </button>
+        </Button>
       </form>
 
       <h2 className="mt-10 mb-3 font-display text-xl font-semibold">Members</h2>
@@ -158,22 +164,19 @@ export default async function TeamPage() {
                       <label className="block text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
                         Change role
                       </label>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <select
                           name="role"
                           defaultValue={m.role}
-                          className="flex-1 rounded border border-[var(--color-line)] px-2 py-1 text-xs"
+                          className="h-9 flex-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
                         >
                           <option>Admin</option>
                           <option>Member</option>
                           <option>ReadOnly</option>
                         </select>
-                        <button
-                          type="submit"
-                          className="rounded bg-[var(--color-ink)] px-2 py-1 text-xs font-medium text-white hover:bg-black"
-                        >
+                        <Button type="submit" size="sm" className="px-3">
                           Save
-                        </button>
+                        </Button>
                       </div>
                     </form>
                     <form
@@ -184,7 +187,7 @@ export default async function TeamPage() {
                     >
                       <button
                         type="submit"
-                        className="w-full rounded border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-medium text-rose-900 hover:bg-rose-100"
+                        className="w-full rounded-lg border border-[color-mix(in_oklab,var(--color-danger)_30%,transparent)] bg-[color-mix(in_oklab,var(--color-danger)_8%,white)] px-3 py-2 text-xs font-medium text-[var(--color-danger)] transition-colors hover:bg-[color-mix(in_oklab,var(--color-danger)_14%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-danger)] focus-visible:ring-offset-1"
                       >
                         Remove from team
                       </button>

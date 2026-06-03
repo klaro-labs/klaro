@@ -1,4 +1,7 @@
 import { LPNav } from "@/components/klaro/LPNav";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { requireLp } from "@/lib/auth";
 import { shortAddress } from "@/lib/money";
 import {
@@ -57,9 +60,7 @@ export default async function LPSettingsPage() {
       <LPNav entityName={entityName} />
       <section className="mx-auto w-full max-w-[900px] px-6 py-10">
         <header className="mb-8">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Settings
-          </p>
+          <Eyebrow>Settings</Eyebrow>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             Account & preferences
           </h1>
@@ -86,18 +87,15 @@ export default async function LPSettingsPage() {
                 Rotate to a new wallet
               </span>
               <div className="flex gap-3">
-                <input
+                <Input
                   name="nextWallet"
                   required
                   placeholder="0x…"
-                  className="flex-1 rounded border border-[var(--color-line)] px-3 py-2 font-mono outline-none focus:border-[var(--color-brand)]"
+                  className="flex-1 font-mono"
                 />
-                <button
-                  type="submit"
-                  className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-                >
+                <Button type="submit" size="sm">
                   Rotate
-                </button>
+                </Button>
               </div>
               <span className="text-[11px] text-[var(--color-ink-subtle)]">
                 Recorded immediately as your payout wallet. (Production adds a
@@ -162,12 +160,14 @@ export default async function LPSettingsPage() {
           </p>
           <div className="border-t border-[var(--color-line)] px-6 py-4">
             <form action={beginExitAction}>
-              <button
+              <Button
                 type="submit"
-                className="rounded border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-900 hover:bg-rose-100"
+                variant="secondary"
+                size="sm"
+                className="border-[color-mix(in_oklab,var(--color-danger)_30%,transparent)] text-[var(--color-danger)] ring-[color-mix(in_oklab,var(--color-danger)_30%,transparent)] hover:bg-[color-mix(in_oklab,var(--color-danger)_8%,white)]"
               >
                 Begin LP exit flow
-              </button>
+              </Button>
             </form>
           </div>
         </Section>
@@ -194,22 +194,30 @@ function Section({
 }
 
 /**
- * A submit button styled as an on/off pill. The enclosing <form> carries the
- * hidden inputs + server action; clicking flips the persisted value. Rendered
- * as a real submit (not JS state) so it works without client hydration.
+ * A submit button styled as a real on/off switch (track + sliding knob). The
+ * enclosing <form> carries the hidden inputs + server action; clicking flips
+ * the persisted value. Rendered as a real submit (not JS state) so it works
+ * without client hydration, and carries a focus-visible ring + aria-pressed so
+ * it's keyboard-accessible on these account-mutating controls.
  */
 function Toggle({ on }: { on: boolean }) {
   return (
     <button
       type="submit"
+      role="switch"
       aria-pressed={on}
-      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+      aria-label={on ? "On" : "Off"}
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1 ${
         on
-          ? "border-[var(--color-brand)]/30 bg-[var(--color-brand-soft)] text-[var(--color-brand)] hover:bg-[var(--color-brand)]/15"
-          : "border-[var(--color-line)] text-[var(--color-ink-muted)] hover:bg-[var(--color-bg)]"
+          ? "bg-[var(--color-brand)]"
+          : "bg-[var(--color-line)] hover:bg-[var(--color-line-2)]"
       }`}
     >
-      {on ? "On" : "Off"}
+      <span
+        className={`inline-block size-5 transform rounded-full bg-white shadow-sm transition-transform ${
+          on ? "translate-x-[22px]" : "translate-x-0.5"
+        }`}
+      />
     </button>
   );
 }

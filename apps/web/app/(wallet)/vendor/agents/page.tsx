@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { keccak256, stringToBytes } from "viem";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { supabaseLive } from "@/lib/env";
 import { mockListAgents, type AgentJobStatus } from "@/lib/mockData";
@@ -60,9 +63,7 @@ export default async function VendorAgentsPage({
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Agent jobs · 6-state lifecycle
-            </p>
+            <Eyebrow>Agent jobs · 6-state lifecycle</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               My agent jobs
             </h1>
@@ -108,7 +109,7 @@ export default async function VendorAgentsPage({
               name="agentId"
               defaultValue={preselected?.agentId ?? ""}
               required
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+              className="h-11 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
             >
               <option value="">— pick —</option>
               {agents.map((a) => (
@@ -121,14 +122,13 @@ export default async function VendorAgentsPage({
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">Budget (USDC)</span>
-            <input
+            <Input
               name="amount"
               type="number"
               min="1"
               step="1"
               required
               defaultValue="200"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm md:col-span-2">
@@ -141,16 +141,13 @@ export default async function VendorAgentsPage({
               minLength={10}
               rows={3}
               placeholder="Competitor pricing scan for our Q3 SaaS launch (top 5 incumbents)."
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
+              className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm transition-colors placeholder:text-[var(--color-ink-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
             />
           </label>
           <div className="md:col-span-2">
-            <button
-              type="submit"
-              className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-            >
+            <Button type="submit" size="sm">
               Open job
-            </button>
+            </Button>
           </div>
         </form>
 
@@ -218,9 +215,9 @@ export default async function VendorAgentsPage({
                       }}
                       className="mt-3"
                     >
-                      <button className="rounded bg-[var(--color-ink)] px-4 py-2 text-xs font-medium text-white hover:bg-black">
+                      <Button type="submit" size="sm">
                         {next.label} →
-                      </button>
+                      </Button>
                       <span className="ml-2 text-[10px] text-[var(--color-ink-subtle)]">
                         Records this stage in Klaro · on-chain{" "}
                         <code className="font-mono">

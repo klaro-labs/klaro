@@ -8,6 +8,7 @@ import { mockComputeBalances } from "@/lib/mockData";
 import { listInvoicesForVendor } from "@/lib/repo/invoices";
 import { isLiveOnChain } from "@/lib/arcClient";
 import { formatUSDC, relativeTime } from "@/lib/money";
+import { statusDotClass } from "@/lib/statusDot";
 
 /**
  * Vendor dashboard. AppShell (vendor/layout.tsx) renders the sidebar +
@@ -121,13 +122,7 @@ export default async function VendorOverviewPage({
                 >
                   <span
                     aria-hidden
-                    className={`mt-1.5 inline-block size-2 shrink-0 rounded-full ${
-                      inv.status === "PAID" || inv.status === "SETTLED"
-                        ? "bg-emerald-500"
-                        : inv.status === "ACCEPTED"
-                          ? "bg-[var(--color-brand)]"
-                          : "bg-amber-400"
-                    }`}
+                    className={`mt-1.5 inline-block size-2 shrink-0 rounded-full ${statusDotClass(inv.status)}`}
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">

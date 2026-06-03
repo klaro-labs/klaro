@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/klaro/Logo";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { Pill } from "@/components/ui/Pill";
 import {
   saveBusinessBasicsAction,
@@ -233,22 +235,17 @@ export default function OnboardingPage() {
 
         {/* Desktop nav */}
         <div className="mt-6 hidden items-center justify-between md:flex">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={onBack}
             disabled={step === 1}
-            className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-ink)] disabled:opacity-40"
           >
             ← Back
-          </button>
-          <button
-            type="button"
-            onClick={onContinue}
-            disabled={pending}
-            className="h-11 rounded-pill bg-[var(--color-ink)] px-6 text-sm font-medium text-white transition-all duration-150 hover:bg-black active:scale-[0.97] disabled:opacity-60"
-          >
+          </Button>
+          <Button type="button" onClick={onContinue} disabled={pending}>
             {pending ? "Saving…" : step < 4 ? "Continue" : "Open workspace"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -257,22 +254,22 @@ export default function OnboardingPage() {
         className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-6 pt-3 pb-[max(env(safe-area-inset-bottom),16px)] md:hidden"
       >
         <div className="flex items-center justify-between gap-3">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={onBack}
             disabled={step === 1}
-            className="text-sm font-medium text-[var(--color-muted)] disabled:opacity-40"
           >
             ← Back
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={onContinue}
             disabled={pending}
-            className="h-11 flex-1 rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white disabled:opacity-60"
+            className="flex-1"
           >
             {pending ? "Saving…" : step < 4 ? "Continue" : "Open workspace"}
-          </button>
+          </Button>
         </div>
       </div>
     </main>
@@ -281,8 +278,6 @@ export default function OnboardingPage() {
 
 // ─── Step bodies ────────────────────────────────────────────────────────
 
-const INPUT =
-  "mt-1.5 h-11 w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-bg)] px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-klaro-orange)]";
 const LABEL =
   "block text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]";
 
@@ -316,26 +311,26 @@ function BusinessStep({ form, update, onBlur }: StepProps) {
       />
       <div>
         <label htmlFor="ob-name" className={LABEL}>Business name</label>
-        <input
+        <Input
           id="ob-name"
           autoComplete="organization"
           value={form.displayName}
           onChange={(e) => update("displayName", e.target.value)}
           onBlur={onBlur}
           placeholder="Your legal business name"
-          className={INPUT}
+          className="mt-1.5 scroll-mb-28"
         />
       </div>
       <div>
         <label htmlFor="ob-country" className={LABEL}>Country</label>
-        <input
+        <Input
           id="ob-country"
           autoComplete="country-name"
           value={form.country}
           onChange={(e) => update("country", e.target.value)}
           onBlur={onBlur}
           placeholder="ISO country (e.g. IN, US, DE)"
-          className={INPUT}
+          className="mt-1.5 scroll-mb-28"
         />
       </div>
     </div>
@@ -373,13 +368,13 @@ function WalletStep({ form, update, onBlur }: StepProps) {
       {form.walletProvider === "external" && (
         <div>
           <label htmlFor="ob-addr" className={LABEL}>Wallet address</label>
-          <input
+          <Input
             id="ob-addr"
             value={form.walletAddress}
             onChange={(e) => update("walletAddress", e.target.value)}
             onBlur={onBlur}
             placeholder="0x…"
-            className={`${INPUT} font-mono`}
+            className="mt-1.5 scroll-mb-28 font-mono"
           />
         </div>
       )}
@@ -476,35 +471,35 @@ function FirstInvoiceStep({ form, update, onBlur }: StepProps) {
       />
       <div>
         <label htmlFor="ob-inv-email" className={LABEL}>Customer email</label>
-        <input
+        <Input
           id="ob-inv-email"
           type="email"
           value={form.invoiceEmail}
           onChange={(e) => update("invoiceEmail", e.target.value)}
           onBlur={onBlur}
           placeholder="you@klaro.so"
-          className={INPUT}
+          className="mt-1.5 scroll-mb-28"
         />
       </div>
       <div>
         <label htmlFor="ob-inv-amount" className={LABEL}>Amount (USDC)</label>
-        <input
+        <Input
           id="ob-inv-amount"
           inputMode="decimal"
           value={form.invoiceAmount}
           onChange={(e) => update("invoiceAmount", e.target.value)}
           onBlur={onBlur}
-          className={INPUT}
+          className="mt-1.5 scroll-mb-28"
         />
       </div>
       <div>
         <label htmlFor="ob-inv-desc" className={LABEL}>Description</label>
-        <input
+        <Input
           id="ob-inv-desc"
           value={form.invoiceDescription}
           onChange={(e) => update("invoiceDescription", e.target.value)}
           onBlur={onBlur}
-          className={INPUT}
+          className="mt-1.5 scroll-mb-28"
         />
       </div>
       <p className="text-xs text-[var(--color-muted)]">

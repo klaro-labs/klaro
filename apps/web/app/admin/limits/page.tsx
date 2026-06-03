@@ -66,23 +66,31 @@ function LimitGroup({
         <h2 className="font-display text-xl font-semibold">{title}</h2>
         <Badge tone="info">{items.length}</Badge>
       </div>
-      <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
-        {items.map((it) => (
-          <li
-            key={it.label}
-            className="grid grid-cols-1 gap-2 px-6 py-4 md:grid-cols-[1.5fr_auto_2fr] md:items-center"
-          >
-            <span className="font-medium">{it.label}</span>
-            <span className="font-mono text-sm">
-              <strong>{it.value}</strong>{" "}
-              <span className="text-[var(--color-ink-subtle)]">{it.unit}</span>
-            </span>
-            <span className="text-xs text-[var(--color-ink-muted)]">
-              {it.why}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 text-sm text-[var(--color-ink-muted)]">
+          No limits configured in this category.
+        </p>
+      ) : (
+        <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
+          {items.map((it) => (
+            <li
+              key={it.label}
+              className="grid grid-cols-1 gap-2 px-6 py-4 md:grid-cols-[1.5fr_auto_2fr] md:items-center"
+            >
+              <span className="font-medium">{it.label}</span>
+              <span className="font-mono text-sm">
+                <strong>{it.value}</strong>{" "}
+                <span className="text-[var(--color-ink-subtle)]">
+                  {it.unit}
+                </span>
+              </span>
+              <span className="text-xs text-[var(--color-ink-muted)]">
+                {it.why}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

@@ -4,20 +4,22 @@
  * License: CC-BY 4.0 (brand guide). Logo files: all rights reserved.
  */
 :root {
-  /* Brand */
-  --klaro-terracotta: #c7522a;
-  --klaro-terracotta-soft: #f6e7df;
-  --klaro-terracotta-deep: #8a3815;
+  /* Brand — mirrors the LF-4 AA-hardened values in globals.css.
+     Terracotta darkened #c7522a → #bc4c26 to clear WCAG AA (4.5:1) on white;
+     keep in sync with --color-klaro-orange and friends. */
+  --klaro-terracotta: #bc4c26;
+  --klaro-terracotta-soft: #faede5;
+  --klaro-terracotta-deep: #8e3414;
 
   /* Reserved — Stenn-Proof badge only */
   --klaro-gold: #f5b100;
   --klaro-gold-soft: #fdf3d6;
   --klaro-gold-deep: #8a6200;
 
-  /* Neutrals */
+  /* Neutrals — ink-subtle raised #a3a3a3 → #707070 for AA (LF-4). */
   --klaro-ink: #0a0a0a;
   --klaro-ink-muted: #6b6b6b;
-  --klaro-ink-subtle: #a3a3a3;
+  --klaro-ink-subtle: #707070;
   --klaro-line: #e5e5e5;
   --klaro-paper: #fafaf7;
 }

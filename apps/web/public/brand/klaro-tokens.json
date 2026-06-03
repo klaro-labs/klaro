@@ -1,9 +1,9 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "brand": {
-    "terracotta": { "$type": "color", "$value": "#C7522A" },
-    "terracotta-soft": { "$type": "color", "$value": "#F6E7DF" },
-    "terracotta-deep": { "$type": "color", "$value": "#8A3815" },
+    "terracotta": { "$type": "color", "$value": "#BC4C26" },
+    "terracotta-soft": { "$type": "color", "$value": "#FAEDE5" },
+    "terracotta-deep": { "$type": "color", "$value": "#8E3414" },
     "gold": { "$type": "color", "$value": "#F5B100", "$description": "Reserved — Stenn-Proof badge only" },
     "gold-soft": { "$type": "color", "$value": "#FDF3D6" },
     "gold-deep": { "$type": "color", "$value": "#8A6200" }
@@ -11,7 +11,7 @@
   "neutral": {
     "ink": { "$type": "color", "$value": "#0A0A0A" },
     "ink-muted": { "$type": "color", "$value": "#6B6B6B" },
-    "ink-subtle": { "$type": "color", "$value": "#A3A3A3" },
+    "ink-subtle": { "$type": "color", "$value": "#707070" },
     "line": { "$type": "color", "$value": "#E5E5E5" },
     "paper": { "$type": "color", "$value": "#FAFAF7" }
   },

@@ -2,11 +2,13 @@ import Link from "next/link";
 import type { Route } from "next";
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import {
   mockAdminQueueCounts,
   mockAdminQueueItems,
   type AdminQueueKind,
 } from "@/lib/mockData";
+import { SEVERITY_TONE } from "@/lib/severityTone";
 import { formatUSDC, shortAddress } from "@/lib/money";
 
 const QUEUES: { kind: AdminQueueKind; label: string; description: string }[] = [
@@ -68,13 +70,6 @@ const QUEUES: { kind: AdminQueueKind; label: string; description: string }[] = [
   },
 ];
 
-const SEVERITY_TONE: Record<string, "live" | "info" | "neutral" | "sim"> = {
-  low: "info",
-  med: "info",
-  high: "sim",
-  critical: "sim",
-};
-
 export default async function AdminQueuesPage() {
   const counts = await mockAdminQueueCounts();
   // Eager-load items for the top 4 queues to render inline; tail queues stay as cards.
@@ -96,9 +91,7 @@ export default async function AdminQueuesPage() {
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Operator console
-            </p>
+            <Eyebrow>Operator console</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               {QUEUES.length} queues
             </h1>
@@ -112,12 +105,12 @@ export default async function AdminQueuesPage() {
           <Badge tone={totalOpen > 0 ? "sim" : "live"}>{totalOpen} open</Badge>
         </div>
 
-        <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="mb-8 grid grid-cols-2 gap-3 [grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]">
           {QUEUES.map((q) => (
             <Link
               key={q.kind}
               href={`#${q.kind}`}
-              className="rounded-lg border border-[var(--color-line)] bg-white p-4 hover:border-[var(--color-brand)]"
+              className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-4 transition-colors hover:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
             >
               <div className="flex items-baseline justify-between">
                 <span className="text-sm font-medium">{q.label}</span>
@@ -144,7 +137,7 @@ export default async function AdminQueuesPage() {
                   Queue empty. Daemon writes here in live mode.
                 </p>
               ) : (
-                <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
+                <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
                   {items.map((it) => (
                     <li
                       key={it.id}

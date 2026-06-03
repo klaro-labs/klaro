@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { SectionHeader } from "@/components/klaro/SectionHeader";
 
 export const metadata: Metadata = {
@@ -112,9 +113,9 @@ const SECTIONS = [
 
 export default function DocsLandingPage() {
   return (
-    <main className="bg-[var(--color-paper)] text-[var(--color-ink)]">
+    <main className="bg-[var(--color-bg-warm)] text-[var(--color-ink)]">
       <Nav />
-      <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-12">
+      <section className="klaro-container w-full pt-24 pb-12">
         <Link
           href={"/resources" as Route}
           className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-ink-muted)] hover:text-[var(--color-brand)]"
@@ -139,13 +140,13 @@ export default function DocsLandingPage() {
       </section>
 
       {SECTIONS.map((s) => (
-        <section key={s.title} className="mx-auto w-full max-w-[1200px] px-6 py-10">
+        <section key={s.title} className="klaro-container w-full py-10">
           <h2 className="mb-6 font-display text-2xl font-semibold tracking-tight">{s.title}</h2>
           <div className="grid gap-3 md:grid-cols-2">
             {s.items.map((it) => {
               const ext = it.href.startsWith("http");
               const cls =
-                "block rounded-2xl border border-[var(--color-ink)]/10 bg-white p-5 transition-colors hover:border-[var(--color-brand)]/40";
+                "block rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5 transition-colors hover:border-[var(--color-brand)]/40";
               const content = (
                 <>
                   <h3 className="font-display text-base font-semibold">{it.label}</h3>
@@ -175,6 +176,7 @@ export default function DocsLandingPage() {
         </section>
       ))}
 
+      <FinalCta />
       <Footer />
     </main>
   );

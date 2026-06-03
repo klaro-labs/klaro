@@ -17,6 +17,15 @@ type Phase =
   | "ok"
   | "error";
 
+// Human-readable button labels for each in-flight phase — we never surface the
+// raw state enum to users on this public demo.
+const PHASE_LABEL: Partial<Record<Phase, string>> = {
+  calling: "Calling agent…",
+  "402": "Payment required…",
+  signing: "Signing payment…",
+  retrying: "Retrying with signature…",
+};
+
 export function X402DemoClient({ agents }: { agents: AgentLite[] }) {
   const [selected, setSelected] = useState(agents[0]?.agentId ?? "");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -104,9 +113,7 @@ export function X402DemoClient({ agents }: { agents: AgentLite[] }) {
           }
           className="w-full rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:opacity-50"
         >
-          {phase === "idle" || phase === "ok" || phase === "error"
-            ? "Call agent →"
-            : phase}
+          {PHASE_LABEL[phase] ?? "Call agent →"}
         </button>
       </div>
 
@@ -115,7 +122,7 @@ export function X402DemoClient({ agents }: { agents: AgentLite[] }) {
         <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm">
           {steps.length === 0 ? (
             <li className="list-none text-[var(--color-ink-subtle)]">
-              Click "Call agent" to start.
+              Press Call agent to start the flow.
             </li>
           ) : (
             steps.map((s, i) => (

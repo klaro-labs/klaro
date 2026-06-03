@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { CheckIcon } from "@/components/ui/CheckIcon";
 
 /** Copy-to-clipboard for the hosted invoice URL. Audit fix (loop iter 13):
  * vendor detail previously had just a `<Link>` — no copy affordance — so
@@ -27,12 +29,14 @@ export function ShareInvoiceLink({ url }: { url: string }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={copy}
-      className="inline-flex items-center gap-1.5 rounded border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs font-medium hover:border-[var(--color-brand)]"
-    >
-      {copied ? "Copied ✓" : "Copy link"}
-    </button>
+    <Button type="button" variant="secondary" size="sm" onClick={copy}>
+      {copied ? (
+        <>
+          <CheckIcon className="size-4" /> Copied
+        </>
+      ) : (
+        "Copy link"
+      )}
+    </Button>
   );
 }

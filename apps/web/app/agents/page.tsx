@@ -2,7 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
+import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { buttonVariants } from "@/components/ui/Button";
 import { mockListAgents } from "@/lib/mockData";
 import { formatUSDC, shortAddress } from "@/lib/money";
 
@@ -28,9 +31,7 @@ export default async function AgentsMarketplacePage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Agent marketplace · ERC-8004 + ERC-8183
-            </p>
+            <Eyebrow>Agent marketplace · ERC-8004 + ERC-8183</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Agents on Klaro
             </h1>
@@ -64,7 +65,10 @@ export default async function AgentsMarketplacePage() {
                     {shortAddress(a.owner)}
                   </div>
                 </div>
-                <Badge tone={CATEGORY_TONE[a.category]}>{a.category}</Badge>
+                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                  <Badge tone="sim">Sample</Badge>
+                  <Badge tone={CATEGORY_TONE[a.category]}>{a.category}</Badge>
+                </div>
               </div>
               <p className="mt-3 text-sm text-[var(--color-ink-muted)]">
                 {a.description}
@@ -83,7 +87,7 @@ export default async function AgentsMarketplacePage() {
                 </div>
                 <Link
                   href={`/vendor/agents?hire=${a.agentId}`}
-                  className="rounded bg-[var(--color-ink)] px-3 py-1.5 text-xs font-medium text-white hover:bg-black"
+                  className={buttonVariants({ size: "sm" })}
                 >
                   Hire →
                 </Link>
@@ -115,6 +119,7 @@ export default async function AgentsMarketplacePage() {
           ))}
         </ul>
       </section>
+      <FinalCta />
       <Footer />
     </main>
   );

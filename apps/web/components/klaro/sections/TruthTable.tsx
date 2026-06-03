@@ -168,7 +168,7 @@ export function TruthTable() {
         </div>
 
         <div className="overflow-x-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[520px] text-sm">
             <thead className="sr-only">
               <tr>
                 <th>Feature</th>

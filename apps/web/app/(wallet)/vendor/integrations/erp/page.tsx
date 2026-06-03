@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 
 /**
@@ -56,10 +57,10 @@ const CONNECTORS: Connector[] = [
   },
 ];
 
-const STATUS_STYLE: Record<Connector["status"], string> = {
-  live: "bg-emerald-100 text-emerald-800",
-  beta: "bg-blue-100 text-blue-800",
-  planned: "bg-stone-100 text-stone-700",
+const STATUS_TONE: Record<Connector["status"], "live" | "info" | "neutral"> = {
+  live: "live",
+  beta: "info",
+  planned: "neutral",
 };
 
 export default async function ErpIntegrationsPage() {
@@ -71,9 +72,7 @@ export default async function ErpIntegrationsPage() {
       <section className="mx-auto w-full max-w-[900px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              ERP integrations
-            </p>
+            <Eyebrow>ERP integrations</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Sync invoices to your accounting stack
             </h1>
@@ -83,7 +82,7 @@ export default async function ErpIntegrationsPage() {
               receipt back so reconciliation stays automatic.
             </p>
           </div>
-          <Badge tone="sim">Access pending</Badge>
+          <Badge tone="sim">In development</Badge>
         </div>
 
         <ul className="space-y-3">
@@ -98,11 +97,9 @@ export default async function ErpIntegrationsPage() {
                     <span className="font-display text-lg font-semibold">
                       {c.name}
                     </span>
-                    <span
-                      className={`inline-flex rounded-pill px-3 py-1 text-xs font-medium ${STATUS_STYLE[c.status]}`}
-                    >
+                    <Badge tone={STATUS_TONE[c.status]} className="capitalize">
                       {c.status}
-                    </span>
+                    </Badge>
                   </div>
                   <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
                     {c.detail}
@@ -120,10 +117,10 @@ export default async function ErpIntegrationsPage() {
               <button
                 type="button"
                 disabled
-                title="Connector access pending"
+                title="Connector in development"
                 className="mt-4 cursor-not-allowed rounded-pill bg-[var(--color-ink)] px-4 py-2 text-xs font-medium text-white opacity-50"
               >
-                Connect (access pending)
+                Connect (coming soon)
               </button>
             </li>
           ))}

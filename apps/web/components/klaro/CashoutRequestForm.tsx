@@ -83,14 +83,14 @@ export function CashoutRequestForm({
             step="0.01"
             value={amountDollars}
             onChange={(e) => setAmountDollars(e.target.value)}
-            className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2 font-display text-2xl font-semibold tracking-tight focus:border-[var(--color-brand)] focus:outline-none"
+            className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2 font-display text-2xl font-semibold tracking-tight focus-visible:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
           />
         </Field>
         <Field label="Corridor">
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
-            className="h-[46px] rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 text-sm focus:border-[var(--color-brand)] focus:outline-none"
+            className="h-[46px] rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 text-sm focus-visible:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
           >
             {CORRIDORS.map((c) => (
               <option key={c.code} value={c.currency}>

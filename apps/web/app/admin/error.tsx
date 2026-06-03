@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 export default function AdminError({
   error,
   reset,
@@ -9,9 +11,7 @@ export default function AdminError({
 }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg)] px-6 text-center text-[var(--color-ink)]">
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-        Admin · error
-      </p>
+      <Eyebrow>Admin · error</Eyebrow>
       <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
         Couldn&apos;t load that.
       </h1>
@@ -19,16 +19,10 @@ export default function AdminError({
         {error.message}
       </p>
       <div className="mt-8 flex gap-3">
-        <button
-          onClick={reset}
-          className="rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium text-white hover:opacity-90"
-        >
+        <Button variant="primary" onClick={reset}>
           Try again
-        </button>
-        <Link
-          href="/admin"
-          className="rounded-full border border-[var(--color-ink)]/20 bg-white px-5 py-2.5 text-sm font-medium hover:border-[var(--color-ink)]/40"
-        >
+        </Button>
+        <Link href="/admin" className={buttonVariants({ variant: "secondary" })}>
           Admin home
         </Link>
       </div>

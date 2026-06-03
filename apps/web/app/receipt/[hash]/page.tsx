@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { Logo } from "@/components/klaro/Logo";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { CheckIcon } from "@/components/ui/CheckIcon";
 import { formatUSDC, shortAddress, relativeTime } from "@/lib/money";
 // dual-mode via repo.
 import { getInvoice } from "@/lib/repo/invoices";
@@ -57,29 +60,29 @@ export default async function PublicReceiptPage({
   const invoiceId = invoice?.id ?? receiptRow?.invoiceId ?? null;
 
   return (
-    <>
+    <main className="min-h-screen bg-[var(--color-ink)] text-white">
       {/* ─── MOBILE (<md) — designer 05-01 ─── */}
-      <main className="min-h-screen bg-[var(--color-ink)] px-5 pt-5 pb-10 text-white md:hidden">
+      <div className="px-5 pt-5 pb-10 md:hidden">
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="text-sm font-medium text-[var(--color-brand)]"
+            className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-brand)]"
           >
-            ‹ Done
+            <ChevronLeft className="size-4" aria-hidden /> Done
           </Link>
         </div>
 
         <div className="mt-8 flex justify-center">
           <span className="inline-flex items-center gap-2 rounded-pill bg-amber-100 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-amber-800 ring-1 ring-amber-300">
-            <span className="grid size-4 place-items-center rounded-full bg-[var(--color-gold)] text-[10px] text-white">
-              ✓
+            <span className="grid size-4 place-items-center rounded-full bg-[var(--color-gold)] text-white">
+              <CheckIcon className="size-3" />
             </span>
             Stenn-Proof · {isLive ? "Verified on Arc" : "Simulated"}
           </span>
         </div>
 
         {amount !== null && (
-          <p className="mt-8 text-center font-display text-5xl font-semibold tracking-tight">
+          <p className="mt-8 text-center font-display text-[clamp(2rem,9vw,3rem)] font-semibold tracking-tight tabular-nums">
             {formatUSDC(amount)}
           </p>
         )}
@@ -127,30 +130,30 @@ export default async function PublicReceiptPage({
             ? "Anyone with the hash can verify this."
             : "Anyone with the hash can inspect this demo preview."}
         </p>
-      </main>
+      </div>
 
       {/* ─── DESKTOP (≥md) — verified panel ─── */}
-      <main className="hidden min-h-screen bg-[var(--color-ink)] text-white md:block">
+      <div className="hidden md:block">
         <header className="border-b border-white/10">
           <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-6">
-            <div className="text-white">
-              <Logo size={20} />
-            </div>
+            <Logo size={20} tone="dark" />
             <div className="flex items-center gap-2">
               {isLive && exists ? (
                 <Badge tone="live">Verified on Arc</Badge>
               ) : (
                 <Badge tone="sim">Simulated · contracts not deployed</Badge>
               )}
-              <Badge tone="verified">✓ Stenn-Proof</Badge>
+              <Badge tone="verified">
+                <CheckIcon className="size-3.5" /> Stenn-Proof
+              </Badge>
             </div>
           </div>
         </header>
 
         <section className="mx-auto w-full max-w-3xl px-6 py-12">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/55">
+          <Eyebrow tone="gold">
             {isLive ? "Public on-chain receipt" : "Simulated receipt preview"}
-          </p>
+          </Eyebrow>
           <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">
             Receipt {shortAddress(hashHex)}
           </h1>
@@ -236,8 +239,8 @@ export default async function PublicReceiptPage({
             on any site.
           </p>
         </section>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 

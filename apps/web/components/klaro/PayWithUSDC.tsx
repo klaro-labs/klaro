@@ -13,6 +13,8 @@ import {
 import { arcTestnet } from "wagmi/chains";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { CheckIcon } from "@/components/ui/CheckIcon";
+import { shortAddress } from "@/lib/money";
 import { ConnectWalletButton } from "./ConnectWalletButton";
 import {
   INVOICE_ESCROW_ABI,
@@ -43,6 +45,27 @@ import type { Hex } from "@/lib/types";
  */
 
 type Phase = "idle" | "signing" | "approving" | "sending" | "settled" | "error";
+
+/**
+ * Map raw wallet/RPC error strings to calm, buyer-facing copy. The raw message
+ * is scary developer output ("execution reverted", JSON-RPC codes, nonce/gas
+ * internals) and must never reach the checkout alert — it stays in the console
+ * for support. Mirrors PayFromLink.humanize.
+ */
+function humanizePaymentError(msg: string): string {
+  const m = msg.toLowerCase();
+  if (/rejected|denied|user/.test(m))
+    return "You cancelled the request. Try again when ready.";
+  if (/insufficient funds|exceeds balance|insufficient/.test(m))
+    return "Your wallet doesn't have enough to cover the payment and gas.";
+  if (/nonce|replacement|already known/.test(m))
+    return "A previous transaction is still pending. Wait for it to clear, then retry.";
+  if (/timeout|timed out|network|fetch|connection/.test(m))
+    return "Network hiccup reaching the chain. Check your connection and retry.";
+  if (/chain|network mismatch|wrong/.test(m))
+    return "Your wallet is on the wrong network. Switch to Arc testnet and retry.";
+  return "The payment couldn't be completed. Please try again.";
+}
 
 export function PayWithUSDC({
   invoiceId,
@@ -178,13 +201,15 @@ export function PayWithUSDC({
       setTimeout(() => router.push(`/receipt/${invoiceId}`), 1800);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Payment failed.";
+      // Keep the raw message in the console for support; surface calm copy.
+      console.error("PayWithUSDC", err);
       // Distinguish user-cancelled signature vs real failure.
       if (/rejected|denied|user/i.test(msg)) {
         setPhase("idle");
         setError("You cancelled the signature. Try again when ready.");
       } else {
         setPhase("error");
-        setError(msg);
+        setError(humanizePaymentError(msg));
       }
     }
   }
@@ -192,14 +217,21 @@ export function PayWithUSDC({
   // ─── Phase 4: settled ─────────────────────────────
   if (phase === "settled") {
     return (
-      <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-        <p className="font-medium">✓ Payment submitted.</p>
+      <div className="rounded-md border border-[color-mix(in_oklab,var(--color-success)_30%,transparent)] bg-[color-mix(in_oklab,var(--color-success)_10%,transparent)] p-4 text-sm text-[var(--color-ink)]">
+        <p className="flex items-center gap-1.5 font-medium text-[var(--color-success)]">
+          <CheckIcon className="size-4" /> Payment submitted.
+        </p>
         {hash ? (
-          <p className="mt-1 font-mono text-xs break-all text-emerald-700">
-            {hash}
+          <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+            Transaction{" "}
+            <span className="font-mono text-[var(--color-ink)]">
+              {shortAddress(hash)}
+            </span>
           </p>
         ) : null}
-        <p className="mt-2 text-xs">Redirecting to your receipt…</p>
+        <p className="mt-2 text-xs text-[var(--color-ink-muted)]">
+          Redirecting to your receipt…
+        </p>
       </div>
     );
   }
@@ -270,7 +302,7 @@ export function PayWithUSDC({
       </div>
 
       {error ? (
-        <div className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200">
+        <div className="rounded-md bg-[color-mix(in_oklab,var(--color-danger)_10%,transparent)] px-3 py-2 text-sm text-[var(--color-danger)] ring-1 ring-inset ring-[color-mix(in_oklab,var(--color-danger)_30%,transparent)]">
           {error}
         </div>
       ) : null}
@@ -310,8 +342,9 @@ function WrongChainSwitch() {
         manually in the wallet UI and reload.
       </RecoveryHint>
       {error && (
-        <p className="text-[11px] leading-relaxed text-rose-600">
-          Switch failed: {error.message}
+        <p className="text-[11px] leading-relaxed text-[var(--color-danger)]">
+          Couldn&apos;t switch networks automatically. Change it to{" "}
+          {arcTestnet.name} in your wallet and reload.
         </p>
       )}
     </div>

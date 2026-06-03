@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/klaro/Logo";
+import { Button } from "@/components/ui/Button";
 import {
   sendEmailMagicLink,
   signInWithGoogleUrl,
@@ -137,10 +138,11 @@ export default function SignInPage() {
         />
 
         <div className="mt-8 space-y-3">
-          <button
+          <Button
             type="button"
+            variant="primary"
             onClick={handleGoogle}
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white hover:bg-black"
+            className="w-full"
           >
             <svg aria-hidden viewBox="0 0 24 24" className="size-[18px]">
               <path
@@ -161,7 +163,7 @@ export default function SignInPage() {
               />
             </svg>
             Continue with Google
-          </button>
+          </Button>
 
           {passkeyOn && (
             <button
@@ -190,13 +192,14 @@ export default function SignInPage() {
               placeholder="you@company.com"
               className="h-11 w-full rounded-pill border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-4 text-sm placeholder:text-[var(--color-ink-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--color-ink)]"
             />
-            <button
+            <Button
               type="submit"
+              variant="secondary"
               disabled={status === "sending"}
-              className="flex h-11 w-full items-center justify-center gap-3 rounded-pill border border-[var(--color-line)] bg-[var(--color-bg-elevated)] text-sm font-medium hover:bg-[var(--color-bg)] disabled:opacity-50"
+              className="w-full"
             >
               {status === "sending" ? "Sending…" : "Send magic link"}
-            </button>
+            </Button>
           </form>
 
           {status === "sent" && (

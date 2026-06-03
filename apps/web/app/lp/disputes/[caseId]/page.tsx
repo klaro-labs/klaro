@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getDispute } from "@/lib/repo/disputes";
 import { getCashout } from "@/lib/repo/cashouts";
 import { getCurrentLpSession } from "@/lib/auth";
@@ -41,15 +42,14 @@ export default async function LPDisputeDetailPage({
   const youArePart = Boolean(
     lp && lpAssignedCashout && lpAssignedCashout.lpId === lp.lpId,
   );
-  // The vendor-side claimant gate runs in app/vendor/disputes/[caseId];
-  // this page is LP-defender-only so the YOU AS CLAIMANT label is
-  // never shown for the LP-vs-vendor cashout flow.
-  const youAreClaimant = false;
+  // This page is LP-defender-only: the LP is always the respondent in the
+  // LP-vs-vendor cashout flow (the vendor-side claimant view lives in
+  // app/vendor/disputes/[caseId]), so the heading reads "{claimant} vs. you".
   if (!youArePart) {
     return (
       <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
         <LPNav entityName={entityName} />
-        <section className="mx-auto w-full max-w-[900px] px-6 py-10">
+        <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
           <h1 className="font-display text-3xl font-semibold">Not your case</h1>
           <p className="mt-3 text-sm text-[var(--color-ink-muted)]">
             This dispute isn&apos;t routed to your LP entity. If you think this
@@ -70,7 +70,7 @@ export default async function LPDisputeDetailPage({
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
       <LPNav entityName={entityName} />
-      <section className="mx-auto w-full max-w-[900px] px-6 py-10">
+      <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <Link
           href="/lp/disputes"
           className="text-xs text-[var(--color-brand)] hover:underline"
@@ -80,12 +80,11 @@ export default async function LPDisputeDetailPage({
 
         <header className="mt-3 mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+            <Eyebrow>
               Case {shortAddress(c.caseId)} · {c.context}
-            </p>
+            </Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-              {youAreClaimant ? "You vs." : "vs. you · "}{" "}
-              {youAreClaimant ? c.respondentLabel : c.claimantLabel}
+              {c.claimantLabel} vs. you
             </h1>
             <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
               Opened {relativeTime(c.openedAt)} · {formatUSDC(c.amountUsdc)} at

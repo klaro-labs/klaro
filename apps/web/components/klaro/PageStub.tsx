@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Nav } from "./Nav";
 
 /**
@@ -13,11 +14,9 @@ export function PageStub({ title, eta }: { title: string; eta: string }) {
   return (
     <main>
       <Nav />
-      <section className="mx-auto w-full max-w-[1200px] px-6 pt-24 pb-32">
-        <p className="mb-3 text-xs font-medium tracking-[0.18em] uppercase text-[var(--color-brand)]">
-          In progress
-        </p>
-        <h1 className="font-display text-5xl font-semibold tracking-tight">
+      <section className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] pt-24 pb-24">
+        <Eyebrow className="mb-3">In progress</Eyebrow>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] font-semibold tracking-tight">
           {title}
         </h1>
         <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">

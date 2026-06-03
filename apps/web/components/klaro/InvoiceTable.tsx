@@ -48,57 +48,94 @@ export function InvoiceTable({ invoices }: { invoices: Invoice[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
-      <table className="w-full text-sm">
-        <thead className="border-b border-[var(--color-line)] bg-[var(--color-bg)]">
-          <tr className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            <th className="px-5 py-3 text-left">Customer</th>
-            <th className="px-5 py-3 text-left">Description</th>
-            <th className="px-5 py-3 text-right">Amount</th>
-            <th className="px-5 py-3 text-left">Status</th>
-            <th className="px-5 py-3 text-right">Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoices.map((inv) => (
-            <tr
-              key={inv.id}
-              className="border-b border-[var(--color-line)] last:border-b-0 hover:bg-[var(--color-bg)]"
-            >
-              <td className="px-5 py-3">
-                <Link
-                  href={`/vendor/invoices/${inv.id}`}
-                  className="font-medium text-[var(--color-ink)] hover:text-[var(--color-brand)]"
-                >
-                  {inv.customer.name ?? inv.customer.email}
-                </Link>
-                <p className="text-xs text-[var(--color-ink-subtle)]">
-                  {inv.customer.email}
-                </p>
-              </td>
-              <td className="px-5 py-3 text-[var(--color-ink-muted)]">
-                {inv.lineItems[0]?.description ?? "—"}
-              </td>
-              <td className="px-5 py-3 text-right font-medium text-[var(--color-ink)]">
-                {formatUSDC(inv.amount)}
-              </td>
-              <td className="px-5 py-3">
-                <Badge tone={STATUS_TONE[inv.status]}>
-                  {STATUS_LABEL[inv.status]}
-                </Badge>
-                {inv.status === "SETTLED" && inv.receiptHash ? (
-                  <p className="mt-1 text-[11px] font-mono text-[var(--color-ink-subtle)]">
-                    {shortAddress(inv.receiptHash)}
-                  </p>
-                ) : null}
-              </td>
-              <td className="px-5 py-3 text-right text-xs text-[var(--color-ink-muted)]">
-                {relativeTime(inv.createdAt)}
-              </td>
+    <>
+      {/* Desktop table */}
+      <div className="hidden overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] md:block">
+        <table className="w-full text-sm">
+          <thead className="border-b border-[var(--color-line)] bg-[var(--color-bg)]">
+            <tr className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+              <th className="px-5 py-3 text-left">Customer</th>
+              <th className="px-5 py-3 text-left">Description</th>
+              <th className="px-5 py-3 text-right">Amount</th>
+              <th className="px-5 py-3 text-left">Status</th>
+              <th className="px-5 py-3 text-right">Created</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {invoices.map((inv) => (
+              <tr
+                key={inv.id}
+                className="border-b border-[var(--color-line)] last:border-b-0 hover:bg-[var(--color-bg)]"
+              >
+                <td className="px-5 py-3">
+                  <Link
+                    href={`/vendor/invoices/${inv.id}`}
+                    className="font-medium text-[var(--color-ink)] hover:text-[var(--color-brand)]"
+                  >
+                    {inv.customer.name ?? inv.customer.email}
+                  </Link>
+                  <p className="text-xs text-[var(--color-ink-subtle)]">
+                    {inv.customer.email}
+                  </p>
+                </td>
+                <td className="px-5 py-3 text-[var(--color-ink-muted)]">
+                  {inv.lineItems[0]?.description ?? "—"}
+                </td>
+                <td className="px-5 py-3 text-right font-medium text-[var(--color-ink)]">
+                  {formatUSDC(inv.amount)}
+                </td>
+                <td className="px-5 py-3">
+                  <Badge tone={STATUS_TONE[inv.status]}>
+                    {STATUS_LABEL[inv.status]}
+                  </Badge>
+                  {inv.status === "SETTLED" && inv.receiptHash ? (
+                    <p className="mt-1 text-[11px] font-mono text-[var(--color-ink-subtle)]">
+                      {shortAddress(inv.receiptHash)}
+                    </p>
+                  ) : null}
+                </td>
+                <td className="px-5 py-3 text-right text-xs text-[var(--color-ink-muted)]">
+                  {relativeTime(inv.createdAt)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile list */}
+      <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] md:hidden">
+        {invoices.map((inv) => (
+          <li key={inv.id}>
+            <Link
+              href={`/vendor/invoices/${inv.id}`}
+              className="flex items-start justify-between gap-3 px-4 py-3"
+            >
+              <span
+                aria-hidden
+                className={`mt-1 inline-block size-2 shrink-0 rounded-full ${
+                  inv.status === "PAID" || inv.status === "SETTLED"
+                    ? "bg-emerald-500"
+                    : inv.status === "ACCEPTED"
+                      ? "bg-[var(--color-brand)]"
+                      : "bg-amber-400"
+                }`}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">
+                  {inv.customer.name ?? inv.customer.email}
+                </p>
+                <p className="font-mono text-[11px] text-[var(--color-ink-subtle)]">
+                  {STATUS_LABEL[inv.status]} · {relativeTime(inv.createdAt)}
+                </p>
+              </div>
+              <p className="font-mono text-sm font-medium">
+                {formatUSDC(inv.amount)}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

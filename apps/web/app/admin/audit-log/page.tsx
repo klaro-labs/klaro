@@ -1,5 +1,6 @@
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { recent } from "@/lib/auditLog";
 import { listRecentAudit } from "@/lib/repo/auditLogs";
 import { relativeTime } from "@/lib/money";
@@ -56,12 +57,12 @@ export default async function AdminAuditLogPage() {
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <header className="mb-6 flex items-end justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
+            <Eyebrow>
               Operator audit ·{" "}
               {live
                 ? "durable audit_logs (append-only, last 200)"
                 : "in-memory ring (dev fallback, last 200)"}
-            </p>
+            </Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Audit log
             </h1>
@@ -76,12 +77,12 @@ export default async function AdminAuditLogPage() {
         </header>
 
         {entries.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-white p-8 text-sm text-[var(--color-ink-muted)]">
+          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 text-sm text-[var(--color-ink-muted)]">
             Nothing recorded yet this session. Audit entries appear as operator
             actions fire.
           </p>
         ) : (
-          <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
+          <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
             {entries.map((e) => (
               <li
                 key={e.id}
@@ -93,7 +94,10 @@ export default async function AdminAuditLogPage() {
                 <code className="font-mono text-xs font-medium text-[var(--color-brand)]">
                   {e.action}
                 </code>
-                <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
+                <span
+                  className="truncate font-mono text-xs text-[var(--color-ink-subtle)]"
+                  title={e.subjectId}
+                >
                   {e.subjectId}
                 </span>
                 {e.reasonHash ? (

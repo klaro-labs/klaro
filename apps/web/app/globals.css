@@ -44,6 +44,7 @@
 
   /* Legacy aliases — keep working until every consumer is migrated. */
   --color-bg-elevated: #FFFFFF;
+  --color-paper: #FAFAF7; /* alias of --color-bg-warm; ~6 nav pages still reference it. */
   --color-ink-muted: #6B6B6B;
   --color-ink-subtle: #707070; /* LF-4: was #A3A3A3 (~2.3:1, fails AA). #707070 clears 4.5:1 on white AND the warm #FAFAF7 surfaces (4.7:1). */
   --color-brand: #BC4C26; /* LF-4: mirror --color-klaro-orange darken for AA. */
@@ -87,6 +88,19 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
+  }
+
+  /* iOS Safari auto-zooms when a focused field's font is <16px. Pin form
+     controls to 16px on phones, then restore the design-spec size at ≥768px
+     where auto-zoom no longer applies. Covers every text-sm form field. */
+  input, select, textarea {
+    font-size: 16px;
+  }
+
+  @media (min-width: 768px) {
+    input, select, textarea {
+      font-size: inherit;
+    }
   }
 
   h1, h2, h3, h4 {

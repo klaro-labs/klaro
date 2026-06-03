@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { buttonVariants } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentLpSession } from "@/lib/auth";
 
 const OUTCOMES = [
@@ -48,9 +50,7 @@ export default async function LPDisputesExplainerPage() {
       <section className="mx-auto w-full max-w-[800px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Step 6 of 6 · Disputes
-            </p>
+            <Eyebrow>Step 6 of 6 · Disputes</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Defending a dispute
             </h1>
@@ -96,32 +96,34 @@ export default async function LPDisputesExplainerPage() {
         <h2 className="mt-8 mb-3 font-display text-xl font-semibold">
           Slash schedule (testnet preview)
         </h2>
-        <table className="w-full overflow-hidden rounded-lg border border-[var(--color-line)] bg-white text-sm">
-          <thead className="border-b border-[var(--color-line)] text-xs uppercase text-[var(--color-ink-subtle)]">
-            <tr>
-              <th className="px-4 py-2 text-left">Offense</th>
-              <th className="px-4 py-2 text-left">Slash</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-[var(--color-line)]">
-              <td className="px-4 py-2">First proven bad-proof</td>
-              <td className="px-4 py-2">5% of stake</td>
-            </tr>
-            <tr className="border-b border-[var(--color-line)]">
-              <td className="px-4 py-2">Second within 90 days</td>
-              <td className="px-4 py-2">15% + 7-day suspension</td>
-            </tr>
-            <tr className="border-b border-[var(--color-line)]">
-              <td className="px-4 py-2">Timeout without explanation</td>
-              <td className="px-4 py-2">10% + tier downgrade</td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2">Fraud (KYB confirmed)</td>
-              <td className="px-4 py-2">100% + revoke</td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="overflow-x-auto rounded-lg border border-[var(--color-line)] bg-white">
+          <table className="w-full min-w-[420px] text-sm">
+            <thead className="border-b border-[var(--color-line)] text-xs uppercase text-[var(--color-ink-subtle)]">
+              <tr>
+                <th className="px-4 py-2 text-left">Offense</th>
+                <th className="px-4 py-2 text-left">Slash</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-[var(--color-line)]">
+                <td className="px-4 py-2">First proven bad-proof</td>
+                <td className="px-4 py-2">5% of stake</td>
+              </tr>
+              <tr className="border-b border-[var(--color-line)]">
+                <td className="px-4 py-2">Second within 90 days</td>
+                <td className="px-4 py-2">15% + 7-day suspension</td>
+              </tr>
+              <tr className="border-b border-[var(--color-line)]">
+                <td className="px-4 py-2">Timeout without explanation</td>
+                <td className="px-4 py-2">10% + tier downgrade</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2">Fraud (KYB confirmed)</td>
+                <td className="px-4 py-2">100% + revoke</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <p className="mt-6 text-xs text-[var(--color-ink-subtle)]">
           Planned live behavior: every slash anchors a{" "}
@@ -132,7 +134,7 @@ export default async function LPDisputesExplainerPage() {
 
         <Link
           href="/lp/queue"
-          className="mt-8 inline-block rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
+          className={`mt-8 ${buttonVariants({ variant: "secondary", size: "sm" })}`}
         >
           ← Back to queue
         </Link>

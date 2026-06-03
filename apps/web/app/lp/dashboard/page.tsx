@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { buttonVariants } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { mockListClaimableCashouts } from "@/lib/mockData";
 import { getCurrentLpSession } from "@/lib/auth";
+import { getLpReputation } from "@/lib/repo/lpReputation";
 import { formatUSDC, relativeTime } from "@/lib/money";
 
 export const metadata = { title: "Dashboard · Klaro LP" };
@@ -38,6 +41,9 @@ export default async function LPDashboardPage() {
 
   const lpClaims = open.length;
   const queueVolume = open.reduce((sum, c) => sum + c.usdcAmount, 0n);
+  // Show the real reputation score when it exists (dev/mock returns null →
+  // honest "—" instead of a permanently-blank KPI sitting next to live tiles).
+  const rep = await getLpReputation(lp.lpId);
 
   return (
     <main className="min-h-screen bg-[var(--color-bg)] text-[var(--color-ink)]">
@@ -45,9 +51,7 @@ export default async function LPDashboardPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <header className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              LP dashboard · {entityName}
-            </p>
+            <Eyebrow>LP dashboard · {entityName}</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Today
             </h1>
@@ -67,7 +71,11 @@ export default async function LPDashboardPage() {
             value={formatUSDC(queueVolume)}
             unit="USDC"
           />
-          <Tile label="Reputation" value="—" unit="demo" />
+          <Tile
+            label="Reputation"
+            value={rep ? String(rep.score) : "—"}
+            unit={rep ? "score" : "no data yet"}
+          />
         </div>
 
         <h2 className="mb-3 font-display text-xl font-semibold">
@@ -100,7 +108,10 @@ export default async function LPDashboardPage() {
                 <Badge tone="info">LOCKED</Badge>
                 <Link
                   href="/lp/queue"
-                  className="rounded border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs hover:border-[var(--color-brand)]"
+                  className={buttonVariants({
+                    variant: "secondary",
+                    size: "sm",
+                  })}
                 >
                   Claim
                 </Link>

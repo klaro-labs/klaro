@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { type LPApplicationStatus } from "@/lib/mockData";
 import { getCurrentLpSession } from "@/lib/auth";
 import { formatUSDC, relativeTime } from "@/lib/money";
@@ -76,9 +77,7 @@ export default async function LPHomePage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Liquidity provider portal
-            </p>
+            <Eyebrow>Liquidity provider portal</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Welcome, {lp.legalEntityName ?? "Klaro LP"}
             </h1>

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CashoutRequestForm } from "@/components/klaro/CashoutRequestForm";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { CheckIcon } from "@/components/ui/CheckIcon";
 import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo; mockComputeBalances
 // kept (pure reducer, no IO).
@@ -10,12 +12,8 @@ import { listInvoicesForVendor } from "@/lib/repo/invoices";
 import { listForVendor as listCashoutsForVendor } from "@/lib/repo/cashouts";
 import { formatUSDC, relativeTime, shortAddress } from "@/lib/money";
 import { CORRIDORS, getCorridor, formatPayout } from "@/lib/corridors";
-import type { CashoutStatus, CashoutOrder } from "@/lib/types";
-import {
-  confirmReceivedAction,
-  createMobileCashoutAction,
-  openDisputeAction,
-} from "./actions";
+import type { CashoutStatus, CashoutOrder, Hex } from "@/lib/types";
+import { confirmReceivedAction, openDisputeAction } from "./actions";
 
 /**
  * /vendor/cashout — request panel + history list.
@@ -92,7 +90,8 @@ export default async function CashoutPage({
           <MobileCashout
             active={activeCashout}
             last={lastCashout}
-            balance={balances.available}
+            cashoutable={balances.cashoutable}
+            vendorWallet={vendor.wallet}
             forceQuote={query.new === "1"}
           />
         </div>
@@ -102,9 +101,7 @@ export default async function CashoutPage({
         <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
           <header>
             <div className="flex items-center gap-2">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-brand)]">
-                Cashout
-              </p>
+              <Eyebrow>Cashout</Eyebrow>
               {simulated ? <Badge tone="sim">Simulated session</Badge> : null}
             </div>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
@@ -222,15 +219,24 @@ export default async function CashoutPage({
 function MobileCashout({
   active,
   last,
-  balance,
+  cashoutable,
+  vendorWallet,
   forceQuote,
 }: {
   active?: CashoutOrder;
   last?: CashoutOrder;
-  balance: bigint;
+  cashoutable: bigint;
+  vendorWallet?: Hex | null;
   forceQuote: boolean;
 }) {
-  if (forceQuote) return <MobileCashoutQuote balance={balance} last={last} />;
+  if (forceQuote)
+    return (
+      <MobileCashoutQuote
+        cashoutable={cashoutable}
+        vendorWallet={vendorWallet}
+        last={last}
+      />
+    );
   if (
     !active &&
     last &&
@@ -239,7 +245,14 @@ function MobileCashout({
       last.status === "RESOLVED_VENDOR_PAYS")
   )
     return <MobileCashoutComplete order={last} />;
-  if (!active) return <MobileCashoutQuote balance={balance} last={last} />;
+  if (!active)
+    return (
+      <MobileCashoutQuote
+        cashoutable={cashoutable}
+        vendorWallet={vendorWallet}
+        last={last}
+      />
+    );
   if (active.status === "DISPUTED")
     return <MobileCashoutDispute order={active} />;
   if (active.status === "PROOF_SUBMITTED")
@@ -250,86 +263,38 @@ function MobileCashout({
 }
 
 function MobileCashoutQuote({
-  balance,
+  cashoutable,
+  vendorWallet,
   last,
 }: {
-  balance: bigint;
+  cashoutable: bigint;
+  vendorWallet?: Hex | null;
   last?: CashoutOrder;
 }) {
   return (
     <>
       <header>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-          Cashout
-        </p>
+        <Eyebrow>Cashout</Eyebrow>
         <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
           New request
         </h1>
       </header>
 
-      <article className="mt-5 rounded-2xl border border-[var(--color-line)] bg-white p-5">
-        <div className="flex items-start justify-between gap-3">
-          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-ink-subtle)]">
-            You give
-          </p>
-          <p className="text-xs text-[var(--color-ink-muted)]">
-            Balance {formatUSDC(balance).split(".")[0]}
-          </p>
-        </div>
-        <div className="mt-1 flex items-baseline justify-between">
-          <p className="font-display text-4xl font-semibold tracking-tight">
-            2,400
-          </p>
-          <span className="inline-flex items-center gap-1 rounded-pill border border-[var(--color-line)] bg-white px-3 py-1 text-xs font-medium">
-            USDC ›
-          </span>
-        </div>
-      </article>
-
-      <div className="my-2 flex justify-center">
-        <span className="grid size-8 place-items-center rounded-full border border-[var(--color-line)] bg-white text-sm text-[var(--color-ink-subtle)]">
-          ↓
-        </span>
+      {/* Real quote builder — the same live amount + corridor + computed-payout
+          form the desktop renders. No fabricated amounts or payout account:
+          "You receive" is derived from quoteCashout() as the vendor types. */}
+      <div className="mt-5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5">
+        <p className="mb-4 text-sm">
+          <span className="text-[var(--color-ink-subtle)]">
+            Available to cash out:
+          </span>{" "}
+          <strong className="font-display text-lg">
+            {formatUSDC(cashoutable)}
+          </strong>
+        </p>
+        <CashoutRequestForm maxUsdc={cashoutable} vendorWallet={vendorWallet} />
       </div>
 
-      <article className="rounded-2xl border border-[var(--color-line)] bg-white p-5">
-        <div className="flex items-start justify-between gap-3">
-          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-ink-subtle)]">
-            You receive
-          </p>
-          <p className="text-xs text-[var(--color-ink-muted)]">
-            To HDFC ••5421
-          </p>
-        </div>
-        <div className="mt-1 flex items-baseline justify-between">
-          <p className="font-display text-4xl font-semibold tracking-tight text-[var(--color-brand)]">
-            ₹2,01,360
-          </p>
-          <span className="inline-flex items-center gap-1 rounded-pill border border-[var(--color-line)] bg-white px-3 py-1 text-xs font-medium">
-            INR ›
-          </span>
-        </div>
-      </article>
-
-      <p className="mt-3 rounded-xl border border-[var(--color-line)] bg-white px-4 py-3 text-xs text-[var(--color-ink-muted)]">
-        Rate · partner · fee 0.4% &nbsp;&nbsp;{" "}
-        <span className="font-mono text-[var(--color-ink)]">83.90</span> ·
-        expires 4:48
-      </p>
-
-      <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
-        Testnet — no INR actually moves. Our payout partner submits a
-        confirmation; at mainnet this becomes a real bank reference.
-      </p>
-
-      <form action={createMobileCashoutAction}>
-        <button
-          type="submit"
-          className="mt-6 flex h-12 w-full items-center justify-center rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white hover:bg-black"
-        >
-          Confirm simulated cashout
-        </button>
-      </form>
       {last && (
         <p className="mt-3 text-center text-xs text-[var(--color-ink-subtle)]">
           Last cashout: {formatUSDC(last.usdcAmount)} ·{" "}
@@ -344,9 +309,7 @@ function MobileCashoutLive({ order }: { order: CashoutOrder }) {
   return (
     <>
       <header>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-          Order {shortAddress(order.id)}
-        </p>
+        <Eyebrow>Order {shortAddress(order.id)}</Eyebrow>
         <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
           Cashout in flight
         </h1>
@@ -428,9 +391,7 @@ function MobileCashoutLive({ order }: { order: CashoutOrder }) {
 function MobileCashoutConfirm({ order }: { order: CashoutOrder }) {
   return (
     <>
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-        Confirm payment
-      </p>
+      <Eyebrow>Confirm payment</Eyebrow>
       <h1 className="mt-1 font-display text-3xl font-semibold leading-tight tracking-tight">
         Did you receive ₹
         {(Number(order.payoutMinor) / 100).toLocaleString("en-IN")}?
@@ -489,9 +450,9 @@ function MobileCashoutComplete({ order }: { order: CashoutOrder }) {
       <div className="grid place-items-center">
         <span
           aria-hidden
-          className="grid size-20 place-items-center rounded-full bg-emerald-100 text-3xl text-emerald-700"
+          className="grid size-20 place-items-center rounded-full bg-emerald-100 text-emerald-700"
         >
-          ✓
+          <CheckIcon className="size-9" />
         </span>
       </div>
       <h1 className="mt-6 text-center font-display text-3xl font-semibold tracking-tight">
@@ -557,9 +518,7 @@ async function MobileCashoutDispute({ order }: { order: CashoutOrder }) {
   return (
     <>
       <header>
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-          Dispute
-        </p>
+        <Eyebrow>Dispute</Eyebrow>
         <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
           Case opened
         </h1>

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
+import { CheckIcon } from "@/components/ui/CheckIcon";
 import {
   confirmReceivedAction,
   openDisputeAction,
@@ -46,7 +47,13 @@ export function CashoutActions({
           disabled={pending}
           onClick={() => run(confirmReceivedAction)}
         >
-          {simulated ? "Complete simulation" : "✓ I received INR"}
+          {simulated ? (
+            "Complete simulation"
+          ) : (
+            <>
+              <CheckIcon className="size-4" /> I received INR
+            </>
+          )}
         </Button>
         <Button
           size="lg"

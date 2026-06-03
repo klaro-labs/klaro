@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentLpSession } from "@/lib/auth";
 import { shortAddress } from "@/lib/money";
 import { submitDocsAction, approveApplicationAction } from "../actions";
@@ -56,7 +58,7 @@ export default async function LPDocsPage() {
           </p>
           <Link
             href="/lp"
-            className="mt-6 inline-flex rounded-full border border-[var(--color-ink)]/20 bg-white px-5 py-2.5 text-sm font-medium hover:border-[var(--color-ink)]/40"
+            className={`mt-6 ${buttonVariants({ variant: "secondary", size: "sm" })}`}
           >
             Back to LP overview
           </Link>
@@ -82,9 +84,7 @@ export default async function LPDocsPage() {
       <section className="mx-auto w-full max-w-[800px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Step 2 of 6 · Documents
-            </p>
+            <Eyebrow>Step 2 of 6 · Documents</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Upload KYB docs
             </h1>
@@ -110,7 +110,13 @@ export default async function LPDocsPage() {
                   <div className="font-medium">{d.label}</div>
                   <div className="text-xs text-[var(--color-ink-subtle)]">
                     {d.required ? "Required" : "Optional"} ·{" "}
-                    {docsSubmitted ? "Uploaded ✓" : "PDF · max 10MB"}
+                    {docsSubmitted ? (
+                      <span className="text-[var(--color-success)]">
+                        Uploaded
+                      </span>
+                    ) : (
+                      "PDF · max 10MB"
+                    )}
                   </div>
                 </div>
                 <button
@@ -154,16 +160,20 @@ export default async function LPDocsPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             {!docsSubmitted ? (
               <form action={submitDocsAction}>
-                <button className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black">
+                <Button type="submit" size="sm">
                   Submit for Klaro review →
-                </button>
+                </Button>
               </form>
             ) : isOperator ? (
               <form action={approveApplicationAction}>
                 <input type="hidden" name="lpId" value={lp.lpId} />
-                <button className="rounded bg-[var(--color-klaro-orange-deep)] px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="bg-[var(--color-klaro-orange-deep)] hover:bg-[var(--color-klaro-orange-deep)]/90"
+                >
                   [Operator] Approve application
-                </button>
+                </Button>
               </form>
             ) : (
               <p className="text-sm text-[var(--color-ink-muted)]">

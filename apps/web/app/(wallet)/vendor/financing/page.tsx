@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo; mockComputeBalances kept (pure).
 import { mockComputeBalances } from "@/lib/mockData";
@@ -35,9 +36,7 @@ export default async function FinancingPage() {
       <section className="mx-auto w-full max-w-[1000px] px-6 py-10">
         <div className="mb-3 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Financing readiness
-            </p>
+            <Eyebrow>Financing readiness</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Readiness preview
             </h1>
@@ -130,7 +129,7 @@ export default async function FinancingPage() {
             title="Available soon when the PDF export route is live"
             className="mt-3 cursor-not-allowed rounded border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium text-[var(--color-ink-subtle)] opacity-60"
           >
-            Download PDF preview · arrives M12
+            Download PDF preview (coming soon)
           </button>
         </div>
       </section>

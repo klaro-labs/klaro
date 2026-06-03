@@ -12,10 +12,8 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const [amount, setAmount] = useState("4200");
-  const [description, setDescription] = useState(
-    "Backend dev — Week 17 sprint",
-  );
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [dueDays, setDueDays] = useState("14");
@@ -53,7 +51,8 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
           required
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2 font-display text-3xl font-semibold tracking-tight focus:border-[var(--color-brand)] focus:outline-none"
+          placeholder="0.00"
+          className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2 font-display text-3xl font-semibold tracking-tight focus-visible:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
         />
         <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
           {simulated
@@ -69,7 +68,7 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="e.g. Backend dev — Week 17 sprint"
-          className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-sm focus:border-[var(--color-brand)] focus:outline-none"
+          className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-base md:text-sm focus-visible:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
         />
       </Field>
 
@@ -81,7 +80,7 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
             value={customerEmail}
             onChange={(e) => setCustomerEmail(e.target.value)}
             placeholder="client@company.com"
-            className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-sm focus:border-[var(--color-brand)] focus:outline-none"
+            className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-base md:text-sm focus-visible:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
           />
         </Field>
         <Field label="Customer name (optional)">
@@ -90,7 +89,7 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
             placeholder="Acme Corp"
-            className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-sm focus:border-[var(--color-brand)] focus:outline-none"
+            className="w-full rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-base md:text-sm focus-visible:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
           />
         </Field>
       </div>
@@ -102,7 +101,7 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
           max={365}
           value={dueDays}
           onChange={(e) => setDueDays(e.target.value)}
-          className="w-32 rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-sm focus:border-[var(--color-brand)] focus:outline-none"
+          className="w-32 rounded-md border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-base md:text-sm focus-visible:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1"
         />
       </Field>
 

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AdminNav } from "@/components/klaro/AdminNav";
 import { Badge } from "@/components/ui/Badge";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { StatTile } from "@/components/ui/StatTile";
 import { mockAdminQueueItems } from "@/lib/mockData";
 import { formatUSDC, shortAddress, relativeTime } from "@/lib/money";
 
@@ -17,9 +19,7 @@ export default async function AdminRiskHoldsPage() {
       <AdminNav />
       <section className="mx-auto w-full max-w-[1200px] px-6 py-10">
         <header className="mb-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-            Admin · Risk holds
-          </p>
+          <Eyebrow>Admin · Risk holds</Eyebrow>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
             Risk holds
           </h1>
@@ -31,23 +31,22 @@ export default async function AdminRiskHoldsPage() {
         </header>
 
         <div className="mb-8 grid gap-3 md:grid-cols-3">
-          <StatTile label="Frozen orders" count={frozen.length} tone="sim" />
+          <StatTile label="Frozen orders" value={String(frozen.length)} />
           <StatTile
             label="Locked-out vendors"
-            count={lockedOut.length}
-            tone="sim"
+            value={String(lockedOut.length)}
           />
-          <StatTile label="Sub-stake LPs" count={subStake.length} tone="info" />
+          <StatTile label="Sub-stake LPs" value={String(subStake.length)} />
         </div>
 
         {all.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-white p-8 text-sm text-[var(--color-ink-muted)]">
+          <p className="rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 text-sm text-[var(--color-ink-muted)]">
             No active holds. Daemon writes here when a cashout is frozen for
             verifier review, a vendor trips re-KYC, or an LP&apos;s stake drops
             below tier.
           </p>
         ) : (
-          <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
+          <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
             {all.map((it) => (
               <li
                 key={`${it.kind}-${it.id}`}
@@ -74,24 +73,5 @@ export default async function AdminRiskHoldsPage() {
         )}
       </section>
     </main>
-  );
-}
-
-function StatTile({
-  label,
-  count,
-  tone,
-}: {
-  label: string;
-  count: number;
-  tone: "sim" | "info" | "live";
-}) {
-  return (
-    <div className="rounded-lg border border-[var(--color-line)] bg-white p-5">
-      <div className="flex items-baseline justify-between">
-        <span className="text-sm font-medium">{label}</span>
-        <Badge tone={tone}>{count}</Badge>
-      </div>
-    </div>
   );
 }

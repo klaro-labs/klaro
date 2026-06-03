@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { vestedAmountFor, withdrawableAmountFor } from "@/lib/mockData";
 import { listStreams } from "@/lib/repo/retainerStreams";
@@ -30,9 +33,7 @@ export default async function RetainerPage() {
       <section className="mx-auto w-full max-w-[1100px] px-6 py-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-              Retainer streams
-            </p>
+            <Eyebrow>Retainer streams</Eyebrow>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               Retainer
             </h1>
@@ -73,58 +74,52 @@ export default async function RetainerPage() {
         >
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">Payer label</span>
-            <input
+            <Input
               name="payerLabel"
               required
               placeholder="Stellar Labs (client)"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">Payer wallet</span>
-            <input
+            <Input
               name="payerAddress"
               required
               placeholder="0x…"
               pattern="^0x[0-9a-fA-F]{40}$"
-              className="rounded border border-[var(--color-line)] px-3 py-2 font-mono outline-none focus:border-[var(--color-brand)]"
+              className="font-mono"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">
               Total amount (USDC)
             </span>
-            <input
+            <Input
               name="amount"
               type="number"
               min="1"
               step="1"
               required
               defaultValue="9000"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="text-[var(--color-ink-muted)]">
               Duration (days)
             </span>
-            <input
+            <Input
               name="days"
               type="number"
               min="1"
               max="365"
               required
               defaultValue="30"
-              className="rounded border border-[var(--color-line)] px-3 py-2 outline-none focus:border-[var(--color-brand)]"
             />
           </label>
           <div className="md:col-span-2">
-            <button
-              type="submit"
-              className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black"
-            >
+            <Button type="submit" size="sm">
               Generate stream request
-            </button>
+            </Button>
             <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
               Records the stream and starts the local vesting schedule. On-chain
               funding via{" "}
@@ -200,9 +195,9 @@ export default async function RetainerPage() {
                       }}
                       className="mt-4"
                     >
-                      <button className="rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white hover:bg-black">
+                      <Button type="submit" size="sm">
                         Withdraw {formatUSDC(wAvail)}
-                      </button>
+                      </Button>
                     </form>
                   )}
                   {!cancelled && (
@@ -213,7 +208,10 @@ export default async function RetainerPage() {
                       }}
                       className="mt-2"
                     >
-                      <button className="text-xs text-[var(--color-ink-subtle)] underline hover:text-red-700">
+                      <button
+                        type="submit"
+                        className="rounded-sm text-xs text-[var(--color-ink-subtle)] underline transition-colors hover:text-[var(--color-danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-danger)] focus-visible:ring-offset-1"
+                      >
                         Cancel stream (your vested $ stays yours)
                       </button>
                     </form>

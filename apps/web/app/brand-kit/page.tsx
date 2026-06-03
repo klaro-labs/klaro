@@ -180,7 +180,7 @@ function LogoTab() {
       <figure className="mt-5 overflow-hidden rounded-lg border border-[var(--color-line)]">
         <div className="grid place-items-center bg-[var(--color-ink)] px-6 py-16">
           <span className="inline-flex items-center gap-4">
-            <BrandMark size={80} inkFill="#ffffff" brandFill="#C7522A" />
+            <BrandMark size={80} inkFill="#ffffff" brandFill="var(--color-klaro-orange)" />
             <span className="font-display text-5xl font-semibold tracking-tight text-white">klaro</span>
           </span>
         </div>
@@ -214,13 +214,13 @@ function ColorTab() {
 
       <div className="space-y-5">
         <ColorCard
-          bg="#C7522A"
+          bg="#BC4C26"
           fg="#ffffff"
           eyebrow="Primary · Brand"
           name="Klaro terracotta"
-          hex="#C7522A"
-          rgb="199 82 42"
-          oklch="0.58 0.18 38"
+          hex="#BC4C26"
+          rgb="188 76 38"
+          oklch="0.56 0.15 38"
           note="Calls to action, links, accents, hero highlights. The brand's load-bearing colour."
         />
         <ColorCard
@@ -238,12 +238,12 @@ function ColorTab() {
             Neutrals
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-muted)]">
-            Warm-leaning grayscale. Backgrounds are tinted slightly off-white. Text never goes lower than #6B6B6B for accessibility.
+            Warm-leaning grayscale. Backgrounds are tinted slightly off-white. Body text never goes lighter than #6B6B6B, and secondary labels never lighter than #707070, for WCAG AA contrast.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3 md:grid-cols-5">
             <Swatch hex="#0A0A0A" label="Ink" />
             <Swatch hex="#6B6B6B" label="Ink · muted" />
-            <Swatch hex="#A3A3A3" label="Ink · subtle" />
+            <Swatch hex="#707070" label="Ink · subtle" />
             <Swatch hex="#E5E5E5" label="Line" />
             <Swatch hex="#FAFAF7" label="Paper" />
           </div>
