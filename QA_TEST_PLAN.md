@@ -1691,3 +1691,169 @@ existing `axe-contrast-scan.mjs`.
 > and cross-tenant paths, with the result verified against the source of truth (DB/on-chain), and a
 > CI gate that fails the moment a new surface appears untested."* Anything less is a sample, not a
 > cover.
+
+---
+---
+
+# PART II★ — ADVERSARIAL-AUDIT GAP CLOSURE (the Rabby-user UI / nav / wallet layer)
+
+> A 6-dimension adversarial audit (13 agents, against the real codebase, 2026-06-03) scored the
+> plan at **82%** and found **39 verified gaps** — every one grounded in a named source file —
+> precisely where a hands-on **Rabby-wallet user lives**: the wallet front-door and the navigation
+> chrome, NOT the protocol/outcome layer (which is strong). The audit's value: a route×contract
+> matrix can be "complete" while the everyday human journey — pressing ⌘K, the first-time
+> "Add Arc network to Rabby" popup, the wrong-wallet banner *before* any popup, reading whether a
+> mobile quote card is a live number or a designer placeholder — is untested. This section closes
+> all 39. Each is a REQUIRED check with its source-file anchor so a tester can find the exact
+> element. Run every box through the Part I rubrics (universal + per-screen visual) at BOTH
+> viewports. **The plan does not get to claim 100% until II★.1–II★.6 are green.**
+
+## II★.1 — NAVIGATION CHROME & GLOBAL UI ELEMENTS (every clickable nav surface a route-matrix misses)
+
+### ⌘K command palette — the most powerful vendor nav surface [P0]
+- [ ] `CommandPalette.tsx` (mounted in `AppShell.tsx`): open via **⌘K / Ctrl+K** AND the desktop "Search… ⌘K" pill AND the mobile magnifier; typing filters (e.g. "cash"→Cashout); **ArrowUp/Down + Enter** navigates; verify all 10 commands resolve to live routes (no dead link); **"New cashout" actually opens `/vendor/cashout?new=1`** (the new-cashout state, not bare `/vendor/cashout`); **ESC and backdrop-click** both close and restore focus. (🖥️ + 📱)
+
+### AppShell navigation chrome — sidebar / tabs / More-sheet / FAB / bell / sign-out [P0]
+- [ ] **Desktop:** click all **8 sidebar items**; the active one highlights (`aria-current`).
+- [ ] **Mobile:** tap all **5 bottom-tabs** (active state + the unread badge dot **only when `notifCount>0`**); tap the **+ FAB → `/vendor/invoices/new`**; open the **"More" bottom-sheet** (body-scroll locked) — **Links / Disputes / Team / Settings are reachable on mobile ONLY through this sheet** — tap each, then **X and backdrop both close it + restore focus**.
+- [ ] Tap the **notification bell** (desktop + mobile) → `/vendor/disputes`.
+- [ ] Tap **"Sign out"** → `POST /api/auth/signout` ends the session → `/signin`. *(src: `AppShell.tsx` sideItems/tabItems/moreItems/bell/FAB/sheet/sign-out form)*
+
+### Navigation reachability / orphan audit [P1]
+- [ ] For **every shipped `/vendor` route**, name the nav element OR in-page CTA that reaches it. **Flag every route reachable only by typed URL** — today: `bills, exports, transit, financing, retainer, delegations, agents, integrations/{erp,webhooks}, invoices/{import,recurring}` (none appear in AppShell or the ⌘K palette). For each, add a per-route note that it has **no nav entry point**, so QA never assumes the sidebar covers it.
+
+### Global footer — 18 internal links + 3 mailto + logo [P1]
+- [ ] `Footer.tsx` (every public page): all **18 links resolve** (no 404); the **3 `mailto:`** targets are exactly `hi@ / sales@ / security@klaro.so`; the **"klaro.so" wordmark + footer logo both → `/`**.
+
+### Mega-menu + mobile hamburger interaction details [P2]
+- [ ] `MegaMenu.tsx` / `Nav.tsx`: desktop hover opens the panel; a quick cursor cross-gap **keeps it open (140ms delay-out)**; moving away auto-closes; **ESC + outside-click** close; each menuitem routes; flat items **Pricing/Build/Company** + both header CTAs **"Sign in" + "Open klaro →" (both → `/signin`)**. Mobile hamburger: opens the sheet with **background scroll locked**; ESC, a link tap, and X each close it + restore scroll.
+
+### Cookie-consent banner — blocks the first interaction for every new visitor [P2]
+- [ ] `CookieConsent.tsx`: fresh profile/incognito → bottom-pinned bar on first load; **both "Essential only" and "Accept all" dismiss it**; choice persists in `localStorage('klaro.cookie.consent.v1')` so it stays gone on reload; on mobile it **docks below content without covering the primary CTA** (the QA-057 regression).
+
+### Exports page elements — date pickers + two distinct downloads [P2]
+- [ ] `ExportsClient.tsx`: set **From/To** → the row-set + the post-download summary line (count/total/uniqueCustomers) reflect the window; **"Download CSV"** → `klaro-tax-pack-<from>_<to>.csv`; **"Download JSON"** is a distinct second control → `klaro-audit-pack-*.json` (**valid JSON, not PDF** — correct any "PDF" wording); both **RLS-scoped to own data**.
+
+### Footer LocaleSwitcher [P3]
+- [ ] `LocaleSwitcher.tsx`: pick another locale → `klaro_locale` cookie written, page reloads, copy switches, selection persists next visit. **Caveat:** the full reload drops scroll/form state — flag if switched mid-flow.
+
+### `/account/privacy` legacy VendorNav inconsistency [P3]
+- [ ] `/account/privacy` renders the **legacy `VendorNav`** (Home/Invoices/Cashout/Reputation/Settings — different chrome than every other signed-in page's AppShell). Confirm its links all resolve and the user can return to the main vendor app, **or flag the nav inconsistency** for migration onto AppShell.
+
+## II★.2 — WALLET / RABBY INTERACTION LAYER (every popup, every reject, every edge a real signer hits)
+
+### First-time "Add Arc Testnet to Rabby" (`wallet_addEthereumChain`) [P0]
+- [ ] On `/i/[id]` (buyer) or `/vendor/cashout` (vendor), tap **"Switch to Arc Testnet"**:
+  - (a) **Arc NOT yet added** → Rabby shows the **Add-Network sheet** (name=Arc, RPC=`https://rpc.testnet.arc.network`, **chainId=5042002**, native symbol=USDC, ArcScan explorer) → approve → a **SECOND switch popup** → both approved → panel advances.
+  - (b) **Arc already added** → a single switch popup.
+  - (c) **switch REJECT** → "Switch failed: …" renders, no signing.
+  - (d) **wallet rejects the ADD** → since the app has **no `addEthereumChain` helper** (`ConnectWalletButton.tsx:46` only `switchChain`), assert the copy gives the user the RPC URL + chainId to paste manually — **flag if it only says "change it and reload."** *(src: PublishInvoiceOnChain / RequestCashoutOnChain / PayWithUSDC switch blocks; double-popup handled in `e2e/pb-publish.ts`)*
+
+### In-app wrong-wallet HARD-BLOCK banner (connected ≠ payout wallet), incl. `/vendor/links/new` [P1]
+- [ ] Connect **Rabby account #2 (NOT the payout wallet)** on publish / cashout / **link-create** → the amber/rose **"isn't this account's payout wallet" banner** renders showing **both** short-addresses, the action button is **DISABLED**, and clicking opens **NO wallet popup at all**; then **switch to the correct account in Rabby (no reload)** → banner clears + button re-enables (live account-switch recovery). *(`/vendor/links/new` mismatch banner in `LinkForm.tsx` is wholly uncovered today.)*
+
+### User-side insufficient GAS — the signer's own 18-dec native token [P1]
+- [ ] Connect a Rabby wallet funded with **exactly the amount** (zero gas headroom) → tap pay/lock → Rabby's popup shows the **18-dec NATIVE gas estimate** and the tx cannot-sign / fails honestly. The app's only guard is `balance(6-dec USDC) < amount` (`PayWithUSDC.tsx:92`) which **reserves nothing for gas** — assert the failure is an honest pre-warning, **not a raw Rabby gas-revert**. Reconcile the doc's "gas-in-USDC" wording (config line, I1/I7) with the **18-dec native** `arcTestnet` chain. *(All existing gas coverage — §16.2/§19.5/I4 — is the OPERATOR relayer wallet, never the end-user signer.)*
+
+### Allowance one-vs-two-popup (cashout) + buyer three-popup sequencing [P2]
+- [ ] **Cashout `RequestCashoutOnChain`:** (a) fresh wallet (zero allowance) → **TWO popups in order (approve → await receipt → lock)**, each label correct; (b) reject the **first (approve)** → "You cancelled the signature", no lock; (c) reject the **second (lock)** after approving → honest recover, and a **retry does NOT re-prompt approve** (allowance now sufficient → single popup) — proves the one-popup branch.
+- [ ] **Buyer `PayWithUSDC`:** enumerate the **three** popups as ordered steps — (1) **EIP-712 sign** (off-chain, no gas), (2) **approve USDC** (correct spender+amount), (3) **acceptAndPay** (correct contract+args); test **REJECT and STALL at EACH independently** with the specific recovery copy.
+
+### Connector selection / disconnect / reconnect lifecycle [P2]
+- [ ] `ConnectWalletButton.tsx` always uses `connectors[0]=injected`: (a) **desktop with no injected extension** → click "Connect wallet" → document what happens (likely nothing) and decide if the **WalletConnect QR** connector (registered in `Web3Provider` but unreachable from the UI) should be offered; (b) make the iOS WalletConnect rows actually **drive** the QR/deep-link; (c) connect → address pill + green dot → **disconnect** → button returns to "Connect wallet", any open pay panel falls back to the connect CTA (no stale signed state) → **reconnect** succeeds; assert the **"Opening wallet…"** pending state renders.
+
+### Account-switch MID-panel (Rabby switcher while a signing panel is open) [P2]
+- [ ] Connect account A on `/i/[id]` (or publish/cashout) with sufficient USDC, then **switch to account B (insufficient) via Rabby's switcher WITHOUT reload** → the panel **live-updates** to "Insufficient USDC" (disabled) and back when switching to A; on publish/cashout the **mismatch banner appears/clears live** and no stale address is used for the next signature. *(All four signing components read live `useAccount()`.)*
+
+### Vendor EIP-712 `LinkInvoiceAuthorization` sign — the only vendor-side typed-data sign [P2]
+- [ ] `/vendor/links/new` live mode (`LinkForm.tsx`): click **"Sign & create link →"** → Rabby shows the **typed-data sheet** (domain "Klaro Invoice" v1, verifyingContract=InvoiceEscrow, message=vendor/token/amount/linkId/authDeadline) → verify domain + amount + `authDeadline` match the form → approve → link persists **with the auth**; **reject** → "You cancelled the signature", no row; **wrong-account** → `walletMatches` banner blocks signing entirely. *(Plan previously treated link creation as a pure DB write.)*
+
+### Funding journey — "I have 0 USDC": faucet / MoonPay Card→USDC out-and-back [P2]
+- [ ] In the **insufficient-USDC** state: **"Get testnet USDC →"** opens the Circle faucet in a new tab (`target=_blank rel=noreferrer`); **"Card → USDC"** opens `/api/moonpay/buy` with the correct amount + redirect (both hrefs resolve). Journey: **connect with 0 USDC → fund externally → return → the balance re-fetches and Pay/Lock enables WITHOUT a hard reload**; test faucet rate-limit + wrong-network-funded recovery. *(No funding path exists on `/vendor/cashout` for the vendor's own wallet — flag it.)*
+
+### Exact reject / wrong-wallet / "simulated on testnet" copy in the live cashout component [P2]
+- [ ] `RequestCashoutOnChain.tsx`: Rabby-reject → **"You cancelled the signature. Try again when ready."**; the wrong-wallet banner correctly states the lock escrows from the **signing** wallet; wrong-chain → **"Switch to Arc Testnet"**; and the **"simulated on testnet — no real LP or fiat moves"** hint renders on the live lock screen with that exact wording.
+
+## II★.3 — READABLE-CONTENT HONESTY READS (read every single thing — and judge it)
+
+### Mobile cashout quote card — live-derived, NOT designer placeholders [P1]
+- [ ] `/vendor/cashout` mobile `MobileCashoutQuote`: You-give / You-receive / rate / fee / expiry must be **derived from the live `quoteCashout()`**, not the placeholders **2,400 / ₹2,01,360 / fee 0.4% / 83.90 / expires 4:48**; assert the displayed **fee % == (corridor.klaroFee + lpSpread)×100 from `corridors.ts` (≈0.7%, NOT 0.4%)** and payout == `formatPayout(quote)` for the entered amount.
+
+### `/status` "Illustrative" disclaimer prose [P1]
+- [ ] Read `/status` as a human: while every service row says "operational", the **"Illustrative — not yet live-monitored / targets, not real-time probes"** disclaimer must be present + prominent, and the **CCTP V2 row must not read as operational without the honest "inbound integration pending" caveat** (II.0). *(Plan's F2/II.B target only the probe wiring, never the visible paragraph.)*
+
+### Resolved-cashout badge semantics — who got paid [P2]
+- [ ] `/vendor/cashout` `STATUS_LABEL`: **`RESOLVED_LP_PAYS` reads as the vendor LOSING** ("Resolved · LP retained funds"); **`RESOLVED_VENDOR_PAYS` reads as refunded** ("Resolved · refunded to you"); the label must not be misreadable as the opposite outcome.
+
+### Corridor-status WORDING sweep across 3 surfaces [P2]
+- [ ] For each `CorridorStatus`, read the badge on `/product/cashout`, the `/vendor/cashout` list, AND the quote panel; the words must **agree per status**, and a USDC-native/live corridor must **never render as a bare "Live" chip** that reads as a completed fiat payout (QA-075). Map each rendered string back to `corridors.ts`.
+
+### Validation-error copy + unformatted $1B cap [P2]
+- [ ] Submit **0 / negative / NaN / Infinity / >$1B / "12.3.4"** (UI + API) and **read the returned message**: human-honest + actionable (no raw exception leak), and the cap renders **formatted ($1,000,000,000, not raw `1000000000`** that `money.ts` ships).
+
+### Mobile cashout confirm/complete/dispute prose [P2]
+- [ ] In each mobile cashout state read every line for honesty: SLA **"< 24h · usually 2h"** must not over-promise on testnet; **"Partner-submitted screenshot (tap to expand)"** placeholder must read as a demo, not a real artifact; the fallback **Demo-ref/UTR** must read as a **simulated** reference, never a real bank reference.
+
+### Legal-page testnet-honesty CLAIMS — accuracy, not just non-lorem [P2]
+- [ ] Read `/legal/terms` + `/legal/acceptable-use` + `/legal/disclosures`: the factual claims — **"unaudited at testnet", "not a bank / broker-dealer / money services business", "KYB mainnet-only / testnet permissionless"** — must be **accurate + mutually consistent** with the no-fiat-custody / simulated-INR posture named in pricing/trust (not merely non-lorem).
+
+### Pricing FAQ prose + compare-grid + disclaimer [P3]
+- [ ] Expand each of the **6 `/pricing` FAQ** answers + read the **"Klaro is not a bank…"** disclaimer + every compare-table cell; verify against code: **0.3% on-chain withholding** (corridors.ts + the live COP carve), settled-volume **excludes refunded/disputed/held**, "no hidden FX markup", and that **ERP "Tally/Xero read-only beta", retention 90d/2y/7y, SOC-2, 24×7 on-call** match the actual feature state — not aspirational prose.
+
+## II★.4 — AUTH FRONT-DOOR (match the LIVE UI, not the assumed one)
+
+### Google OAuth primary + passkey honestly-disabled [P1]
+- [ ] `/signin`: the **first, primary, full-width CTA is "Continue with Google"** → `/auth/callback?next=/vendor` → `/vendor`; session persists reload + new tab. **Magic-link is secondary.** The **passkey button is hard-OFF** — assert it is honestly disabled ("Passkey sign-in isn't available yet — use Google or magic link"), NOT a working register→assert login. *(Plan previously tested a passkey login that is intentionally off and skipped the actual primary CTA.)*
+
+### Onboarding 3 wallet branches + broken `/vendor?welcome=1` prefill [P1]
+- [ ] Onboarding step 2 — walk all three radios: (a) **Circle MPC** → Simulated label, no wallet recorded, later cashout blocks honestly; (b) **external paste** → the pasted address **MUST equal** the later-connected Rabby address or the cashout mismatch guard (`RequestCashoutOnChain.tsx:97`) fires; (c) **decide-later** → can still create/publish but is steered to Settings→Wallet before cashout.
+- [ ] Complete onboarding → land on **`/vendor?welcome=1`** → assert a welcome/first-invoice CTA renders **AND `/vendor/invoices/new` is pre-filled** with the step-4 email/amount/description; **if unimplemented, FLAG the broken promise** (step-4 copy claims a prefill that doesn't happen).
+
+## II★.5 — LP PATH RECONCILIATION (persona vs the real build)
+
+### `/lp/stake` is a NO-WALLET server-action form [P1]
+- [ ] **Tester note:** `/lp/stake` is a plain server-action form (LPStaking.register custody partner-pending) — **do NOT hunt for a Rabby connect/sign**; the persona step "connect Rabby to stake" is not implemented. Assert the honest partner-pending label renders **exactly at the Confirm-stake click** where a user expects a signature. The amount control is a **number input** (min 50, step 10), **disabled until APPROVED/STAKED**; the submit label is **"Confirm stake →"** when unstaked vs **"Update stake"** when STAKED; the 5 tier cards are presentational.
+
+### LP proof is daemon-advanced — no LP submit button [P3]
+- [ ] Clarify on `/lp/queue` + `/lp/walkthrough`: proof is **daemon/operator-advanced** on testnet (no LP proof-submit surface). Assert the pages are honest about this, then verify the **LP SEES the order flip to RELEASED** in their view once the daemon advances it.
+
+## II★.6 — COMBINATION-GRID EXPANSIONS (add these to §II.E — every blank is an untested combo)
+
+### Two live tabs, same record + same actor [P1]
+- [ ] Open the same invoice/cashout in **two tabs**, act in tab A (publish / confirm-receipt / pay), then submit the **stale tab B** without refreshing → the second action is a **clean idempotent no-op or honest "already done / state changed — refresh"**, never a double-execute or a 500. *(The §II.E2 "Back/refresh" column is single-tab; the multi-context table is multi-PARTY, not two tabs of one actor.)*
+
+### RBAC role-CHANGE mid-session re-gating [P1]
+- [ ] Owner demotes an **Admin → ReadOnly mid-session** → the demoted member's **next** createInvoice/cashout/dispute is refused (the gate re-reads the **live** role, not a stale session); inverse: a ReadOnly **promoted to Admin** can act without re-login.
+
+### Cashout confirm-vs-dispute FORK [P2]
+- [ ] At cashout **PROOF_SUBMITTED** the **vendor clicks Dispute (not Confirm)** → order **FREEZES** (no RELEASE; copy warns disputing freezes the order) → admin decide → resolveDispute pays the correct party. **Assert the LP is NOT paid while DISPUTED.**
+
+### Corridor switched after quote (stale quoteHash) [P2]
+- [ ] Cashout: pick **INR → quote → switch corridor (BRL/MXN/PHP/EUR) → lock** → the **stale quoteHash is rejected** (`quote_hash_mismatch`) and the new corridor forces a fresh quote with the correct per-currency klaroFee/lpSpread — never silently locking the new currency against the old INR fee.
+
+### Wallet rotation BETWEEN lock and release [P2]
+- [ ] Vendor locks a cashout (binds vendorWallet) → **rotates payout wallet in settings** → release fires → assert release pays the **wallet bound AT LOCK**, never the new wallet silently. Same for an **LP rotating payout wallet between claim and release**.
+
+### Invoice edit / cancel / void — probe + flag if absent [P2]
+- [ ] Probe explicitly for an invoice **edit/cancel/void** affordance: `invoices/new/actions.ts` exports only create + record-published; CANCELLED/REFUNDED labels render but REFUNDED is reachable **only via dispute→RefundProtocol**. **If no UI affordance ships, record it as a deliberate product gap** so coverage isn't silently assuming a control that doesn't exist; test whether an unpublished CREATED invoice can (or honestly cannot) be amended before publish.
+
+### Recurring fires while a prior instance is disputed [P2]
+- [ ] Create a recurring schedule → first instance disputed/churned → confirm the **next cron fire still mints (or is suppressed)** → attempt to **pause/cancel** the schedule and verify whether any such control exists; if no pause/cancel ships, **flag the missing control** rather than leaving the state untested.
+
+### Session-key REVOKE mid-agent-job [P3]
+- [ ] Issue a scoped session key → start an agent job the delegate advances → **revoke the key mid-flight** → confirm the delegate can no longer advance (or that the action is server-side gated regardless, with the honest "Circle enforcement pending" label acknowledged).
+
+### Webhook ORDERING (pre-subscription event) [P3]
+- [ ] Run a paid-invoice flow with **NO webhook configured** (assert no delivery, no error), THEN subscribe and run a **second** flow (assert delivery). **Document that past events are not back-filled.**
+
+### Cumulative cross-flow REPUTATION [P3]
+- [ ] Settle an invoice (rep tick #1, `screenAndSettle`) then release a cashout for the **same vendor** (rep tick #2, `cashoutAdvancer`) → read `/vendor/reputation` and assert on-chain `VendorReputation` reflects **both ticks cumulatively** — no double-count, no later-worker overwrite.
+
+---
+
+## II★.VERDICT — honest coverage statement (post-audit)
+
+- **Pre-audit:** the plan asserted 100%. **Adversarial audit reality: ~82%**, "material-gaps" — strong on protocol/outcome/security/money-correctness, with **39 verified holes** in the Rabby-user UI / navigation / wallet-edge / readable-honesty layer.
+- **Post-closure:** II★.1–II★.6 add every one of the 39 as a named, source-anchored check. With II★ green **and** the rest of Parts I+II green, coverage is genuinely complete for "a real Rabby user does/reads/combines everything."
+- **The honest claim is conditional, not a rubber stamp:** the plan may state "100% covered" **only after** every box in Parts I, II, and II★ is executed against the source of truth at both viewports — and the CI coverage gate (Gate F5 / II.Z) is wired so the next new button/route/popup **fails the build until it has a check**. A one-time 82%→100% does not stay 100% without that gate.
+- **Note for the next audit:** re-run the 6-dimension adversarial sweep whenever `AppShell.tsx`, `CommandPalette.tsx`, any `*OnChain`/`PayWith*`/`LinkForm` signing component, or the connector/wallet config changes — those are where coverage rots fastest.
