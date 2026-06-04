@@ -160,6 +160,9 @@ export const MOONPAY_PUBLIC_KEY = pub(
   process.env.NEXT_PUBLIC_MOONPAY_PUBLIC_KEY,
 );
 export const MOONPAY_SECRET_KEY = opt("MOONPAY_SECRET_KEY");
+/** Signs inbound MoonPay webhooks (only needed once a MoonPay webhook receiver
+ * lands; the buy-redirect flow does not require it). */
+export const MOONPAY_WEBHOOK_KEY = opt("MOONPAY_WEBHOOK_KEY");
 export const moonpayLive = (): boolean => Boolean(MOONPAY_PUBLIC_KEY);
 
 // ─── Observability (M11) ─────────────────────────────────────────────

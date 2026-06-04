@@ -8,7 +8,8 @@
  * stub page acknowledging the simulation per .
  */
 
-import { MOONPAY_PUBLIC_KEY, moonpayLive } from "./env";
+import { createHmac } from "node:crypto";
+import { MOONPAY_PUBLIC_KEY, MOONPAY_SECRET_KEY, moonpayLive } from "./env";
 
 export interface MoonPayLink {
   mode: "live" | "mock";
@@ -58,11 +59,23 @@ export function buildMoonpayLink(opts: {
     walletAddress: opts.walletAddress,
     baseCurrencyAmount: String(amount),
     redirectURL: opts.redirectUrl,
-    // In prod this URL gets HMAC-signed with MOONPAY_SECRET_KEY.
   });
+  const query = `?${params.toString()}`;
+  // MoonPay REQUIRES the URL to be HMAC-SHA256-signed with the secret key
+  // whenever sensitive params (walletAddress) are present — an unsigned URL
+  // is rejected and the widget refuses to load. We sign the exact query
+  // string and append the base64 signature. Server-only (node:crypto): this
+  // module is imported solely by /api/moonpay/buy.
+  let url = `https://buy-sandbox.moonpay.com/${query}`;
+  if (MOONPAY_SECRET_KEY) {
+    const signature = createHmac("sha256", MOONPAY_SECRET_KEY)
+      .update(query)
+      .digest("base64");
+    url += `&signature=${encodeURIComponent(signature)}`;
+  }
   return {
     mode: "live",
-    url: `https://buy-sandbox.moonpay.com/?${params.toString()}`,
+    url,
     status: "Live · MoonPay sandbox",
   };
 }
