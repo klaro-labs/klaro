@@ -1,37 +1,53 @@
 /**
- * Daily sanctions list refresh. Pulls OFAC / EU / UN lists, hashes each entry,
- * upserts into counterparty_screen_cache so InvoiceEscrow.fund() pre-check can
- * reject suspect buyers immediately.
- * M1: stub (logs intent). M5: real list fetch + diff + Bloom-filter index.
+ * Daily sanctions list refresh.
+ * OFAC is now REAL: fetches the US Treasury SDN crypto-address list (free, no
+ * account) into the in-memory screen cache that screenAndSettle uses. EU / UN
+ * remain simulated until a free parser for those lists is wired.
  */
 import { startWorker } from "../queue.js";
 import { sb } from "../db.js";
 import { log } from "../log.js";
+import { refreshOfacAddresses } from "../ofac.js";
 
 export function startSanctionsRefresh() {
   startWorker<{ source: "OFAC" | "EU" | "UN" }>(
     "sanctions-refresh",
     async (job) => {
-      // [SIMULATED] Chainalysis / TRM credentials are not yet wired. We still
-      // emit a structured log so the operator sees the cron fired and the
-      // next-step is clearly "wire credentials", not "fix code".
-      log.warn("[SIMULATED] sanctions.refresh.skipped", {
-        source: job.data.source,
-        reason: "CHAINALYSIS_API_KEY unset",
-      });
-      // Write a structured "tried" row so the missing-data debug surface
-      // works without grepping stdout. Operator queries
-      // `select * from sanctions_refresh_runs order by ran_at desc`
-      // to confirm the cron has been firing. Best-effort — if the table
-      // does not exist, log and move on.
+      const source = job.data.source;
+      let status = "simulated";
+      let reason: string | null = null;
+      let count: number | null = null;
+
+      if (source === "OFAC") {
+        // REAL: pull the OFAC SDN crypto-address list into the screen cache.
+        try {
+          count = await refreshOfacAddresses();
+          status = "ok";
+          log.info("sanctions.refresh.ok", { source, count });
+        } catch (e) {
+          status = "error";
+          reason = (e as Error).message;
+          log.error("sanctions.refresh.failed", { source, err: reason });
+          // Re-throw so BullMQ retries + the DLQ/alert fires — a stale sanctions
+          // list is an operational incident, not a silent skip.
+          throw e;
+        }
+      } else {
+        // EU / UN: no free parser wired yet — honest simulated marker.
+        reason = `${source} list parser not yet wired`;
+        log.warn("[SIMULATED] sanctions.refresh.skipped", { source, reason });
+      }
+
+      // Structured audit row so the operator can confirm the cron fired:
+      // `select * from sanctions_refresh_runs order by ran_at desc`.
       const { error } = await sb().from("sanctions_refresh_runs").insert({
-        source: job.data.source,
-        status: "simulated",
-        reason: "CHAINALYSIS_API_KEY unset",
+        source,
+        status,
+        reason: reason ?? (count !== null ? `${count} addresses` : null),
       });
       if (error) {
         log.warn("sanctions.refresh.audit_row_failed", {
-          source: job.data.source,
+          source,
           err: error.message,
         });
       }

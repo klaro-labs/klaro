@@ -15,6 +15,7 @@ import { log } from "../log.js";
 import { arcWallet, arcPublic } from "../arc.js";
 import { env } from "../env.js";
 import { recordReputation, REP_KIND } from "../reputation.js";
+import { checkAddressSanctioned } from "../ofac.js";
 
 const ESCROW_ABI = parseAbi([
   "function recordScreening(bytes32 invoiceId, bytes32 screeningHash) external",
@@ -36,30 +37,54 @@ interface ScreenResult {
 }
 
 async function runScreen(
-  _buyer: string,
+  buyer: string,
   _invoiceId: string,
 ): Promise<ScreenResult[]> {
-  // There is no live screening-provider integration yet. Record deterministic
-  // evidence for the demo audit trail, but fail closed into manual review.
-  return [
-    {
-      provider: "chainalysis.sanctions",
+  // Sanctions leg — REAL: screen the buyer address against the live OFAC SDN
+  // crypto-address list (free, authoritative). A match FAILS the invoice
+  // (blocked); a clear PASSES the sanctions leg; an unreachable list holds for
+  // manual review (fail-closed — never auto-clear an unscreened buyer).
+  let sanctions: ScreenResult;
+  const check = await checkAddressSanctioned(buyer);
+  if (!check.available) {
+    sanctions = {
+      provider: "ofac.sanctions",
       result: "review",
-      evidenceHash: keccak256(stringToBytes(`s:${_buyer}`)),
-      detail:
-        "[SIMULATED] Sanctions decision unavailable - manual review required",
-    },
+      evidenceHash: keccak256(stringToBytes(`s:${buyer}:unavailable`)),
+      detail: "OFAC SDN list unavailable — manual review required",
+    };
+  } else if (check.sanctioned) {
+    sanctions = {
+      provider: "ofac.sanctions",
+      result: "fail",
+      evidenceHash: keccak256(stringToBytes(`s:${buyer}:ofac-match`)),
+      detail: `OFAC SDN sanctions match — payment blocked (screened vs ${check.listSize} addresses)`,
+    };
+  } else {
+    sanctions = {
+      provider: "ofac.sanctions",
+      result: "pass",
+      evidenceHash: keccak256(stringToBytes(`s:${buyer}:clear:${check.refreshedAt}`)),
+      detail: `Cleared against OFAC SDN (${check.listSize} sanctioned addresses)`,
+    };
+  }
+
+  // Behavioral + KYB legs stay honest manual-review until their providers are
+  // wired (KYB needs Sumsub). A clean buyer therefore still holds for review;
+  // the real win here is that a sanctioned buyer is now hard-blocked.
+  return [
+    sanctions,
     {
       provider: "klaro.behavioral",
       result: "review",
-      evidenceHash: keccak256(stringToBytes(`b:${_buyer}`)),
+      evidenceHash: keccak256(stringToBytes(`b:${buyer}`)),
       detail:
         "[SIMULATED] Behavioral check unavailable - manual review required",
     },
     {
       provider: "sumsub.kyb_liveness",
       result: "review",
-      evidenceHash: keccak256(stringToBytes(`k:${_buyer}`)),
+      evidenceHash: keccak256(stringToBytes(`k:${buyer}`)),
       detail: "[SIMULATED] KYB decision unavailable - manual review required",
     },
   ];
