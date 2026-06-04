@@ -20,6 +20,11 @@ import { createHash } from "node:crypto";
 import { startWorker } from "../queue.js";
 import { sb } from "../db.js";
 import { log } from "../log.js";
+import {
+  pushInvoiceToQuickBooks,
+  type ErpConnRow,
+  type InvoiceForErp,
+} from "../quickbooks.js";
 
 type ErpProvider = "tally" | "quickbooks" | "xero" | "zoho" | "myob" | "freee";
 
@@ -28,7 +33,7 @@ export interface ErpJob {
   kind: "invoice.create" | "invoice.pay" | "tax_pack";
 }
 
-interface ErpConnection {
+interface ErpConnection extends ErpConnRow {
   provider: ErpProvider;
 }
 
@@ -44,12 +49,23 @@ function makeIdempotencyKey(
 }
 
 async function push(
-  provider: ErpProvider,
-  _payload: Record<string, unknown>,
+  conn: ErpConnection,
+  ctx: { vendorId: string; invoice: InvoiceForErp; kind: string },
 ): Promise<void> {
+  if (conn.provider === "quickbooks") {
+    const r = await pushInvoiceToQuickBooks({
+      vendorId: ctx.vendorId,
+      conn,
+      invoice: ctx.invoice,
+      kind: ctx.kind,
+    });
+    log.info("erp.qbo.pushed", { invoiceId: ctx.invoice.id, ...r });
+    return;
+  }
+  // Other providers (xero/zoho/tally/myob/freee) still need their OAuth wiring.
   log.warn("[SIMULATED] erp.push.skipped", {
-    provider,
-    reason: `${provider.toUpperCase()}_OAUTH_TOKEN unset — credentials pending`,
+    provider: conn.provider,
+    reason: `${conn.provider.toUpperCase()} OAuth not wired — QuickBooks is the live connector`,
   });
 }
 
@@ -69,7 +85,7 @@ export function startErpSync() {
       // settled invoice with no retry. Same class as .
       const { data: inv, error: invErr } = await sb()
         .from("invoices")
-        .select("vendor_id")
+        .select("vendor_id, amount_usdc, customer_name, customer_email")
         .eq("id", invoiceId)
         .maybeSingle();
       if (invErr) throw invErr;
@@ -83,8 +99,9 @@ export function startErpSync() {
 
       const { data: conns, error: connsErr } = await sb()
         .from("erp_connections")
-        .select("provider")
-        .eq("vendor_id", inv.vendor_id);
+        .select("provider, auth_token_ciphertext, config_json")
+        .eq("vendor_id", inv.vendor_id)
+        .eq("status", "active");
       if (connsErr) throw connsErr;
       const providers = (conns ?? []) as ErpConnection[];
       if (providers.length === 0) {
@@ -95,7 +112,8 @@ export function startErpSync() {
         return;
       }
 
-      for (const { provider } of providers) {
+      for (const conn of providers) {
+        const provider = conn.provider;
         const idempotencyKey = makeIdempotencyKey(
           inv.vendor_id,
           provider,
@@ -152,7 +170,16 @@ export function startErpSync() {
         if (upRunning.error) throw upRunning.error;
 
         try {
-          await push(provider, { vendorId: inv.vendor_id, invoiceId, kind });
+          await push(conn, {
+            vendorId: inv.vendor_id,
+            invoice: {
+              id: invoiceId,
+              amount_usdc: inv.amount_usdc,
+              customer_name: inv.customer_name,
+              customer_email: inv.customer_email,
+            },
+            kind,
+          });
           const upSuccess = await sb()
             .from("erp_sync_jobs")
             .update({

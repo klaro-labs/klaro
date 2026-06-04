@@ -17,6 +17,10 @@ interface Connector {
   status: "live" | "beta" | "planned";
   detail: string;
   docsUrl: string;
+  /** provider key in erp_connections (set for live connectors). */
+  slug?: string;
+  /** OAuth start route (set for live connectors). */
+  connectHref?: string;
 }
 
 const CONNECTORS: Connector[] = [
@@ -29,10 +33,12 @@ const CONNECTORS: Connector[] = [
   },
   {
     name: "QuickBooks",
-    status: "planned",
+    status: "live",
     detail:
-      "QBO + Desktop variants. Invoice CRUD + payment receipts + class tagging.",
+      "QuickBooks Online — invoices + payment receipts pushed to your books on every settle. Connect via Intuit OAuth (sandbox).",
     docsUrl: "https://developer.intuit.com/quickbooks",
+    slug: "quickbooks",
+    connectHref: "/api/integrations/quickbooks/connect",
   },
   {
     name: "Zoho Books",
@@ -63,9 +69,45 @@ const STATUS_TONE: Record<Connector["status"], "live" | "info" | "neutral"> = {
   planned: "neutral",
 };
 
-export default async function ErpIntegrationsPage() {
+/** Provider slugs the current vendor has actively connected (RLS-scoped). */
+async function loadConnectedProviders(): Promise<Set<string>> {
+  const { tryDb } = await import("@/lib/db");
+  const c = await tryDb();
+  if (!c) return new Set();
+  const db = c as unknown as {
+    from: (t: string) => {
+      select: (cols: string) => {
+        eq: (
+          col: string,
+          val: string,
+        ) => Promise<{ data: { provider: string }[] | null }>;
+      };
+    };
+  };
+  const { data } = await db
+    .from("erp_connections")
+    .select("provider")
+    .eq("status", "active");
+  return new Set((data ?? []).map((r) => r.provider));
+}
+
+export default async function ErpIntegrationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
+  const sp = await searchParams;
+  const connected = await loadConnectedProviders();
+  const banner = sp.connected
+    ? {
+        ok: true,
+        text: `${sp.connected} connected — new invoices will sync to your books on every settle.`,
+      }
+    : sp.erp_error
+      ? { ok: false, text: `Connection failed (${sp.erp_error}). Please try again.` }
+      : null;
 
   return (
     <div>
@@ -84,6 +126,18 @@ export default async function ErpIntegrationsPage() {
           </div>
           <Badge tone="sim">In development</Badge>
         </div>
+
+        {banner && (
+          <div
+            className={`mb-4 rounded-lg border px-4 py-3 text-sm ${
+              banner.ok
+                ? "border-[color-mix(in_oklab,var(--color-success)_30%,transparent)] bg-[color-mix(in_oklab,var(--color-success)_8%,white)] text-[color-mix(in_oklab,var(--color-success)_70%,var(--color-ink))]"
+                : "border-[color-mix(in_oklab,var(--color-danger)_30%,transparent)] bg-[color-mix(in_oklab,var(--color-danger)_8%,white)] text-[var(--color-danger)]"
+            }`}
+          >
+            {banner.text}
+          </div>
+        )}
 
         <ul className="space-y-3">
           {CONNECTORS.map((c) => (
@@ -114,14 +168,35 @@ export default async function ErpIntegrationsPage() {
                   Provider docs
                 </a>
               </div>
-              <button
-                type="button"
-                disabled
-                title="Connector in development"
-                className="mt-4 cursor-not-allowed rounded-pill bg-[var(--color-ink)] px-4 py-2 text-xs font-medium text-white opacity-50"
-              >
-                Connect (coming soon)
-              </button>
+              {c.connectHref ? (
+                connected.has(c.slug ?? "") ? (
+                  <div className="mt-4 flex items-center gap-3">
+                    <Badge tone="live">Connected</Badge>
+                    <a
+                      href={c.connectHref}
+                      className="text-xs font-medium text-[var(--color-ink-muted)] underline hover:text-[var(--color-ink)]"
+                    >
+                      Reconnect
+                    </a>
+                  </div>
+                ) : (
+                  <a
+                    href={c.connectHref}
+                    className="mt-4 inline-flex rounded-pill bg-[var(--color-ink)] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[var(--color-ink-2)]"
+                  >
+                    Connect {c.name} →
+                  </a>
+                )
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  title="Connector in development"
+                  className="mt-4 cursor-not-allowed rounded-pill bg-[var(--color-ink)] px-4 py-2 text-xs font-medium text-white opacity-50"
+                >
+                  Connect (coming soon)
+                </button>
+              )}
             </li>
           ))}
         </ul>

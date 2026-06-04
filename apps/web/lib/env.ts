@@ -165,6 +165,15 @@ export const MOONPAY_SECRET_KEY = opt("MOONPAY_SECRET_KEY");
 export const MOONPAY_WEBHOOK_KEY = opt("MOONPAY_WEBHOOK_KEY");
 export const moonpayLive = (): boolean => Boolean(MOONPAY_PUBLIC_KEY);
 
+// ─── QuickBooks (Intuit) ERP — OAuth + invoice sync ──────────────────
+export const QUICKBOOKS_CLIENT_ID = opt("QUICKBOOKS_CLIENT_ID");
+export const QUICKBOOKS_CLIENT_SECRET = opt("QUICKBOOKS_CLIENT_SECRET");
+export const QUICKBOOKS_REDIRECT_URI = opt("QUICKBOOKS_REDIRECT_URI");
+export const QUICKBOOKS_ENV = process.env.QUICKBOOKS_ENV ?? "sandbox";
+/** AES-256-GCM key (32-byte hex) for encrypting ERP OAuth tokens at rest;
+ * shared with the daemon so it can decrypt + call the provider API. */
+export const ERP_ENC_KEY = opt("ERP_ENC_KEY");
+
 // ─── Observability (M11) ─────────────────────────────────────────────
 // SENTRY_ENV defaults to "testnet" (matching the prior
 // hardcoded fallback in sentry.{server,edge}.config.ts before

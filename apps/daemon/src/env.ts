@@ -46,6 +46,15 @@ const schema = z.object({
   // worker resolves the USDC<->EURC pair to real on-chain token addresses.
   EURC_ADDRESS: z.string().optional(),
 
+  // QuickBooks (Intuit) ERP sync — the erpSync worker refreshes the vendor's
+  // stored OAuth token + pushes invoices to their QuickBooks company.
+  QUICKBOOKS_CLIENT_ID: z.string().optional(),
+  QUICKBOOKS_CLIENT_SECRET: z.string().optional(),
+  QUICKBOOKS_ENV: z.string().default("sandbox"),
+  // Shared AES-256-GCM key (32-byte hex) — must match the web app so the daemon
+  // can decrypt the OAuth tokens the callback stored.
+  ERP_ENC_KEY: z.string().optional(),
+
   // Operator wallet (Circle Wallets or local keystore — for daemon-signed txs)
   DAEMON_OPERATOR_WALLET_ID: z.string().optional(),
   DAEMON_OPERATOR_PRIVATE_KEY: z.string().optional(),
