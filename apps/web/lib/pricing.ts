@@ -135,8 +135,8 @@ export const COMPARE_ROWS: readonly CompareRow[] = [
   },
   {
     feature: "ERP sync",
-    testnet: "Tally / Xero (read-only beta)",
-    standard: "Tally / QuickBooks / Xero / Zoho",
+    testnet: "QuickBooks (live)",
+    standard: "QuickBooks · Xero / Zoho / Tally (planned)",
     scale: "Same + custom mapping",
   },
   {
