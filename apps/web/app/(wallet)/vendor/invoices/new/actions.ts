@@ -87,7 +87,7 @@ export async function createInvoiceAction(input: {
       customerEmail: input.customerEmail,
       vendorName: session.vendor.displayName,
       amount: amountWei,
-      hostedUrl: `https://klaro.so/i/${invoice.id}`,
+      hostedUrl: `https://www.myklaro.app/i/${invoice.id}`,
       description: input.description,
     }).catch((err) => {
       captureError(err, {

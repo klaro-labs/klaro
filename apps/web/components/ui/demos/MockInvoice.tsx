@@ -51,7 +51,7 @@ export function MockInvoice() {
       </dl>
 
       <div className="mt-6 rounded-md bg-[var(--color-bg-warm)] p-3 font-mono text-[11px] text-[var(--color-muted)]">
-        klaro.so/i/demo
+        www.myklaro.app/i/demo
       </div>
     </div>
   );

@@ -117,7 +117,7 @@ const operatorAuth = await operator.signTypedData({
 console.log("\n1. agent registerAgent (operator co-signed, feeBps 100)…");
 await mined(await agW.writeContract({
   address: REGISTRY, abi: REG_ABI, functionName: "registerAgent",
-  args: [agentId, agent.address, "Klaro QA Agent", "https://agents.klaro.so/qa", Number(FEE_BPS), deadline, operatorAuth],
+  args: [agentId, agent.address, "Klaro QA Agent", "https://agents.www.myklaro.app/qa", Number(FEE_BPS), deadline, operatorAuth],
 }), "registerAgent");
 await pub.readContract({ address: REGISTRY, abi: REG_ABI, functionName: "assertActive", args: [agentId] });
 const onFee = await pub.readContract({ address: REGISTRY, abi: REG_ABI, functionName: "feeBpsOf", args: [agentId] });

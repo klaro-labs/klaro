@@ -212,7 +212,7 @@ export function LinkForm({
                 : "Create link →"}
         </Button>
         <p className="text-xs text-[var(--color-ink-subtle)]">
-          A shareable page at <span className="font-mono">pay.klaro.so/&lt;slug&gt;</span>.
+          A shareable page at <span className="font-mono">myklaro.app/pay/&lt;slug&gt;</span>.
         </p>
       </div>
     </form>

@@ -44,7 +44,7 @@ export default async function NewInvoicePage() {
           </h1>
           <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
             Klaro generates a hosted page at{" "}
-            <span className="font-mono">i.klaro.so/&lt;id&gt;</span> you can
+            <span className="font-mono">myklaro.app/i/&lt;id&gt;</span> you can
             share with your customer.{" "}
             {simulated
               ? "This simulator creates a payment and receipt preview without moving funds."

@@ -27,7 +27,7 @@ const invoice = await klaro.invoices.create({
 });
 
 console.log(invoice.hostedUrl);
-// → https://i.klaro.so/cl7-d3-m0
+// → https://myklaro.app/i/cl7-d3-m0
 
 // Verify any Stenn-Proof receipt
 const ok = await klaro.receipts.verify("0x9f8a3c5b…");
@@ -82,7 +82,7 @@ export function Developers() {
               <DevStat n="GitHub" label="Apache-2.0 contracts" />
               <DevStat n="in dev" label="TypeScript SDK" />
               <DevStat n="MIT" label="ERC-8183 reference" />
-              <DevStat n="docs.klaro.so" label="OpenAPI spec" />
+              <DevStat n="myklaro.app/docs" label="OpenAPI spec" />
             </dl>
           </div>
 

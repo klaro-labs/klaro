@@ -51,7 +51,7 @@ const A: Audience[] = [
       "Apache-2.0 contracts on GitHub",
       "TypeScript SDK · @klaro/sdk on npm",
       "ERC-8183 reference implementation",
-      "Public OpenAPI · docs.klaro.so",
+      "Public OpenAPI · myklaro.app/docs",
     ],
     cta: "Read the docs",
     href: "/build",

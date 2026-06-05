@@ -12,20 +12,20 @@ const SITE_JSON_LD = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://klaro.so/#org",
+      "@id": "https://www.myklaro.app/#org",
       name: "Klaro",
-      url: "https://klaro.so",
-      logo: "https://klaro.so/brand/klaro-wordmark.svg",
+      url: "https://www.myklaro.app",
+      logo: "https://www.myklaro.app/brand/klaro-mark.svg",
       description:
         "Arc-native payment OS for emerging-market vendors. Invoice globally in USDC, prove every payment on-chain, cash out through verified partners.",
       sameAs: ["https://github.com/klaro-labs/klaro"],
     },
     {
       "@type": "WebSite",
-      "@id": "https://klaro.so/#site",
-      url: "https://klaro.so",
+      "@id": "https://www.myklaro.app/#site",
+      url: "https://www.myklaro.app",
       name: "Klaro",
-      publisher: { "@id": "https://klaro.so/#org" },
+      publisher: { "@id": "https://www.myklaro.app/#org" },
     },
   ],
 };
@@ -55,12 +55,12 @@ export const metadata: Metadata = {
   title: "Klaro — Get paid in seconds. Not weeks.",
   description:
     "Klaro helps vendors invoice in USDC, preview verifiable receipts, and simulate controlled cashout flows. Built for Arc testnet.",
-  metadataBase: new URL("https://klaro.so"),
+  metadataBase: new URL("https://www.myklaro.app"),
   openGraph: {
     title: "Klaro — Get paid in seconds.",
     description:
       "Arc-native payment OS for global vendors. Invoice in USDC. Cash out locally. Prove every payment.",
-    url: "https://klaro.so",
+    url: "https://www.myklaro.app",
     siteName: "Klaro",
     type: "website",
   },

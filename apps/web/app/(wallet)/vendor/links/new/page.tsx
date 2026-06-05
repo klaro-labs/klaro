@@ -36,7 +36,7 @@ export default async function NewLinkPage() {
           </h1>
           <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
             A reusable, fixed-amount payment page at{" "}
-            <span className="font-mono">pay.klaro.so/&lt;slug&gt;</span>. Share it
+            <span className="font-mono">myklaro.app/pay/&lt;slug&gt;</span>. Share it
             anywhere — every payer pays the same amount in USDC.{" "}
             {simulated
               ? "This simulator creates a demo link without moving funds."

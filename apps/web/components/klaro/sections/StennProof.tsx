@@ -114,7 +114,7 @@ function ReceiptDeep() {
         <Badge tone="sim">Testnet preview</Badge>
       </div>
       <p className="mt-3 font-mono text-xs text-[var(--color-ink-muted)]">
-        receipt.klaro.so/0x9f8a3c5b…
+        myklaro.app/receipt/0x9f8a3c5b…
       </p>
       <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
         <Row k="Invoice ID" v="cl7-d3-m0" />

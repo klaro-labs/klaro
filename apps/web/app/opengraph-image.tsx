@@ -81,7 +81,7 @@ export default function OpenGraphImage() {
           paddingTop: 24,
         }}
       >
-        <span>klaro.so</span>
+        <span>www.myklaro.app</span>
         <span>Testnet preview · No real money moves</span>
       </div>
     </div>,

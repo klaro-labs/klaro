@@ -55,7 +55,7 @@ export default async function InvoiceDetailPage({
   // PUBLIC_ORIGIN now imported from env.ts (was reading
   // process.env directly, bypassing audit boundary). Preview deploys
   // without NEXT_PUBLIC_PUBLIC_ORIGIN set still fall back to
-  // https://klaro.so so shared links remain pasteable; ops sets the
+  // https://www.myklaro.app so shared links remain pasteable; ops sets the
   // var explicitly on preview branches to avoid prod-link confusion.
   const shareUrl = `${PUBLIC_ORIGIN}${hostedUrl}`;
   const isHeld = invoice.status === "ACCEPTED" || invoice.status === "PAID"; // held / re-screening

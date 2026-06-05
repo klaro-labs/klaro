@@ -6,7 +6,7 @@ import { moonpayLive } from "@/lib/env";
  * Card → USDC redirect. Buyer hits this from /i/[id] when they lack USDC.
  * P1 (#94): `redirect` was an open redirect — any
  * absolute URL would echo through to MoonPay's redirectURL param, letting
- * an attacker craft `klaro.so/api/moonpay/buy?redirect=https://evil.com`
+ * an attacker craft `www.myklaro.app/api/moonpay/buy?redirect=https://evil.com`
  * to phish vendors. Now restricted to same-origin paths.
  * `walletAddress` defaulted to
  * the zero address. In live mode (`moonpayLive()`) that meant the

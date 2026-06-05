@@ -36,7 +36,7 @@ const TIERS: Tier[] = [
       "Partner Cashout simulator · USDC → INR",
       "Tally, QuickBooks, Xero sandbox sync",
       "Reputation preview · contracts not deployed",
-      "Community support · docs.klaro.so",
+      "Community support · myklaro.app/docs",
     ],
     cta: "Create account",
     variant: "light",

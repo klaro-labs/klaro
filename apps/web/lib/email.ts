@@ -108,9 +108,9 @@ const FOOTER = `
   <hr style="border:none;border-top:1px solid #e5e5e5;margin:32px 0 16px;">
   <p style="font-size:12px;color:#a3a3a3;line-height:1.5;">
     Klaro is not a bank. Testnet preview. No real money moves on testnet.<br>
-    <a href="https://klaro.so/trust" style="color:#a3a3a3;">trust.klaro.so</a>
+    <a href="https://www.myklaro.app/trust" style="color:#a3a3a3;">myklaro.app/trust</a>
     &nbsp;·&nbsp;
-    <a href="https://klaro.so/legal/privacy" style="color:#a3a3a3;">privacy</a>
+    <a href="https://www.myklaro.app/legal/privacy" style="color:#a3a3a3;">privacy</a>
   </p>
 `;
 
@@ -216,9 +216,9 @@ export async function sendWelcomeEmail(opts: {
       `
         <p>You're set up. Klaro is the Arc-native invoice + receipt rail — vendors anywhere get paid in USDC, settle in seconds, and build on-chain financial reputation.</p>
         <p style="text-align:center;margin:28px 0;">
-          <a href="https://klaro.so/vendor/invoices/new" style="display:inline-block;background:#0a0a0a;color:#fff;padding:14px 28px;border-radius:9999px;text-decoration:none;font-weight:500;">Create your first invoice →</a>
+          <a href="https://www.myklaro.app/vendor/invoices/new" style="display:inline-block;background:#0a0a0a;color:#fff;padding:14px 28px;border-radius:9999px;text-decoration:none;font-weight:500;">Create your first invoice →</a>
         </p>
-        <p style="font-size:13px;color:#525252;">Need help? <a href="https://klaro.so/trust" style="color:#1b6bff;">trust.klaro.so</a> · Reply to this email and we'll get back within 4 hours.</p>
+        <p style="font-size:13px;color:#525252;">Need help? <a href="https://www.myklaro.app/trust" style="color:#1b6bff;">myklaro.app/trust</a> · Reply to this email and we'll get back within 4 hours.</p>
       `,
     ),
   });

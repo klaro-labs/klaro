@@ -104,7 +104,7 @@ export function Footer() {
           </div>
           <div className="md:shrink-0">
             <Link href="/" className="font-mono text-white/60 hover:text-white">
-              klaro.so
+              www.myklaro.app
             </Link>
           </div>
         </div>

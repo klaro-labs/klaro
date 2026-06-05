@@ -24,7 +24,7 @@ const Body = z.object({ email: z.string().email(), redirectTo: z.string() });
 /// to the request origin so the auth flow still works on the canonical
 /// domain.
 const ALLOWED_REDIRECT_HOSTS = new Set<string>([
-  // klaro.so + subdomains are matched via origin equality below; this
+  // www.myklaro.app + subdomains are matched via origin equality below; this
   // is reserved for explicit partner hosts (none today).
 ]);
 

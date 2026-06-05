@@ -2,7 +2,7 @@ import { ok } from "@/lib/api";
 import { tryDb } from "@/lib/db";
 
 /**
- * Public JSON status feed — drives status.klaro.so + BetterStack heartbeats.
+ * Public JSON status feed — drives myklaro.app/status + BetterStack heartbeats.
  * Returns a single rollup the status page renders into operational/degraded/outage tiers.
  */
 export async function GET() {
@@ -24,7 +24,7 @@ export async function GET() {
       );
 
   const services = [
-    { name: "klaro.so web", scope: "infra", status: "operational" },
+    { name: "www.myklaro.app web", scope: "infra", status: "operational" },
     { name: "Hosted invoice / receipt", scope: "infra", status: "operational" },
     {
       name: "Operator daemon",

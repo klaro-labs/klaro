@@ -39,10 +39,10 @@ export default function ProductInvoicingPage() {
 
       <section className="klaro-container pb-20">
         <div className="grid gap-6 md:grid-cols-2">
-          <MockBrowserChrome url="klaro.so/vendor/invoices/demo">
+          <MockBrowserChrome url="www.myklaro.app/vendor/invoices/demo">
             <MockInvoice />
           </MockBrowserChrome>
-          <MockBrowserChrome url="klaro.so/i/demo">
+          <MockBrowserChrome url="www.myklaro.app/i/demo">
             <MockPayPage />
           </MockBrowserChrome>
         </div>

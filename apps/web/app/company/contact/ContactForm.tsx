@@ -54,7 +54,7 @@ export function ContactForm() {
         </h2>
         <p className="mt-3 text-sm text-emerald-900/80">
           A founder reads everything in this inbox. Expect a reply from a real
-          klaro.so address within one business day.
+          www.myklaro.app address within one business day.
         </p>
         <button
           type="button"

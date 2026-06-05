@@ -127,3 +127,9 @@ apps/web/e2e/.playwright-data/
 *.log.err
 *.stackdump
 *.daemon.log.err
+
+.vercel
+
+# browser-audit screenshot artifacts
+.playwright-mcp/
+/*.jpeg

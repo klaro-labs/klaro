@@ -7,7 +7,7 @@ import { isValidSlug } from "@/lib/slugs";
 import { formatUSDC, shortAddress } from "@/lib/money";
 
 /**
- * Public Klaro Link checkout — `pay.klaro.so/<slug>`. No auth. A link is a
+ * Public Klaro Link checkout — `myklaro.app/pay/<slug>`. No auth. A link is a
  * reusable, fixed-amount payment page; the backing invoice is created + published
  * on-chain only when the buyer pays (see PayFromLink → /pay/[slug]/actions). The
  * page is server-rendered for fast first paint; the wallet flow is client-side.
@@ -69,7 +69,7 @@ export default async function PayLinkPage({
           {body}
         </p>
         <p className="mt-6 font-mono text-xs text-[var(--color-ink-subtle)]">
-          pay.klaro.so/{slug}
+          myklaro.app/pay/{slug}
         </p>
       </main>
     );
@@ -80,7 +80,7 @@ export default async function PayLinkPage({
       <header className="flex items-center justify-between px-5 pt-5 md:px-8">
         <Logo size={20} />
         <span className="font-mono text-[11px] text-[var(--color-ink-subtle)]">
-          pay.klaro.so/{slug}
+          myklaro.app/pay/{slug}
         </span>
       </header>
 

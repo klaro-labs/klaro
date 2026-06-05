@@ -16,7 +16,7 @@ import { formatUSDC, shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
 
 /**
- * Hosted invoice page — `i.klaro.so/<id>` equivalent.
+ * Hosted invoice page — `myklaro.app/i/<id>` equivalent.
  * Public, no-auth. The buyer arrives here from the vendor's share link,
  * sees the amount + line items, signs EIP-712 acceptance, and pays.
  * The actual sign+pay flow (wallet connection, EIP-712 signing, USDC
@@ -140,7 +140,7 @@ export default async function HostedInvoicePage({
             <header className="flex items-center justify-between px-5 pt-5">
               <Logo size={20} />
               <span className="font-mono text-[11px] text-[var(--color-ink-subtle)]">
-                i.klaro.so/{shortAddress(invoice.id)}
+                myklaro.app/i/{shortAddress(invoice.id)}
               </span>
             </header>
 
@@ -283,7 +283,7 @@ export default async function HostedInvoicePage({
                 View receipt
               </Link>
               <a
-                href={`mailto:?subject=Klaro%20receipt&body=${encodeURIComponent(`https://klaro.so/receipt/${invoice.receiptHash ?? invoice.id}`)}`}
+                href={`mailto:?subject=Klaro%20receipt&body=${encodeURIComponent(`https://www.myklaro.app/receipt/${invoice.receiptHash ?? invoice.id}`)}`}
                 className="mt-3 flex h-12 w-full items-center justify-center rounded-pill border border-[var(--color-line)] bg-white text-sm font-medium hover:bg-[var(--color-bg-elevated)]"
               >
                 Email me a copy
@@ -318,7 +318,7 @@ export default async function HostedInvoicePage({
           <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8 shadow-[0_1px_4px_rgba(10,10,10,0.06)]">
             <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
               <span>
-                Hosted invoice · i.klaro.so / {shortAddress(invoice.id)}
+                Hosted invoice · myklaro.app/i/{shortAddress(invoice.id)}
               </span>
               {isPaid ? (
                 <Badge tone={isLiveOnChain() ? "live" : "sim"}>

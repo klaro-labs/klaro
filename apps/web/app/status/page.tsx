@@ -25,7 +25,7 @@ interface Service {
 
 const SERVICES: Service[] = [
   {
-    name: "klaro.so web",
+    name: "www.myklaro.app web",
     scope: "infra",
     status: "operational",
     detail: "Vercel edge · global · p95 < 250ms",
@@ -40,7 +40,7 @@ const SERVICES: Service[] = [
     name: "Hosted invoice / receipt",
     scope: "infra",
     status: "operational",
-    detail: "i.klaro.so + receipt.klaro.so",
+    detail: "myklaro.app/i + myklaro.app/receipt",
   },
   {
     name: "Arc testnet RPC",

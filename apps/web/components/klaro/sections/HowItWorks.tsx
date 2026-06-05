@@ -13,7 +13,7 @@ const STEPS = [
     n: "01",
     eta: "≈ 30s",
     title: "Vendor creates an invoice.",
-    body: "Pick currency, line items, due date. Klaro generates a hosted page at i.klaro.so/<id>.",
+    body: "Pick currency, line items, due date. Klaro generates a hosted page at myklaro.app/i/<id>.",
   },
   {
     n: "02",

@@ -35,7 +35,7 @@ export default function ProductReceiptsPage() {
 
       <section className="klaro-container pb-20">
         <div className="mx-auto max-w-[560px]">
-          <MockBrowserChrome url="klaro.so/receipt/demo">
+          <MockBrowserChrome url="www.myklaro.app/receipt/demo">
             <MockReceipt />
           </MockBrowserChrome>
         </div>
@@ -67,7 +67,7 @@ export default function ProductReceiptsPage() {
           </h3>
           <pre className="mt-5 overflow-x-auto rounded-md border border-[var(--color-line)] bg-[var(--color-bg)] p-4 font-mono text-[12px] leading-relaxed text-[var(--color-ink-2)]">
 {`# Read the receipt straight off Arc
-curl https://klaro.so/api/v1/receipts/<hash> \\
+curl https://www.myklaro.app/api/v1/receipts/<hash> \\
   | jq '{amount, payer, vendor, txHash, blockNumber, signatures}'`}
           </pre>
           <p className="mt-3 text-[12px] text-[var(--color-muted)]">

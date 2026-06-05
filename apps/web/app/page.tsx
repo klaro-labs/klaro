@@ -17,7 +17,7 @@ import { FinalCta } from "@/components/klaro/sections/FinalCta";
 import { Footer } from "@/components/klaro/Footer";
 
 /**
- * Klaro landing — `klaro.so`
+ * Klaro landing — `www.myklaro.app`
  * Section order matches `designer/landing/index.html` 1:1:
  * 1 Nav (component)
  * 2 Hero

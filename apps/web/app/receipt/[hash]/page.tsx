@@ -13,7 +13,7 @@ import { verifyReceipt, isLiveOnChain } from "@/lib/arcClient";
 import type { Hex } from "@/lib/types";
 
 /**
- * Public receipt page — `receipt.klaro.so/<hash>` equivalent.
+ * Public receipt page — `myklaro.app/receipt/<hash>` equivalent.
  * previous version (a) used
  * `mockGetInvoice(hash)` even though hash ≠ invoice id, (b) rendered
  * hardcoded "Asha · Pune, IN" + "Settled in 1.4s · Arc · block #84,217,103"
@@ -166,7 +166,7 @@ export default async function PublicReceiptPage({
           <article className="mt-8 overflow-hidden rounded-lg border border-white/10 bg-white text-[var(--color-ink)] shadow-[0_4px_16px_rgba(10,10,10,0.15)]">
             <div className="border-b border-[var(--color-line)] bg-[var(--color-bg)] px-6 py-4">
               <p className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                receipt.klaro.so/{shortAddress(hashHex)}
+                myklaro.app/receipt/{shortAddress(hashHex)}
               </p>
             </div>
             <dl className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-3 px-6 py-6 text-sm">

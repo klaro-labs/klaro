@@ -82,7 +82,7 @@ export async function simulatePaymentAction(
         vendorEmail: vendor.email,
         amount: inv.amount,
         customerName: inv.customer.name ?? inv.customer.email,
-        receiptUrl: `https://klaro.so/receipt/${invoiceId}`,
+        receiptUrl: `https://www.myklaro.app/receipt/${invoiceId}`,
       }).catch((e) =>
         captureError(e, { where: "i.simulatePayment.email", invoiceId }),
       );

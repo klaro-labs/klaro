@@ -20,7 +20,7 @@ const spec = {
       "Arc-native USDC invoicing, Stenn-Proof receipts, INR cashout, FX, agents.",
     contact: {
       name: "Klaro",
-      url: "https://klaro.so",
+      url: "https://www.myklaro.app",
       email: "prateek@myklaro.app",
     },
     license: {
@@ -29,7 +29,7 @@ const spec = {
     },
   },
   servers: [
-    { url: "https://klaro.so/api", description: "production (testnet)" },
+    { url: "https://www.myklaro.app/api", description: "production (testnet)" },
     { url: "http://localhost:3000/api", description: "local dev" },
   ],
   paths: {
@@ -316,7 +316,7 @@ const spec = {
     },
     "/status": {
       get: {
-        summary: "Public health (status.klaro.so)",
+        summary: "Public health (myklaro.app/status)",
         security: publicNoAuth,
         responses: { "200": { description: "Status" } },
       },

@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
         invoiceId: inv.id,
         amountUsdc: inv.amount,
         dueAtIso: inv.dueAt.toISOString(),
-        hostedUrl: `https://klaro.so/i/${inv.id}`,
+        hostedUrl: `https://www.myklaro.app/i/${inv.id}`,
         window: hit.window,
       });
       sent++;

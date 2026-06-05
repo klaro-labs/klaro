@@ -50,7 +50,7 @@ export function MockReceipt() {
       <p className="mt-4 text-[11px] leading-relaxed text-[var(--color-muted)]">
         Real receipts include EIP-712 acceptance signatures from both parties
         and a settlement transaction on Arc. Verify any receipt at{" "}
-        <span className="font-mono">klaro.so/receipt/&lt;hash&gt;</span>.
+        <span className="font-mono">www.myklaro.app/receipt/&lt;hash&gt;</span>.
       </p>
     </div>
   );

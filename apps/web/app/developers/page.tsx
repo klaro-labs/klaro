@@ -28,7 +28,7 @@ const invoice = await klaro.invoices.create({
   privacyMode: "veiled", // anchor a keccak commit (M1); amount is still on-chain. Real hiding lands in v2.
 });
 
-console.log(invoice.hostedUrl); // → https://i.klaro.so/inv_…`;
+console.log(invoice.hostedUrl); // → https://myklaro.app/i/inv_…`;
 
 const SNIPPET_WEBHOOK = `// Stripe-style HMAC SHA256 + 5-min replay window
 import { verifyKlaroSignature } from "@klaro/sdk/webhooks";
@@ -164,7 +164,7 @@ export default function DevelopersPage() {
           />
           <RefCard
             title="Status & SLA"
-            body="status.klaro.so. Per-contract pause state. Partner outage feeds (Circle, Pyth)."
+            body="myklaro.app/status. Per-contract pause state. Partner outage feeds (Circle, Pyth)."
             href="/status"
           />
         </div>

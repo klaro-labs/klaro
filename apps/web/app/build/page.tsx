@@ -70,10 +70,10 @@ const invoice = await klaro.invoices.create({
 }, { idempotencyKey: crypto.randomUUID() });
 
 console.log(invoice.hostedUrl);
-// → https://i.klaro.so/cl7-d3-m0`;
+// → https://myklaro.app/i/cl7-d3-m0`;
 
 // Real-ish cURL equivalent — same shape as our /api/v1/invoices route.
-const CODE_CURL = `curl -X POST https://api.klaro.so/v1/invoices \\
+const CODE_CURL = `curl -X POST https://www.myklaro.app/api/v1/invoices \\
   -H "Authorization: Bearer $KLARO_KEY" \\
   -H "Idempotency-Key: $(uuidgen)" \\
   -H "Content-Type: application/json" \\

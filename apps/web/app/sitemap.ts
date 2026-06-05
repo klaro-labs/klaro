@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = "https://klaro.so";
+const BASE = "https://www.myklaro.app";
 
 /** Public-indexable routes. Audit fix (loop iter 4, 2026-05-25): legal pages,
  * docs, help, status, brand-kit, fx, agents were all missing — regulator

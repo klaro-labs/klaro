@@ -91,7 +91,7 @@ function CashoutOrder() {
   return (
     <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-7 shadow-[0_1px_2px_rgba(10,10,10,0.04)]">
       <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-subtle)]">
-        <span>cashout.klaro.so · order #c7-d3-22</span>
+        <span>myklaro.app/cashout · order #c7-d3-22</span>
         <Badge tone="sim">Testnet simulation</Badge>
       </div>
 

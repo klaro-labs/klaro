@@ -341,7 +341,7 @@ function TypeTab() {
           family="JetBrains Mono"
           usage="Mono · receipts, code, wallet addresses, tabular data"
           meta="400 / 500"
-          sample="0x7a3c…b21f · 4,200.00 USDC · receipt.klaro.so"
+          sample="0x7a3c…b21f · 4,200.00 USDC · myklaro.app/receipt"
           sampleClass="font-mono text-lg md:text-xl"
         />
       </div>
@@ -423,7 +423,7 @@ function VoiceTab() {
           kind="do"
           title="Allowed without asking"
           items={[
-            "Linking to klaro.so or any subdomain.",
+            "Linking to www.myklaro.app or any subdomain.",
             "Using the Klaro logo to indicate Klaro integration in your product (with a link back).",
             "Embedding the Stenn-Proof badge on receipts you've actually issued through Klaro.",
             "Writing about Klaro in editorial / news contexts.",

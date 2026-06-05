@@ -71,7 +71,7 @@ export function Security() {
             <p className="text-sm font-medium">Testnet status reporting</p>
             <p className="text-xs text-[var(--color-ink-muted)]">
               Current environment status and incidents are reported at
-              status.klaro.so.
+              myklaro.app/status.
             </p>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function Security() {
           href="/status"
           className="text-sm font-medium text-[var(--color-brand)] hover:underline"
         >
-          status.klaro.so →
+          myklaro.app/status →
         </a>
       </div>
     </section>

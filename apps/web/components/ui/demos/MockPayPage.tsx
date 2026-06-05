@@ -33,7 +33,7 @@ export function MockPayPage() {
       </div>
 
       <div className="mt-6 rounded-md border border-white/10 bg-white/[0.04] p-3 font-mono text-[11px] text-white/70">
-        klaro.so/i/demo · scan or paste anywhere
+        www.myklaro.app/i/demo · scan or paste anywhere
       </div>
 
       <button

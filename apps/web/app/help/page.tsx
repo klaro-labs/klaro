@@ -72,7 +72,7 @@ export default function HelpPage() {
             How can we help?
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--color-ink-muted)] md:text-lg">
-            Full-text search via Algolia DocSearch lands soon (docs.klaro.so
+            Full-text search via Algolia DocSearch lands soon (myklaro.app/docs
             cuts over to Mintlify). For now: jump to the topic that matches your
             question, or email{" "}
             <a

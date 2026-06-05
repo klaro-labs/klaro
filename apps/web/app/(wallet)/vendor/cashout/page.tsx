@@ -17,7 +17,7 @@ import { confirmReceivedAction, openDisputeAction } from "./actions";
 
 /**
  * /vendor/cashout — request panel + history list.
- * Maps to v2 §19 surface "cashout.klaro.so".
+ * Maps to v2 §19 surface "myklaro.app/cashout".
  */
 
 const STATUS_TONE: Record<

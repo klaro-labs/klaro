@@ -1,4 +1,4 @@
-// Short, human-shareable slugs for Klaro Link (klaro.so/pay/XXXXXXXX).
+// Short, human-shareable slugs for Klaro Link (www.myklaro.app/pay/XXXXXXXX).
 // Base58 alphabet (Bitcoin's) — excludes the ambiguous 0/O/I/l so a slug read
 // aloud or copied from a chat is unambiguous. 8 chars over 58 symbols ≈
 // 58^8 ≈ 1.28e14 keyspace, so collisions are negligible; createLinkAction still

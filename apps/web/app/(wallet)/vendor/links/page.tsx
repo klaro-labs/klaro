@@ -72,7 +72,7 @@ export default async function LinksPage() {
                     <p className="mt-0.5 truncate text-sm text-[var(--color-ink-muted)]">
                       {l.label ?? "—"}{" "}
                       <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
-                        · pay.klaro.so/{l.slug}
+                        · myklaro.app/pay/{l.slug}
                       </span>
                     </p>
                   </div>
