@@ -5,6 +5,10 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/daemon/package.json apps/daemon/tsconfig.json apps/daemon/
 COPY apps/daemon/src apps/daemon/src
+# The daemon bundles contract ABIs via a relative import
+# (src/listener/abiAssert.ts → ../../../../packages/contracts/abis/v1.0/*.json),
+# so the build needs that folder present in the workspace.
+COPY packages/contracts/abis packages/contracts/abis
 RUN pnpm install --frozen-lockfile --filter @klaro/daemon...
 RUN pnpm --filter @klaro/daemon build
 
