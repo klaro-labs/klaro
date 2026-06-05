@@ -55,6 +55,13 @@ const schema = z.object({
   // can decrypt the OAuth tokens the callback stored.
   ERP_ENC_KEY: z.string().optional(),
 
+  // Sumsub (KYB/KYC) — the screening worker checks the vendor's verification
+  // status (by externalUserId = vendor id) when settling. SUMSUB_APP_TOKEN is
+  // already declared above.
+  SUMSUB_SECRET_KEY: z.string().optional(),
+  SUMSUB_LEVEL_NAME: z.string().default("id-only"),
+  SUMSUB_BASE_URL: z.string().default("https://api.sumsub.com"),
+
   // Operator wallet (Circle Wallets or local keystore — for daemon-signed txs)
   DAEMON_OPERATOR_WALLET_ID: z.string().optional(),
   DAEMON_OPERATOR_PRIVATE_KEY: z.string().optional(),

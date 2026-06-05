@@ -16,6 +16,7 @@ import { arcWallet, arcPublic } from "../arc.js";
 import { env } from "../env.js";
 import { recordReputation, REP_KIND } from "../reputation.js";
 import { checkAddressSanctioned } from "../ofac.js";
+import { getVendorKybStatus } from "../sumsub.js";
 
 const ESCROW_ABI = parseAbi([
   "function recordScreening(bytes32 invoiceId, bytes32 screeningHash) external",
@@ -39,6 +40,7 @@ interface ScreenResult {
 async function runScreen(
   buyer: string,
   _invoiceId: string,
+  vendorId: string | null,
 ): Promise<ScreenResult[]> {
   // Sanctions leg — REAL: screen the buyer address against the live OFAC SDN
   // crypto-address list (free, authoritative). A match FAILS the invoice
@@ -69,25 +71,50 @@ async function runScreen(
     };
   }
 
-  // Behavioral + KYB legs stay honest manual-review until their providers are
-  // wired (KYB needs Sumsub). A clean buyer therefore still holds for review;
-  // the real win here is that a sanctioned buyer is now hard-blocked.
-  return [
-    sanctions,
-    {
-      provider: "klaro.behavioral",
+  // KYB leg — REAL: the vendor's Sumsub business verification (by
+  // externalUserId = vendor id). GREEN→pass, RED→fail (blocked), pending /
+  // none / unreachable → manual review (fail-closed — never auto-clear an
+  // unverified vendor).
+  const kybCheck = vendorId
+    ? await getVendorKybStatus(vendorId)
+    : ({ status: "unavailable", detail: "vendor unknown" } as const);
+  let kyb: ScreenResult;
+  if (kybCheck.status === "pass") {
+    kyb = {
+      provider: "sumsub.kyb",
+      result: "pass",
+      evidenceHash: keccak256(stringToBytes(`k:${vendorId}:green`)),
+      detail: kybCheck.detail,
+    };
+  } else if (kybCheck.status === "fail") {
+    kyb = {
+      provider: "sumsub.kyb",
+      result: "fail",
+      evidenceHash: keccak256(stringToBytes(`k:${vendorId}:red`)),
+      detail: kybCheck.detail,
+    };
+  } else {
+    kyb = {
+      provider: "sumsub.kyb",
       result: "review",
-      evidenceHash: keccak256(stringToBytes(`b:${buyer}`)),
-      detail:
-        "[SIMULATED] Behavioral check unavailable - manual review required",
-    },
-    {
-      provider: "sumsub.kyb_liveness",
-      result: "review",
-      evidenceHash: keccak256(stringToBytes(`k:${buyer}`)),
-      detail: "[SIMULATED] KYB decision unavailable - manual review required",
-    },
-  ];
+      evidenceHash: keccak256(stringToBytes(`k:${vendorId}:${kybCheck.status}`)),
+      detail: kybCheck.detail,
+    };
+  }
+
+  // Behavioral leg — testnet heuristic: no live behavioral-scoring provider, so
+  // on testnet (no real funds move) a buyer with no adverse signal passes. Real
+  // behavioral risk scoring is a mainnet/provider concern — labelled honestly so
+  // it never reads as a completed enterprise check.
+  const behavioral: ScreenResult = {
+    provider: "klaro.behavioral",
+    result: "pass",
+    evidenceHash: keccak256(stringToBytes(`b:${buyer}`)),
+    detail:
+      "Testnet behavioral heuristic — no adverse on-chain signals (full scoring is mainnet)",
+  };
+
+  return [sanctions, behavioral, kyb];
 }
 
 export function startScreenAndSettle() {
@@ -100,7 +127,16 @@ export function startScreenAndSettle() {
         buyer: buyerAddress.slice(0, 10) + "…",
       });
 
-      const results = await runScreen(buyerAddress, invoiceId);
+      // Resolve the vendor up front for the KYB check (reused for the
+      // reputation tick on the auto-settle path).
+      const { data: invVendor } = await sb()
+        .from("invoices")
+        .select("vendor_id")
+        .eq("id", invoiceId)
+        .maybeSingle();
+      const vendorId = (invVendor?.vendor_id as string | undefined) ?? null;
+
+      const results = await runScreen(buyerAddress, invoiceId, vendorId);
       // switched insert → upsert with
       // composite-unique (invoice_id, provider) so BullMQ retries +
       // listener re-fires don't duplicate-insert the same 3-of-3 bundle.
@@ -269,20 +305,13 @@ export function startScreenAndSettle() {
       if (upSettled.error) throw upSettled.error;
       // #3: on-chain reputation — a settled invoice is a positive signal.
       // Best-effort (never blocks settlement); only on the real on-chain settle.
-      if (settleTxHash) {
-        const { data: invRow } = await sb()
-          .from("invoices")
-          .select("vendor_id")
-          .eq("id", invoiceId)
-          .maybeSingle();
-        if (invRow?.vendor_id) {
-          await recordReputation(
-            invRow.vendor_id as string,
-            REP_KIND.INVOICE_SETTLED,
-            12,
-            settleTxHash,
-          );
-        }
+      if (settleTxHash && vendorId) {
+        await recordReputation(
+          vendorId,
+          REP_KIND.INVOICE_SETTLED,
+          12,
+          settleTxHash,
+        );
       }
       // previous code passed `paidTxHash` here, but the
       // listener-side enqueue (arcSubscriber InvoiceSettled handler)

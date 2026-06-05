@@ -91,6 +91,9 @@ importers:
       '@simplewebauthn/server':
         specifier: ^11.0.0
         version: 11.0.0
+      '@sumsub/websdk-react':
+        specifier: ^2.6.2
+        version: 2.6.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@supabase/ssr':
         specifier: ^0.10.3
         version: 0.10.3(@supabase/supabase-js@2.106.1)
@@ -2360,6 +2363,12 @@ packages:
 
   '@stablelib/base64@1.0.1':
     resolution: {integrity: sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==}
+
+  '@sumsub/websdk-react@2.6.2':
+    resolution: {integrity: sha512-DqCCrX6HtHxrUBR7944boO+wCzMfT2f+5OXeJGDgPXEf+GpyA+eNcn7D1GrFk+ydHszNNM4WwI2FKRPKcHyxkA==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@supabase/auth-js@2.106.1':
     resolution: {integrity: sha512-7eyheXfAGwkB9bZewJPs+N3UYt6kra2JG6mIxNEgbkvcO15PLD1e75PTIUEYYl3zrifm3GrpShVl7QZxKrXO/w==}
@@ -8460,6 +8469,11 @@ snapshots:
   '@solidity-parser/parser@0.20.2': {}
 
   '@stablelib/base64@1.0.1': {}
+
+  '@sumsub/websdk-react@2.6.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   '@supabase/auth-js@2.106.1':
     dependencies:

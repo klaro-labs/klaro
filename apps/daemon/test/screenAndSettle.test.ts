@@ -19,6 +19,15 @@ const H = vi.hoisted(() => ({
   q: null as any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   arc: null as any,
+  // OFAC screen result — mocked so the unit test never hits the network.
+  sanctions: {
+    available: true,
+    sanctioned: false,
+    listSize: 86,
+    refreshedAt: 1,
+  },
+  // Sumsub KYB result — mocked (no network).
+  kyb: { status: "review" as string, detail: "pending" },
 }));
 
 vi.mock("../src/db.js", () => ({
@@ -37,6 +46,12 @@ vi.mock("../src/log.js", () => ({ log: fakeLog }));
 vi.mock("../src/env.js", () => ({
   env: { INVOICE_ESCROW_ADDRESS: ESCROW, NODE_ENV: "test" },
 }));
+vi.mock("../src/ofac.js", () => ({
+  checkAddressSanctioned: async () => H.sanctions,
+}));
+vi.mock("../src/sumsub.js", () => ({
+  getVendorKybStatus: async () => H.kyb,
+}));
 
 const { startScreenAndSettle } =
   await import("../src/workers/screenAndSettle.js");
@@ -44,10 +59,18 @@ const { startScreenAndSettle } =
 const INV = "0x" + "17".repeat(32);
 
 beforeEach(() => {
-  H.sbHandlers = { screening_results: () => ({ error: null }) };
+  H.sbHandlers = {
+    screening_results: () => ({ error: null }),
+    invoices: (c: { op: string }) =>
+      c.op === "select"
+        ? { data: { vendor_id: "vend-1" } }
+        : { data: null, error: null },
+  };
   H.sbCalls = [];
   H.q = makeQueue();
   H.arc = makeArc();
+  H.sanctions = { available: true, sanctioned: false, listSize: 86, refreshedAt: 1 };
+  H.kyb = { status: "review", detail: "pending" };
 });
 
 function run() {
@@ -110,5 +133,35 @@ describe("screenAndSettle (simulated provider)", () => {
       screening_results: () => ({ error: new Error("pg down") }),
     };
     await expect(run()).rejects.toThrow(/pg down/);
+  });
+
+  it("OFAC match HARD-BLOCKS: sanctions fail → requires_admin_review, no settle, screening.fail", async () => {
+    H.sanctions = { available: true, sanctioned: true, listSize: 86, refreshedAt: 1 };
+    await run();
+    // No settle tx, no SETTLED flip.
+    expect(H.arc.writes).toHaveLength(0);
+    expect(
+      H.sbCalls.filter(
+        (c: { table: string; op: string; payload?: Record<string, unknown> }) =>
+          c.table === "invoices" &&
+          c.op === "update" &&
+          c.payload?.status === "SETTLED",
+      ),
+    ).toHaveLength(0);
+    // Flagged for admin review + screening.fail (not screening.review).
+    expect(
+      H.sbCalls.some(
+        (c: { table: string; op: string; payload?: Record<string, unknown> }) =>
+          c.table === "invoices" &&
+          c.op === "update" &&
+          c.payload?.requires_admin_review === true,
+      ),
+    ).toBe(true);
+    expect(
+      H.q.adds.some(
+        (a: { queue: string; data: { kind?: string } }) =>
+          a.queue === "notify-admin" && a.data.kind === "screening.fail",
+      ),
+    ).toBe(true);
   });
 });

@@ -174,6 +174,15 @@ export const QUICKBOOKS_ENV = process.env.QUICKBOOKS_ENV ?? "sandbox";
  * shared with the daemon so it can decrypt + call the provider API. */
 export const ERP_ENC_KEY = opt("ERP_ENC_KEY");
 
+// ─── Sumsub (KYB/KYC) — vendor business verification ─────────────────
+export const SUMSUB_APP_TOKEN = opt("SUMSUB_APP_TOKEN");
+export const SUMSUB_SECRET_KEY = opt("SUMSUB_SECRET_KEY");
+export const SUMSUB_LEVEL_NAME = process.env.SUMSUB_LEVEL_NAME ?? "id-only";
+export const SUMSUB_BASE_URL =
+  process.env.SUMSUB_BASE_URL ?? "https://api.sumsub.com";
+export const sumsubConfigured = (): boolean =>
+  Boolean(SUMSUB_APP_TOKEN && SUMSUB_SECRET_KEY);
+
 // ─── Observability (M11) ─────────────────────────────────────────────
 // SENTRY_ENV defaults to "testnet" (matching the prior
 // hardcoded fallback in sentry.{server,edge}.config.ts before
@@ -241,7 +250,7 @@ export const COUNTERPARTY_REGISTRY_ADDRESS = pub(
 // adopts the live results once any of these is set (M11 wiring).
 export const CHAINALYSIS_API_KEY = opt("CHAINALYSIS_API_KEY");
 export const TRM_API_KEY = opt("TRM_API_KEY");
-export const SUMSUB_APP_TOKEN = opt("SUMSUB_APP_TOKEN");
+// SUMSUB_APP_TOKEN is declared in the Sumsub KYB block above.
 export const ELLIPTIC_API_KEY = opt("ELLIPTIC_API_KEY");
 
 // ─── Inbound webhook secrets (loop ) ────────────────────

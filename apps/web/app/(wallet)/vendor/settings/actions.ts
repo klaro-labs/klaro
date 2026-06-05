@@ -48,3 +48,21 @@ export async function updateBrandingAction(formData: FormData): Promise<void> {
     throw e;
   }
 }
+
+/**
+ * Mint a Sumsub WebSDK access token for the vendor's KYB verification flow.
+ * The applicant is keyed by externalUserId = vendor id, so the daemon's
+ * screening worker reads the same verification when settling.
+ */
+export async function getKybTokenAction(): Promise<{ token: string }> {
+  const { vendor } = await requireVendor();
+  const { createKybAccessToken, sumsubConfigured } = await import("@/lib/sumsub");
+  if (!sumsubConfigured()) throw new Error("kyb_not_configured");
+  try {
+    const token = await createKybAccessToken(vendor.id);
+    return { token };
+  } catch (e) {
+    captureError(e, { action: "settings.kyb_token", vendorId: vendor.id });
+    throw e;
+  }
+}

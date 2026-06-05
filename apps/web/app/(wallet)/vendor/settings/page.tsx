@@ -6,13 +6,19 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { mockGetVendor } from "@/lib/mockData";
+import { getKybStatus, sumsubConfigured } from "@/lib/sumsub";
 import { updateBrandingAction } from "./actions";
+import { SumsubKyb } from "./SumsubKyb";
 
 export default async function SettingsPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
   const v = (await mockGetVendor(session.vendor.id)) ?? session.vendor;
   const color = v.brandColor ?? "#BC4C26";
+  const kybConfigured = sumsubConfigured();
+  const kybStatus = kybConfigured
+    ? await getKybStatus(session.vendor.id)
+    : "error";
 
   return (
     <div className="mx-auto w-full max-w-[1000px] px-4 py-6 md:px-6 md:py-10">
@@ -136,6 +142,19 @@ export default async function SettingsPage() {
           mono
         />
       </ul>
+
+      <h2 className="mt-10 mb-3 font-display text-xl font-semibold">
+        Business verification (KYB)
+      </h2>
+      <div className="rounded-lg border border-[var(--color-line)] bg-white">
+        {kybConfigured ? (
+          <SumsubKyb status={kybStatus} />
+        ) : (
+          <p className="px-6 py-4 text-sm text-[var(--color-ink-muted)]">
+            KYB verification isn&apos;t configured on this environment.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

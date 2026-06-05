@@ -21,6 +21,7 @@
     "@circle-fin/x402-batching": "^3.0.4",
     "@sentry/nextjs": "^10.53.1",
     "@simplewebauthn/server": "^11.0.0",
+    "@sumsub/websdk-react": "^2.6.2",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.1",
     "@tanstack/react-query": "^5.62.0",
