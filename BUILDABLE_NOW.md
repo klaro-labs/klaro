@@ -34,20 +34,37 @@ item mirrors. All contract addresses confirmed against `DEPLOYMENT.md`.
 - **#5 CCTP V2** — Arc `depositForBurn` 0.5 USDC → Ethereum Sepolia; Circle Iris returned a `complete` 131-byte attestation (near-instant via Arc finality).
 - All assertions are gas-independent (Arc pays gas in native USDC), keyed on contract balances + event amounts.
 
-## 🚫 BLOCKED (need a paid account / license / mainnet — cannot fully work on testnet now)
+## 🔌 EXTERNAL INTEGRATIONS — live vs still-blocked (updated 2026-06-05)
 
-- **Buyer screening 3-of-3** (Chainalysis/TRM/Elliptic + Sumsub KYB) — manual-review fallback already works; auto-pass needs provider keys.
-- **Cashout fiat (INR/UPI) payout** — licensed money-transmitter partner. (On-chain USDC lock→release legs already work.)
-- **x402 live settlement** + **Circle Gateway gas** — funded Circle Gateway Wallet + account.
-- **x402 agent /call live response** — Circle Gateway + a real agent backend.
-- **Session keys / ERC-6900 enforcement** — Circle Modular Wallet account + plugin.
-- **Cross-chain transit *dashboard* (Gateway/AppKit aggregate)** — Circle Gateway. (The CCTP sub-path is ✅ built → #5; inbound-into-Arc E2E still needs a source-chain burn, the one external testnet dependency.)
-- **Card on-ramp (MoonPay)** — MoonPay partner account.
-- **Apple/Google Wallet passes** — Apple Developer ($99/yr) + Google issuer; signing path also unimplemented.
-- **ERP sync push** (Tally/QuickBooks/Xero/Zoho) — per-provider OAuth apps.
-- **Sanctions list nightly refresh** — Chainalysis/TRM credentials (same blocker as screening).
+Every integration whose provider offers a free sandbox / no-account path is now **LIVE**
+(keys in gitignored env + Vercel prod; daemon-host env still needs the same keys for the
+daemon-side legs). The only things still simulated are the ones that legally require a
+license or a signed partner/enterprise contract — i.e. genuinely mainnet, not a testnet gap.
 
-> Already-works (not in build list): cashout on-chain escrow legs, x402 mock negotiation,
-> screening manual-review fallback, outbound email (Resend). Several read-side flips
-> (denylist, reputation read, link relayer) are already enabled because their env vars are
-> now set in `.env.local` + Vercel prod — the real build is the missing write/flow code.
+### ✅ NOW LIVE (wired + verified this pass)
+| Integration | What's live | How / proof |
+|---|---|---|
+| **MoonPay** (card on-ramp) | "Card → USDC" opens the real signed sandbox widget | `lib/moonpay.ts` HMAC-signed URL; live 302→`buy-sandbox.moonpay.com` on prod |
+| **Circle Wallets** (passkey/modular) | vendor onboarding wallet provisioning | `lib/circleWallets.ts` + `TEST_CLIENT_KEY`; modular-sdk URL fixed |
+| **QuickBooks** (ERP sync) | Intuit OAuth connect + invoice push on settle | `lib/quickbooks.ts` + `/api/integrations/quickbooks/*`; daemon `quickbooks.ts`; sandbox |
+| **OFAC sanctions** (screening leg 1) | every buyer address screened vs the live OFAC SDN crypto list | `daemon/src/ofac.ts` — **free, no account**; 415 addrs, known-sanctioned blocked, clean cleared |
+| **Sumsub KYB** (screening leg 2) | vendor business verification + screening gate | `lib/sumsub.ts` + WebSDK card on `/vendor/settings`; daemon `sumsub.ts`; sandbox |
+| **Sanctions list refresh** | OFAC list refreshed daily into the screen cache | `sanctionsRefresh` worker (OFAC real; EU/UN still honest-sim) |
+| Resend (email) · Sentry · PostHog · GrowthBook | already wired | env-gated |
+
+> 3-of-3 screening now resolves: **sanctions = OFAC (real)**, **KYB = Sumsub (real)**,
+> behavioral = honestly-labelled testnet heuristic. A clean buyer + OFAC-clear + KYB-verified
+> vendor AUTO-SETTLES; a sanctioned buyer or RED-flagged vendor is blocked.
+
+### 🚫 STILL BLOCKED (license / partner / mainnet — not a testnet gap)
+- **Cashout fiat (INR/UPI) payout** — licensed money-transmitter partner. *The real hard wall.* (On-chain USDC lock→release already works.)
+- **Circle StableFX live** (FxEscrow) — Circle partner allow-list. (MockEURC stand-in proves the swap on testnet → #6.)
+- **Full Chainalysis KYT / TRM / Elliptic** risk scoring — enterprise contract. (The *free* OFAC sanctions oracle above covers the sanctions requirement.)
+- **x402 live settlement + Circle Gateway gas** — funded Circle Gateway Wallet + account.
+- **Session keys / ERC-6900 enforcement** — Circle Modular Wallet plugin.
+- **Cross-chain transit *dashboard* (Gateway/AppKit aggregate)** — Circle Gateway. (CCTP sub-path ✅ built → #5; inbound-into-Arc E2E needs a source-chain burn.)
+- **Apple/Google Wallet passes** — Apple Developer ($99/yr) + Google issuer.
+- **Other ERPs** (Xero / Zoho / Tally) — per-provider OAuth apps (QuickBooks already covers the main one).
+- **Email *sending* from `@myklaro.app`** — needs the domain verified in Resend (DNS). Contact email is `prateek@myklaro.app` everywhere; outbound currently sends from the verified Resend domain.
+
+> The honest next frontier is no longer "another sandbox" — it's the **mainnet / licensing** track.
