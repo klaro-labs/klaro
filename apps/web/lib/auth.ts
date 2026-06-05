@@ -83,7 +83,7 @@ export async function requireLp(): Promise<LpSession> {
   const s = await getCurrentLpSession();
   if (!s)
     throw new Error(
-      "forbidden: not an LP member — request access at lp@klaro.so",
+      "forbidden: not an LP member — request access at prateek@myklaro.app",
     );
   return s;
 }

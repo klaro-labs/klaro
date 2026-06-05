@@ -183,7 +183,7 @@ function TierCard({ tier: t }: { tier: Tier }) {
 
       <div className="mt-8">
         <Link
-          href={t.name === "Scale" ? "mailto:sales@klaro.so" : "/signin"}
+          href={t.name === "Scale" ? "mailto:prateek@myklaro.app" : "/signin"}
           className={cn(
             buttonVariants({ size: "md", variant: "secondary" }),
             "w-full",

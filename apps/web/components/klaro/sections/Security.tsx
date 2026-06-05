@@ -27,7 +27,7 @@ const PILLARS = [
   {
     Icon: Lightbulb,
     title: "Bounty at mainnet",
-    body: "Immunefi-hosted bug bounty launches with mainnet. Pre-mainnet, responsible disclosure goes to security@klaro.so.",
+    body: "Immunefi-hosted bug bounty launches with mainnet. Pre-mainnet, responsible disclosure goes to prateek@myklaro.app.",
   },
 ];
 

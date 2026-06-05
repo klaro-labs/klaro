@@ -40,7 +40,7 @@ export default function PricingPage() {
         sub="No monthly fee. No setup fee. No per-seat fee. No undisclosed FX markup. During testnet every feature is free."
         ctas={[
           { label: "Open workspace", href: "/signin" },
-          { label: "Talk to sales", href: "mailto:sales@klaro.so", variant: "secondary" },
+          { label: "Talk to sales", href: "mailto:prateek@myklaro.app", variant: "secondary" },
         ]}
       />
 

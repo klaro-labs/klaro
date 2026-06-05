@@ -139,10 +139,10 @@ export default function TrustPage() {
             </a>
             . Email{" "}
             <a
-              href="mailto:trust@klaro.so"
+              href="mailto:prateek@myklaro.app"
               className="text-[var(--color-brand)] hover:underline"
             >
-              trust@klaro.so
+              prateek@myklaro.app
             </a>{" "}
             for anything else.
           </p>

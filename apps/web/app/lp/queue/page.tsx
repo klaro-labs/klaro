@@ -32,9 +32,9 @@ export default async function LPQueuePage() {
             only. If your firm wants to apply, email{" "}
             <a
               className="text-[var(--color-brand)] hover:underline"
-              href="mailto:lp@klaro.so"
+              href="mailto:prateek@myklaro.app"
             >
-              lp@klaro.so
+              prateek@myklaro.app
             </a>{" "}
             with your legal entity name + country.
           </p>

@@ -43,14 +43,14 @@ async function main() {
     "asha@aether.studio",
     "Klaro-Demo-2026!",
   );
-  const adminAuthId = await upsertAuthUser("ops@klaro.so", "Klaro-Ops-2026!");
+  const adminAuthId = await upsertAuthUser("prateek@myklaro.app", "Klaro-Ops-2026!");
   const lpAuthId = await upsertAuthUser("aakash@bombaylp.in", "Klaro-LP-2026!");
 
   console.log("[seed] admin row…");
   await sb.from("admins").upsert(
     {
       supabase_user_id: adminAuthId,
-      email: "ops@klaro.so",
+      email: "prateek@myklaro.app",
       display_name: "Klaro Operator",
       role: "admin",
     },

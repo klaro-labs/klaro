@@ -56,9 +56,9 @@ export default async function LPDisputeDetailPage({
             is an error, contact{" "}
             <a
               className="text-[var(--color-brand)] hover:underline"
-              href="mailto:lp@klaro.so"
+              href="mailto:prateek@myklaro.app"
             >
-              lp@klaro.so
+              prateek@myklaro.app
             </a>
             .
           </p>

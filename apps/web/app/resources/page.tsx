@@ -120,10 +120,10 @@ export default function ResourcesPage() {
             Pick the inbox that matches your reason for reaching out. A human reads every message; we reply within one business day.
           </p>
           <ul className="mt-6 grid gap-x-8 gap-y-4 text-sm md:grid-cols-2">
-            <ContactRow label="General" addr="hi@klaro.so" />
-            <ContactRow label="Sales · partnerships" addr="sales@klaro.so" />
-            <ContactRow label="Security disclosure" addr="security@klaro.so" />
-            <ContactRow label="Trust · compliance" addr="trust@klaro.so" />
+            <ContactRow label="General" addr="prateek@myklaro.app" />
+            <ContactRow label="Sales · partnerships" addr="prateek@myklaro.app" />
+            <ContactRow label="Security disclosure" addr="prateek@myklaro.app" />
+            <ContactRow label="Trust · compliance" addr="prateek@myklaro.app" />
           </ul>
         </div>
       </section>

@@ -22,7 +22,7 @@ export interface ContactResult {
   simulated?: boolean;
 }
 
-const NOTIFY_TO = "hi@klaro.so";
+const NOTIFY_TO = "prateek@myklaro.app";
 
 /** Truncated SHA-256 of (IP + UA + daily salt). Lets us rate-limit and
  * spot brigading without keeping the raw IP. */
@@ -85,7 +85,7 @@ export async function submitContactAction(
     captureError(e, { route: "contact.submitContactAction" });
     return {
       ok: false,
-      error: "We couldn't record your message. Try again, or email hi@klaro.so directly.",
+      error: "We couldn't record your message. Try again, or email prateek@myklaro.app directly.",
     };
   }
 }

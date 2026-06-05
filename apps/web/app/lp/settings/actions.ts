@@ -111,6 +111,6 @@ export async function beginExitAction(): Promise<void> {
   // silent no-op (audit finding L4).
   await requireLp();
   throw new Error(
-    "Exit must be initiated by Klaro operations. Email lp@klaro.so with subject `LP exit · <legal entity name>`.",
+    "Exit must be initiated by Klaro operations. Email prateek@myklaro.app with subject `LP exit · <legal entity name>`.",
   );
 }

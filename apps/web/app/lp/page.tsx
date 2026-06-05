@@ -56,9 +56,9 @@ export default async function LPHomePage() {
             Klaro liquidity providers are invite-only. Request access at{" "}
             <a
               className="text-[var(--color-brand)] hover:underline"
-              href="mailto:lp@klaro.so"
+              href="mailto:prateek@myklaro.app"
             >
-              lp@klaro.so
+              prateek@myklaro.app
             </a>
             .
           </p>

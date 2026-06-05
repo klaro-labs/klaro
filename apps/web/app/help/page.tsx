@@ -77,9 +77,9 @@ export default function HelpPage() {
             question, or email{" "}
             <a
               className="text-[var(--color-brand)] hover:underline"
-              href="mailto:help@klaro.so"
+              href="mailto:prateek@myklaro.app"
             >
-              help@klaro.so
+              prateek@myklaro.app
             </a>{" "}
             — 4-hour response during business hours.
           </p>

@@ -19,7 +19,7 @@ import { statusDotClass } from "@/lib/statusDot";
 const ERROR_BANNERS: Record<string, { title: string; body: string }> = {
   operator_role_required: {
     title: "Admin access requires the operator role",
-    body: "Your account is a vendor. Operator console / internal pages are restricted to Klaro operators. Contact ops@klaro.so if you believe you should have access.",
+    body: "Your account is a vendor. Operator console / internal pages are restricted to Klaro operators. Contact prateek@myklaro.app if you believe you should have access.",
   },
   wallet_not_provisioned: {
     title: "Wallet not yet provisioned",

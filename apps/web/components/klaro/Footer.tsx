@@ -36,9 +36,9 @@ const LINKS = {
 } as const;
 
 const EMAILS = [
-  { label: "General", value: "hi@klaro.so" },
-  { label: "Sales", value: "sales@klaro.so" },
-  { label: "Security", value: "security@klaro.so" },
+  { label: "General", value: "prateek@myklaro.app" },
+  { label: "Sales", value: "prateek@myklaro.app" },
+  { label: "Security", value: "prateek@myklaro.app" },
 ] as const;
 
 export function Footer() {

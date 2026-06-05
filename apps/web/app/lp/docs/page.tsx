@@ -50,9 +50,9 @@ export default async function LPDocsPage() {
             Document upload is gated to invited LPs. Email{" "}
             <a
               className="text-[var(--color-brand)] hover:underline"
-              href="mailto:lp@klaro.so"
+              href="mailto:prateek@myklaro.app"
             >
-              lp@klaro.so
+              prateek@myklaro.app
             </a>{" "}
             to apply.
           </p>

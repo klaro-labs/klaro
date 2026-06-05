@@ -49,9 +49,9 @@ export default function AcceptableUsePage() {
         contact{" "}
         <a
           className="text-[var(--color-brand)] hover:underline"
-          href="mailto:compliance@klaro.so"
+          href="mailto:prateek@myklaro.app"
         >
-          compliance@klaro.so
+          prateek@myklaro.app
         </a>{" "}
         before onboarding. Live decisions depend on your jurisdiction +
         corridor.
@@ -78,9 +78,9 @@ export default function AcceptableUsePage() {
         Tip line:{" "}
         <a
           className="text-[var(--color-brand)] hover:underline"
-          href="mailto:abuse@klaro.so"
+          href="mailto:prateek@myklaro.app"
         >
-          abuse@klaro.so
+          prateek@myklaro.app
         </a>
         . We respond within 4 hours during business hours.
       </p>

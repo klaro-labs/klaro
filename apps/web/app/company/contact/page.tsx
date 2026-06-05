@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 };
 
 const CONTACTS = [
-  { role: "General", email: "hi@klaro.so", note: "Anything else." },
-  { role: "Sales & partnerships", email: "sales@klaro.so", note: "ERP, LP, corridor expansion." },
-  { role: "Security disclosure", email: "security@klaro.so", note: "Responsible disclosure — see /trust." },
-  { role: "Trust & compliance", email: "trust@klaro.so", note: "Vendor diligence and audit." },
+  { role: "General", email: "prateek@myklaro.app", note: "Anything else." },
+  { role: "Sales & partnerships", email: "prateek@myklaro.app", note: "ERP, LP, corridor expansion." },
+  { role: "Security disclosure", email: "prateek@myklaro.app", note: "Responsible disclosure — see /trust." },
+  { role: "Trust & compliance", email: "prateek@myklaro.app", note: "Vendor diligence and audit." },
 ] as const;
 
 export default function ContactPage() {

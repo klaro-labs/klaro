@@ -586,7 +586,7 @@ async function MobileCashoutDispute({ order }: { order: CashoutOrder }) {
         Add evidence
       </Link>
       <a
-        href="mailto:support@klaro.so?subject=Cashout%20dispute%20support"
+        href="mailto:prateek@myklaro.app?subject=Cashout%20dispute%20support"
         className="mt-3 flex h-12 w-full items-center justify-center rounded-pill border border-[var(--color-line)] bg-white text-sm font-medium"
       >
         Message admin

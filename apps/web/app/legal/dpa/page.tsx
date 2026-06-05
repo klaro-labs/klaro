@@ -76,9 +76,9 @@ export default function DPAPage() {
         be sent to{" "}
         <a
           className="text-[var(--color-brand)] hover:underline"
-          href="mailto:dpa@klaro.so"
+          href="mailto:prateek@myklaro.app"
         >
-          dpa@klaro.so
+          prateek@myklaro.app
         </a>
         . Public availability for &lt; 100-vendor accounts is via this page.
       </p>

@@ -81,7 +81,7 @@ export const TIERS: readonly Tier[] = [
       "24×7 on-call rotation",
       "Named CSM + SOC reporting",
     ],
-    cta: { label: "Talk to sales", href: "mailto:sales@klaro.so" },
+    cta: { label: "Talk to sales", href: "mailto:prateek@myklaro.app" },
     highlight: false,
     status: "custom",
   },
@@ -188,6 +188,6 @@ export const FAQ = [
   },
   {
     q: "Do you offer discounts for high volume?",
-    a: "The Scale tier is custom-priced. Email sales@klaro.so with your expected monthly volume.",
+    a: "The Scale tier is custom-priced. Email prateek@myklaro.app with your expected monthly volume.",
   },
 ] as const;

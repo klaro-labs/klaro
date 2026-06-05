@@ -92,7 +92,7 @@ export default function ProductCashoutPage() {
             </p>
           </div>
           <a
-            href="mailto:lp@klaro.so"
+            href="mailto:prateek@myklaro.app"
             className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)] hover:underline"
           >
             Apply as an LP →

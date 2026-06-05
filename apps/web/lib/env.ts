@@ -265,11 +265,11 @@ export const ERP_WEBHOOK_SECRET = opt("ERP_WEBHOOK_SECRET");
 
 // ─── Public origin for shareable links (loop ) ──────────
 // `/vendor/invoices/[id]` builds shareable hosted URLs from this. Preview
-// deploys without it silently fall back to `https://klaro.so`, so a
+// deploys without it silently fall back to the prod origin, so a
 // preview-branch copy-link shows a prod URL. Declare in env.ts so the
 // drift-guard + .env.example pick it up.
 export const PUBLIC_ORIGIN =
-  process.env.NEXT_PUBLIC_PUBLIC_ORIGIN ?? "https://klaro.so";
+  process.env.NEXT_PUBLIC_PUBLIC_ORIGIN ?? "https://www.myklaro.app";
 
 // ─── Queue worker flag (loop ) ──────────────────────────
 // Web (Vercel serverless) leaves this unset — handlers run in the daemon's

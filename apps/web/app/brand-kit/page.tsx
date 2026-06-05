@@ -81,7 +81,7 @@ function BrandKitHero() {
       <dl className="mt-12 grid gap-8 border-t border-[var(--color-line)] pt-6 text-sm sm:grid-cols-2 md:grid-cols-4">
         <BkMeta term="Klaro Labs" def="Brand owner" />
         <BkMeta term="2026" def="Established" />
-        <BkMeta term="brand@klaro.so" def="Questions" link="mailto:brand@klaro.so" />
+        <BkMeta term="prateek@myklaro.app" def="Questions" link="mailto:prateek@myklaro.app" />
         <BkMeta term="CC-BY 4.0" def="Brand guide license" />
       </dl>
     </section>
@@ -432,7 +432,7 @@ function VoiceTab() {
         />
         <UsageCard
           kind="dont"
-          title="Requires brand@klaro.so"
+          title="Requires prateek@myklaro.app"
           items={[
             "Using the Stenn-Proof badge on receipts you haven't issued through Klaro.",
             "Modifying the logo — recolouring, redrawing, adding effects, animating beyond the supplied motion files.",
@@ -587,7 +587,7 @@ function DownloadsTab() {
     <section>
       <TabHead
         title="Downloads"
-        lede="What we have today. Logo, wordmark, and colour tokens — production-ready. The full Figma source and font WOFF2 bundle are in progress; email brand@klaro.so to get them early."
+        lede="What we have today. Logo, wordmark, and colour tokens — production-ready. The full Figma source and font WOFF2 bundle are in progress; email prateek@myklaro.app to get them early."
       />
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -654,7 +654,7 @@ function RequestCard({ title, meta, body }: { title: string; meta: string; body:
           <p className="mt-3 text-sm text-[var(--color-ink-muted)]">{body}</p>
         </div>
         <a
-          href="mailto:brand@klaro.so?subject=Brand%20kit%20request"
+          href="mailto:prateek@myklaro.app?subject=Brand%20kit%20request"
           className="inline-flex shrink-0 items-center gap-1.5 rounded-pill border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
         >
           Email to request
@@ -682,10 +682,10 @@ function PressBand() {
           </p>
         </div>
         <Link
-          href="mailto:brand@klaro.so"
+          href="mailto:prateek@myklaro.app"
           className="inline-flex h-11 items-center rounded-pill bg-white px-5 text-sm font-medium text-[var(--color-ink)] hover:bg-[var(--color-gold)]"
         >
-          brand@klaro.so
+          prateek@myklaro.app
         </Link>
       </article>
     </section>

@@ -207,8 +207,8 @@ export default async function ErpIntegrationsPage({
           </p>
           <p className="mt-2">
             Email{" "}
-            <a href="mailto:integrations@klaro.so" className="underline">
-              integrations@klaro.so
+            <a href="mailto:prateek@myklaro.app" className="underline">
+              prateek@myklaro.app
             </a>{" "}
             with the ERP name + how you currently reconcile crypto payments. We
             prioritize the top-10 by request volume.

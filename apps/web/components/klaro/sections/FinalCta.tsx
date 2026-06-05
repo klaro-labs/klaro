@@ -54,7 +54,7 @@ export function FinalCta() {
                 Create your account →
               </Link>
               <a
-                href="mailto:sales@klaro.so"
+                href="mailto:prateek@myklaro.app"
                 className={cn(
                   buttonVariants({ size: "lg", variant: "secondary" }),
                   "text-white ring-white/25 hover:bg-white/10",

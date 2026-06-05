@@ -21,7 +21,7 @@ const spec = {
     contact: {
       name: "Klaro",
       url: "https://klaro.so",
-      email: "developers@klaro.so",
+      email: "prateek@myklaro.app",
     },
     license: {
       name: "Apache-2.0",

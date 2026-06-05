@@ -34,7 +34,7 @@ export default function VendorError({
           Vendor home
         </Link>
         <a
-          href="mailto:support@klaro.so"
+          href="mailto:prateek@myklaro.app"
           className="text-sm text-[var(--color-brand)] hover:underline"
         >
           Open support case

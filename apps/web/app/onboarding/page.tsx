@@ -116,7 +116,7 @@ export default function OnboardingPage() {
       });
     } else if (step === 4) {
       res = await recordFirstInvoiceIntentAction({
-        customerEmail: form.invoiceEmail || "you@klaro.so",
+        customerEmail: form.invoiceEmail || "prateek@myklaro.app",
         amountUsdc: form.invoiceAmount || "100.00",
         description: form.invoiceDescription,
       });
@@ -477,7 +477,7 @@ function FirstInvoiceStep({ form, update, onBlur }: StepProps) {
           value={form.invoiceEmail}
           onChange={(e) => update("invoiceEmail", e.target.value)}
           onBlur={onBlur}
-          placeholder="you@klaro.so"
+          placeholder="prateek@myklaro.app"
           className="mt-1.5 scroll-mb-28"
         />
       </div>

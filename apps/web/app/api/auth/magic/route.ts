@@ -15,7 +15,7 @@ import { z } from "zod";
 const Body = z.object({ email: z.string().email(), redirectTo: z.string() });
 
 /// redirectTo was unvalidated.
-/// Attacker POSTs `{ email: "victim@klaro.so", redirectTo: "https://
+/// Attacker POSTs `{ email: "prateek@myklaro.app", redirectTo: "https://
 /// evil.com/steal" }` → Supabase emails the victim a magic link whose
 /// post-auth handoff lands at evil.com → auth code + session delivered
 /// to attacker. Same defect class as the moonpay open-redirect closed

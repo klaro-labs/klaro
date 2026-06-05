@@ -86,7 +86,7 @@ const schema = z.object({
   // Web Push (build #10) — VAPID is a self-generated keypair (no account).
   VAPID_PRIVATE_KEY: z.string().optional(),
   VAPID_PUBLIC_KEY: z.string().optional(),
-  VAPID_SUBJECT: z.string().default("mailto:support@klaro.so"),
+  VAPID_SUBJECT: z.string().default("mailto:prateek@myklaro.app"),
 });
 
 const parsed = schema.safeParse(process.env);
