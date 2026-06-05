@@ -1857,3 +1857,91 @@ existing `axe-contrast-scan.mjs`.
 - **Post-closure:** II★.1–II★.6 add every one of the 39 as a named, source-anchored check. With II★ green **and** the rest of Parts I+II green, coverage is genuinely complete for "a real Rabby user does/reads/combines everything."
 - **The honest claim is conditional, not a rubber stamp:** the plan may state "100% covered" **only after** every box in Parts I, II, and II★ is executed against the source of truth at both viewports — and the CI coverage gate (Gate F5 / II.Z) is wired so the next new button/route/popup **fails the build until it has a check**. A one-time 82%→100% does not stay 100% without that gate.
 - **Note for the next audit:** re-run the 6-dimension adversarial sweep whenever `AppShell.tsx`, `CommandPalette.tsx`, any `*OnChain`/`PayWith*`/`LinkForm` signing component, or the connector/wallet config changes — those are where coverage rots fastest.
+
+---
+
+# PART III — THIS SESSION'S INTEGRATIONS & DEPLOYMENT (2026-06-05)
+
+> **Why this Part exists.** Part II★'s closing note said: re-run the audit whenever a
+> `PayWith*`/signing component, connector, or wallet/deploy config changes. Between
+> 2026-06-03 → 06-05 **six** new external surfaces landed *after* the last exhaustive
+> pass, and a coverage grep proved the holes: **QuickBooks 0 · OFAC 0 · behavioral 0 ·
+> DigitalOcean 0 · ERP_ENC_KEY 0 · Sumsub 1**. Until every box in Part III is green at
+> both viewports, the "100% covered" claim is **void**.
+
+## III.0 — What changed (the delta to re-test)
+- **Screening behavior change (money-moving):** `screenAndSettle` went from *always-manual-review* → **real 3-of-3 with auto-settle**. Legs: sanctions = **OFAC** (real), KYB = **Sumsub** (real), behavioral = **testnet heuristic** (honest pass). Clean buyer + OFAC-clear + KYB-verified vendor now **releases USDC on-chain automatically**.
+- **New surfaces:** MoonPay signed widget, QuickBooks OAuth connector, Sumsub KYB card on `/vendor/settings`.
+- **Daemon host:** Railway → **DigitalOcean** (`.do/app.yaml`, app `klaro-daemon`).
+- **Honesty pass:** user-facing copy changed (compliance claims, subprocessors, contact email, ERP count).
+
+## III.1 — 💳 MoonPay card on-ramp — `apps/web/lib/moonpay.ts`
+- [ ] On a hosted invoice `/i/[id]` with a buyer wallet that lacks USDC, the **"Card → USDC"** affordance appears.
+- [ ] Clicking opens **`buy-sandbox.moonpay.com`** (sandbox, NOT production) in a new tab.
+- [ ] 🔒 The URL carries a **`&signature=`** param (HMAC-SHA256 of the query, server-signed). Without it MoonPay rejects a prefilled `walletAddress` — assert the param is present and non-empty.
+- [ ] `walletAddress` equals the **connected buyer address**; `currencyCode` + `baseCurrencyAmount` match the invoice.
+- [ ] **Honest label:** the UI states this is sandbox/testnet and that MoonPay may not list `usdc_arc` (don't imply a completed on-ramp).
+- [ ] Negative: with `MOONPAY_SECRET_KEY` unset the link still builds but **unsigned** — the path degrades without throwing, and the UI doesn't claim a working buy.
+- [ ] 🔒 `MOONPAY_SECRET_KEY` is **server-only** — grep the client bundle: it must NOT appear (only `NEXT_PUBLIC_MOONPAY_PUBLIC_KEY` may).
+
+## III.2 — 📒 QuickBooks ERP — `/api/integrations/quickbooks/{connect,callback}`, `lib/quickbooks.ts`, `apps/daemon/src/quickbooks.ts`
+- [ ] `/vendor/integrations/erp` shows **QuickBooks** with a **live** badge + **Connect QuickBooks →** button (Xero/Tally remain "coming soon").
+- [ ] **Connect** → Intuit OAuth consent → callback lands on `/vendor/integrations/erp?connected=QuickBooks` with a success banner.
+- [ ] 🔒 **CSRF:** `connect` sets a state cookie; `callback` **rejects a mismatched/absent `state`** (forge a callback with a wrong state → must fail, no token stored).
+- [ ] 🔒 **Token at rest is encrypted:** the `erp_connections` row's `auth_token_ciphertext` is AES-256-GCM (iv‖tag‖ciphertext base64), NOT plaintext. `realm_id` lives in `config_json`.
+- [ ] 🔒 The shared **`ERP_ENC_KEY`** is identical on web (Vercel) and daemon (DO) — else the daemon can't decrypt. Assert parity.
+- [ ] After an invoice **settles**, the daemon `erpSync` worker refreshes the token + **creates the invoice in the QuickBooks sandbox** (find-or-create customer first). Verify it appears in the `sandbox-quickbooks.api.intuit.com` company.
+- [ ] **Reconnect** works (button shows when connected; re-running OAuth updates the token).
+- [ ] Negative: callback with an Intuit `error` param → `?erp_error=...` banner, no crash.
+- [ ] Negative (not configured): with `QUICKBOOKS_CLIENT_ID` unset, the connector renders but Connect fails **gracefully** (honest message, no 500).
+- [ ] RLS: the `erp_connections` row is vendor-scoped (`vendor_id = current_vendor_id()`); a second vendor cannot read it.
+
+## III.3 — 🪪 Sumsub KYB — `lib/sumsub.ts`, `app/(wallet)/vendor/settings/SumsubKyb.tsx`, `apps/daemon/src/sumsub.ts`
+- [ ] `/vendor/settings` shows a **"Business verification (KYB)"** card with a status badge: **Not started / In review / Verified / Rejected**.
+- [ ] **Verify business →** mints a short-lived WebSDK access token (server action `getKybTokenAction`) and **launches the Sumsub WebSDK** inline (client-only `dynamic` import — no SSR crash).
+- [ ] 🔒 The token is **minted server-side** (HMAC-signed request); the secret never reaches the client. Token TTL is short (~600s) and `expirationHandler` re-mints.
+- [ ] Applicant is keyed by **`externalUserId` = the Klaro vendor id** (so the daemon finds the same applicant at settle).
+- [ ] Sandbox **GREEN** → card flips to **Verified** → screening KYB leg returns **pass**.
+- [ ] Sandbox **RED** → **Rejected** → screening KYB leg returns **fail** → payment **blocked**.
+- [ ] **Pending / none / unreachable** → KYB leg returns **review** (fail-closed — an unverified vendor's payment must HOLD, never auto-clear).
+- [ ] Negative (not configured): with `SUMSUB_*` unset the card reads **"KYB isn't configured on this environment"** (no broken launcher).
+- [ ] Honest label: nothing implies KYB is complete until the badge is actually **Verified**.
+
+## III.4 — 🛡️ OFAC sanctions screening — `apps/daemon/src/ofac.ts`, `workers/sanctionsRefresh.ts`
+- [ ] On boot the daemon logs **`ofac.refresh.ok {count:415}`** (the real OFAC SDN crypto-address list loaded — free, no key).
+- [ ] A **clean** buyer → sanctions leg **pass** (`provider: "ofac.sanctions"`, evidence hash in `screening_results`).
+- [ ] A **known-sanctioned** address → sanctions leg **fail** → payment **blocked** (`screening.fail`, admin notified). *(Use a test SDN address; no real funds needed.)*
+- [ ] 🔒 **Fail-closed:** when the OFAC list is unavailable, the leg returns **review**, NOT pass (an outage must never auto-clear a payment).
+- [ ] Daily refresh cron runs; **EU/UN are honestly skipped** (`[SIMULATED] sanctions.refresh.skipped`) — the logs/labels don't claim EU/UN are live.
+
+## III.5 — 💰 3-of-3 screening → AUTO-SETTLE (the behavior change) [P0] — `workers/screenAndSettle.ts`
+> This now **moves USDC on-chain**. Apply the Part 11 money-conservation rubric: assert on **contract balances + event amounts**, never signer-wallet deltas (Arc pays gas in native USDC).
+- [ ] **Happy path:** clean buyer + OFAC-clear + **KYB-verified** vendor → all 3 legs pass → daemon signs `settle` → **escrow drained, vendor credited, 1% fee carved**, invoice → SETTLED, `/receipt/[hash]` verifies. *(This is the new auto-settle — previously everything held for review.)*
+- [ ] **Unverified vendor** (KYB none/pending) → `screening.review` → invoice **HOLDS** (no settle, admin queued). Confirm no USDC moved.
+- [ ] **Sanctioned buyer** → `screening.fail` → **blocked**, no settle.
+- [ ] **RED vendor** → `screening.fail` → **blocked**.
+- [ ] Behavioral leg = **testnet heuristic pass** with the honest detail string — verify it is NOT presented as a completed enterprise behavioral score.
+- [ ] Each leg writes a `screening_results` row (provider + result + evidence hash). Three rows per screen.
+- [ ] Idempotency: re-deliver the same screen job → **no double-settle** (BullMQ + on-chain guard).
+- [ ] Reputation: an auto-settle records exactly **one** `VendorReputation` tick (no double-count with the cashout tick — see II★ cumulative-rep check).
+
+## III.6 — 🚀 DigitalOcean daemon deployment & ops — `.do/app.yaml`, `apps/daemon/Dockerfile`
+- [ ] The daemon boots clean on DO: logs **`daemon.ready {workers:12, listenerEnabled:true}`** (env validation passed — a missing required env must `process.exit(1)`, visible in the deploy log).
+- [ ] 🐳 **Build:** the Dockerfile copies `packages/contracts/abis` (the fix this session) — a fresh build must succeed; regression-guard that the ABI import resolves.
+- [ ] **Env parity:** the DO daemon carries the SAME `QUICKBOOKS_* / ERP_ENC_KEY / SUMSUB_* / contract addresses / REDIS_URL / SUPABASE_*` as Vercel. A drift silently breaks QBO push or KYB decrypt — assert parity.
+- [ ] **deploy_on_push:** a push to `main` triggers an auto-rebuild on DO (verify a no-op commit redeploys).
+- [ ] 🔴 **Failure mode — daemon down:** stop the worker, pay an invoice → it stays **PAID but never settles** (jobs queue in Redis). Restart → the **backlog drains** and settles. *(Proves the daemon is load-bearing and degrades safely, not silently.)*
+- [ ] Both tiers required: web (Vercel) + daemon (DO) + DB (Supabase) + Redis (Upstash) all up = full flow. Document the dependency in the runbook.
+
+## III.7 — 🧾 Honesty-fix verification (the copy corrected this session)
+- [ ] Landing metric reads **"ERP connector live · QuickBooks" (1)**, NOT "3 ERPs live · Tally, QuickBooks, Xero".
+- [ ] No page claims **SOC 2 / PCI / 99.9% uptime / 24×7 on-call** as *current* (Trust Center "in-progress" + roadmap "planned" + landing "audit underway" are the only acceptable framings).
+- [ ] The status page has **no `@klaro_xyz` Twitter link**; no `status.klaro.so` presented as a live SLA endpoint.
+- [ ] `/legal/subprocessors` lists the **real** set (Vercel, DigitalOcean, Supabase, Upstash, Circle, Resend, Sentry, PostHog, GrowthBook, MoonPay, Sumsub, Intuit) and does **not** list Railway / BetterStack / PagerDuty / unsigned fiat "pilots".
+- [ ] Every contact/"email us" link is **`prateek@myklaro.app`** (no `@klaro.so`); input-example placeholders are neutral (`you@company.com`).
+- [ ] Pricing tiers describe honest deliverables ("priority support + on-call (at GA)", "after SOC 2 audit (planned)") — no as-current enterprise-compliance claims.
+
+## III.VERDICT — honest coverage statement (2026-06-05)
+- Parts I + II + II★ remain valid for everything that existed before 2026-06-03. **Part III is mandatory** for this session's integrations + the auto-settle behavior change + the DO deploy.
+- The plan may state **"100% covered" only after Parts I, II, II★ AND III are all executed** at both viewports, with the money-conservation rubric (Part 11) applied to III.5.
+- **Coverage rots at the connector/signing/deploy edges** — the next time `moonpay.ts`, `sumsub.ts`, `quickbooks.ts`, `screenAndSettle.ts`, `ofac.ts`, or `.do/app.yaml` changes, Part III must be re-run.
