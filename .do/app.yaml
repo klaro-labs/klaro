@@ -1,0 +1,39 @@
+# DigitalOcean App Platform spec for the Klaro daemon (BullMQ background worker).
+#
+# When you create an App from the klaro-labs/klaro repo, App Platform auto-reads
+# this file and pre-fills the build config — so you don't set source dir / port /
+# health by hand. You only add the runtime env (secrets) in the dashboard.
+#
+# IMPORTANT: the build context is the REPO ROOT (the daemon Dockerfile pulls in
+# the pnpm workspace files), so `source_dir` is "/" — not apps/daemon.
+#
+# This is a `worker` (no public URL needed): it just consumes the job queues
+# (screening/settle, cashout advance, QuickBooks push, KYB gate, receipts, …).
+name: klaro-daemon
+region: nyc
+workers:
+  - name: daemon
+    dockerfile_path: apps/daemon/Dockerfile
+    source_dir: /
+    github:
+      repo: klaro-labs/klaro
+      branch: main
+      deploy_on_push: true
+    instance_size_slug: basic-xxs # ~$5/mo — the $200 GitHub credit covers ~3 years
+    instance_count: 1
+    # ── Runtime env: add ALL of these in the DO dashboard (Settings → env, bulk
+    #    editor) by pasting your apps/daemon/.env, and tick "Encrypt":
+    #      SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+    #      REDIS_URL, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, BULLMQ_PREFIX
+    #      ARC_TESTNET_RPC_URL, DAEMON_OPERATOR_PRIVATE_KEY
+    #      INVOICE_ESCROW_ADDRESS, AUDIT_RECEIPT_ADDRESS, CASHOUT_ORDER_PROCESSOR_ADDRESS,
+    #      AGENT_ESCROW_ADDRESS, DISPUTE_MANAGER_ADDRESS, VENDOR_REPUTATION_ADDRESS,
+    #      STABLEFX_REGISTRY_ADDRESS, EURC_ADDRESS
+    #      SENTRY_DSN, RESEND_API_KEY, RESEND_FROM, WEBHOOK_HMAC_SECRET
+    #      VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY, VAPID_SUBJECT
+    #      QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET, QUICKBOOKS_ENV, ERP_ENC_KEY
+    #      SUMSUB_APP_TOKEN, SUMSUB_SECRET_KEY, SUMSUB_LEVEL_NAME
+    #      NODE_ENV=production  (the Dockerfile already sets this)
+    envs:
+      - key: NODE_ENV
+        value: production
