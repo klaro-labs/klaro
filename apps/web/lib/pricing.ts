@@ -78,8 +78,8 @@ export const TIERS: readonly Tier[] = [
       "White-label invoicing",
       "Dedicated infrastructure",
       "Custom screening rules",
-      "24×7 on-call rotation",
-      "Named CSM + SOC reporting",
+      "Priority support + on-call (at GA)",
+      "Named contact + reporting",
     ],
     cta: { label: "Talk to sales", href: "mailto:prateek@myklaro.app" },
     highlight: false,
@@ -153,15 +153,15 @@ export const COMPARE_ROWS: readonly CompareRow[] = [
   },
   {
     feature: "SOC 2 evidence pack",
-    testnet: "Public Trust Center",
-    standard: "Public Trust Center",
-    scale: "On-request, NDA-gated",
+    testnet: "Trust Center",
+    standard: "Trust Center",
+    scale: "After SOC 2 audit (planned)",
   },
   {
     feature: "Support channel",
     testnet: "Community + email",
     standard: "Priority email + Slack Connect",
-    scale: "Dedicated Slack + 24×7 on-call",
+    scale: "Dedicated Slack channel",
   },
 ];
 

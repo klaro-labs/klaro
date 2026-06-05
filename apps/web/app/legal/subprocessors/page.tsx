@@ -27,8 +27,8 @@ const SUBPROCESSORS = [
     data: "Job payloads (transient)",
   },
   {
-    name: "Railway",
-    purpose: "Operator daemon hosting",
+    name: "DigitalOcean",
+    purpose: "Operator daemon (background worker) hosting",
     region: "US",
     data: "Operator logs",
   },
@@ -57,28 +57,28 @@ const SUBPROCESSORS = [
     data: "Anonymised events",
   },
   {
-    name: "BetterStack",
-    purpose: "Status page + uptime monitoring",
-    region: "Global",
-    data: "Service heartbeats",
-  },
-  {
     name: "GrowthBook (self-host)",
     purpose: "Feature flags",
     region: "US",
     data: "Feature-flag eval keys",
   },
   {
-    name: "PagerDuty",
-    purpose: "Incident escalation",
+    name: "MoonPay",
+    purpose: "Card → USDC on-ramp (buyer-initiated)",
     region: "Global",
-    data: "Alert metadata only",
+    data: "Buyer payment details + destination wallet (handled by MoonPay)",
   },
   {
-    name: "Mudrex / Onmeta / TransFi (pilot)",
-    purpose: "INR cashout payout (mainnet only)",
-    region: "IN",
-    data: "Cashout recipient name + bank/UPI",
+    name: "Sumsub",
+    purpose: "KYB / identity verification",
+    region: "EU + UK",
+    data: "Vendor business + identity documents",
+  },
+  {
+    name: "Intuit (QuickBooks)",
+    purpose: "ERP sync — vendor-initiated OAuth",
+    region: "US",
+    data: "Invoice + payment metadata pushed to the vendor's books",
   },
 ];
 

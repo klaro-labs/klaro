@@ -76,7 +76,7 @@ const EXPLANATIONS = [
   {
     id: "uptime",
     title: "Uptime + status",
-    body: "BetterStack-powered status.klaro.so. 99.9% uptime objective. PagerDuty 24/7 on-call for severity-1 incidents.",
+    body: "Live status at /status. Formal uptime SLA + 24/7 on-call land with the mainnet launch — testnet runs best-effort with no published SLA yet.",
     tone: "info" as const,
   },
 ];

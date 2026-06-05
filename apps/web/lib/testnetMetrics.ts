@@ -36,9 +36,9 @@ export const LANDING_METRICS: LandingMetric[] = [
     source: "live-testnet", // these surfaces are live in code
   },
   {
-    label: "ERPs live · Tally, QuickBooks, Xero",
-    value: "3",
-    source: "simulated-placeholder", // sandbox connections; counts as live in M4
+    label: "ERP connector live · QuickBooks",
+    value: "1",
+    source: "live-testnet", // QuickBooks OAuth + invoice sync wired; Xero/Tally next
   },
   {
     label: "of fiat payouts simulated until partner is live",

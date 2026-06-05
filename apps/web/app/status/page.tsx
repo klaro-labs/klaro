@@ -128,14 +128,6 @@ export default function StatusPage() {
               Klaro Status
             </span>
           </Link>
-          <a
-            href="https://twitter.com/klaro_xyz"
-            className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
-            target="_blank"
-            rel="noreferrer"
-          >
-            @klaro_xyz
-          </a>
         </div>
       </header>
 
