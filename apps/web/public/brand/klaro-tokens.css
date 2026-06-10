@@ -4,12 +4,11 @@
  * License: CC-BY 4.0 (brand guide). Logo files: all rights reserved.
  */
 :root {
-  /* Brand — mirrors the LF-4 AA-hardened values in globals.css.
-     Terracotta darkened #c7522a → #bc4c26 to clear WCAG AA (4.5:1) on white;
-     keep in sync with --color-klaro-orange and friends. */
-  --klaro-terracotta: #bc4c26;
-  --klaro-terracotta-soft: #faede5;
-  --klaro-terracotta-deep: #8e3414;
+  /* Brand — Klaro blue. Mirrors --color-klaro-orange* in globals.css, where the
+     legacy `orange` token names now resolve to blue. */
+  --klaro-blue: #1b6bff;
+  --klaro-blue-soft: #eaf2ff;
+  --klaro-blue-deep: #124ac8;
 
   /* Reserved — Stenn-Proof badge only */
   --klaro-gold: #f5b100;

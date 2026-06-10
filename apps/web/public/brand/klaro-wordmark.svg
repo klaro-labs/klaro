@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" width="540" height="120" aria-label="Klaro wordmark">
   <g transform="translate(8 8)">
     <rect x="0" y="0" width="12" height="64" rx="1.5" fill="#0A0A0A"/>
-    <path d="M14 32 L52 0 L52 14 L31 32 Z" fill="#C7522A"/>
-    <path d="M14 32 L52 64 L52 50 L31 32 Z" fill="#C7522A"/>
+    <path d="M14 32 L52 0 L52 14 L31 32 Z" fill="#1B6BFF"/>
+    <path d="M14 32 L52 64 L52 50 L31 32 Z" fill="#1B6BFF"/>
   </g>
   <text x="76" y="58" font-family="Inter Tight, Inter, system-ui, sans-serif" font-size="52" font-weight="600" letter-spacing="-1.2" fill="#0A0A0A">klaro</text>
 </svg>

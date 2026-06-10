@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="256" height="256" aria-label="Klaro mark — dark surface">
   <rect x="2" y="2" width="4.5" height="20" rx="0.5" fill="#FFFFFF"/>
-  <path d="M6.5 12 L20 2 L20 6.5 L11.5 12 Z" fill="#C7522A"/>
-  <path d="M6.5 12 L20 22 L20 17.5 L11.5 12 Z" fill="#C7522A"/>
+  <path d="M6.5 12 L20 2 L20 6.5 L11.5 12 Z" fill="#1B6BFF"/>
+  <path d="M6.5 12 L20 22 L20 17.5 L11.5 12 Z" fill="#1B6BFF"/>
 </svg>
