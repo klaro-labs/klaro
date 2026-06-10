@@ -1,5 +1,18 @@
 # Klaro
 
+> **The one rule above all — read this first, every time.**
+>
+> **Test like a real human using the product, and always work highest-priority
+> first.** You cannot judge whether something actually works, looks right, or
+> makes sense unless you exercise it exactly the way a real user would — open
+> the real page, click the real button, connect the real wallet, sign the real
+> transaction, on real desktop AND mobile, and look at the result with your own
+> eyes (screenshot every step). A passing unit test, a 200 response, or "the
+> code looks correct" is NOT proof the product works from a human's end. If you
+> didn't experience it as a human would, you don't know it works — so don't say
+> it does. Decide what to do next by importance: do the most important thing
+> first, every time, but never skip anything.
+
 Arc-native USDC invoicing, on-chain receipts, vendor reputation, and partner
 cashout. Testnet only. pnpm monorepo (Node >= 22, pnpm >= 10).
 
