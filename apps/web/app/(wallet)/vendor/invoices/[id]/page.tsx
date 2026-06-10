@@ -233,8 +233,9 @@ export default async function InvoiceDetailPage({
               {hostedUrl}
             </p>
             <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
-              Share this URL to run the demo buyer checkout. Live wallet,
-              cross-chain and card payments are not enabled here.
+              {onchainLive()
+                ? "Share this URL with your customer. They connect a wallet and pay in USDC on Arc; a card on-ramp is offered too. Their receipt anchors once settlement clears screening."
+                : "Share this URL to run the simulated buyer checkout. No real wallet payment occurs in simulator mode."}
             </p>
             <div className="mt-3 flex items-center gap-3">
               <Link
