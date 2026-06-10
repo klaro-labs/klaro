@@ -19,6 +19,10 @@ On-chain receipts. Testnet cashout simulation. Built for the businesses USDC was
 &nbsp; · &nbsp;
 [**Runbooks**](docs/runbooks)
 
+<br/>
+
+<img src="docs/screenshots/01-landing.png" alt="Klaro landing — get paid in seconds, not weeks" width="900" />
+
 </div>
 
 ---
