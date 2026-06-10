@@ -73,6 +73,27 @@ export async function decideDisputeAction(
     }
     const reasonHash = REASON_HASHES[outcome];
     const evidenceHash = _hash(note);
+    // Invoice + stream disputes have no on-chain DisputeManager escrow case
+    // (invoices settle directly; stream has no live escrow yet), so the daemon's
+    // on-chain `DisputeManager.decide` would have nothing to act on and the case
+    // would never leave UNDER_REVIEW. Record the operator's review outcome
+    // off-chain instead — no funds move (nothing is escrowed for these
+    // contexts); the decision is the recorded signal, mirroring the simulated
+    // path. Cashout/agent/retainer fall through to the on-chain daemon below.
+    if (live.context === "invoice" || live.context === "stream") {
+      await disputesRepo.decide(caseId, outcome, note, reasonHash);
+      auditRecord({
+        actor: session.vendor.id,
+        action: "dispute.decide",
+        subjectKind: "dispute",
+        subjectId: caseId,
+        reasonHash,
+        noteMd: `Operator decision ${outcome} recorded off-chain (${live.context} dispute — no escrow case to resolve on-chain)`,
+        runbookId: "dispute-overdue",
+      });
+      revalidatePath("/admin/disputes");
+      return;
+    }
     const { createQueue } = await import("@/lib/queue");
     const decideQueue = createQueue<{
       caseId: Hex;
