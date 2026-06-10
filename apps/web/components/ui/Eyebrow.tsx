@@ -24,7 +24,7 @@ export function Eyebrow({
         "font-mono text-[11px] font-medium uppercase tracking-[0.18em]",
         tone === "gold"
           ? "text-[var(--color-klaro-gold)]"
-          : "text-[var(--color-klaro-orange)]",
+          : "text-[var(--color-klaro-orange-deep)]",
         className,
       )}
     >

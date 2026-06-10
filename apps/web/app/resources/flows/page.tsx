@@ -232,7 +232,7 @@ export default function FlowsPage() {
         </ol>
 
         <aside className="mt-12 rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-warm)] p-6 md:p-8">
-          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)]">
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange-deep)]">
             How to read this
           </p>
           <ul className="mt-4 grid gap-3 text-sm text-[var(--color-muted)] md:grid-cols-2">

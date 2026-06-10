@@ -109,7 +109,7 @@ function SurfaceCard({ surface }: { surface: Surface }) {
         <span
           className={cn(
             "text-[11px] font-medium tracking-[0.18em] uppercase",
-            isDark || isBrand ? "text-white/70" : "text-[var(--color-brand)]",
+            isDark || isBrand ? "text-white/90" : "text-[var(--color-brand)]",
           )}
         >
           {surface.eyebrow}
@@ -233,10 +233,10 @@ function LabSample() {
       {items.map((i) => (
         <li
           key={i.label}
-          className="flex items-center justify-between text-white/85"
+          className="flex items-center justify-between text-white/90"
         >
           <span>{i.label}</span>
-          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium uppercase">
+          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium uppercase text-white">
             {i.tag}
           </span>
         </li>

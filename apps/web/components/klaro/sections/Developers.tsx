@@ -78,12 +78,12 @@ export function Developers() {
 
             {/* Designer 2026-05-25 parity: 4 cards advertise the open-source
                 surface (license/SDK/reference/docs URL), not runtime metrics. */}
-            <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 text-sm">
+            <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 text-sm">
               <DevStat n="GitHub" label="Apache-2.0 contracts" />
               <DevStat n="in dev" label="TypeScript SDK" />
               <DevStat n="MIT" label="ERC-8183 reference" />
               <DevStat n="myklaro.app/docs" label="OpenAPI spec" />
-            </dl>
+            </div>
           </div>
 
           <div className="overflow-hidden rounded-lg border border-white/10 bg-[var(--color-bg-dark-2)] shadow-[0_4px_16px_rgba(10,10,10,0.15)]">

@@ -73,7 +73,7 @@ const SURFACES: Array<{
 
 const STAGE_STYLES: Record<Stage, string> = {
   "live testnet":
-    "bg-[color-mix(in_oklab,var(--color-success)_12%,transparent)] text-[var(--color-success)]",
+    "bg-[color-mix(in_oklab,var(--color-success)_12%,transparent)] text-[var(--color-success-deep)]",
   simulated: "bg-[var(--color-bg-warm)] text-[var(--color-muted)] border border-[var(--color-line)]",
   "partner-pending": "bg-[var(--color-klaro-gold-soft)] text-[var(--color-klaro-gold-deep)]",
 };

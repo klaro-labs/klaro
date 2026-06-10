@@ -35,7 +35,7 @@ export function PageHero({
             ))}
           </div>
         )}
-        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange)]">
+        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-klaro-orange-deep)]">
           {eyebrow}
         </p>
         <h1 className="mt-4 font-display text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] tracking-tight">

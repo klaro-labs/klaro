@@ -34,6 +34,9 @@
 
   /* Status (semantic) */
   --color-success: #16A34A;
+  /* Darker green for success TEXT on light/tinted backgrounds — #16A34A fails
+     WCAG AA there (~2.9:1); #166534 clears it (~6:1). */
+  --color-success-deep: #166534;
   --color-warning: #F59E0B;
   --color-danger: #DC2626;
 
