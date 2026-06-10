@@ -221,7 +221,7 @@ export default function FlowsPage() {
         eyebrow="User flows"
         chips={["State machines · sourced from spec v2"]}
         title="How Klaro actually works."
-        sub="Every money flow is a state machine. These are the canonical journeys with their states, on-screen timelines, and stuck-state handling. Sourced from Klaro_Final_Testnet_Complete_Full_Flow_Design_v2.md."
+        sub="Every money flow is a state machine. These are the canonical journeys with their states, on-screen timelines, and stuck-state handling, taken straight from our flow specification."
       />
 
       <section className="klaro-container pb-20">

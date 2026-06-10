@@ -75,20 +75,24 @@ export function PayFromLink({ slug }: { slug: string }) {
         </Badge>
       </div>
 
-      <Button
-        size="lg"
-        className="w-full"
-        onClick={() => void prepare()}
-        disabled={phase === "preparing" || (isLive && !isConnected)}
-      >
-        {phase === "preparing"
-          ? "Preparing payment…"
-          : isLive && !isConnected
-            ? "Connect wallet to pay"
+      {isLive && !isConnected ? (
+        <p className="text-sm text-[var(--color-ink-muted)]">
+          Connect your wallet above to pay this invoice in USDC on Arc.
+        </p>
+      ) : (
+        <Button
+          size="lg"
+          className="w-full"
+          onClick={() => void prepare()}
+          disabled={phase === "preparing"}
+        >
+          {phase === "preparing"
+            ? "Preparing payment…"
             : phase === "error"
               ? "Try again"
               : "Continue to payment"}
-      </Button>
+        </Button>
+      )}
 
       {error ? (
         <div className="rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200">

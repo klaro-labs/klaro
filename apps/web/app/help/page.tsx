@@ -79,7 +79,7 @@ export default function HelpPage() {
             >
               prateek@myklaro.app
             </a>{" "}
-            — 4-hour response during business hours.
+            — a founder reads everything; we aim to reply within one business day.
           </p>
         </header>
 
