@@ -21,6 +21,25 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
 
   useEffect(() => {
     setHydrated(true);
+    // Onboarding step 4 stashes its first-invoice draft here so "Open
+    // workspace" lands on a pre-filled form, as that step promises. One-shot:
+    // consumed and cleared so it never re-fills a later manual invoice.
+    try {
+      const raw = window.localStorage.getItem("klaro:invoice-prefill");
+      if (raw) {
+        const d = JSON.parse(raw) as {
+          customerEmail?: string;
+          amountUSD?: string;
+          description?: string;
+        };
+        if (d.customerEmail) setCustomerEmail(d.customerEmail);
+        if (d.amountUSD) setAmount(d.amountUSD);
+        if (d.description) setDescription(d.description);
+        window.localStorage.removeItem("klaro:invoice-prefill");
+      }
+    } catch {
+      /* ignore malformed prefill */
+    }
   }, []);
 
   return (

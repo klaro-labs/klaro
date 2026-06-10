@@ -149,11 +149,21 @@ export default function OnboardingPage() {
         setStep((s) => (s + 1) as StepId);
       } else {
         try {
+          // Hand the first-invoice draft to the New Invoice form so it lands
+          // pre-filled, exactly as the step copy promises.
+          window.localStorage.setItem(
+            "klaro:invoice-prefill",
+            JSON.stringify({
+              customerEmail: form.invoiceEmail,
+              amountUSD: form.invoiceAmount,
+              description: form.invoiceDescription,
+            }),
+          );
           window.localStorage.removeItem(STORAGE_KEY);
         } catch {
           /* ignore */
         }
-        router.push("/vendor?welcome=1");
+        router.push("/vendor/invoices/new?welcome=1");
       }
     });
   }
