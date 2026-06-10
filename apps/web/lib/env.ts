@@ -69,6 +69,15 @@ export const supabaseLive = (): boolean =>
 export const cashoutFiatLive = (): boolean =>
   Boolean(opt("CASHOUT_FIAT_PARTNER"));
 
+/**
+ * Cross-chain CCTP V2 buyer checkout (Base Sepolia → Arc). Default OFF: the
+ * burn happens in the buyer's wallet but the Arc mint is settled by the
+ * operator daemon (cctpPayin worker). Enable only where that daemon is
+ * deployed + running, so a buyer never burns into a flow nothing completes.
+ */
+export const cctpPayinEnabled = (): boolean =>
+  opt("CCTP_PAYIN_ENABLED") === "1";
+
 // ─── Circle Wallets (M4 vendor onboarding + signing) ─────────────────
 export const CIRCLE_CLIENT_KEY = pub(process.env.NEXT_PUBLIC_CIRCLE_CLIENT_KEY);
 export const CIRCLE_API_KEY = opt("CIRCLE_API_KEY");

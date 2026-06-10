@@ -13,6 +13,7 @@ import { CrossChainPay } from "@/components/klaro/CrossChainPay";
 // in the same payload so we don't need a second join + RLS check.
 import { getPublicInvoice } from "@/lib/repo/invoices";
 import { isLiveOnChain } from "@/lib/arcClient";
+import { cctpPayinEnabled } from "@/lib/env";
 import { formatUSDC, shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
 import type { CSSProperties } from "react";
@@ -249,7 +250,7 @@ export default async function HostedInvoicePage({
                 dueAt={invoice.dueAt}
                 metadataHash={invoice.metadataHash}
               />
-              {isLiveOnChain() && (
+              {isLiveOnChain() && cctpPayinEnabled() && (
                 <div className="mt-3">
                   <CrossChainPay invoiceId={invoice.id} amount={invoice.amount} vendorWallet={vendorWallet} />
                 </div>
@@ -466,7 +467,7 @@ export default async function HostedInvoicePage({
                   metadataHash={invoice.metadataHash}
                 />
               )}
-              {!isPaid && isLiveOnChain() && (
+              {!isPaid && isLiveOnChain() && cctpPayinEnabled() && (
                 <div className="mt-3">
                   <CrossChainPay invoiceId={invoice.id} amount={invoice.amount} vendorWallet={vendorWallet} />
                 </div>
