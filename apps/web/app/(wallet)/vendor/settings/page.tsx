@@ -14,7 +14,7 @@ export default async function SettingsPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
   const v = (await mockGetVendor(session.vendor.id)) ?? session.vendor;
-  const color = v.brandColor ?? "#BC4C26";
+  const color = v.brandColor ?? "#1B6BFF";
   const kybConfigured = sumsubConfigured();
   const kybStatus = kybConfigured
     ? await getKybStatus(session.vendor.id)
@@ -55,7 +55,7 @@ export default async function SettingsPage() {
             name="brandColor"
             defaultValue={color}
             pattern="^#[0-9a-fA-F]{6}$"
-            placeholder="#BC4C26"
+            placeholder="#1B6BFF"
             className="font-mono"
           />
         </label>

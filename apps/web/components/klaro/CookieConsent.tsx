@@ -33,10 +33,19 @@ export function CookieConsent() {
     // and the daemon's analytics adapter is no-op until M11.
   }
 
+  // Suppress inside the authenticated app shell (/vendor, /lp, /admin,
+  // /internal): those routes render a fixed mobile bottom-tab nav + FAB that
+  // this bottom-pinned banner would sit on top of and hide. Consent is still
+  // collected on every public page (incl. /signin, which every user passes
+  // through) and persists site-wide via localStorage.
+  const inAppShell = ["/vendor", "/lp", "/admin", "/internal"].some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
   if (
     !OPTIONAL_ANALYTICS_ENABLED ||
     decided ||
-    pathname === "/onboarding"
+    pathname === "/onboarding" ||
+    inAppShell
   ) {
     return null;
   }

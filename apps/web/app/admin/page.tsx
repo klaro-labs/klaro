@@ -7,7 +7,9 @@ import {
   mockAdminQueueCounts,
   mockAdminQueueItems,
   type AdminQueueKind,
+  type AdminQueueItem,
 } from "@/lib/mockData";
+import { listAll as listAllDisputes } from "@/lib/repo/disputes";
 import { SEVERITY_TONE } from "@/lib/severityTone";
 import { formatUSDC, shortAddress } from "@/lib/money";
 
@@ -82,6 +84,27 @@ export default async function AdminQueuesPage() {
   const inlineItems = await Promise.all(
     inlineKinds.map((k) => mockAdminQueueItems(k)),
   );
+
+  // The disputes tile + inline list must agree with /admin/disputes, which
+  // reads the real repo (live DB in live mode). mockAdminQueueCounts/Items read
+  // the in-memory seed, so the tile showed 1 while the detail page showed 0.
+  // Derive disputes from the same source so the console never contradicts itself.
+  const realDisputes = await listAllDisputes();
+  const now = Date.now();
+  const disputeItems: AdminQueueItem[] = realDisputes.map((d) => ({
+    kind: "disputes",
+    id: d.caseId,
+    label: `${d.claimantLabel} vs ${d.respondentLabel}`,
+    subject: d.openingNote || "Dispute case",
+    amountUsdc: d.amountUsdc,
+    openedAt: d.openedAt,
+    ageHours: Math.round((now - +d.openedAt) / 3_600_000),
+    severity: d.amountUsdc > 1_000_000_000n ? "high" : "med",
+    href: "/admin/disputes",
+  }));
+  counts.disputes = disputeItems.length;
+  const disputesIdx = inlineKinds.indexOf("disputes");
+  if (disputesIdx >= 0) inlineItems[disputesIdx] = disputeItems;
 
   const totalOpen = Object.values(counts).reduce((a, b) => a + b, 0);
 

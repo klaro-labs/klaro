@@ -63,10 +63,13 @@ export default async function VendorOverviewPage({
           </h1>
           <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
             {invoices.length} invoice{invoices.length === 1 ? "" : "s"} ·{" "}
-            {isLiveOnChain() ? "Live on Arc testnet" : "Simulator"} · Wallet{" "}
-            {vendor.wallet
-              ? `${vendor.wallet.slice(0, 6)}…${vendor.wallet.slice(-4)}`
-              : "Not yet provisioned"}
+            {isLiveOnChain() ? "Live on Arc testnet" : "Simulator"} ·{" "}
+            <span className="whitespace-nowrap">
+              Wallet{" "}
+              {vendor.wallet
+                ? `${vendor.wallet.slice(0, 6)}…${vendor.wallet.slice(-4)}`
+                : "Not yet provisioned"}
+            </span>
           </p>
         </div>
         <Link
