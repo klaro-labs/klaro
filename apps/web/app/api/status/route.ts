@@ -23,13 +23,62 @@ export async function GET() {
         () => false,
       );
 
+  // Real daemon liveness: the worker beats ops_heartbeats.service='daemon'
+  // every ~60s (it has no public URL on DO, so the beat is the only signal).
+  // <5m fresh → operational; <30m → degraded; older/missing → outage. Without
+  // this, daemon status was inferred from Supabase reachability — wrong signal,
+  // a dead worker reported green while paid invoices sat unsettled.
+  // Default: mock/dev (no DB) → operational; DB configured but unreachable →
+  // degraded (heartbeat unknowable). The block below overwrites with the real
+  // beat-derived value when the DB is reachable.
+  let daemonStatus: "operational" | "degraded" | "outage" = c
+    ? "degraded"
+    : "operational";
+  let daemonNote: string | undefined;
+  if (c && supabaseOk) {
+    // ops_heartbeats is newer than the generated Database types; narrow cast
+    // (same pattern as erp_connections reads on the ERP page).
+    const hbClient = c as unknown as {
+      from: (t: string) => {
+        select: (cols: string) => {
+          eq: (
+            col: string,
+            val: string,
+          ) => {
+            maybeSingle: () => Promise<{ data: { beat_at: string } | null }>;
+          };
+        };
+      };
+    };
+    const { data: hb } = await hbClient
+      .from("ops_heartbeats")
+      .select("beat_at")
+      .eq("service", "daemon")
+      .maybeSingle();
+    const beatAt = hb?.beat_at ? Date.parse(hb.beat_at as string) : NaN;
+    const ageSec = Number.isFinite(beatAt)
+      ? Math.round((Date.now() - beatAt) / 1000)
+      : null;
+    daemonStatus =
+      ageSec !== null && ageSec < 300
+        ? "operational"
+        : ageSec !== null && ageSec < 1800
+          ? "degraded"
+          : "outage";
+    daemonNote =
+      ageSec === null
+        ? "no heartbeat on record"
+        : `last heartbeat ${ageSec}s ago`;
+  }
+
   const services = [
     { name: "www.myklaro.app web", scope: "infra", status: "operational" },
     { name: "Hosted invoice / receipt", scope: "infra", status: "operational" },
     {
       name: "Operator daemon",
       scope: "infra",
-      status: supabaseOk ? "operational" : "degraded",
+      status: daemonStatus,
+      ...(daemonNote ? { note: daemonNote } : {}),
     },
     { name: "Arc testnet RPC", scope: "onchain", status: "operational" },
     {

@@ -36,6 +36,7 @@ import { startDisputeDecider } from "./workers/disputeDecide.js";
 import { startReconciler } from "./workers/reconciler.js";
 import { startLifecycleReminders } from "./workers/lifecycleReminders.js";
 import { watchDlq, stopDlqWatch } from "./workers/_dlq.js";
+import { startHeartbeat, stopHeartbeat } from "./heartbeat.js";
 
 async function scheduleCrons() {
   // Repeatable jobs (BullMQ schedules via cron strings). Idempotent via job-id.
@@ -153,6 +154,9 @@ async function boot() {
   // Cron schedule
   await scheduleCrons();
 
+  // Liveness beat → ops_heartbeats (drives real daemon health on /api/status)
+  startHeartbeat();
+
   log.info("daemon.ready", {
     workers: 12,
     listenerEnabled: Boolean(env.INVOICE_ESCROW_ADDRESS),
@@ -161,6 +165,7 @@ async function boot() {
   // Graceful shutdown
   const shutdown = async (sig: string) => {
     log.info("daemon.shutdown", { sig });
+    stopHeartbeat();
     // + : stop the DLQ backlog poller AND
     // close the QueueEvents subscriptions BEFORE closeAll. Otherwise
     // a late `failed` event triggers persist() → queue(...).getJob
