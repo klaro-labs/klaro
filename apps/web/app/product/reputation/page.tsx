@@ -51,7 +51,9 @@ const IMPROVERS = [
   },
 ];
 
-const EXPLORER_BASE = "https://explorer.arc.network/address";
+// Canonical Arc Testnet block explorer per Arc docs (matches the receipt
+// page's tx links). explorer.arc.network is NXDOMAIN — was a dead link.
+const EXPLORER_BASE = "https://testnet.arcscan.app/address";
 
 export default function ProductReputationPage() {
   const addr = REPUTATION_MANAGER_ADDRESS;
