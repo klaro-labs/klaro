@@ -4,9 +4,7 @@ Klaro takes vulnerability reports seriously. Please disclose privately — do no
 
 ## Reporting
 
-- **Email:** `security@klaro.so`
-- **Encrypted:** PGP key at `https://klaro.so/.well-known/klaro-security.asc`
-- **Web form:** `https://klaro.so/security/report`
+- **Email:** `prateek@myklaro.app` (subject prefix `[SECURITY]`)
 
 Please include reproducible steps, an impact assessment, and (if known) a suggested mitigation. We acknowledge every report within one business day.
 
@@ -15,7 +13,7 @@ Please include reproducible steps, an impact assessment, and (if known) a sugges
 In scope:
 
 - All contracts under `packages/contracts/src/` deployed to Arc testnet (addresses in [`DEPLOYMENT.md`](DEPLOYMENT.md))
-- The hosted web app at `klaro.so` and all subdomains (`app.`, `i.`, `receipt.`, `admin.`, `lp.`, `fx.`, `internal.`, `cashout.`, `status.`, `docs.`)
+- The hosted web app at `myklaro.app` (including the testnet deployment at `klaro-peach.vercel.app`) and all app surfaces (`/vendor`, `/i`, `/receipt`, `/admin`, `/lp`, `/fx`, `/internal`, `/pay`, `/status`, `/docs`)
 - The daemon's outbound surface — webhook deliveries, notification routes, RPC interactions
 - The published SDK packages: `@klaro/sdk`, `@klaro/cli`, `@klaro/receipt-badge`, `@klaro/invoice-embed`
 

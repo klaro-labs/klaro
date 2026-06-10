@@ -28,7 +28,7 @@ an out-of-band notice via the operator inbox + suspension reason on /lp.
 
 > Your Klaro LP account has been {suspended|revoked}. Reason: {reason}.
 > Stake remaining: {amount}. Cool-down: 30 days for review or 7 years if
-> KYB-revoked. Email lp-disputes@klaro.so to contest.
+> KYB-revoked. Email prateek@myklaro.app to contest.
 
 **Audit-log fields:** runbook_id, lp_id, slash_amount, reason_hash,
 countersign_operator_ids (≥ 2 for big slashes), evidence_packet_hash.

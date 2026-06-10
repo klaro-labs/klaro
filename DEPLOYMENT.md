@@ -78,3 +78,59 @@ The hosted web application deploys via Vercel from `main`. Each pull request get
 ## Daemon
 
 The BullMQ worker process deploys to a long-lived runtime (e.g. Railway, Fly.io). It requires Redis (Upstash or self-hosted), the Supabase service-role key, and the operator wallet's `KLARO_OPERATOR_PRIVATE_KEY`. See `apps/daemon/.env.example` for the full surface.
+
+---
+
+## Post-deploy verification checklist
+
+Run through this after every `Deploy.s.sol` broadcast, before pointing any
+app at the new addresses. The deploy-wiring regression suite in
+`packages/contracts/test` asserts the same wiring in CI; this checklist is
+the human pass over the live chain.
+
+1. **Addresses recorded** — every contract address from the broadcast log is
+   written into this file and into both `.env.example` files' corresponding
+   variables.
+2. **Wiring** — for each line in "Wiring performed by `Deploy.s.sol::_wire`"
+   above, read the corresponding getter with `cast call` and confirm it
+   returns the expected counterpart address (e.g.
+   `cast call $INVOICE_ESCROW "refundCaller()(address)"` returns
+   `RefundProtocol`).
+3. **Ownership** — `owner()` on every `Ownable` contract returns the deployer
+   (testnet) or the multisig (mainnet, after `_handoverOwnership`).
+4. **Fee receiver** — `FeeSplitter` pays out to the intended fee receiver,
+   not a default.
+5. **ABI drift guards pass** — boot the daemon once against the new
+   addresses; `assertListenerEventSigs()` must not throw. Run
+   `pnpm --filter @klaro/web test` so the `abiCanonical` assertions check the
+   web bundle's ABIs against the deployed interface.
+6. **SDK smoke read** — `KlaroClient` can read an invoice and verify a
+   receipt hash against the new `InvoiceEscrow` / `AuditReceipt`.
+7. **Event round-trip** — create one test invoice, pay it, and confirm the
+   daemon's listener picks up `InvoicePaid` and the receipt mints.
+8. **Pause drill** — call `pause()` and `unpause()` once on the escrow to
+   confirm the emergency-pause path works while value at risk is zero.
+
+## Rollback
+
+Klaro contracts are deployed as plain (non-proxy) contracts, so a rollback is
+an **address flip back to the previous release**, not an in-place downgrade.
+Funds in flight on the new contracts do not migrate automatically — drain
+before flipping.
+
+1. **Stop new activity** — `pause()` the affected new contract(s) so no new
+   escrows/orders are created on them.
+2. **Drain in-flight state** — let active invoices/cashouts on the new
+   contracts settle or refund (`RefundProtocol` for invoices, dispute
+   resolution for cashouts). The daemon keeps processing their events while
+   their addresses remain in its env.
+3. **Flip addresses** — point web + daemon env vars back at the
+   last-known-good addresses (this file is the registry of those; previous
+   releases stay tabled here under their release tag).
+4. **Restart + verify** — restart daemon and redeploy web; re-run steps 5-7
+   of the verification checklist against the restored addresses.
+5. **Reconcile** — the daemon's 5-minute reconciler repairs any DB rows that
+   reference chain state on the abandoned deployment; check the
+   `reconcile.drift` alerts until quiet.
+6. **Announce** — follow `docs/runbooks/contract-upgrade.md` for user-facing
+   status copy and the audit-log fields to record.

@@ -9,7 +9,7 @@ On-chain receipts. Testnet cashout simulation. Built for the businesses USDC was
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-1f6feb.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-43853d.svg)](.nvmrc)
 [![Solidity 0.8.28](https://img.shields.io/badge/Solidity-0.8.28-363636.svg)](packages/contracts/foundry.toml)
-[![523 tests](https://img.shields.io/badge/forge_tests-523-1f6feb.svg)](packages/contracts/test)
+[![531 tests](https://img.shields.io/badge/forge_tests-531-1f6feb.svg)](packages/contracts/test)
 
 [**Try the live testnet →**](https://klaro-peach.vercel.app)
 &nbsp; · &nbsp;
@@ -26,7 +26,7 @@ On-chain receipts. Testnet cashout simulation. Built for the businesses USDC was
 <table>
 <tr>
 <td align="center" width="25%"><b>20</b><br/><sub>deployed contracts</sub></td>
-<td align="center" width="25%"><b>523</b><br/><sub>Foundry tests claimed by repo metadata</sub></td>
+<td align="center" width="25%"><b>531</b><br/><sub>Foundry tests, verified locally</sub></td>
 <td align="center" width="25%"><b>42</b><br/><sub>tables, RLS on every one</sub></td>
 <td align="center" width="25%"><b>0.55 USDC</b><br/><sub>full-protocol deploy cost</sub></td>
 </tr>
@@ -104,7 +104,7 @@ klaro/
 │   └── daemon/                Arc event listener + BullMQ workers + DLQ paging
 │
 ├── packages/
-│   ├── contracts/             22 Solidity contracts · 523 Foundry tests
+│   ├── contracts/             22 Solidity contracts · 531 Foundry tests
 │   ├── sdk/                   @klaro/sdk — TypeScript client
 │   ├── cli/                   klaro command-line entry point
 │   ├── receipt-badge/         Embeddable receipt React + web component
@@ -134,7 +134,7 @@ Twenty contracts, each scoped to one concern and reviewed/tested in isolation. D
 | `FeeSplitter` | `ProofRegistry` | | | | |
 | `RoutePolicyEngine` | `RetainerStream` | | | | |
 
-Coverage is 523 Foundry tests — unit, fuzz, and a deploy‑wiring regression suite that re‑runs the full deploy and asserts every permission. Echidna and Halmos harnesses are scaffolded for a future formal‑verification pass but are not yet wired, so we don't count them as coverage. Attack surface and mitigations: [`packages/contracts/THREAT_MODEL.md`](packages/contracts/THREAT_MODEL.md).
+Coverage is 531 Foundry tests — unit, fuzz, and a deploy‑wiring regression suite that re‑runs the full deploy and asserts every permission. Echidna and Halmos harnesses are scaffolded for a future formal‑verification pass but are not yet wired, so we don't count them as coverage. Attack surface and mitigations: [`packages/contracts/THREAT_MODEL.md`](packages/contracts/THREAT_MODEL.md).
 
 ---
 
@@ -173,6 +173,23 @@ External addresses are pinned in [`packages/contracts/src/KlaroConfig.sol`](pack
 | `mainnet only` | Path exists on mainnet; testnet falls back to mock |
 | `partner pending` | Integration coded; partner signature outstanding |
 
+And the same labels applied to every money path in one place:
+
+| Money path | Status today |
+| --- | --- |
+| Invoice creation + hosted checkout | `live testnet` |
+| Buyer payment (USDC on Arc, EIP‑712 acceptance) | `live testnet` |
+| Escrow lock, settlement, refund | `live testnet` |
+| On‑chain audit receipt mint + verify | `live testnet` |
+| Cross‑chain pay‑in (CCTP V2 / Gateway routing) | `live testnet` |
+| Sanctions screening before release | `simulated` (OFAC list real; verdicts hold for review until a provider key is added) |
+| LP staking, order claim, proof, slashing | `live testnet` |
+| Cashout fiat leg (USDC → INR payout) | `simulated` — no real fiat moves |
+| Disputes (open → decide → enforce) | `live testnet` |
+| StableFX USDC ↔ EURC | `access pending` (mock adapter until Circle TEST access) |
+| Card on‑ramp (MoonPay) | sandbox |
+| Financing readiness | read‑only insight — not a loan |
+
 Klaro is not a bank. Financing readiness is not a loan offer. No PII is stored on chain.
 
 ---
@@ -191,7 +208,11 @@ Klaro is not a bank. Financing readiness is not a loan offer. No PII is stored o
 
 | | |
 | --- | --- |
-| [`DEPLOYMENT.md`](DEPLOYMENT.md) | Live testnet addresses, wiring, and the deploy command that produced them |
+| [`docs/DEMO_GUIDE.md`](docs/DEMO_GUIDE.md) | Reproduce the full demo flow in five minutes — zero config |
+| [`DEPLOYMENT.md`](DEPLOYMENT.md) | Live testnet addresses, wiring, post‑deploy verification checklist, rollback |
+| [`docs/RECONCILIATION_CHECKLIST.md`](docs/RECONCILIATION_CHECKLIST.md) | Chain‑vs‑DB reconciliation for invoices, receipts, cashouts, disputes |
+| [`docs/product/`](docs/product/) | Product paper, pitch deck, and one‑page brief (PDF + HTML source) |
+| [`docs/test-evidence/`](docs/test-evidence/) | Recorded test runs (latest: 531 forge tests green, 2026‑06‑10) |
 | [`THREAT_MODEL.md`](THREAT_MODEL.md) | System‑level threats — web, daemon, RPC, third parties |
 | [`packages/contracts/THREAT_MODEL.md`](packages/contracts/THREAT_MODEL.md) | Smart‑contract attack surface and mitigations |
 | [`docs/runbooks`](docs/runbooks) | Operator runbooks for every incident class |

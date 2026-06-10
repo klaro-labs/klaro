@@ -10,7 +10,7 @@ via signed message.
 
 > Klaro is paused while we investigate {one-line reason}. No funds are at
 > risk. New activity is on hold until the all-clear. Status updates every 30
-> minutes at status.klaro.so.
+> minutes at www.myklaro.app/status.
 
 **Required evidence:**
 

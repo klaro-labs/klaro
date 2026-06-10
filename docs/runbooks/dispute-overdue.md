@@ -14,7 +14,7 @@ DECIDED. Detector: `disputeSlaWatcher` cron every 1h.
 
 - Full case file from DisputeManager
 - Cross-reference reputation history of both parties
-- Off-chain comms from either side via support@klaro.so
+- Off-chain comms from either side via prateek@myklaro.app
 
 **Allowed operator actions:**
 

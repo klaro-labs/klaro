@@ -44,7 +44,7 @@ require Klaro employee access, anything in `mockData.ts` or `*.t.sol`.
 
 ## Coordinated disclosure
 
-90-day clock. Email security@klaro.so with PoC + impact analysis.
+90-day clock. Email prateek@myklaro.app with PoC + impact analysis.
 We respond within 4h business hours. PGP key at /.well-known/klaro-security.asc.
 
 ## Eligibility rules

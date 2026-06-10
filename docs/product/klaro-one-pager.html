@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Klaro — One-Pager</title>
+<style>
+  @page { size: A4; margin: 14mm; }
+
+  :root {
+    --blue: #1B6BFF;
+    --ink: #0A0A0A;
+    --paper: #FAFAF7;
+    --gold: #F5B100;
+    --rule: #1c1c1c;
+    --muted: #5a5a55;
+    --hair: rgba(10,10,10,0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: var(--ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    font-family: "Inter", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.38;
+    letter-spacing: 0.005em;
+  }
+
+  .mono {
+    font-family: "SF Mono", "JetBrains Mono", "Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  .eyebrow {
+    font-family: "SF Mono", "JetBrains Mono", "Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 6.6pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1.6pt solid var(--rule);
+    padding-bottom: 6pt;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8pt;
+  }
+  .brand h1 {
+    font-size: 19pt;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .brand .dot { color: var(--blue); }
+  .brand .tag {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 7.2pt;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  header .meta {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 7.2pt;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* ---------- thesis ---------- */
+  .thesis {
+    font-size: 11.5pt;
+    line-height: 1.34;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 9pt 0 8pt;
+  }
+  .thesis b { color: var(--blue); font-weight: 600; }
+
+  h2.section {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 6.8pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0 0 4pt;
+    padding-bottom: 2.5pt;
+    border-bottom: 0.6pt solid var(--hair);
+  }
+
+  p { margin: 0 0 6pt; }
+  p.lede { margin-bottom: 9pt; }
+
+  /* ---------- product loop ---------- */
+  .loop {
+    display: flex;
+    gap: 0;
+    margin: 4pt 0 10pt;
+  }
+  .step {
+    flex: 1;
+    padding: 0 7pt;
+    position: relative;
+  }
+  .step:first-child { padding-left: 0; }
+  .step:last-child { padding-right: 0; }
+  .step + .step::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1pt;
+    bottom: 1pt;
+    width: 0.6pt;
+    background: var(--hair);
+  }
+  .step .n {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 7pt;
+    color: var(--blue);
+    letter-spacing: 0.05em;
+  }
+  .step .t {
+    font-size: 8.6pt;
+    font-weight: 600;
+    margin: 1.5pt 0 1.5pt;
+    letter-spacing: -0.005em;
+  }
+  .step .d {
+    font-size: 7.6pt;
+    line-height: 1.3;
+    color: var(--muted);
+  }
+
+  /* ---------- two-column grid ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.18fr 1fr;
+    gap: 13pt;
+    margin-top: 9pt;
+  }
+  .col { min-width: 0; }
+
+  /* built-list */
+  ul.built {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  ul.built li {
+    display: flex;
+    align-items: baseline;
+    gap: 6pt;
+    padding: 3pt 0;
+    border-bottom: 0.5pt solid var(--hair);
+    font-size: 8.6pt;
+  }
+  ul.built li:last-child { border-bottom: none; }
+  ul.built .fig {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-weight: 600;
+    color: var(--blue);
+    font-size: 8.8pt;
+    flex: 0 0 auto;
+    min-width: 52pt;
+  }
+  ul.built .lbl { color: var(--ink); }
+  ul.built .lbl span { color: var(--muted); }
+
+  /* status strip */
+  .status {
+    display: flex;
+    flex-direction: column;
+    gap: 4pt;
+  }
+  .status .row {
+    display: flex;
+    align-items: baseline;
+    gap: 6pt;
+    font-size: 8.2pt;
+  }
+  .pill {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 6.4pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 1.3pt 4pt;
+    border: 0.6pt solid var(--hair);
+    border-radius: 2pt;
+    flex: 0 0 auto;
+    min-width: 64pt;
+    text-align: center;
+    color: var(--muted);
+  }
+  .pill.live { color: var(--blue); border-color: var(--blue); }
+  .status .row .what { color: var(--ink); }
+
+  /* paper panel */
+  .panel {
+    background: var(--paper);
+    border: 0.6pt solid var(--hair);
+    border-radius: 3pt;
+    padding: 7pt 8pt;
+    margin-top: 8pt;
+  }
+  .panel p { margin: 0; font-size: 8.4pt; line-height: 1.36; }
+  .panel .why-h {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 6.8pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 3pt;
+  }
+  .panel b { color: var(--blue); font-weight: 600; }
+
+  /* verified-receipt chip */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4pt;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 6.8pt;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2pt 6pt;
+    border: 0.8pt solid var(--gold);
+    border-radius: 999pt;
+    color: #6b4f00;
+    background: rgba(245,177,0,0.10);
+  }
+  .chip .mk {
+    width: 6pt; height: 6pt; border-radius: 50%;
+    background: var(--gold);
+    flex: 0 0 auto;
+  }
+
+  .roadmap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 8pt;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 7.6pt;
+    letter-spacing: 0.04em;
+  }
+  .roadmap .stage { padding: 2pt 9pt 2pt 0; color: var(--ink); }
+  .roadmap .stage:first-child { color: var(--blue); }
+  .roadmap .arr { color: var(--muted); padding: 0 9pt 0 0; }
+  .roadmap .stage b { font-weight: 600; }
+
+  /* ---------- footer ---------- */
+  footer {
+    margin-top: 10pt;
+    padding-top: 6pt;
+    border-top: 1.6pt solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 7.2pt;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  footer b { color: var(--ink); font-weight: 600; }
+  footer .links { display: flex; gap: 12pt; }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>Klaro<span class="dot">.</span></h1>
+      <span class="tag">USDC invoicing on Arc · testnet edition</span>
+    </div>
+    <div class="meta">JUNE 2026<br>myklaro.app</div>
+  </header>
+
+  <p class="thesis">
+    Klaro turns a bare USDC transfer into a <b>business-grade payment</b> — an issued
+    invoice, a screened settlement, and a verifiable on-chain receipt — on Circle's Arc L1.
+  </p>
+
+  <h2 class="section">The problem</h2>
+  <p class="lede">
+    A USDC transfer between two wallets is fast and final, but useless to a real business.
+    It leaves no receipt anyone outside the two parties can verify and no audit trail an
+    accountant can close a year on. It skips the sanctions screening every regulated payment
+    provider runs, and it strands the vendor's value in a stablecoin their suppliers don't accept.
+  </p>
+
+  <h2 class="section">The product — one loop, five steps</h2>
+  <div class="loop">
+    <div class="step">
+      <div class="n">01</div>
+      <div class="t">Invoice</div>
+      <div class="d">Vendor issues a hosted invoice; RLS-isolated per tenant.</div>
+    </div>
+    <div class="step">
+      <div class="n">02</div>
+      <div class="t">Pay from any wallet</div>
+      <div class="d">Buyer pays in USDC, with CCTP V2 / Gateway cross-chain pay-in.</div>
+    </div>
+    <div class="step">
+      <div class="n">03</div>
+      <div class="t">Screened settlement</div>
+      <div class="d">Operator screens, then settles into escrow on Arc.</div>
+    </div>
+    <div class="step">
+      <div class="n">04</div>
+      <div class="t">On-chain receipt</div>
+      <div class="d">An audit-grade receipt is minted and shareable by hash.</div>
+    </div>
+    <div class="step">
+      <div class="n">05</div>
+      <div class="t">Partner cashout</div>
+      <div class="d">Vendor previews local-currency cashout via LP staking.</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <h2 class="section">What's built — verifiable</h2>
+      <ul class="built">
+        <li><span class="fig mono">20</span><span class="lbl">contracts deployed on Arc testnet <span>(chain 5042002)</span></span></li>
+        <li><span class="fig mono">531</span><span class="lbl">Foundry tests <span>— unit, fuzz, deploy-wiring regression</span></span></li>
+        <li><span class="fig mono">42</span><span class="lbl">Postgres tables <span>— RLS on every one</span></span></li>
+        <li><span class="fig mono">15</span><span class="lbl">operator daemon workers <span>— event listener + BullMQ</span></span></li>
+        <li><span class="fig mono">0.55</span><span class="lbl">USDC — full-protocol deploy cost <span>(gas is USDC)</span></span></li>
+        <li><span class="fig mono">live</span><span class="lbl">testnet demo <span>— klaro-peach.vercel.app</span></span></li>
+      </ul>
+
+      <div class="panel">
+        <div class="why-h">Why now</div>
+        <p>
+          <b>Arc</b> makes USDC the native gas token with sub-second finality, and
+          <b>CCTP V2</b> plus <b>Circle Gateway</b> turn cross-chain settlement into a
+          primitive. Together they make Circle-native vendor rails — invoicing, screening,
+          receipts, cashout — practical for the first time, rather than bolted onto a chain
+          that was never built for stablecoin payments.
+        </p>
+      </div>
+    </div>
+
+    <div class="col">
+      <h2 class="section">Status — honest mode</h2>
+      <div class="status">
+        <div class="row"><span class="pill live">live testnet</span><span class="what">Invoicing, payment, escrow settlement, on-chain receipts, disputes, agent jobs</span></div>
+        <div class="row"><span class="pill">simulated</span><span class="what">Fiat cashout leg; sanctions screening (mock until a provider key is added)</span></div>
+        <div class="row"><span class="pill">partner pending</span><span class="what">KYB, live sanctions feed, real cashout corridors — adapters coded, signatures outstanding</span></div>
+      </div>
+
+      <div style="margin-top:9pt">
+        <span class="chip"><span class="mk"></span>verified receipt · on-chain</span>
+      </div>
+      <p style="margin-top:6pt; font-size:7.8pt; color:var(--muted); line-height:1.34">
+        Every surface declares its mode. Klaro is a testnet product: no real-money
+        movement, no real-INR settlement, no completed external audit. No PII is
+        stored on chain.
+      </p>
+
+      <h2 class="section" style="margin-top:9pt">Roadmap</h2>
+      <div class="roadmap">
+        <span class="stage"><b>Harden testnet</b></span>
+        <span class="arr">→</span>
+        <span class="stage">External audit</span>
+        <span class="arr">→</span>
+        <span class="stage">Mainnet</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div><b>Prateek Tripathi</b> · prateek@myklaro.app</div>
+    <div class="links">
+      <span>github.com/klaro-labs/klaro</span>
+      <span>myklaro.app</span>
+    </div>
+  </footer>
+
+</body>
+</html>

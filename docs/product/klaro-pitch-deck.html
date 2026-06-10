@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1280, initial-scale=1" />
+<title>Klaro — Pitch Deck</title>
+<style>
+  :root{
+    --blue:#1B6BFF;
+    --ink:#0A0A0A;
+    --paper:#FAFAF7;
+    --gold:#F5B100;
+    --line:rgba(10,10,10,.10);
+    --mut:#5A5A55;
+    --mut-d:rgba(250,250,247,.62);
+    --line-d:rgba(250,250,247,.16);
+  }
+
+  @page{ size:1280px 720px; margin:0; }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:#2a2a2a; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  .mono{
+    font-family:"SF Mono",ui-monospace,"Roboto Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  }
+
+  .slide{
+    position:relative;
+    width:1280px;
+    height:720px;
+    overflow:hidden;
+    background:var(--paper);
+    page-break-after:always;
+    break-after:page;
+  }
+  .slide:last-child{ page-break-after:auto; break-after:auto; }
+  .slide + .slide{ margin-top:24px; }  /* on-screen gutter only; print ignores */
+  @media print{ .slide + .slide{ margin-top:0; } body{ background:#fff; } }
+
+  .pad{ position:absolute; inset:0; padding:88px 96px; display:flex; flex-direction:column; }
+  .pad-tight{ padding:72px 96px; }
+
+  /* eyebrow */
+  .eyebrow{
+    font-size:12px; letter-spacing:.32em; text-transform:uppercase;
+    color:var(--blue); font-weight:600;
+  }
+  .eyebrow.dim{ color:var(--mut); }
+  .dark .eyebrow{ color:#6f9dff; }
+  .dark .eyebrow.dim{ color:var(--mut-d); }
+
+  /* dark slides */
+  .dark{ background:var(--ink); color:var(--paper); }
+  .dark .pad{ color:var(--paper); }
+
+  /* type scale */
+  h1{ font-size:62px; line-height:1.04; letter-spacing:-.025em; font-weight:680; margin:0; }
+  h2{ font-size:42px; line-height:1.06; letter-spacing:-.02em; font-weight:660; margin:0; }
+  .lead{ font-size:23px; line-height:1.45; color:var(--mut); font-weight:420; max-width:980px; }
+  .dark .lead{ color:var(--mut-d); }
+  .big{ font-size:120px; line-height:.92; letter-spacing:-.04em; font-weight:700; }
+  .blue{ color:var(--blue); }
+  .gold{ color:var(--gold); }
+
+  /* footer rail */
+  .rail{
+    position:absolute; left:96px; right:96px; bottom:40px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--mut);
+  }
+  .dark .rail{ color:var(--mut-d); }
+  .rail .num{ font-variant-numeric:tabular-nums; }
+
+  /* logo mark */
+  .mark{ display:inline-flex; align-items:center; gap:11px; font-weight:680; letter-spacing:-.01em; font-size:19px; }
+  .mark .dot{ width:13px; height:13px; border-radius:3px; background:var(--blue); display:inline-block; }
+  .dark .mark .dot{ background:#6f9dff; }
+
+  .topbar{ display:flex; justify-content:space-between; align-items:center; }
+
+  /* receipt stamp motif */
+  .stamp{
+    display:inline-flex; align-items:center; gap:9px;
+    border:1.5px solid var(--gold); color:var(--gold);
+    border-radius:999px; padding:7px 15px;
+    font-size:11px; letter-spacing:.2em; text-transform:uppercase; font-weight:600;
+  }
+  .stamp .tick{ width:6px; height:6px; border-radius:50%; background:var(--gold); }
+
+  /* generic chips */
+  .chip{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--line); border-radius:999px;
+    padding:7px 14px; font-size:12.5px; color:var(--ink); background:#fff;
+  }
+  .chip .d{ width:6px; height:6px; border-radius:50%; background:var(--blue); }
+
+  /* columns */
+  .grid{ display:grid; gap:22px; }
+  .g2{ grid-template-columns:1fr 1fr; }
+  .g3{ grid-template-columns:repeat(3,1fr); }
+  .g4{ grid-template-columns:repeat(4,1fr); }
+
+  .card{
+    border:1px solid var(--line); border-radius:14px; background:#fff;
+    padding:24px 24px; display:flex; flex-direction:column; gap:9px;
+  }
+  .card .k{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); font-weight:600; }
+  .card .v{ font-size:17px; line-height:1.4; }
+  .card .v b{ font-weight:640; }
+
+  .dark .card{ background:#141414; border-color:var(--line-d); }
+  .dark .card .k{ color:var(--mut-d); }
+
+  /* numbered steps row */
+  .flow{ display:flex; align-items:stretch; gap:0; }
+  .flow .step{ flex:1; display:flex; flex-direction:column; gap:10px; padding-right:24px; position:relative; }
+  .flow .step:not(:last-child)::after{
+    content:"→"; position:absolute; right:6px; top:30px; color:var(--blue); font-size:20px; opacity:.55;
+  }
+  .flow .n{
+    width:30px; height:30px; border-radius:8px; background:var(--blue); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:680; font-size:15px;
+  }
+  .flow .n.gold{ background:var(--gold); color:var(--ink); }
+  .flow .t{ font-size:15.5px; line-height:1.38; font-weight:560; }
+  .flow .s{ font-size:13px; line-height:1.4; color:var(--mut); }
+
+  /* truth table */
+  table.truth{ width:100%; border-collapse:collapse; font-size:15px; }
+  table.truth th{
+    text-align:left; font-size:11.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--mut); font-weight:600; padding:0 14px 14px; border-bottom:1px solid var(--line);
+  }
+  table.truth td{ padding:14px; border-bottom:1px solid var(--line); vertical-align:middle; line-height:1.35; }
+  table.truth tr:last-child td{ border-bottom:none; }
+  table.truth td.feat{ font-weight:560; width:38%; }
+  .tag{
+    display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:600;
+    letter-spacing:.04em; padding:5px 11px; border-radius:7px; white-space:nowrap;
+  }
+  .tag .d{ width:7px; height:7px; border-radius:50%; }
+  .tag.live{ background:rgba(27,107,255,.10); color:var(--blue); }
+  .tag.live .d{ background:var(--blue); }
+  .tag.sim{ background:rgba(10,10,10,.06); color:#3a3a36; }
+  .tag.sim .d{ background:#8a8a82; }
+  .tag.pend{ background:rgba(245,177,0,.14); color:#9a6f00; }
+  .tag.pend .d{ background:var(--gold); }
+
+  /* three-box architecture */
+  .arch{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+  .arch .box{ border:1px solid var(--line); border-radius:14px; background:#fff; padding:24px; display:flex; flex-direction:column; gap:12px; }
+  .arch .box h3{ margin:0; font-size:18px; font-weight:640; }
+  .arch .box .meta{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); font-weight:600; }
+  .arch .box ul{ margin:6px 0 0; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:7px; }
+  .arch .box li{ font-size:13.5px; line-height:1.35; color:var(--mut); position:relative; padding-left:16px; }
+  .arch .box li::before{ content:""; position:absolute; left:0; top:7px; width:6px; height:6px; border-radius:2px; background:var(--blue); opacity:.5; }
+
+  /* big number cards */
+  .stat .num{ font-size:46px; line-height:1; font-weight:700; letter-spacing:-.03em; }
+  .stat .lbl{ font-size:13px; color:var(--mut); line-height:1.35; }
+  .dark .stat .lbl{ color:var(--mut-d); }
+
+  /* roadmap */
+  .road{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; }
+  .road .col{ padding:0 28px; position:relative; }
+  .road .col:not(:last-child){ border-right:1px solid var(--line); }
+  .road .ph{ font-size:13px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; margin-bottom:14px; }
+  .road .ph.now{ color:var(--blue); }
+  .road .ph.next{ color:#9a6f00; }
+  .road .ph.main{ color:var(--mut); }
+  .road ul{ margin:0; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:11px; }
+  .road li{ font-size:15px; line-height:1.4; padding-left:18px; position:relative; }
+  .road li::before{ content:""; position:absolute; left:0; top:8px; width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .road .now li::before{ background:var(--blue); }
+  .road .next li::before{ background:var(--gold); }
+  .road .main li::before{ background:#b8b8b0; }
+
+  /* persona quote */
+  .quote{ font-size:30px; line-height:1.32; letter-spacing:-.01em; font-weight:500; max-width:920px; }
+  .quote .blue{ font-weight:640; }
+
+  .kvrow{ display:flex; gap:14px; flex-wrap:wrap; }
+  .addr{ font-size:12.5px; color:var(--mut); }
+  .dark .addr{ color:var(--mut-d); }
+</style>
+</head>
+<body>
+
+<!-- 1 · TITLE (dark) -->
+<section class="slide dark">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow dim">Pitch · Arc testnet · 2026</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; max-width:1000px;">
+      <span class="eyebrow" style="margin-bottom:26px;">USDC invoicing on Arc</span>
+      <h1>On-chain receipts for the<br/>businesses USDC was<br/>supposed to serve.</h1>
+      <p class="lead" style="margin-top:30px; max-width:760px;">
+        A vendor invoices a client anywhere. The client pays from any wallet. Settlement is screened,
+        the receipt is verifiable on chain, and cashout previews in local currency. Open source. Live on testnet.
+      </p>
+    </div>
+
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="stamp"><span class="tick"></span>Receipt verified on chain</span>
+      <span class="chip" style="background:transparent; border-color:var(--line-d); color:var(--paper);">
+        <span class="d" style="background:#6f9dff;"></span>klaro-peach.vercel.app
+      </span>
+    </div>
+  </div>
+  <div class="rail">
+    <span>Klaro Labs</span>
+    <span class="num">01 / 13</span>
+  </div>
+</section>
+
+<!-- 2 · PROBLEM -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">The problem</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <h2 style="max-width:1000px;">A bare USDC transfer is fast, final,<br/>and useless to a real business.</h2>
+      <div class="grid g4" style="margin-top:42px;">
+        <div class="card">
+          <span class="k">No receipt</span>
+          <span class="v">Two hashes in a ledger. Nothing a client, lender, or tax office can <b>verify</b>.</span>
+        </div>
+        <div class="card">
+          <span class="k">No audit trail</span>
+          <span class="v">An accountant can't reconcile a raw transfer to an invoice at year end.</span>
+        </div>
+        <div class="card">
+          <span class="k">No screening</span>
+          <span class="v">It skips the sanctions check every regulated payment provider runs.</span>
+        </div>
+        <div class="card">
+          <span class="k">No exit</span>
+          <span class="v">Value strands in a stablecoin the vendor's grocer doesn't accept.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rail"><span>The problem</span><span class="num">02 / 13</span></div>
+</section>
+
+<!-- 3 · WHO HURTS -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">Who hurts</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <span class="eyebrow dim" style="margin-bottom:22px;">Emerging-market vendors invoicing global clients</span>
+      <p class="quote">
+        Priya is a solo developer in Bengaluru billing a San Francisco startup.
+        Her bank wire takes <span class="blue">days</span> and skims an
+        <span class="blue">FX spread</span> on every payment. Payoneer and Wise add their own
+        cut and their own wait. She wants the dollars, the proof she was paid, and rupees in her account —
+        <span class="blue">without becoming a crypto expert.</span>
+      </p>
+      <p class="lead" style="margin-top:34px; max-width:880px;">
+        The same gap hits the Lagos freelancer, the Manila agency, the Nairobi studio:
+        global clients, local expenses, and a financial system built for neither.
+      </p>
+    </div>
+  </div>
+  <div class="rail"><span>Who hurts</span><span class="num">03 / 13</span></div>
+</section>
+
+<!-- 4 · PRODUCT (the loop) -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">The product</span>
+    </div>
+
+    <div style="margin-top:30px;">
+      <h2>One loop, end to end.</h2>
+      <p class="lead" style="margin-top:14px; max-width:900px;">From issued invoice to verified payout, every step leaves proof and labels its own state.</p>
+    </div>
+
+    <div style="flex:1; display:flex; align-items:center;">
+      <div class="flow">
+        <div class="step">
+          <div class="n">1</div>
+          <div class="t">Invoice</div>
+          <div class="s">Vendor issues an invoice from the portal; terms and amount on chain, PII off chain.</div>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <div class="t">Pay from any wallet</div>
+          <div class="s">Client pays USDC; cross-chain pay-in routes via CCTP V2 and Circle Gateway.</div>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <div class="t">Screened settlement</div>
+          <div class="s">Counterparty screening gates release; escrow settles on sub-second finality.</div>
+        </div>
+        <div class="step">
+          <div class="n gold">4</div>
+          <div class="t gold">Audit receipt</div>
+          <div class="s">An on-chain receipt anyone can verify — no Klaro account required.</div>
+        </div>
+        <div class="step">
+          <div class="n">5</div>
+          <div class="t">Reputation → cashout</div>
+          <div class="s">Settled history builds vendor reputation; partner cashout previews local currency.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rail"><span>The product</span><span class="num">04 / 13</span></div>
+</section>
+
+<!-- 5 · DEMO -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">Live demo</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <span class="eyebrow dim" style="margin-bottom:18px;">klaro-peach.vercel.app · Arc testnet · 60 seconds</span>
+      <h2 style="max-width:980px;">Walk the whole loop in a minute.</h2>
+
+      <div class="grid g2" style="margin-top:38px; gap:18px;">
+        <div class="card">
+          <span class="k">0:00 — 0:20 · Create &amp; pay</span>
+          <span class="v">Sign in, create an invoice, open the hosted pay page, connect a wallet, pay in testnet USDC.</span>
+        </div>
+        <div class="card">
+          <span class="k">0:20 — 0:40 · Settle &amp; receipt</span>
+          <span class="v">Watch screening pass and escrow settle, then open the on-chain audit receipt by its hash.</span>
+        </div>
+        <div class="card">
+          <span class="k">0:40 — 0:55 · Verify</span>
+          <span class="v">Hand the receipt URL to anyone — it verifies against the chain with no Klaro login.</span>
+        </div>
+        <div class="card">
+          <span class="k">0:55 — 1:00 · Cashout preview</span>
+          <span class="v">Vendor previews a local-currency cashout through the partner simulation, labelled <b>simulated</b>.</span>
+        </div>
+      </div>
+
+      <div style="margin-top:30px;"><span class="stamp"><span class="tick"></span>App boots with zero env vars — every unwired surface falls back to a labelled simulation</span></div>
+    </div>
+  </div>
+  <div class="rail"><span>Live demo</span><span class="num">05 / 13</span></div>
+</section>
+
+<!-- 6 · WHY ARC / CIRCLE -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">Why Arc &amp; Circle</span>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h2>The rails make the product possible.</h2>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <div class="grid g4">
+        <div class="card">
+          <span class="k">USDC is gas</span>
+          <span class="v">The vendor never needs a second token to transact.</span>
+        </div>
+        <div class="card">
+          <span class="k">Sub-second finality</span>
+          <span class="v">"Paid" is real-time — no twelve-block confirmation wait.</span>
+        </div>
+        <div class="card">
+          <span class="k">CCTP V2 + Gateway</span>
+          <span class="v">Clients pay in from other chains; settlement batches cleanly.</span>
+        </div>
+        <div class="card">
+          <span class="k">Circle Wallets</span>
+          <span class="v">Passkey vendor wallets and a developer-controlled operator signer.</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px; flex-direction:row; align-items:center; justify-content:space-between; background:var(--ink); border-color:var(--ink); color:var(--paper);">
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <span class="k" style="color:var(--mut-d);">Full-protocol deploy cost on Arc testnet</span>
+          <span class="v" style="color:var(--paper); font-size:19px;">Twenty contracts, wired and verified, for the price of a coffee.</span>
+        </div>
+        <span class="big" style="font-size:80px; color:#6f9dff;">0.55<span style="font-size:26px; letter-spacing:0; font-weight:600;"> USDC</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="rail"><span>Why Arc &amp; Circle</span><span class="num">06 / 13</span></div>
+</section>
+
+<!-- 7 · HOW IT WORKS -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">Architecture</span>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h2>Three moving parts.</h2>
+      <p class="lead" style="margin-top:12px; max-width:900px;">Web portals never hold the operator key. The daemon signs settlements. Contracts hold the value.</p>
+    </div>
+
+    <div style="flex:1; display:flex; align-items:center;">
+      <div class="arch" style="width:100%;">
+        <div class="box">
+          <span class="meta">Web · Next.js 15</span>
+          <h3>Portals &amp; pay pages</h3>
+          <ul>
+            <li>Vendor, LP, admin, and agent surfaces across 56 routes</li>
+            <li>Hosted invoice and public receipt pages</li>
+            <li>Supabase SSR auth — Google OAuth or magic link</li>
+          </ul>
+        </div>
+        <div class="box">
+          <span class="meta">Daemon · BullMQ</span>
+          <h3>Operator process</h3>
+          <ul>
+            <li>Arc event listener drives state changes</li>
+            <li>Workers settle, retry, and dead-letter on failure</li>
+            <li>Holds the only operator signing key</li>
+          </ul>
+        </div>
+        <div class="box">
+          <span class="meta">Chain + data</span>
+          <h3>Contracts &amp; Postgres</h3>
+          <ul>
+            <li>Twenty Solidity contracts, one concern each</li>
+            <li>Supabase with row-level security on all 42 tables</li>
+            <li>On chain: hashes, IDs, addresses, status only</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rail"><span>Architecture</span><span class="num">07 / 13</span></div>
+</section>
+
+<!-- 8 · TRUST AS THE MOAT (dark accents kept light) -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">The moat</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <h2 style="max-width:1000px;">Trust is the product, not a feature.</h2>
+
+      <div class="grid g2" style="margin-top:40px; gap:18px;">
+        <div class="card">
+          <span class="k">Verifiable without us</span>
+          <span class="v">Receipts check against the chain directly. You never have to trust Klaro to trust the proof.</span>
+        </div>
+        <div class="card">
+          <span class="k">Value is escrowed</span>
+          <span class="v">Every dollar of live testnet value sits in escrow and is traceable end to end.</span>
+        </div>
+        <div class="card">
+          <span class="k">Disputes &amp; slashing</span>
+          <span class="v">Opener → evidence → operator review → on-chain decision, mirrored to vendor reputation.</span>
+        </div>
+        <div class="card">
+          <span class="k">No PII on chain · honest labels</span>
+          <span class="v">Hashes and IDs only. Every surface states whether it is live, simulated, or partner-pending.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rail"><span>The moat</span><span class="num">08 / 13</span></div>
+</section>
+
+<!-- 9 · WHAT'S REAL TODAY (truth table) -->
+<section class="slide">
+  <div class="pad pad-tight">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">What's real today</span>
+    </div>
+
+    <div style="margin-top:20px; display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;">
+      <h2>No overclaiming. Here's the state of every leg.</h2>
+    </div>
+
+    <div style="flex:1; display:flex; align-items:center;">
+      <table class="truth">
+        <thead>
+          <tr><th>Capability</th><th>State</th><th>Detail</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feat">Invoice → pay → escrow settle</td>
+            <td><span class="tag live"><span class="d"></span>Live testnet</span></td>
+            <td>End to end on Arc testnet with escrowed USDC.</td>
+          </tr>
+          <tr>
+            <td class="feat">On-chain audit receipt</td>
+            <td><span class="tag live"><span class="d"></span>Live testnet</span></td>
+            <td>Minted when the receipt contract is configured; publicly verifiable.</td>
+          </tr>
+          <tr>
+            <td class="feat">Disputes, reputation, LP slashing</td>
+            <td><span class="tag live"><span class="d"></span>Live testnet</span></td>
+            <td>Full state machine on chain; reputation mirrored.</td>
+          </tr>
+          <tr>
+            <td class="feat">Cross-chain pay-in &amp; StableFX corridor</td>
+            <td><span class="tag live"><span class="d"></span>Live testnet</span></td>
+            <td>CCTP V2 + Gateway routing; USDC ↔ EURC via mock FX adapter.</td>
+          </tr>
+          <tr>
+            <td class="feat">Fiat cashout payout leg</td>
+            <td><span class="tag sim"><span class="d"></span>Simulated</span></td>
+            <td>Order state machine real; local-currency payout is a labelled simulation.</td>
+          </tr>
+          <tr>
+            <td class="feat">Sanctions screening (Chainalysis / TRM / Sumsub)</td>
+            <td><span class="tag pend"><span class="d"></span>Access pending</span></td>
+            <td>Adapter built; runs in simulation until a provider key is verified.</td>
+          </tr>
+          <tr>
+            <td class="feat">Off-ramp partners &amp; card on-ramp</td>
+            <td><span class="tag pend"><span class="d"></span>Partner pending</span></td>
+            <td>Integration coded; partner signatures outstanding.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="rail"><span>What's real today</span><span class="num">09 / 13</span></div>
+</section>
+
+<!-- 10 · MARKET -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">The market</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <h2 style="max-width:1000px;">Cross-border B2B and freelance pay into emerging markets.</h2>
+      <p class="lead" style="margin-top:18px; max-width:920px;">
+        The wedge is the exporter Stripe Atlas won't onboard: no US entity, global clients, local expenses.
+        Today they lose days and a multi-percent FX-and-fee spread on every payment.
+      </p>
+
+      <div class="grid g3" style="margin-top:44px;">
+        <div class="card stat">
+          <span class="num blue">30+</span>
+          <span class="lbl">Days many freelancers wait to get paid on a cross-border invoice.<sup>1</sup></span>
+        </div>
+        <div class="card stat">
+          <span class="num blue">~6.5%</span>
+          <span class="lbl">Average fee on a traditional cross-border transaction.<sup>2</sup></span>
+        </div>
+        <div class="card stat">
+          <span class="num blue">&lt;$0.01</span>
+          <span class="lbl">USDC transfer gas — the cost the spread is being compared against.</span>
+        </div>
+      </div>
+
+      <p class="addr" style="margin-top:26px; font-size:11.5px; color:var(--mut);">
+        1. Jobbers Global Freelance Payment Delay Report 2026. &nbsp; 2. Stripe cross-border payments research. &nbsp;
+        Figures are external benchmarks, not Klaro volume.
+      </p>
+    </div>
+  </div>
+  <div class="rail"><span>The market</span><span class="num">10 / 13</span></div>
+</section>
+
+<!-- 11 · ROADMAP -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">Roadmap</span>
+    </div>
+
+    <div style="margin-top:28px;">
+      <h2>Testnet hardening → audit → mainnet.</h2>
+      <p class="lead" style="margin-top:12px; max-width:900px;">Mainnet is gated on the audit landing and ownership moving to a multisig — not on a date.</p>
+    </div>
+
+    <div style="flex:1; display:flex; align-items:center;">
+      <div class="road" style="width:100%;">
+        <div class="col">
+          <div class="ph now">Now · Live testnet</div>
+          <ul class="now">
+            <li>Vendor invoicing &amp; buyer payment</li>
+            <li>On-chain receipts</li>
+            <li>LP staking &amp; partner cashout sim</li>
+            <li>Agent jobs, disputes, cross-chain pay-in</li>
+          </ul>
+        </div>
+        <div class="col">
+          <div class="ph next">Next · Hardening</div>
+          <ul class="next">
+            <li>External smart-contract audit</li>
+            <li>Sumsub-gated KYB</li>
+            <li>Chainalysis live sanctions screening</li>
+            <li>Card on-ramp &amp; wallet pass</li>
+          </ul>
+        </div>
+        <div class="col">
+          <div class="ph main">Mainnet · Gated</div>
+          <ul class="main">
+            <li>Multisig ownership handover</li>
+            <li>Immunefi bug bounty live</li>
+            <li>Real cashout corridors via partners</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rail"><span>Roadmap</span><span class="num">11 / 13</span></div>
+</section>
+
+<!-- 12 · PROOF / NUMBERS (bridge slide, light) -->
+<section class="slide">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow">By the numbers</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <h2 style="max-width:980px;">Already built and on chain.</h2>
+      <div class="grid g4" style="margin-top:44px;">
+        <div class="card stat">
+          <span class="num">20</span>
+          <span class="lbl">contracts deployed and wired on Arc testnet</span>
+        </div>
+        <div class="card stat">
+          <span class="num">531</span>
+          <span class="lbl">Foundry tests — unit, fuzz, deploy-wiring regression</span>
+        </div>
+        <div class="card stat">
+          <span class="num">42</span>
+          <span class="lbl">Postgres tables, row-level security on every one</span>
+        </div>
+        <div class="card stat">
+          <span class="num gold">0.55</span>
+          <span class="lbl">USDC to deploy the whole protocol</span>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:36px; max-width:900px;">
+        Open source under Apache-2.0. The testnet is live and the repository is public — every claim on the previous slide is something you can run.
+      </p>
+    </div>
+  </div>
+  <div class="rail"><span>By the numbers</span><span class="num">12 / 13</span></div>
+</section>
+
+<!-- 13 · ASK / CONTACT (dark) -->
+<section class="slide dark">
+  <div class="pad">
+    <div class="topbar">
+      <span class="mark"><span class="dot"></span>Klaro</span>
+      <span class="eyebrow dim">The ask</span>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; max-width:1000px;">
+      <span class="eyebrow" style="margin-bottom:24px;">Let's build the off-ramp emerging markets actually need</span>
+      <h1>Back the testnet to<br/>mainnet, and the<br/>partners to real cashout.</h1>
+      <p class="lead" style="margin-top:28px; max-width:760px;">
+        We're raising grant and partner support to fund the external audit, light up live screening,
+        and sign the first off-ramp corridors. The protocol is already shipped.
+      </p>
+    </div>
+
+    <div class="kvrow">
+      <span class="chip" style="background:transparent; border-color:var(--line-d); color:var(--paper);">
+        <span class="d" style="background:#6f9dff;"></span>Prateek Tripathi
+      </span>
+      <span class="chip" style="background:transparent; border-color:var(--line-d); color:var(--paper);">
+        <span class="d" style="background:#6f9dff;"></span>prateek@myklaro.app
+      </span>
+      <span class="chip" style="background:transparent; border-color:var(--line-d); color:var(--paper);">
+        <span class="d" style="background:#6f9dff;"></span>github.com/klaro-labs/klaro
+      </span>
+      <span class="chip" style="background:transparent; border-color:var(--line-d); color:var(--paper);">
+        <span class="d" style="background:var(--gold);"></span>klaro-peach.vercel.app
+      </span>
+    </div>
+  </div>
+  <div class="rail">
+    <span>myklaro.app</span>
+    <span class="num">13 / 13</span>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,8 +1,8 @@
-Contact: mailto:security@klaro.so
-Contact: https://klaro.so/trust
+Contact: mailto:prateek@myklaro.app
+Contact: https://www.myklaro.app/trust
 Preferred-Languages: en
-Canonical: https://klaro.so/.well-known/security.txt
-Policy: https://klaro.so/trust#security-policy
-Hiring: https://klaro.so/company#careers
+Canonical: https://www.myklaro.app/.well-known/security.txt
+Policy: https://www.myklaro.app/trust#security-policy
+Hiring: https://www.myklaro.app/company#careers
 
 Expires: 2027-05-27T00:00:00.000Z

@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Klaro — Product Paper (Testnet Edition)</title>
+<style>
+  :root {
+    --blue: #1B6BFF;
+    --ink: #0A0A0A;
+    --paper: #FAFAF7;
+    --gold: #F5B100;
+    --muted: #5B5B57;
+    --hair: #D9D7CF;
+    --hair-strong: #B9B6AD;
+    --tint: #F1F0EA;
+    --blue-tint: #EEF3FF;
+  }
+
+  @page {
+    size: A4;
+    margin: 22mm 20mm 20mm 20mm;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    margin: 0;
+    background: #fff;
+    color: var(--ink);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.55;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  .mono {
+    font-family: ui-monospace, "Menlo", "SF Mono", Consolas, monospace;
+  }
+
+  p { margin: 0 0 9pt; }
+  p.lead { font-size: 12.5pt; line-height: 1.5; color: var(--ink); }
+
+  a { color: var(--blue); text-decoration: none; }
+
+  /* ---------- Section scaffolding ---------- */
+
+  section {
+    padding: 0;
+  }
+
+  .page {
+    page-break-before: always;
+  }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14pt;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 6pt;
+    margin: 0 0 16pt;
+  }
+  .sec-num {
+    font-family: ui-monospace, "Menlo", monospace;
+    font-size: 11pt;
+    letter-spacing: 0.22em;
+    color: var(--blue);
+    font-weight: 600;
+    flex: none;
+  }
+  .sec-title {
+    font-size: 17pt;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+    line-height: 1.15;
+  }
+
+  h3 {
+    font-size: 11.5pt;
+    font-weight: 700;
+    margin: 16pt 0 5pt;
+    letter-spacing: -0.005em;
+  }
+
+  .kicker {
+    font-family: ui-monospace, "Menlo", monospace;
+    font-size: 8pt;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- Cover ---------- */
+
+  .cover {
+    height: 253mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+  }
+  .cover-top { padding-top: 6mm; }
+  .wordmark {
+    font-size: 64pt;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    margin: 0;
+  }
+  .wordmark .dot { color: var(--blue); }
+  .cover-rule {
+    height: 6px;
+    width: 64px;
+    background: var(--blue);
+    margin: 18pt 0 22pt;
+  }
+  .thesis {
+    font-size: 19pt;
+    line-height: 1.32;
+    font-weight: 400;
+    max-width: 150mm;
+    letter-spacing: -0.01em;
+  }
+  .thesis strong { font-weight: 700; }
+  .cover-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid var(--hair-strong);
+    padding-top: 12pt;
+  }
+  .cover-meta .col { font-size: 9.5pt; line-height: 1.5; }
+  .cover-meta .label { color: var(--muted); font-size: 8pt; letter-spacing: 0.2em; text-transform: uppercase; display:block; margin-bottom: 2pt; }
+  .edition {
+    display: inline-block;
+    font-family: ui-monospace, "Menlo", monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    border-radius: 2px;
+    padding: 3pt 8pt;
+  }
+
+  /* ---------- Receipt motif ---------- */
+
+  .receipt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6pt;
+    border: 1px solid var(--gold);
+    background: #FFFBEF;
+    border-radius: 3px;
+    padding: 5pt 9pt;
+    font-family: ui-monospace, "Menlo", monospace;
+    font-size: 8pt;
+    letter-spacing: 0.08em;
+    color: #7A5A00;
+  }
+  .receipt-chip .seal {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--gold);
+    flex: none;
+  }
+
+  /* ---------- Labels ---------- */
+
+  .lbl {
+    font-family: ui-monospace, "Menlo", monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.06em;
+    padding: 1.5pt 5pt;
+    border-radius: 2px;
+    white-space: nowrap;
+    border: 1px solid;
+  }
+  .lbl-live   { color: #0A5C2E; border-color: #0A5C2E; background: #ECF7F0; }
+  .lbl-sim    { color: #6B4E00; border-color: #C99A00; background: #FBF4E2; }
+  .lbl-pend   { color: #5B5B57; border-color: var(--hair-strong); background: var(--tint); }
+  .lbl-main   { color: #1B3A7A; border-color: #1B6BFF; background: var(--blue-tint); }
+
+  /* ---------- Tables ---------- */
+
+  table { border-collapse: collapse; width: 100%; margin: 8pt 0 12pt; font-size: 9.5pt; }
+  caption { caption-side: top; text-align: left; }
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: 5.5pt 8pt;
+    border-bottom: 1px solid var(--hair);
+  }
+  thead th {
+    border-bottom: 1.5px solid var(--ink);
+    font-size: 8pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  tbody tr:last-child td { border-bottom: 1px solid var(--hair-strong); }
+  td.mono, th.mono { font-family: ui-monospace, "Menlo", monospace; font-size: 8.5pt; }
+
+  /* ---------- Layout helpers ---------- */
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18pt; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10pt; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8pt; }
+
+  .card {
+    border: 1px solid var(--hair);
+    background: var(--paper);
+    border-radius: 4px;
+    padding: 11pt 12pt;
+  }
+  .card h4 {
+    margin: 0 0 4pt;
+    font-size: 10.5pt;
+    font-weight: 700;
+  }
+  .card .n {
+    font-family: ui-monospace, "Menlo", monospace;
+    font-size: 8pt;
+    color: var(--blue);
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 5pt;
+  }
+  .card p { font-size: 9pt; line-height: 1.45; color: var(--muted); margin: 0; }
+
+  .stat {
+    border-left: 2px solid var(--blue);
+    padding: 2pt 0 2pt 10pt;
+  }
+  .stat .big { font-size: 20pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+  .stat .cap { font-size: 8pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 4pt; }
+
+  .callout {
+    border-left: 3px solid var(--blue);
+    background: var(--blue-tint);
+    padding: 10pt 14pt;
+    margin: 12pt 0;
+    font-size: 10pt;
+  }
+  .callout.gold { border-left-color: var(--gold); background: #FFFBEF; }
+
+  .note {
+    font-size: 8.5pt;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 10pt 0 14pt;
+  }
+  .flow .step {
+    flex: 1;
+    border: 1px solid var(--hair-strong);
+    border-right: none;
+    padding: 8pt 9pt;
+    background: #fff;
+  }
+  .flow .step:last-child { border-right: 1px solid var(--hair-strong); }
+  .flow .step .s-n { font-family: ui-monospace, "Menlo", monospace; font-size: 7.5pt; color: var(--blue); letter-spacing: 0.1em; }
+  .flow .step .s-t { font-size: 9pt; font-weight: 700; margin: 3pt 0 2pt; }
+  .flow .step .s-d { font-size: 8pt; color: var(--muted); line-height: 1.35; }
+
+  ul.tight { margin: 4pt 0 10pt; padding-left: 16pt; }
+  ul.tight li { margin-bottom: 4pt; }
+
+  .footer-id {
+    margin-top: 16pt;
+    border-top: 1px solid var(--hair);
+    padding-top: 8pt;
+    font-size: 8pt;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .addr { font-family: ui-monospace, "Menlo", monospace; font-size: 8pt; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<section class="cover">
+  <div class="cover-top">
+    <span class="edition">Testnet edition</span>
+    <p class="wordmark">Klaro<span class="dot">.</span></p>
+    <div class="cover-rule"></div>
+    <p class="thesis">
+      A USDC transfer is fast, final, and useless to a real business.
+      Klaro turns it into an <strong>invoice, a payment, and an on-chain
+      receipt anyone can verify</strong> — built on Circle's Arc.
+    </p>
+  </div>
+
+  <div>
+    <div class="receipt-chip" style="margin-bottom:22pt;">
+      <span class="seal"></span> VERIFIED RECEIPT · 0x19d4&hellip;2B00 · Arc testnet
+    </div>
+    <div class="cover-meta">
+      <div class="col">
+        <span class="label">Document</span>
+        Klaro product paper<br/>
+        Investor &amp; partner brief
+      </div>
+      <div class="col">
+        <span class="label">Network</span>
+        Arc testnet · chain <span class="mono">5042002</span><br/>
+        <span class="mono">klaro-peach.vercel.app</span>
+      </div>
+      <div class="col" style="text-align:right;">
+        <span class="label">Date</span>
+        June 2026<br/>
+        Klaro Labs
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 1. PROBLEM ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">01</span>
+    <h2 class="sec-title">The problem: a stablecoin transfer is not a payment</h2>
+  </div>
+
+  <p class="lead">
+    Two wallets, one USDC transfer. It clears in under a second and it is
+    irreversible. For a real business, that is where the trouble starts, not
+    where it ends.
+  </p>
+
+  <p>
+    A bank wire or a card capture carries more than money. It carries a
+    receipt the recipient can show an accountant, an audit trail a regulator
+    can follow, a screening check that keeps sanctioned counterparties out,
+    and a path back to the local currency the recipient actually spends. A raw
+    on-chain transfer carries none of that. The money lands; everything around
+    the money is missing.
+  </p>
+
+  <div class="two-col" style="margin-top:6pt;">
+    <div>
+      <h3>What the transfer leaves behind</h3>
+      <ul class="tight">
+        <li><strong>No verifiable receipt.</strong> A transaction hash proves
+          a transfer happened. It does not prove <em>what it was for</em> —
+          which invoice, which terms, which counterparty.</li>
+        <li><strong>No audit trail.</strong> At year end there is a block
+          explorer, not a ledger an accountant or a lender can reconcile.</li>
+        <li><strong>No screening.</strong> Every regulated payment provider
+          screens counterparties before settlement. A wallet-to-wallet send
+          skips that step entirely.</li>
+        <li><strong>Stranded value.</strong> The vendor holds USDC. The
+          grocer, the landlord, and the tax authority want local currency.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Who feels it</h3>
+      <p>
+        The vendor billing across borders — a developer in Pune, an agency in
+        São Paulo, a freelancer in Lagos — invoices a client overseas and is
+        told to "just take USDC." They do. Then they cannot prove the payment
+        cleanly to their bank, cannot file it without a paper trail, and cannot
+        spend it without an off-ramp that screens the source.
+      </p>
+      <p>
+        The instrument is fast and final. As a payment for a business, it is
+        incomplete.
+      </p>
+      <div class="callout gold" style="margin-top:14pt;">
+        Klaro's wedge is the missing layer: the same fast, final transfer,
+        wrapped in an invoice, a settlement state machine, and a receipt that
+        carries proof off-chain to a bank or a tax filing.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">01 / Problem</span>
+  </div>
+</section>
+
+<!-- ===================== 2. PRODUCT ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">02</span>
+    <h2 class="sec-title">The product: invoice to verifiable receipt</h2>
+  </div>
+
+  <p class="lead">
+    Klaro is Arc-native USDC invoicing with on-chain receipts, vendor
+    reputation, and a partner cashout path. One flow, end to end, with every
+    leg labelled for exactly what it is.
+  </p>
+
+  <div class="flow">
+    <div class="step">
+      <span class="s-n">01</span>
+      <div class="s-t">Invoice</div>
+      <div class="s-d">Vendor signs in with Google or a magic link and issues an invoice. Hosted page, fixed terms.</div>
+    </div>
+    <div class="step">
+      <span class="s-n">02</span>
+      <div class="s-t">Pay</div>
+      <div class="s-d">Buyer pays from any wallet; cross-chain pay-in routes through CCTP V2 and Circle Gateway.</div>
+    </div>
+    <div class="step">
+      <span class="s-n">03</span>
+      <div class="s-t">Screen &amp; settle</div>
+      <div class="s-d">Counterparty is screened, then the operator settles escrow. No screen, no release.</div>
+    </div>
+    <div class="step">
+      <span class="s-n">04</span>
+      <div class="s-t">Receipt</div>
+      <div class="s-d">An audit-grade receipt is minted on chain and resolves at a public verify URL.</div>
+    </div>
+    <div class="step">
+      <span class="s-n">05</span>
+      <div class="s-t">Cash out</div>
+      <div class="s-d">Vendor previews local-currency cashout through an LP network — fiat leg simulated on testnet.</div>
+    </div>
+  </div>
+
+  <h3>The five surfaces</h3>
+  <p class="note" style="margin-bottom:8pt;">
+    Each surface is a distinct product seam with its own users, contracts, and
+    honest-mode label. The web app exposes them as separate portals; the SDK,
+    CLI, and embeds expose them to integrators.
+  </p>
+
+  <div class="grid-5" style="margin-bottom:6pt;">
+    <div class="card">
+      <span class="n">S1</span>
+      <h4>Invoicing &amp; pay-in</h4>
+      <p>Vendor invoices, hosted pay pages, wallet payment, cross-chain routing.</p>
+    </div>
+    <div class="card">
+      <span class="n">S2</span>
+      <h4>Receipts</h4>
+      <p>On-chain audit receipt, public verify URL, embeddable badge.</p>
+    </div>
+    <div class="card">
+      <span class="n">S3</span>
+      <h4>Reputation</h4>
+      <p>Vendor reputation from settlement and dispute history, mirrored on chain.</p>
+    </div>
+    <div class="card">
+      <span class="n">S4</span>
+      <h4>LP &amp; cashout</h4>
+      <p>Liquidity-provider staking, proof, dispute, slashing; cashout simulation.</p>
+    </div>
+    <div class="card">
+      <span class="n">S5</span>
+      <h4>Agents</h4>
+      <p>ERC-8004 identity, ERC-8183 job escrow, budget-capped agent wallets.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    The receipt is the moat. A fiat processor cannot issue an artifact a third
+    party can verify without trusting the processor. A Klaro receipt resolves
+    against on-chain state from its hash alone — the verifier trusts the chain,
+    not Klaro.
+  </div>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">02 / Product</span>
+  </div>
+</section>
+
+<!-- ===================== 3. WHY ARC ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">03</span>
+    <h2 class="sec-title">Why Arc</h2>
+  </div>
+
+  <p class="lead">
+    A payment product wants a settlement layer that behaves like settlement:
+    one unit of account, deterministic finality, and native compliance and
+    treasury rails. Arc is built that way.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <h3>USDC is the gas token</h3>
+      <p>
+        On Arc, gas is paid in USDC — the same asset the invoice is
+        denominated in. There is no second volatile token to acquire, hold, or
+        explain to a vendor. The full 20-contract Klaro protocol deployed for
+        <strong>0.55 USDC</strong> of gas.
+      </p>
+      <p class="note">
+        Accounting note: app balances use the ERC-20 USDC representation at 6
+        decimals; the native gas representation is kept strictly separate in
+        code. The two are never mixed.
+      </p>
+
+      <h3>Sub-second deterministic finality</h3>
+      <p>
+        Settlement is final in under a second with no probabilistic
+        confirmation window. The product is designed around that — a paid
+        invoice is paid, not "paid pending twelve blocks."
+      </p>
+    </div>
+    <div>
+      <h3>Circle-native by construction</h3>
+      <p>
+        Klaro builds on Circle's own primitives rather than re-implementing
+        them:
+      </p>
+      <table>
+        <thead><tr><th>Primitive</th><th>Use in Klaro</th></tr></thead>
+        <tbody>
+          <tr><td>CCTP V2</td><td class="mono">cross-chain pay-in</td></tr>
+          <tr><td>Circle Gateway</td><td class="mono">batched settlement</td></tr>
+          <tr><td>Circle Wallets</td><td class="mono">passkey vendor wallets</td></tr>
+          <tr><td>StableFX</td><td class="mono">USDC&hairsp;&harr;&hairsp;EURC corridor</td></tr>
+          <tr><td>Permit2</td><td class="mono">gasless allowances</td></tr>
+          <tr><td>ERC-8004 / 8183</td><td class="mono">agent identity + escrow</td></tr>
+        </tbody>
+      </table>
+      <p class="note">
+        Cross-chain transfers use CCTP V2 only. External Arc and Circle
+        addresses are pinned in <span class="mono">KlaroConfig.sol</span> and
+        drift-checked in CI against the live Arc docs corpus.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout">
+    Arc is a testnet today; mainnet is not assumed anywhere in the codebase.
+    Every Arc-touching path either runs live on testnet or falls back to a
+    labelled simulator. Nothing in this document depends on a mainnet that
+    does not yet exist.
+  </div>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">03 / Why Arc</span>
+  </div>
+</section>
+
+<!-- ===================== 4. ARCHITECTURE ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">04</span>
+    <h2 class="sec-title">Architecture</h2>
+  </div>
+
+  <p class="lead">
+    Three runtimes, one contract layer, one database. The web app never signs
+    money-moving transactions; the daemon holds the only operator key.
+  </p>
+
+  <div class="grid-3" style="margin:4pt 0 14pt;">
+    <div class="stat"><div class="big">20</div><div class="cap">contracts deployed</div></div>
+    <div class="stat"><div class="big">15</div><div class="cap">daemon workers</div></div>
+    <div class="stat"><div class="big">42</div><div class="cap">tables, RLS on each</div></div>
+  </div>
+
+  <h3>Web — Next.js 15 App Router</h3>
+  <p>
+    Marketing at the apex domain; a vendor portal under
+    <span class="mono">/vendor/*</span>, an LP portal under
+    <span class="mono">/lp/*</span>, and an admin console under
+    <span class="mono">/admin/*</span>. Public money pages —
+    <span class="mono">i/[id]</span>, <span class="mono">pay/[slug]</span>,
+    <span class="mono">receipt/[hash]</span> — are the only routes a buyer or
+    verifier touches without an account. Sessions are Supabase SSR (Google
+    OAuth and magic link); CSP, subdomain rewrites, and rate limiting live in
+    middleware.
+  </p>
+
+  <h3>Daemon — the operator process</h3>
+  <p>
+    A long-lived Node process pairs an Arc event listener
+    (<span class="mono">arcSubscriber.ts</span>) with fifteen BullMQ worker
+    classes — screen-and-settle, cashout advance, receipt generation, dispute
+    resolution and decision, reconciliation, reputation, FX, ERP sync,
+    notifications, and more — each with retries and a dead-letter queue watcher
+    over every queue it owns. The daemon holds
+    <span class="mono">KLARO_OPERATOR_PRIVATE_KEY</span>; the web app holds no
+    signing key. Listener idempotency keys are
+    <span class="mono">(event, txHash, logIndex)</span>, so a replayed log
+    never double-settles.
+  </p>
+
+  <h3>Contracts — 20 on Arc testnet</h3>
+  <p>
+    Each contract is scoped to one concern and tested in isolation. A local
+    forge run on 2026-06-10 verified 531 passing Foundry tests across unit,
+    fuzz, and a deploy-wiring regression suite that re-runs the full deploy
+    and asserts every permission.
+    Echidna and Halmos harnesses are scaffolded but not yet wired, so they are
+    not counted as coverage.
+  </p>
+  <table>
+    <thead><tr><th>Money flow</th><th>Cashout &amp; LP</th><th>Agents</th><th>Disputes &amp; rep</th><th>Cross-chain / FX</th><th>Privacy / config</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">InvoiceEscrow</td><td class="mono">CashoutOrderProcessor</td><td class="mono">AgentRegistry</td><td class="mono">DisputeManager</td><td class="mono">MultiChainRouter</td><td class="mono">CounterpartyRegistry</td></tr>
+      <tr><td class="mono">AuditReceipt</td><td class="mono">LPStaking</td><td class="mono">AgentEscrow</td><td class="mono">ReputationManager</td><td class="mono">StableFXAdapterRegistry</td><td class="mono">PrivacyVeil</td></tr>
+      <tr><td class="mono">RefundProtocol</td><td class="mono">LPRegistry</td><td class="mono">AgentBudgetWallet</td><td class="mono">VendorReputation</td><td></td><td class="mono">KlaroConfig</td></tr>
+      <tr><td class="mono">FeeSplitter</td><td class="mono">ProofRegistry</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td class="mono">RoutePolicyEngine</td><td class="mono">RetainerStream</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Data &amp; integrators</h3>
+  <p>
+    Supabase Postgres with row-level security on every table, enforced through
+    <span class="mono">current_vendor_id()</span> and append-only SQL
+    migrations. The <span class="mono">@klaro/sdk</span> TypeScript client, a
+    CLI, an embeddable receipt badge, and an iframe-friendly hosted invoice
+    page expose the same flows to integrators.
+  </p>
+  <p class="note">
+    Test count (531) verified by a local forge run on 2026-06-10; worker count read from daemon source.
+    The daemon's boot log carries a stale literal worker count; the authoritative
+    figure is the 15 worker classes started at boot.
+  </p>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">04 / Architecture</span>
+  </div>
+</section>
+
+<!-- ===================== 5. TRUST DESIGN ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">05</span>
+    <h2 class="sec-title">Trust design</h2>
+  </div>
+
+  <p class="lead">
+    A payment product earns trust by being precise about what it does and what
+    it does not. Klaro encodes that precision in the UI, the contracts, and the
+    data model — not in marketing copy.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <h3>Honest-mode labelling</h3>
+      <p>
+        Every surface tells the user what mode it is in. Klaro never ships UI
+        that pretends to be more than it is, and never ships a control that
+        does nothing.
+      </p>
+      <table>
+        <thead><tr><th>Label</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><span class="lbl lbl-live">live testnet</span></td><td>End-to-end on Arc testnet</td></tr>
+          <tr><td><span class="lbl lbl-sim">simulated</span></td><td>Mock store, no chain calls</td></tr>
+          <tr><td><span class="lbl lbl-pend">access pending</span></td><td>Adapter built; credentials not yet issued</td></tr>
+          <tr><td><span class="lbl lbl-pend">partner pending</span></td><td>Integration coded; partner signature outstanding</td></tr>
+          <tr><td><span class="lbl lbl-main">mainnet only</span></td><td>Path exists on mainnet; testnet uses mock</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Screening-gated settlement</h3>
+      <p>
+        Escrow does not release until the counterparty is screened. On testnet
+        the screen runs in simulation; it becomes a live check only when a
+        provider key (Chainalysis, TRM, or Sumsub) is added and verified. The
+        gate exists in code today; the verdict is simulated until then.
+      </p>
+    </div>
+    <div>
+      <h3>Escrowed, traceable value</h3>
+      <p>
+        Every dollar of live testnet value sits in escrow and is traceable end
+        to end. Funds move through <span class="mono">InvoiceEscrow</span>,
+        release on a screened settlement, and split via
+        <span class="mono">FeeSplitter</span> — no off-ledger hops.
+      </p>
+
+      <h3>Dispute &amp; slashing state machine</h3>
+      <p>
+        Disputes run opener &rarr; evidence &rarr; operator review &rarr;
+        on-chain decision, mirrored into
+        <span class="mono">VendorReputation</span>. LP misbehavior is handled
+        by an explicit staking, proof, and slashing path. Money flows are state
+        machines with defined failures, retries, and final outcomes — never
+        claim-based releases.
+      </p>
+
+      <h3>No PII on chain · append-only audit</h3>
+      <p>
+        The chain stores hashes, addresses, IDs, and status events only — never
+        personal data. Off-chain, audit logs are append-only, and the logger
+        strips emails and wallet addresses before any breadcrumb leaves the
+        process.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout gold">
+    <strong>Klaro is not a bank.</strong> Financing readiness is not a loan
+    offer. External smart-contract audits are not yet complete and are a hard
+    gate before mainnet. The fiat cashout leg is simulated on testnet.
+  </div>
+
+  <p class="note">
+    System threat model and controls — cross-tenant isolation, webhook replay
+    and forgery, operator-secret containment, RPC compromise, PII-to-telemetry
+    leakage — are documented in <span class="mono">THREAT_MODEL.md</span> and
+    the contract-level threat model.
+  </p>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">05 / Trust</span>
+  </div>
+</section>
+
+<!-- ===================== 6. TRUTH TABLE ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">06</span>
+    <h2 class="sec-title">What is real today</h2>
+  </div>
+
+  <p class="lead">
+    The single most important table in this document. Read it before any claim
+    elsewhere.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:34%;">Capability</th><th style="width:18%;">Status</th><th>What that means</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Vendor signup &amp; invoice creation</td>
+        <td><span class="lbl lbl-live">live testnet</span></td>
+        <td>Google OAuth or magic link, server-side identity, RLS-isolated per tenant.</td>
+      </tr>
+      <tr>
+        <td>Buyer payment</td>
+        <td><span class="lbl lbl-live">live testnet</span></td>
+        <td>Hosted invoice pages and wallet connection. Live or simulated path depends on the deployed contract env.</td>
+      </tr>
+      <tr>
+        <td>On-chain audit receipt</td>
+        <td><span class="lbl lbl-live">live testnet</span></td>
+        <td>Shareable verify URL; on-chain minting runs when the live receipt contract is configured.</td>
+      </tr>
+      <tr>
+        <td>LP staking, proof, dispute, slashing</td>
+        <td><span class="lbl lbl-live">live testnet</span></td>
+        <td>Full state machine is real testnet state.</td>
+      </tr>
+      <tr>
+        <td>Cross-chain pay-in</td>
+        <td><span class="lbl lbl-live">live testnet</span></td>
+        <td>CCTP V2 and Circle Gateway routing via <span class="mono">MultiChainRouter</span>.</td>
+      </tr>
+      <tr>
+        <td>StableFX corridor (USDC&hairsp;&harr;&hairsp;EURC)</td>
+        <td><span class="lbl lbl-live">live testnet</span></td>
+        <td>Routed through Circle's FxEscrow and Permit2; the adapter on testnet is a mock seeded into the registry.</td>
+      </tr>
+      <tr>
+        <td>Agent jobs (ERC-8004 / 8183)</td>
+        <td><span class="lbl lbl-live">live testnet</span></td>
+        <td>Budget-capped agent wallets, dispute-protected job escrow.</td>
+      </tr>
+      <tr>
+        <td>Fiat cashout (local currency payout)</td>
+        <td><span class="lbl lbl-sim">simulated</span></td>
+        <td>The off-ramp leg is a testnet partner simulation. No real INR or other fiat moves.</td>
+      </tr>
+      <tr>
+        <td>Sanctions screening</td>
+        <td><span class="lbl lbl-sim">simulated</span></td>
+        <td>Gate runs in simulation until a provider key (Chainalysis / TRM / Sumsub) is added and verified.</td>
+      </tr>
+      <tr>
+        <td>KYB onboarding (Sumsub-gated)</td>
+        <td><span class="lbl lbl-pend">access pending</span></td>
+        <td>Adapter built; provider credentials not yet issued.</td>
+      </tr>
+      <tr>
+        <td>Card on-ramp (MoonPay), Wallet passes</td>
+        <td><span class="lbl lbl-pend">partner pending</span></td>
+        <td>Integration coded; partner signature outstanding.</td>
+      </tr>
+      <tr>
+        <td>Real cashout corridors, multisig handover, bug bounty</td>
+        <td><span class="lbl lbl-main">mainnet only</span></td>
+        <td>Gated behind the external audit and mainnet launch.</td>
+      </tr>
+      <tr>
+        <td>External smart-contract audit</td>
+        <td><span class="lbl lbl-pend">not done</span></td>
+        <td>Required before mainnet. Echidna/Halmos harnesses scaffolded, not yet wired.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    Read it plainly: the protocol, escrow, receipts, LP state, agents, and
+    cross-chain pay-in are live on testnet. The fiat payout and live sanctions
+    verdict are simulated. Real-money corridors and an audit sign-off come
+    before mainnet, not before this document.
+  </div>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">06 / Truth table</span>
+  </div>
+</section>
+
+<!-- ===================== 7. GO TO MARKET ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">07</span>
+    <h2 class="sec-title">Go-to-market</h2>
+  </div>
+
+  <p class="lead">
+    Start where the pain is sharpest and the alternatives are worst:
+    emerging-market vendors and freelancers invoicing clients overseas.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <h3>The wedge user</h3>
+      <p>
+        A vendor in an emerging market bills a client in the US, EU, or UK and
+        today loses days and a meaningful slice of revenue to legacy transfer
+        rails — or fails the structural requirements of a US-incorporation
+        on-ramp altogether. They can receive USDC; what they lack is the
+        receipt, the screening, and the clean path to local currency that turns
+        USDC into a usable payment.
+      </p>
+      <p>
+        Klaro meets them at the invoice. The vendor never has to explain
+        blockchains to their client: the client opens a hosted page and pays
+        from a wallet, the vendor gets a verifiable receipt, and the off-ramp
+        preview shows what local currency the settlement would convert to.
+      </p>
+    </div>
+    <div>
+      <h3>The LP side</h3>
+      <p>
+        Local-currency liquidity for cashout comes from a network of liquidity
+        providers. That network is <strong>invite-only</strong>: LPs stake,
+        post proof, and are subject to dispute and slashing. The design treats
+        LP onboarding as a trust-and-risk decision, not a self-serve signup.
+      </p>
+      <p>
+        On testnet, LP staking and the dispute/slashing machine are real state;
+        the fiat payout the LP would make is simulated. The mechanism is built
+        and exercisable now; the cash leg goes live with real corridors at
+        mainnet.
+      </p>
+
+      <h3>Distribution surface</h3>
+      <p>
+        The SDK, CLI, receipt badge, and invoice embed let other products issue
+        Klaro invoices and verify Klaro receipts — the receipt verify URL is a
+        public artifact, which makes every settled invoice a small distribution
+        event.
+      </p>
+    </div>
+  </div>
+
+  <p class="note">
+    Market sizing, per-country regulatory posture, and pricing mechanics are
+    framed in the internal PRD. Testnet reality governs this document: figures
+    that depend on real volume or live corridors are out of scope until those
+    legs are live.
+  </p>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">07 / Go-to-market</span>
+  </div>
+</section>
+
+<!-- ===================== 8. ROADMAP ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">08</span>
+    <h2 class="sec-title">Roadmap</h2>
+  </div>
+
+  <p class="lead">
+    Three stages, gated by trust rather than dates. Each stage ships only when
+    the prior one is real.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:20%;">Stage</th><th>What ships</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Now</strong><br/><span class="lbl lbl-live">testnet</span></td>
+        <td>Vendor invoicing, buyer payment, on-chain receipts, LP staking, partner cashout simulation, agent jobs, disputes, and cross-chain pay-in — all live on Arc testnet.</td>
+      </tr>
+      <tr>
+        <td><strong>Next</strong><br/><span class="lbl lbl-pend">hardening</span></td>
+        <td>External contract audit; Sumsub-gated KYB; Chainalysis live sanctions screening; MoonPay card on-ramp; Apple and Google Wallet passes. This is where the simulated and pending legs become live.</td>
+      </tr>
+      <tr>
+        <td><strong>Mainnet</strong><br/><span class="lbl lbl-main">gated</span></td>
+        <td>Multisig ownership handover for every contract; Immunefi bug bounty live; real cashout corridors with off-ramp partners. None of this ships before the audit lands.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="two-col" style="margin-top:8pt;">
+    <div>
+      <h3>The mainnet gates, explicitly</h3>
+      <ul class="tight">
+        <li>External smart-contract audit complete and findings resolved.</li>
+        <li>Ownership of every <span class="mono">Ownable</span> contract
+          transferred from the deployer EOA to a Safe multisig in the deploy
+          broadcast — including the FX adapter, so a post-handover key
+          compromise cannot drain destination liquidity.</li>
+        <li>Live sanctions provider wired and verified, replacing the
+          simulated verdict.</li>
+        <li>Real off-ramp corridors signed, replacing the cashout simulation.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What this document does not promise</h3>
+      <p>
+        No dates. No mainnet behavior described as if it exists. No real-money
+        movement, payout, lending, or completed audit. The roadmap is a
+        sequence of gates; the only thing live today is the testnet column.
+      </p>
+      <div class="receipt-chip" style="margin-top:10pt;">
+        <span class="seal"></span> AUDIT GATE · required before mainnet
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition</span>
+    <span class="mono">08 / Roadmap</span>
+  </div>
+</section>
+
+<!-- ===================== 9. TEAM / CONTACT / DEPLOYMENT ===================== -->
+<section class="page">
+  <div class="sec-head">
+    <span class="sec-num">09</span>
+    <h2 class="sec-title">Team, contact &amp; deployment</h2>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h3>Team</h3>
+      <p>
+        <strong>Prateek Tripathi</strong><br/>
+        Klaro Labs
+      </p>
+      <p>
+        <span class="kicker">Contact</span><br/>
+        <a href="mailto:prateek@myklaro.app">prateek@myklaro.app</a><br/>
+        <span class="mono">github.com/klaro-labs/klaro</span><br/>
+        <span class="mono">myklaro.app</span>
+      </p>
+
+      <h3>Try the testnet</h3>
+      <p>
+        Live testnet: <span class="mono">klaro-peach.vercel.app</span>.
+        The app boots without environment variables — every external surface
+        falls back to a labelled simulated mode, so the full UI is navigable on
+        a fresh clone. Wire any single surface live by filling in only the env
+        it needs.
+      </p>
+      <p class="note">
+        Licensed Apache-2.0. The protocol is open source; the testnet is live;
+        mainnet ships after the audit.
+      </p>
+    </div>
+    <div>
+      <h3>Deployment — Arc testnet</h3>
+      <p class="note" style="margin-bottom:6pt;">
+        Chain <span class="mono">5042002</span> ·
+        RPC <span class="mono">rpc.testnet.arc.network</span> ·
+        release <span class="mono">v0.1.0</span> ·
+        deploy gas <span class="mono">0.55 USDC</span>.
+        On testnet the deployer EOA retains ownership; mainnet hands every
+        contract to a multisig in the same broadcast.
+      </p>
+      <table>
+        <thead><tr><th>Contract</th><th class="mono">Address</th></tr></thead>
+        <tbody>
+          <tr><td>InvoiceEscrow</td><td class="addr">0xA76edAd6e1c0D0854a21BF527086CA44b620c4e2</td></tr>
+          <tr><td>AuditReceipt</td><td class="addr">0x19d44E987DBd853c3C94A4Ab35404cCCd7612B00</td></tr>
+          <tr><td>RefundProtocol</td><td class="addr">0xCC4cFb95ae8d5774DF66a70E2Af8aaD7A5076339</td></tr>
+          <tr><td>FeeSplitter</td><td class="addr">0x3b2E07e58f1578cF24B6438E3E76728C21555B66</td></tr>
+          <tr><td>CashoutOrderProcessor</td><td class="addr">0x347935A89B95fD2baD736dbADe4C14b0a5e9E6bd</td></tr>
+          <tr><td>LPStaking</td><td class="addr">0x4b36eD428b47F4254737215454BE6e9b99A1bD1f</td></tr>
+          <tr><td>ProofRegistry</td><td class="addr">0xb0a2c7815D75EeBF73f8869C810EC8da5FcCbC33</td></tr>
+          <tr><td>DisputeManager</td><td class="addr">0xee9561BE93312625C7F622D3f63B9092Af23aE5F</td></tr>
+          <tr><td>MultiChainRouter</td><td class="addr">0xAF636EbC33D9FCB124E21C567F174f1EA5e2A241</td></tr>
+          <tr><td>VendorReputation</td><td class="addr">0xb44CE869978CC1C0bf71687B307b19657d907750</td></tr>
+          <tr><td>PrivacyVeil</td><td class="addr">0x73660E5aa28a304369B1C9aF06d18468Af6a95F5</td></tr>
+        </tbody>
+      </table>
+      <p class="note">
+        Full 20-contract address list and the deploy command that produced
+        them are in <span class="mono">DEPLOYMENT.md</span>.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout gold" style="margin-top:6pt;">
+    <strong>One-line summary.</strong> Klaro makes a USDC transfer behave like
+    a payment a business can use — invoice, screened settlement, on-chain
+    receipt, and an off-ramp preview — live on Arc testnet, honest about every
+    leg, audit-gated before mainnet.
+  </div>
+
+  <div class="footer-id">
+    <span>Klaro · Product paper · Testnet edition · June 2026 · prateek@myklaro.app</span>
+    <span class="mono">09 / Team</span>
+  </div>
+</section>
+
+</body>
+</html>
