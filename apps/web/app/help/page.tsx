@@ -72,9 +72,7 @@ export default function HelpPage() {
             How can we help?
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-[var(--color-ink-muted)] md:text-lg">
-            Full-text search via Algolia DocSearch lands soon (myklaro.app/docs
-            cuts over to Mintlify). For now: jump to the topic that matches your
-            question, or email{" "}
+            Pick the topic that matches your question, or email{" "}
             <a
               className="text-[var(--color-brand)] hover:underline"
               href="mailto:prateek@myklaro.app"
@@ -88,10 +86,10 @@ export default function HelpPage() {
         <div
           className="mb-6 flex items-center gap-2.5 rounded-lg border border-dashed border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-4 py-3 text-sm text-[var(--color-ink-muted)]"
           role="note"
-          aria-label="Full-text help search is coming soon"
+          aria-label="Help navigation"
         >
           <Search aria-hidden className="size-4 shrink-0 text-[var(--color-ink-subtle)]" />
-          <span>Full-text search coming soon — for now, pick a topic below.</span>
+          <span>Search by topic below, or contact support for anything not listed.</span>
         </div>
 
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">

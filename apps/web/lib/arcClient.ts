@@ -22,6 +22,7 @@ import {
   AUDIT_RECEIPT_ADDRESS,
   REPUTATION_MANAGER_ADDRESS,
   COUNTERPARTY_REGISTRY_ADDRESS,
+  onchainLive,
   supabaseLive,
 } from "./env";
 import { keccak256, toBytes, parseAbiItem } from "viem";
@@ -79,7 +80,7 @@ export interface OnChainInvoiceResult {
 export async function getInvoiceWithSource(
   id: Hex,
 ): Promise<OnChainInvoiceResult> {
-  if (!INVOICE_ESCROW_ADDRESS) {
+  if (!onchainLive()) {
     const inv = await mockGetInvoice(id);
     return { source: "simulated", invoice: inv };
   }
@@ -180,7 +181,7 @@ export interface ReconcilePublishResult {
 export async function reconcileInvoicePublished(
   id: Hex,
 ): Promise<ReconcilePublishResult> {
-  if (!INVOICE_ESCROW_ADDRESS) return { publishedOnChain: false, txHash: null };
+  if (!onchainLive()) return { publishedOnChain: false, txHash: null };
   try {
     const client = getArcPublicClient();
     const raw = await client.readContract({
@@ -256,7 +257,7 @@ export interface OnChainReceiptResult {
 export async function verifyReceipt(
   receiptHash: Hex,
 ): Promise<OnChainReceiptResult> {
-  if (!AUDIT_RECEIPT_ADDRESS) {
+  if (!onchainLive() || !AUDIT_RECEIPT_ADDRESS) {
     return { source: "simulated", exists: true, anchor: null };
   }
   try {
@@ -277,7 +278,7 @@ export async function verifyReceipt(
 }
 
 export function isLiveOnChain(): boolean {
-  return Boolean(INVOICE_ESCROW_ADDRESS);
+  return onchainLive();
 }
 
 /** Specific per-contract liveness — the loop-iter-38 reputation page needs

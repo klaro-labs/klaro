@@ -125,8 +125,8 @@ export function ExportsClient() {
           {pending ? "Generating…" : "Download JSON"}
         </Button>
         <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
-          Schema <code className="font-mono">klaro.audit-pack.v1</code> · PDF
-          export coming soon
+          Schema <code className="font-mono">klaro.audit-pack.v1</code> · JSON
+          is the supported export format in this testnet build.
         </p>
       </div>
     </div>

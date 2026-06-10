@@ -197,7 +197,7 @@ function Section({
  * A submit button styled as a real on/off switch (track + sliding knob). The
  * enclosing <form> carries the hidden inputs + server action; clicking flips
  * the persisted value. Rendered as a real submit (not JS state) so it works
- * without client hydration, and carries a focus-visible ring + aria-pressed so
+ * without client hydration, and carries a focus-visible ring + aria-checked so
  * it's keyboard-accessible on these account-mutating controls.
  */
 function Toggle({ on }: { on: boolean }) {
@@ -205,7 +205,7 @@ function Toggle({ on }: { on: boolean }) {
     <button
       type="submit"
       role="switch"
-      aria-pressed={on}
+      aria-checked={on}
       aria-label={on ? "On" : "Off"}
       className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-1 ${
         on

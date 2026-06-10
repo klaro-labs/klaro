@@ -22,6 +22,18 @@ export interface Session {
 
 const IS_PROD = process.env.NODE_ENV === "production";
 
+function isNextDynamicServerProbe(error: unknown): boolean {
+  const digest = (error as { digest?: unknown })?.digest;
+  if (typeof digest === "string" && digest.includes("DYNAMIC_SERVER_USAGE")) {
+    return true;
+  }
+  const message = (error as { message?: unknown })?.message;
+  return (
+    typeof message === "string" &&
+    message.includes("Dynamic server usage:")
+  );
+}
+
 /**
  * Production fail-closed gate. In prod, mock-mode auth refuses to grant any
  * session — anonymous visitors must not silently become "the seeded vendor".
@@ -35,6 +47,11 @@ function mockFallbackAllowed(): boolean {
 }
 
 export async function getCurrentSession(): Promise<Session | null> {
+  if (KLARO_ALLOW_MOCK_AUTH) {
+    const vendor = await mockGetCurrentVendor();
+    if (!vendor) return null;
+    return { vendor, role: "operator", simulated: true };
+  }
   if (supabaseLive()) return await getSupabaseSession();
   if (!mockFallbackAllowed()) return null;
 
@@ -121,8 +138,13 @@ async function getSupabaseSession(): Promise<Session | null> {
       data: { user },
     } = await supabase.auth.getUser());
   } catch (e) {
-    // Supabase backend transient outage — surface as not-signed-in, but log.
-    console.error("[auth] supabase getUser failed", e);
+    // Next probes Server Components during build to decide whether they are
+    // dynamic. `cookies()` intentionally throws DYNAMIC_SERVER_USAGE in that
+    // probe path; do not log it as a Supabase outage.
+    if (!isNextDynamicServerProbe(e)) {
+      // Supabase backend transient outage — surface as not-signed-in, but log.
+      console.error("[auth] supabase getUser failed", e);
+    }
     return null;
   }
   if (!user) return null;

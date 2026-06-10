@@ -27,40 +27,43 @@ import { WALLETCONNECT_PROJECT_ID, PUBLIC_ORIGIN } from "@/lib/env";
 
 const wcProjectId = WALLETCONNECT_PROJECT_ID;
 
-const connectors = [
-  injected(),
-  ...(wcProjectId
-    ? [
-        walletConnect({
-          projectId: wcProjectId,
-          showQrModal: true,
-          metadata: {
-            name: "Klaro",
-            description: "USDC invoicing on Arc",
-            url:
-              process.env.NEXT_PUBLIC_PUBLIC_ORIGIN ??
-              "https://klaro-peach.vercel.app",
-            icons: [
-              `${(PUBLIC_ORIGIN || "https://klaro-peach.vercel.app")}/icon.png`,
-            ],
-          },
-        }),
-      ]
-    : []),
-];
+function createWeb3Config() {
+  const connectors = [
+    injected(),
+    ...(wcProjectId && typeof window !== "undefined"
+      ? [
+          walletConnect({
+            projectId: wcProjectId,
+            showQrModal: true,
+            metadata: {
+              name: "Klaro",
+              description: "USDC invoicing on Arc",
+              url:
+                process.env.NEXT_PUBLIC_PUBLIC_ORIGIN ??
+                "https://klaro-peach.vercel.app",
+              icons: [
+                `${(PUBLIC_ORIGIN || "https://klaro-peach.vercel.app")}/icon.png`,
+              ],
+            },
+          }),
+        ]
+      : []),
+  ];
 
-const config = createConfig({
-  chains: [arcTestnet, base, mainnet],
-  connectors,
-  transports: {
-    [arcTestnet.id]: http(),
-    [base.id]: http(),
-    [mainnet.id]: http(),
-  },
-  ssr: true,
-});
+  return createConfig({
+    chains: [arcTestnet, base, mainnet],
+    connectors,
+    transports: {
+      [arcTestnet.id]: http(),
+      [base.id]: http(),
+      [mainnet.id]: http(),
+    },
+    ssr: true,
+  });
+}
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
+  const [config] = useState(createWeb3Config);
   const [qc] = useState(() => new QueryClient());
   return (
     <WagmiProvider config={config}>

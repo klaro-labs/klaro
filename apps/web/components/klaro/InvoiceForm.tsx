@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { createInvoiceAction } from "@/app/(wallet)/vendor/invoices/new/actions";
@@ -10,6 +10,7 @@ import { createInvoiceAction } from "@/app/(wallet)/vendor/invoices/new/actions"
 export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [amount, setAmount] = useState("");
@@ -17,6 +18,10 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [dueDays, setDueDays] = useState("14");
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   return (
     <form
@@ -112,8 +117,8 @@ export function InvoiceForm({ simulated = false }: { simulated?: boolean }) {
       ) : null}
 
       <div className="flex items-center gap-3 border-t border-[var(--color-line)] pt-6">
-        <Button type="submit" size="lg" disabled={pending}>
-          {pending ? "Creating…" : "Create invoice →"}
+        <Button type="submit" size="lg" disabled={!hydrated || pending}>
+          {!hydrated ? "Loading form…" : pending ? "Creating…" : "Create invoice →"}
         </Button>
         <p className="text-xs text-[var(--color-ink-subtle)]">
           {simulated

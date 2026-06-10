@@ -5,7 +5,7 @@ import { WEBAUTHN_RP_ID } from "@/lib/env";
 import crypto from "node:crypto";
 import { z } from "zod";
 
-/** Get assertion options for passkey sign-in.
+/** Get assertion options for passkey assertion verification.
  * rpId env-pinned on both sides.
  * previously the response shape
  * changed based on whether `body.email` matched a registered vendor —

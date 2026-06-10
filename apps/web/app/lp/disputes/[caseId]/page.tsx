@@ -147,12 +147,9 @@ export default async function LPDisputeDetailPage({
               Evidence upload is shown for the planned live workflow. Demo
               disputes are resolved from the seeded case data only.
             </p>
-            <button
-              disabled
-              className="mt-4 cursor-not-allowed rounded bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white opacity-45"
-            >
-              Evidence upload pending
-            </button>
+            <p className="mt-4 rounded bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-ink-muted)]">
+              Demo evidence is already seeded for this case.
+            </p>
           </section>
         ) : (
           <section className="rounded-lg border border-emerald-200 bg-emerald-50 p-6">

@@ -36,11 +36,13 @@ const ZERO_ADDR = ("0x" + "0".repeat(40)).toLowerCase();
 export function CashoutRequestForm({
   maxUsdc,
   vendorWallet,
+  simulated = false,
 }: {
   maxUsdc: bigint;
   /** vendor's provisioned payout wallet; when present + non-zero the live
    *  on-chain lock path is offered instead of the simulator. */
   vendorWallet?: Hex | null;
+  simulated?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -58,7 +60,7 @@ export function CashoutRequestForm({
   const overLimit = quote && quote.usdcAmount > maxUsdc;
 
   const liveOnChain =
-    !!vendorWallet && vendorWallet.toLowerCase() !== ZERO_ADDR;
+    !simulated && !!vendorWallet && vendorWallet.toLowerCase() !== ZERO_ADDR;
   const requestInput: CashoutRequestInput | null = quote
     ? {
         usdcAmount: quote.usdcAmount.toString(),

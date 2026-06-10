@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ConnectWalletButton } from "./ConnectWalletButton";
 import { createLinkAction, type LinkAuthInput } from "@/app/(wallet)/vendor/links/new/actions";
 import { LINK_AUTH_EIP712_TYPES, ARC_USDC_ADDRESS } from "@/lib/abi";
-import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
+import { INVOICE_ESCROW_ADDRESS, onchainLive } from "@/lib/env";
 import { dollarsToUSDC, shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
 
@@ -36,7 +36,7 @@ export function LinkForm({
   const [label, setLabel] = useState("");
   const [expireDays, setExpireDays] = useState("");
 
-  const isLive = Boolean(INVOICE_ESCROW_ADDRESS);
+  const isLive = onchainLive();
   const { address, isConnected } = useAccount();
   const { signTypedDataAsync } = useSignTypedData();
 

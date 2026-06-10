@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ConnectWalletButton } from "./ConnectWalletButton";
 import { PayWithUSDC } from "./PayWithUSDC";
 import { getOrCreateInvoiceForLink } from "@/app/(wallet)/pay/[slug]/actions";
-import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
+import { onchainLive } from "@/lib/env";
 import type { Hex } from "@/lib/types";
 import type { LinkInvoiceParams } from "@/lib/repo/links";
 
@@ -25,7 +25,7 @@ const DEMO_BUYER = "0x000000000000000000000000000000000000dE01" as Hex;
  * In simulator mode it creates a demo invoice and PayWithUSDC's simulator pays.
  */
 export function PayFromLink({ slug }: { slug: string }) {
-  const isLive = Boolean(INVOICE_ESCROW_ADDRESS);
+  const isLive = onchainLive();
   const { address, isConnected } = useAccount();
   const [phase, setPhase] = useState<"idle" | "preparing" | "ready" | "error">("idle");
   const [params, setParams] = useState<LinkInvoiceParams | null>(null);

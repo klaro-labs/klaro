@@ -9,7 +9,7 @@ import { getCurrentSession } from "@/lib/auth";
 // reads work; previously mock-only.
 import { getInvoice } from "@/lib/repo/invoices";
 import { reconcileInvoicePublished } from "@/lib/arcClient";
-import { PUBLIC_ORIGIN, INVOICE_ESCROW_ADDRESS } from "@/lib/env";
+import { PUBLIC_ORIGIN, onchainLive } from "@/lib/env";
 import type { Hex, InvoiceStatus } from "@/lib/types";
 
 /**
@@ -63,7 +63,7 @@ export default async function InvoiceDetailPage({
   // QA-020: in live mode an invoice must be published to InvoiceEscrow
   // (vendor-signed) before a buyer can pay it.
   const showPublish =
-    Boolean(INVOICE_ESCROW_ADDRESS) && invoice.status === "CREATED";
+    onchainLive() && invoice.status === "CREATED";
 
   // Resilience: the publish flow records `published_tx_hash` from the client
   // right after `createInvoice` lands. If that record step ever fails (network

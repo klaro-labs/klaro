@@ -56,7 +56,10 @@ export function Footer() {
             </p>
             <ul className="mt-6 space-y-2 text-sm">
               {EMAILS.map((e) => (
-                <li key={e.value} className="flex items-baseline gap-2">
+                <li
+                  key={`${e.label}:${e.value}`}
+                  className="flex items-baseline gap-2"
+                >
                   <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/55">
                     {e.label}
                   </span>

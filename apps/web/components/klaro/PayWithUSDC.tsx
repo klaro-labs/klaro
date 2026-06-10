@@ -21,7 +21,7 @@ import {
   ERC20_ABI,
   ACCEPTANCE_EIP712_TYPES,
 } from "@/lib/abi";
-import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
+import { INVOICE_ESCROW_ADDRESS, onchainLive } from "@/lib/env";
 import { simulatePaymentAction } from "@/app/(wallet)/i/[id]/actions";
 import type { Hex } from "@/lib/types";
 
@@ -88,7 +88,7 @@ export function PayWithUSDC({
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const isLive = Boolean(INVOICE_ESCROW_ADDRESS);
+  const isLive = onchainLive();
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);

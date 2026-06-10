@@ -25,7 +25,7 @@ const SECTIONS = [
       {
         label: "Authentication",
         href: "/build",
-        body: "API keys, WebAuthn, signed cookies. RLS gates every read.",
+        body: "Magic links, Google OAuth, signed cookies, and API keys. Passkey login is cryptographically verified but does not issue sessions yet.",
       },
       {
         label: "Environments",
@@ -105,7 +105,7 @@ const SECTIONS = [
       {
         label: "Bug bounty",
         href: "/trust",
-        body: "Immunefi. Scope: every contract in src/. Up to $50k testnet.",
+        body: "Planned Immunefi programme for mainnet. Pre-mainnet disclosure goes through SECURITY.md.",
       },
     ],
   },

@@ -17,7 +17,7 @@ const SITE_JSON_LD = {
       url: "https://www.myklaro.app",
       logo: "https://www.myklaro.app/brand/klaro-mark.svg",
       description:
-        "Arc-native payment OS for emerging-market vendors. Invoice globally in USDC, prove every payment on-chain, cash out through verified partners.",
+        "Arc-native payment OS for emerging-market vendors. Invoice globally in USDC, prove payments with receipts, and preview partner cashout flows on testnet.",
       sameAs: ["https://github.com/klaro-labs/klaro"],
     },
     {

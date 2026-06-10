@@ -92,6 +92,7 @@ export default async function CashoutPage({
             last={lastCashout}
             cashoutable={balances.cashoutable}
             vendorWallet={vendor.wallet}
+            simulated={simulated}
             forceQuote={query.new === "1"}
           />
         </div>
@@ -131,6 +132,7 @@ export default async function CashoutPage({
                 <CashoutRequestForm
                   maxUsdc={balances.cashoutable}
                   vendorWallet={vendor.wallet}
+                  simulated={simulated}
                 />
               </div>
 
@@ -221,12 +223,14 @@ function MobileCashout({
   last,
   cashoutable,
   vendorWallet,
+  simulated,
   forceQuote,
 }: {
   active?: CashoutOrder;
   last?: CashoutOrder;
   cashoutable: bigint;
   vendorWallet?: Hex | null;
+  simulated: boolean;
   forceQuote: boolean;
 }) {
   if (forceQuote)
@@ -234,6 +238,7 @@ function MobileCashout({
       <MobileCashoutQuote
         cashoutable={cashoutable}
         vendorWallet={vendorWallet}
+        simulated={simulated}
         last={last}
       />
     );
@@ -250,6 +255,7 @@ function MobileCashout({
       <MobileCashoutQuote
         cashoutable={cashoutable}
         vendorWallet={vendorWallet}
+        simulated={simulated}
         last={last}
       />
     );
@@ -265,10 +271,12 @@ function MobileCashout({
 function MobileCashoutQuote({
   cashoutable,
   vendorWallet,
+  simulated,
   last,
 }: {
   cashoutable: bigint;
   vendorWallet?: Hex | null;
+  simulated: boolean;
   last?: CashoutOrder;
 }) {
   return (
@@ -292,7 +300,11 @@ function MobileCashoutQuote({
             {formatUSDC(cashoutable)}
           </strong>
         </p>
-        <CashoutRequestForm maxUsdc={cashoutable} vendorWallet={vendorWallet} />
+        <CashoutRequestForm
+          maxUsdc={cashoutable}
+          vendorWallet={vendorWallet}
+          simulated={simulated}
+        />
       </div>
 
       {last && (

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCurrentSession } from "@/lib/auth";
@@ -117,20 +118,15 @@ export default async function FinancingPage() {
           </p>
           <p className="mt-1 text-[var(--color-ink-muted)]">
             Klaro doesn&apos;t introduce partners. You control disclosure:
-            download as PDF + send to whichever lender you&apos;re considering.
+            export your audit pack and send it to whichever lender you&apos;re considering.
             Vendor-controlled, never auto-shared.
           </p>
-          {/* Audit fix 2026-05-25 P0-7: button used to fire onClick with no
-              handler, looking broken. Disable until the PDF export route lands
-              in M12 — clearer than pretending the action exists. */}
-          <button
-            type="button"
-            disabled
-            title="Available soon when the PDF export route is live"
-            className="mt-3 cursor-not-allowed rounded border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium text-[var(--color-ink-subtle)] opacity-60"
+          <Link
+            href="/vendor/exports"
+            className="mt-3 inline-flex rounded border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-medium text-[var(--color-ink)] hover:border-[var(--color-brand)]"
           >
-            Download PDF preview (coming soon)
-          </button>
+            Open export center →
+          </Link>
         </div>
       </section>
     </div>

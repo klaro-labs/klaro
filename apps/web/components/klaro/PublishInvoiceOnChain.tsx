@@ -12,7 +12,7 @@ import { arcTestnet } from "wagmi/chains";
 import { Button } from "@/components/ui/Button";
 import { ConnectWalletButton } from "./ConnectWalletButton";
 import { INVOICE_ESCROW_ABI } from "@/lib/abi";
-import { INVOICE_ESCROW_ADDRESS } from "@/lib/env";
+import { INVOICE_ESCROW_ADDRESS, onchainLive } from "@/lib/env";
 import { recordInvoicePublishedAction } from "@/app/(wallet)/vendor/invoices/new/actions";
 import { shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
@@ -58,7 +58,7 @@ export function PublishInvoiceOnChain({
   const [error, setError] = useState<string | null>(null);
   const [hash, setHash] = useState<Hex | null>(null);
 
-  if (!INVOICE_ESCROW_ADDRESS) {
+  if (!onchainLive()) {
     return (
       <Hint>
         On-chain publishing is disabled (escrow address not configured).

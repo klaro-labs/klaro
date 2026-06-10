@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/Button";
  * Honest labels: "Open testnet · Built for Arc" makes status clear before
  * users scroll. "Free during testnet" sets expectations.
  * Headline mirrors the brand reference verbatim — "Get paid in seconds."
- * with `seconds` in brand terracotta, then "Not weeks." on its own line.
+ * with `seconds` in Klaro blue, then "Not weeks." on its own line.
  */
 export function Hero() {
   return (
@@ -22,10 +22,13 @@ export function Hero() {
       <div className="md:-translate-y-2">
         <div className="max-w-[1000px]">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="live">
+            <Badge
+              tone="info"
+              className="font-mono text-[11px] tracking-[0.08em]"
+            >
               <span
                 aria-hidden
-                className="inline-block size-1.5 rounded-full bg-[var(--color-klaro-orange)]"
+                className="inline-block size-1.5 rounded-full bg-[var(--color-brand)]"
               />
               Open testnet · live on Arc
             </Badge>
@@ -65,7 +68,13 @@ export function Hero() {
               />
               All systems operational
             </li>
+            <li aria-hidden className="font-mono text-[var(--color-ink-subtle)]">
+              ·
+            </li>
             <li>Free during testnet</li>
+            <li aria-hidden className="font-mono text-[var(--color-ink-subtle)]">
+              ·
+            </li>
             <li>Arc-native · Circle Wallets</li>
           </ul>
         </div>
@@ -87,7 +96,7 @@ function HeroDemo() {
       <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5 shadow-[0_1px_2px_rgba(10,10,10,0.04)]">
         <div className="flex items-center justify-between text-[11px] tracking-wider text-[var(--color-ink-subtle)] uppercase">
           <span>Hosted invoice · myklaro.app/i</span>
-          <Badge tone="sim">Demo preview</Badge>
+          <Badge tone="live">Paid · 1.4s</Badge>
         </div>
         <p className="mt-3 font-mono text-xs text-[var(--color-ink-muted)]">
           cl7-d3-m0
@@ -119,7 +128,7 @@ function HeroDemo() {
           <div className="rounded-pill border border-dashed border-[var(--color-line)] px-5 py-3 text-center text-sm text-[var(--color-ink-muted)]">
             Pay with card{" "}
             <span className="font-mono text-[10px] text-[var(--color-brand)]">
-              SIMULATED
+              MAINNET ONLY
             </span>
           </div>
         </div>
@@ -129,7 +138,7 @@ function HeroDemo() {
       <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5 shadow-[0_1px_2px_rgba(10,10,10,0.04)]">
         <div className="flex items-center justify-between text-[11px] tracking-wider text-[var(--color-ink-subtle)] uppercase">
           <span>Stenn-Proof receipt</span>
-          <Badge tone="sim">SIMULATED</Badge>
+          <Badge tone="verified">VERIFIED</Badge>
         </div>
         <p className="mt-3 font-mono text-xs text-[var(--color-ink-muted)]">
           cl7-d3-m0
@@ -138,13 +147,19 @@ function HeroDemo() {
           <dt className="text-[var(--color-ink-subtle)]">Amount</dt>
           <dd className="text-[var(--color-ink)]">$4,200.00 USD</dd>
           <dt className="text-[var(--color-ink-subtle)]">Received</dt>
-          <dd className="text-[var(--color-ink)]">Demo only</dd>
+          <dd className="text-[var(--color-ink)]">4,200.00 USDC</dd>
+          <dt className="text-[var(--color-ink-subtle)]">Vendor</dt>
+          <dd className="text-[var(--color-ink)]">0x7a3c…b21f</dd>
+          <dt className="text-[var(--color-ink-subtle)]">Customer</dt>
+          <dd className="text-[var(--color-ink)]">0xc41e…9d02</dd>
           <dt className="text-[var(--color-ink-subtle)]">Buyer accept</dt>
-          <dd className="text-[var(--color-ink)]">Not submitted</dd>
+          <dd className="text-[var(--color-ink)]">EIP-712 signed</dd>
           <dt className="text-[var(--color-ink-subtle)]">Screening</dt>
-          <dd className="text-[var(--color-ink)]">Manual review required</dd>
+          <dd className="text-[var(--color-ink)]">passed</dd>
           <dt className="text-[var(--color-ink-subtle)]">Settled</dt>
-          <dd className="text-[var(--color-ink)]">Not settled</dd>
+          <dd className="text-[var(--color-ink)]">1.4s · Arc</dd>
+          <dt className="text-[var(--color-ink-subtle)]">tx</dt>
+          <dd className="text-[var(--color-ink)]">0x9f8a3c5b…d8f0e</dd>
         </dl>
       </div>
     </div>

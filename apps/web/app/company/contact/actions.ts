@@ -53,7 +53,6 @@ export async function submitContactAction(
 
   if (!supabaseLive()) {
     // Dev/preview without Supabase — still acknowledge so the UX is honest.
-    console.log("[contact·mock]", { ...input, fp });
     return { ok: true, simulated: true };
   }
 

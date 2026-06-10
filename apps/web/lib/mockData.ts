@@ -31,6 +31,7 @@ type SharedDemoState = typeof globalThis & {
   __klaroCashouts?: Map<Hex, CashoutOrder>;
   __klaroDisputes?: Map<Hex, DisputeCase>;
   __klaroLinks?: Map<string, PaymentLink>;
+  __klaroDemoStateLoaded?: boolean;
 };
 
 // Server actions and React server routes are separately bundled by Next.js.
@@ -40,6 +41,102 @@ const sharedDemo = globalThis as SharedDemoState;
 const _vendors = (sharedDemo.__klaroVendors ??= new Map<string, Vendor>());
 const _invoices = (sharedDemo.__klaroInvoices ??= new Map<Hex, Invoice>());
 const _links = (sharedDemo.__klaroLinks ??= new Map<string, PaymentLink>());
+
+type StoredInvoice = Omit<
+  Invoice,
+  "amount" | "dueAt" | "createdAt" | "acceptedAt" | "lineItems"
+> & {
+  amount: string;
+  dueAt: string;
+  createdAt: string;
+  acceptedAt?: string;
+  lineItems: Array<{ description: string; amount: string }>;
+};
+
+function demoStateEnabled(): boolean {
+  return (
+    typeof window === "undefined" &&
+    (process.env.KLARO_ALLOW_MOCK_AUTH === "1" ||
+      process.env.NEXT_PUBLIC_KLARO_DEMO_MODE === "1")
+  );
+}
+
+function demoStatePath(): string {
+  return (
+    process.env.KLARO_DEMO_STATE_PATH ??
+    `${process.cwd()}/.next/klaro-demo-state.json`
+  );
+}
+
+function serializeInvoice(invoice: Invoice): StoredInvoice {
+  return {
+    ...invoice,
+    amount: invoice.amount.toString(),
+    dueAt: invoice.dueAt.toISOString(),
+    createdAt: invoice.createdAt.toISOString(),
+    acceptedAt: invoice.acceptedAt?.toISOString(),
+    lineItems: invoice.lineItems.map((item) => ({
+      description: item.description,
+      amount: item.amount.toString(),
+    })),
+  };
+}
+
+function deserializeInvoice(invoice: StoredInvoice): Invoice {
+  return {
+    ...invoice,
+    amount: BigInt(invoice.amount),
+    dueAt: new Date(invoice.dueAt),
+    createdAt: new Date(invoice.createdAt),
+    acceptedAt: invoice.acceptedAt ? new Date(invoice.acceptedAt) : undefined,
+    lineItems: invoice.lineItems.map((item) => ({
+      description: item.description,
+      amount: BigInt(item.amount),
+    })),
+  };
+}
+
+function loadDemoState(force = false): void {
+  if (!demoStateEnabled()) return;
+  if (sharedDemo.__klaroDemoStateLoaded && !force) return;
+  sharedDemo.__klaroDemoStateLoaded = true;
+  try {
+    const req = eval("require") as NodeRequire;
+    const fs = req("fs") as typeof import("fs");
+    const file = demoStatePath();
+    if (!fs.existsSync(file)) return;
+    const raw = JSON.parse(fs.readFileSync(file, "utf8")) as {
+      invoices?: StoredInvoice[];
+    };
+    for (const invoice of raw.invoices ?? []) {
+      _invoices.set(invoice.id, deserializeInvoice(invoice));
+    }
+  } catch {
+    // Demo persistence is a convenience for local/preview flows. If the file is
+    // corrupt or inaccessible, fall back to the seeded in-memory simulator.
+  }
+}
+
+export function mockPersistDemoState(): void {
+  if (!demoStateEnabled()) return;
+  try {
+    const req = eval("require") as NodeRequire;
+    const fs = req("fs") as typeof import("fs");
+    const path = req("path") as typeof import("path");
+    const file = demoStatePath();
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(
+      file,
+      JSON.stringify(
+        { invoices: [..._invoices.values()].map(serializeInvoice) },
+        null,
+        2,
+      ),
+    );
+  } catch {
+    // Keep demo mode usable even if persistence cannot write.
+  }
+}
 
 // Seed one demo vendor + 3 invoices so dashboard renders something on first visit.
 {
@@ -126,6 +223,8 @@ const _links = (sharedDemo.__klaroLinks ??= new Map<string, PaymentLink>());
       ),
     );
   }
+
+  loadDemoState();
 }
 
 // ─── Public mock API ──────────────────────────────────────────────────
@@ -151,6 +250,9 @@ export async function mockListAllInvoices(): Promise<Invoice[]> {
 }
 
 export async function mockGetInvoice(id: Hex): Promise<Invoice | null> {
+  const invoice = _invoices.get(id);
+  if (invoice) return invoice;
+  loadDemoState(true);
   return _invoices.get(id) ?? null;
 }
 
@@ -170,6 +272,7 @@ export async function mockCreateInvoice(
     createdAt: new Date(),
   };
   _invoices.set(id, invoice);
+  mockPersistDemoState();
   return invoice;
 }
 
@@ -181,6 +284,7 @@ export async function mockAdvanceInvoiceStatus(
   const inv = _invoices.get(id);
   if (!inv) return;
   inv.status = status;
+  mockPersistDemoState();
 }
 
 export function mockComputeBalances(

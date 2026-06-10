@@ -55,6 +55,7 @@ export default function OnboardingPage() {
   const [hydrated, setHydrated] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [simulated, setSimulated] = useState(false);
+  const [introDismissed, setIntroDismissed] = useState(false);
   const [pending, startTransition] = useTransition();
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -67,6 +68,7 @@ export default function OnboardingPage() {
         const saved = JSON.parse(raw) as { form?: FormState; step?: StepId };
         if (saved.form) setForm({ ...DEFAULT_FORM, ...saved.form });
         if (saved.step && saved.step >= 1 && saved.step <= 4) setStep(saved.step);
+        setIntroDismissed(true);
       }
     } catch {
       /* corrupt blob — ignore */
@@ -162,8 +164,16 @@ export default function OnboardingPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-[var(--color-bg)] text-[var(--color-ink)]">
+      {!introDismissed ? (
+        <MobileWelcome onContinue={() => setIntroDismissed(true)} />
+      ) : null}
+
       {/* Top bar: thin Klaro mark + step-out link */}
-      <header className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-6 py-4">
+      <header
+        className={`items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-6 py-4 md:flex ${
+          introDismissed ? "flex" : "hidden"
+        }`}
+      >
         <Logo size={24} />
         <Link
           href="/vendor"
@@ -173,7 +183,11 @@ export default function OnboardingPage() {
         </Link>
       </header>
 
-      <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col px-6 pt-8 pb-32 md:pb-12">
+      <div
+        className={`mx-auto w-full max-w-[640px] flex-1 flex-col px-6 pt-8 pb-32 md:flex md:pb-12 ${
+          introDismissed ? "flex" : "hidden"
+        }`}
+      >
         {/* Stepper */}
         <ol className="mb-8 flex items-center gap-2" aria-label="Onboarding progress">
           {STEPS.map((s, i) => (
@@ -251,7 +265,9 @@ export default function OnboardingPage() {
 
       {/* Mobile sticky bottom CTA — full-screen take-over per step */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-6 pt-3 pb-[max(env(safe-area-inset-bottom),16px)] md:hidden"
+        className={`fixed inset-x-0 bottom-0 z-30 border-t border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-6 pt-3 pb-[max(env(safe-area-inset-bottom),16px)] md:hidden ${
+          introDismissed ? "block" : "hidden"
+        }`}
       >
         <div className="flex items-center justify-between gap-3">
           <Button
@@ -280,6 +296,67 @@ export default function OnboardingPage() {
 
 const LABEL =
   "block text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]";
+
+function MobileWelcome({ onContinue }: { onContinue: () => void }) {
+  return (
+    <section className="flex min-h-screen flex-col bg-[radial-gradient(circle_at_80%_20%,rgba(188,76,38,0.28),transparent_28%),linear-gradient(160deg,#050505_0%,#08121f_58%,#0a0a0a_100%)] px-7 pb-[max(env(safe-area-inset-bottom),28px)] pt-[max(env(safe-area-inset-top),20px)] text-white md:hidden">
+      <div className="flex items-center justify-between font-mono text-sm font-semibold">
+        <span>9:41</span>
+        <span className="tracking-[0.16em]">•••</span>
+      </div>
+
+      <div className="mt-14 text-white">
+        <Logo size={36} tone="dark" />
+      </div>
+
+      <div className="mt-auto">
+        <h1 className="font-display text-[48px] font-semibold leading-[0.98] tracking-[-0.035em]">
+          <span className="block">Get paid</span>
+          <span className="block">
+            in{" "}
+            <span className="text-[var(--color-klaro-orange)]">seconds.</span>
+          </span>
+        </h1>
+        <p className="mt-5 max-w-[280px] text-base leading-6 text-white/68">
+          Invoice anyone in USDC. Cash out to local currency.
+        </p>
+
+        <div className="mt-8 flex overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">
+          <span>USDC</span>
+          <span className="px-3 text-white/30">·</span>
+          <span>EURC</span>
+          <span className="px-3 text-white/30">·</span>
+          <span>INR</span>
+          <span className="px-3 text-white/30">·</span>
+          <span>BRL</span>
+          <span className="px-3 text-white/30">·</span>
+          <span>MXN</span>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          <button
+            type="button"
+            onClick={onContinue}
+            className="flex h-13 w-full items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[var(--color-ink)]"
+          >
+            Continue with Google
+          </button>
+          <button
+            type="button"
+            onClick={onContinue}
+            className="flex h-13 w-full items-center justify-center rounded-full border border-white/18 px-5 text-sm font-semibold text-white"
+          >
+            Continue with email
+          </button>
+        </div>
+
+        <p className="mt-5 text-center text-xs text-white/50">
+          Free on testnet · no phone required
+        </p>
+      </div>
+    </section>
+  );
+}
 
 interface StepProps {
   form: FormState;

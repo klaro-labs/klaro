@@ -7,9 +7,9 @@
  * `track()` is a no-op — it does NOT route to posthog-node despite
  * the prior docstring's claim (posthog-node was never wired).
  * ANA1 wired `track()` calls from 3 server actions; those calls
- * silently did nothing AND leaked tenant identifiers to stdout via
- * the `console.debug` fallback. reverts those 3 call sites
- * and gates the dev-mode debug log behind NODE_ENV !== "production".
+ * silently did nothing AND could leak tenant identifiers to stdout via
+ * debug fallbacks. Those call sites are reverted and this adapter no longer
+ * logs analytics events when consent or provider config is absent.
  * Live (POSTHOG_KEY set + cookie consent = "accept-all" + browser
  * context): captures events keyed by the strict `KlaroEvent` enum
  * from `lib/events.ts`.
@@ -77,12 +77,8 @@ export async function track(
     // orderId, caseId, amounts) to stdout on every call. With
     // ANA1 wiring those calls fired from server actions in prod,
     // leaking tenant correlators + amounts to Vercel runtime logs.
-    // Now: dev-only debug + event-name without props. Server callers
-    // are reverted ; this branch only runs in browser when
-    // consent is denied or POSTHOG_KEY is unset.
-    if (process.env.NODE_ENV !== "production") {
-      console.debug("[mock-posthog]", event, props);
-    }
+    // No stdout fallback: analytics absence/consent denial should not add
+    // noisy logs or leak event context.
     return;
   }
   const c = await client();

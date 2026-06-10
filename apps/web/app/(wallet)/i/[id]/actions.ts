@@ -4,7 +4,11 @@
 // path (see file-level docstring below). Switching to the dual-mode repo
 // would silently no-op in live mode because the mutation pattern requires
 // the in-memory map. Grandfathered in `noMockInProductionPathsGuard`.
-import { mockGetInvoice, mockGetVendor } from "@/lib/mockData";
+import {
+  mockGetInvoice,
+  mockGetVendor,
+  mockPersistDemoState,
+} from "@/lib/mockData";
 import { sendSettledEmail } from "@/lib/email";
 import { formatUSDC } from "@/lib/money";
 import { captureError } from "@/lib/sentry";
@@ -69,6 +73,7 @@ export async function simulatePaymentAction(
         .reduce((s, b) => s + b.toString(16).padStart(2, "0"), "")) as Hex;
     inv.settledTx = inv.paidTx;
     inv.receiptHash = invoiceId; // simulator uses invoiceId as the receipt hash so /receipt/[hash] resolves
+    mockPersistDemoState();
 
     // the previous version
     // hardcoded `vendorEmail: "asha@klaro.demo"` — every buyer's "you

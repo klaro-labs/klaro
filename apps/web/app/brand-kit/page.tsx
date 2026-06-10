@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Nav } from "@/components/klaro/Nav";
 import { Footer } from "@/components/klaro/Footer";
 import { BrandMark } from "@/components/klaro/BrandMark";
-import { BrandKitTabs } from "./Tabs";
 
 export const metadata: Metadata = {
   title: "Brand kit · Klaro",
@@ -21,15 +20,37 @@ export default function BrandKitPage() {
     <main className="min-h-screen bg-[var(--color-bg)]">
       <Nav />
       <BrandKitHero />
-      <BrandKitTabs
-        tabs={[
-          { id: "logo", label: "Logo", content: <LogoTab /> },
-          { id: "color", label: "Colour", content: <ColorTab /> },
-          { id: "type", label: "Type", content: <TypeTab /> },
-          { id: "voice", label: "Voice", content: <VoiceTab /> },
-          { id: "downloads", label: "Downloads", content: <DownloadsTab /> },
-        ]}
-      />
+      <BrandContents />
+      <BrandSection n="01" title="Identity">
+        <IdentitySection />
+      </BrandSection>
+      <BrandSection n="02" title="Logo">
+        <LogoTab />
+      </BrandSection>
+      <BrandSection n="03" title="Color">
+        <ColorTab />
+      </BrandSection>
+      <BrandSection n="04" title="Typography">
+        <TypeTab />
+      </BrandSection>
+      <BrandSection n="05" title="Voice & tone">
+        <VoiceTab />
+      </BrandSection>
+      <BrandSection n="06" title="Components">
+        <ComponentsSection />
+      </BrandSection>
+      <BrandSection n="07" title="The Stenn-Proof badge">
+        <StennProofSection />
+      </BrandSection>
+      <BrandSection n="08" title="Imagery">
+        <ImagerySection />
+      </BrandSection>
+      <BrandSection n="09" title="Usage rules">
+        <UsageRulesSection />
+      </BrandSection>
+      <BrandSection n="10" title="Downloads">
+        <DownloadsTab />
+      </BrandSection>
       <PressBand />
       <Footer />
     </main>
@@ -51,8 +72,118 @@ function BrandKitHero() {
         The Klaro brand exists to make stablecoin payments feel trustworthy, clear, and human. Use this kit for product surfaces, marketing, partner integrations, and press.
       </p>
 
-      {/* Identity promise + how we work (was section 01 of monolith) */}
-      <div className="mt-12 grid gap-5 md:grid-cols-2">
+      <div className="mt-8 flex flex-wrap gap-3">
+        <a
+          href="#downloads"
+          className="inline-flex h-12 items-center rounded-pill bg-[var(--color-ink)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-ink-2)]"
+        >
+          Download assets
+        </a>
+        <a
+          href="#identity"
+          className="inline-flex h-12 items-center rounded-pill border border-[var(--color-line-2)] px-5 text-sm font-semibold text-[var(--color-ink)] hover:border-[var(--color-ink)]"
+        >
+          Read the guide
+        </a>
+      </div>
+
+      {/* Meta band */}
+      <dl className="mt-12 grid gap-8 border-t border-[var(--color-line)] pt-6 text-sm sm:grid-cols-2 md:grid-cols-4">
+        <BkMeta term="Klaro Labs Inc." def="Brand owner" />
+        <BkMeta term="2026" def="Established" />
+        <BkMeta term="prateek@myklaro.app" def="Questions" link="mailto:prateek@myklaro.app" />
+        <BkMeta term="CC-BY 4.0" def="Brand guide license" />
+      </dl>
+    </section>
+  );
+}
+
+function BrandContents() {
+  const rows = [
+    "Identity",
+    "Logo",
+    "Color",
+    "Typography",
+    "Voice & tone",
+    "Components",
+    "Stenn-Proof badge",
+    "Imagery",
+    "Usage rules",
+    "Downloads",
+  ];
+  return (
+    <section className="mx-auto w-full max-w-[1216px] px-6 py-12">
+      <div className="grid gap-8 rounded-[var(--klaro-tile-radius)] border border-[var(--color-line)] bg-[var(--color-bg-warm)] p-6 md:grid-cols-[1fr_220px] md:p-8">
+        <div>
+          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
+            Contents
+          </p>
+          <div className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {rows.map((row, i) => (
+              <a
+                key={row}
+                href={`#${slug(row)}`}
+                className="group flex items-center justify-between border-b border-[var(--color-line)] pb-3 text-sm"
+              >
+                <span className="font-mono text-[11px] text-[var(--color-ink-subtle)]">
+                  {String(i + 1).padStart(2, "0")} · {row}
+                </span>
+                <span className="text-[var(--color-ink-subtle)] transition-transform group-hover:translate-x-1">
+                  →
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col justify-between border-t border-[var(--color-line)] pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+          <p className="font-mono text-[11px] text-[var(--color-ink-subtle)]">
+            v0.4 · 2026-05-19
+          </p>
+          <p className="mt-10 font-display text-2xl font-semibold tracking-tight">
+            Working draft
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BrandSection({
+  n,
+  title,
+  children,
+}: {
+  n: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      id={slug(title)}
+      className="mx-auto grid w-full max-w-[1216px] gap-8 border-t border-[var(--color-line)] px-6 py-16 md:grid-cols-[150px_1fr] md:py-24"
+    >
+      <header>
+        <p className="font-mono text-sm text-[var(--color-brand)]">{n}</p>
+        <h2 className="mt-3 font-display text-2xl font-semibold tracking-tight">
+          {title}
+        </h2>
+      </header>
+      <div>{children}</div>
+    </section>
+  );
+}
+
+function slug(value: string) {
+  return value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function IdentitySection() {
+  return (
+    <div>
+      <p className="max-w-3xl text-xl leading-relaxed text-[var(--color-ink-muted)]">
+        Klaro is the operating system for stablecoin payments. Our brand promises clarity — about money, about counterparties, about what happens after you press send.
+      </p>
+      <div className="mt-10 grid gap-5 md:grid-cols-2">
         <PromiseCard
           eyebrow="Mission"
           title="Make money move at the speed of work, anywhere on earth."
@@ -76,15 +207,7 @@ function BrandKitHero() {
           body="We are engineers and operators. We ship working software, not white papers."
         />
       </div>
-
-      {/* Meta band */}
-      <dl className="mt-12 grid gap-8 border-t border-[var(--color-line)] pt-6 text-sm sm:grid-cols-2 md:grid-cols-4">
-        <BkMeta term="Klaro Labs" def="Brand owner" />
-        <BkMeta term="2026" def="Established" />
-        <BkMeta term="prateek@myklaro.app" def="Questions" link="mailto:prateek@myklaro.app" />
-        <BkMeta term="CC-BY 4.0" def="Brand guide license" />
-      </dl>
-    </section>
+    </div>
   );
 }
 
@@ -198,6 +321,16 @@ function LogoTab() {
           Keep clearspace around the mark equal to the stem width. Never crop the chevrons. Never rotate, skew, or apply effects.
         </p>
       </div>
+      <div className="mt-5 grid gap-5 md:grid-cols-3">
+        {[16, 32, 64].map((size) => (
+          <div key={size} className="grid place-items-center rounded-lg border border-[var(--color-line)] bg-white p-8">
+            <BrandMark size={size} />
+            <p className="mt-4 font-mono text-xs text-[var(--color-ink-subtle)]">
+              {size}px
+            </p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -209,18 +342,18 @@ function ColorTab() {
     <section>
       <TabHead
         title="Colour"
-        lede="Klaro's terracotta carries the brand. Stenn-Proof gold is reserved exclusively for verified receipts. Everything else is warm graphite or paper."
+        lede="Klaro blue carries the brand. Stenn-Proof gold is reserved exclusively for verified receipts. Everything else is warm graphite or paper."
       />
 
       <div className="space-y-5">
         <ColorCard
-          bg="#BC4C26"
+          bg="#1B6BFF"
           fg="#ffffff"
           eyebrow="Primary · Brand"
-          name="Klaro terracotta"
-          hex="#BC4C26"
-          rgb="188 76 38"
-          oklch="0.56 0.15 38"
+          name="Klaro blue"
+          hex="#1B6BFF"
+          rgb="27 107 255"
+          oklch="0.58 0.21 256"
           note="Calls to action, links, accents, hero highlights. The brand's load-bearing colour."
         />
         <ColorCard
@@ -248,6 +381,16 @@ function ColorTab() {
             <Swatch hex="#FAFAF7" label="Paper" />
           </div>
         </article>
+        <div className="grid gap-5 md:grid-cols-2">
+          <DoDontBlock
+            kind="dont"
+            lines={["No gradients. No neon. No purple. No crypto-bro palettes."]}
+          />
+          <DoDontBlock
+            kind="do"
+            lines={["Solid color blocks. Tonal neutrals. Generous whitespace."]}
+          />
+        </div>
       </div>
     </section>
   );
@@ -344,6 +487,30 @@ function TypeTab() {
           sample="0x7a3c…b21f · 4,200.00 USDC · myklaro.app/receipt"
           sampleClass="font-mono text-lg md:text-xl"
         />
+      </div>
+      <div className="mt-10 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-warm)] p-6">
+        <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
+          Type scale
+        </p>
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {[
+            ["Display XL", "112 / 0.98", "Hero on landing"],
+            ["Display L", "64 / 1.02", "Section titles"],
+            ["Display M", "44 / 1.05", "Card headers"],
+            ["Display S", "32 / 1.1", "Sub-titles"],
+            ["Body L", "20 / 1.5", "Lead paragraphs"],
+            ["Body", "16 / 1.55", "Default text"],
+            ["Body S", "14 / 1.55", "Secondary text"],
+            ["Mono", "13 / 1.55", "Receipts, code"],
+          ].map(([name, scale, use]) => (
+            <div key={name} className="flex items-baseline justify-between border-b border-[var(--color-line)] py-3">
+              <span className="font-display text-lg font-semibold">{name}</span>
+              <span className="font-mono text-xs text-[var(--color-ink-subtle)]">
+                {scale} · {use}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -547,6 +714,184 @@ function UsageCard({ kind, title, items }: { kind: "do" | "dont"; title: string;
   );
 }
 
+function ComponentsSection() {
+  return (
+    <div>
+      <TabHead
+        title="Small set of building blocks."
+        lede="Every Klaro surface is composed from buttons, chips, cards, mono labels, and stroke-based icons."
+      />
+      <div className="grid gap-5 md:grid-cols-2">
+        <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
+          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
+            Buttons
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button className="h-12 rounded-pill bg-[var(--color-ink)] px-5 text-sm font-semibold text-white">
+              Primary action
+            </button>
+            <button className="h-12 rounded-pill border border-[var(--color-line-2)] px-5 text-sm font-semibold">
+              Secondary
+            </button>
+            <button className="h-12 px-2 text-sm font-semibold text-[var(--color-brand)]">
+              Tertiary link →
+            </button>
+          </div>
+          <p className="mt-5 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+            Primary uses ink fill by default; hero CTAs use 48px height and pill radius.
+          </p>
+        </article>
+        <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-6">
+          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
+            Chips & tags
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {["Neutral", "Active state", "Verified", "Live", "On Arc"].map((chip, i) => (
+              <span
+                key={chip}
+                className={`rounded-pill border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] ${
+                  i === 2
+                    ? "border-[var(--color-gold)]/30 bg-[var(--color-klaro-gold-soft)]"
+                    : i === 1
+                      ? "border-[var(--color-brand)]/20 bg-[var(--color-brand-soft)] text-[var(--color-brand)]"
+                      : "border-[var(--color-line)] bg-white"
+                }`}
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
+        </article>
+      </div>
+      <article className="mt-5 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-warm)] p-6">
+        <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
+          Iconography
+        </p>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-muted)]">
+          Stroke-based. 1.6px weight. Rounded line-caps. Geometric. Never filled unless the symbol is a status dot.
+        </p>
+      </article>
+    </div>
+  );
+}
+
+function StennProofSection() {
+  return (
+    <div>
+      <TabHead
+        title="Our signature trust object."
+        lede="A small gold-and-ink badge that anchors trust. Every verified receipt carries it. Nothing else may."
+      />
+      <div className="grid gap-5 md:grid-cols-[1fr_1fr]">
+        <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-klaro-gold-soft)] p-8">
+          <StennBadge size="large" />
+          <p className="mt-6 font-mono text-xs text-[var(--color-ink-subtle)]">
+            The badge · at 2.2x for inspection
+          </p>
+        </article>
+        <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-8">
+          <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
+            Embed snippet
+          </p>
+          <pre className="mt-4 overflow-x-auto rounded-lg bg-[var(--color-ink)] p-5 font-mono text-xs leading-relaxed text-white">
+{`import { KlaroReceiptBadge } from "@klaro/receipt-badge";
+
+<KlaroReceiptBadge
+  hash="0x9f8a3c5b…"
+  size="default"
+/>`}
+          </pre>
+        </article>
+      </div>
+      <div className="mt-5 grid gap-5 md:grid-cols-2">
+        <DoDontBlock kind="do" lines={["Only on receipts that have actually been screened, settled, and anchored on-chain."]} />
+        <DoDontBlock kind="dont" lines={["Never on marketing pages, ads, or unverified content. The badge means something — protect it."]} />
+      </div>
+    </div>
+  );
+}
+
+function StennBadge({ size = "default" }: { size?: "default" | "large" }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-pill border border-[var(--color-gold)]/30 bg-white font-mono font-semibold uppercase tracking-[0.12em] text-[var(--color-ink)] ${
+        size === "large" ? "px-5 py-3 text-sm" : "px-3 py-2 text-[11px]"
+      }`}
+    >
+      <span className="grid size-5 place-items-center rounded-full bg-[var(--color-gold)] text-[var(--color-ink)]">
+        ✓
+      </span>
+      Stenn-Proof · Verified
+    </span>
+  );
+}
+
+function ImagerySection() {
+  const cards = [
+    ["Vendor portraits", "Real founders in real workspaces. Natural light. Eye contact. No staged laptops."],
+    ["Product surfaces", "Real Klaro UI in real contexts: phone in hand, browser in dim cafe, ledger on screen."],
+    ["Place + texture", "Documentary detail shots: shopfronts, ledgers, ports, hands. Anchors corridor stories."],
+  ];
+  return (
+    <div>
+      <TabHead
+        title="Real vendors, real workplaces."
+        lede="No stock photography. No glossy money imagery. No abstract crypto art."
+      />
+      <div className="grid gap-5 md:grid-cols-3">
+        {cards.map(([title, body]) => (
+          <article key={title} className="overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)]">
+            <div className="h-44 bg-[linear-gradient(135deg,#0A0A0A,#2E2E2E_55%,#FAFAF7)]" />
+            <div className="p-6">
+              <h3 className="font-display text-xl font-semibold tracking-tight">{title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">{body}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="mt-5 grid gap-5 md:grid-cols-2">
+        <DoDontBlock kind="dont" lines={["No abstract money imagery. No glowing coins, no dollar signs, no neon networks."]} />
+        <DoDontBlock kind="do" lines={["Documentary photography. Restrained editing. Black-and-white when in doubt."]} />
+      </div>
+    </div>
+  );
+}
+
+function UsageRulesSection() {
+  return (
+    <div>
+      <TabHead
+        title="What you can do with the Klaro brand."
+        lede="Use these rules for integrations, editorial, partner launches, and public-facing screenshots."
+      />
+      <div className="grid gap-5 md:grid-cols-2">
+        <UsageCard
+          kind="do"
+          title="Allowed without asking"
+          items={[
+            "Linking to www.myklaro.app or any subdomain.",
+            "Using the Klaro logo to indicate Klaro integration in your product with a link back.",
+            "Embedding the Stenn-Proof badge on receipts you've actually issued through Klaro.",
+            "Writing about Klaro in editorial or news contexts.",
+            "Using brand colors and typography as visual reference in case studies.",
+          ]}
+        />
+        <UsageCard
+          kind="dont"
+          title="Requires prateek@myklaro.app"
+          items={[
+            "Using the Stenn-Proof badge on receipts you haven't issued through Klaro.",
+            "Modifying the logo: recoloring, redrawing, adding effects, or custom animation.",
+            "Combining the Klaro logo with another mark in a single composite mark.",
+            'Using "Klaro" or "Stenn-Proof" as part of a product name you ship.',
+            "Selling merchandise that uses the Klaro logo.",
+          ]}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ─── Tab 5: Downloads ─────────────────────────────────────────────── */
 
 const DOWNLOADS = [
@@ -587,7 +932,7 @@ function DownloadsTab() {
     <section>
       <TabHead
         title="Downloads"
-        lede="What we have today. Logo, wordmark, and colour tokens — production-ready. The full Figma source and font WOFF2 bundle are in progress; email prateek@myklaro.app to get them early."
+        lede="What we have today. Logo, wordmark, and colour tokens are ready for the testnet site. The full Figma source and font WOFF2 bundle are in progress; email prateek@myklaro.app to get them early."
       />
 
       <div className="grid gap-5 md:grid-cols-2">

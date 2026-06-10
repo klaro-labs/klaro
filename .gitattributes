@@ -1,0 +1,4 @@
+# Normalize all text files to LF in the repo and on checkout.
+# Added after an editor introduced CRLF endings across ~12 files; HEAD has
+# always been LF-only.
+* text=auto eol=lf

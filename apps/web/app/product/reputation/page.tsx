@@ -7,7 +7,7 @@ import { REPUTATION_MANAGER_ADDRESS } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Reputation · Klaro",
-  description: "Open-source on-chain reputation signal. 12 audited event kinds, signed weights, summed by VendorReputation.sol.",
+  description: "Open-source on-chain reputation signal. 12 documented event kinds, signed weights, summed by VendorReputation.sol.",
 };
 
 // Mirrors VendorReputation.Kind in packages/contracts/src/VendorReputation.sol.

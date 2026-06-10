@@ -30,7 +30,7 @@ const SURFACES: Array<{
     href: "/product/invoicing",
     one: "Hosted USDC invoices.",
     desc:
-      "Issue an invoice. Customer pays from any chain. CCTP V2 sweeps USDC home to Arc with sub-second finality. Quote freeze locks the rate for 15 minutes.",
+      "Issue an invoice. Customer pays from a hosted page. Live Arc settlement is used when contracts are configured; otherwise the flow is clearly simulated.",
     stage: "live testnet",
   },
   {
@@ -39,7 +39,7 @@ const SURFACES: Array<{
     href: "/product/receipts",
     one: "Stenn-Proof receipts.",
     desc:
-      "Every payment mints a public on-chain receipt. Both parties sign. Anyone can verify against Arc without trusting Klaro, the vendor, or the buyer.",
+      "Receipt pages are shareable and verifiable by hash. On-chain minting happens only in live-contract mode; simulator receipts are labelled as previews.",
     stage: "live testnet",
   },
   {
@@ -48,7 +48,7 @@ const SURFACES: Array<{
     href: "/product/cashout",
     one: "USDC into local money.",
     desc:
-      "Verified liquidity partners pick up cashout orders against Klaro's escrow. The full state machine — quote, lock, LP assign, proof, confirm — ships today.",
+      "Cashout state machine is implemented for quote, lock, LP assign, proof, confirm, and dispute. The fiat payout leg remains partner-pending on testnet.",
     stage: "partner-pending",
   },
   {
@@ -85,7 +85,7 @@ export default function ProductPage() {
       <PageHero
         eyebrow="Product"
         title="Five surfaces, one balance."
-        sub="Klaro is the Arc-native payment OS for vendors who invoice globally in USDC, prove every payment on-chain, and cash out through verified partners."
+        sub="Klaro is the Arc-native payment OS for vendors who invoice globally in USDC, prove payments with receipts, and preview partner cashout flows on testnet."
         ctas={[
           { label: "Open workspace", href: "/signin" },
           { label: "See pricing", href: "/pricing", variant: "secondary" },

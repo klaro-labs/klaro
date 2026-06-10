@@ -3,7 +3,7 @@
 # Klaro
 
 **USDC invoicing on Arc.**
-On-chain receipts. Verified cashout. Built for the businesses USDC was supposed to serve.
+On-chain receipts. Testnet cashout simulation. Built for the businesses USDC was supposed to serve.
 
 [![CI](https://github.com/klaro-labs/klaro/actions/workflows/ci.yml/badge.svg)](https://github.com/klaro-labs/klaro/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-1f6feb.svg)](LICENSE)
@@ -26,7 +26,7 @@ On-chain receipts. Verified cashout. Built for the businesses USDC was supposed 
 <table>
 <tr>
 <td align="center" width="25%"><b>20</b><br/><sub>deployed contracts</sub></td>
-<td align="center" width="25%"><b>523</b><br/><sub>Foundry tests</sub></td>
+<td align="center" width="25%"><b>523</b><br/><sub>Foundry tests claimed by repo metadata</sub></td>
 <td align="center" width="25%"><b>42</b><br/><sub>tables, RLS on every one</sub></td>
 <td align="center" width="25%"><b>0.55 USDC</b><br/><sub>full-protocol deploy cost</sub></td>
 </tr>
@@ -38,7 +38,7 @@ On-chain receipts. Verified cashout. Built for the businesses USDC was supposed 
 
 A USDC transfer between two wallets is fast, final, and useless to a real business. It leaves no receipt anyone outside the two parties can verify. It leaves no audit trail an accountant can use at year end. It skips the sanctions screening every regulated payment provider runs. And it strands the vendor's USDC in a stablecoin their grocer doesn't accept.
 
-Klaro fixes that on Circle's Arc L1. A vendor issues an invoice, the buyer pays from any wallet, an audit‑grade receipt mints on chain, and the vendor cashes out to local currency through a verified liquidity partner. Every step is honest about its state: live, simulated, or pending. Every dollar of value is escrowed and traceable end to end; sanctions screening is wired into the settlement path and runs in simulation on testnet until a provider key (Chainalysis / TRM / Sumsub) is added.
+Klaro fixes that on Circle's Arc L1. A vendor issues an invoice, the buyer pays from a wallet, an audit-grade receipt can be minted on chain, and the vendor can preview local-currency cashout through a testnet partner simulation. Every step is honest about its state: live, simulated, or pending. Every dollar of live testnet value is escrowed and traceable end to end; sanctions screening runs in simulation on testnet until a provider key (Chainalysis / TRM / Sumsub) is added and verified.
 
 The protocol is open source. The testnet is live. Mainnet ships after the audit lands.
 
@@ -48,9 +48,9 @@ The protocol is open source. The testnet is live. Mainnet ships after the audit 
 
 <table>
 <tr><td>✅</td><td><b>Vendor signup + invoice creation</b> — Google OAuth or email magic link, server‑side identity, RLS‑isolated per tenant</td></tr>
-<tr><td>✅</td><td><b>Buyer payment</b> — connect any wallet at <code>/i/[id]</code>, EIP‑712 acceptance, USDC settles in seconds on Arc</td></tr>
-<tr><td>✅</td><td><b>On‑chain audit receipt</b> — mints atomically on settlement, shareable URL, verifiable by hash</td></tr>
-<tr><td>✅</td><td><b>LP staking + partner cashout</b> — LP stakes USDC, claims orders, submits payout proof, slashed on dispute loss</td></tr>
+<tr><td>✅</td><td><b>Buyer payment</b> — hosted invoice pages, wallet connection, and live/simulated payment paths depending on deployed contract env</td></tr>
+<tr><td>✅</td><td><b>Audit receipt</b> — shareable receipt URL; on-chain minting is used only when the live receipt contract is configured</td></tr>
+<tr><td>✅</td><td><b>LP staking + cashout flow</b> — LP claims, proof, dispute, and slashing state machine; fiat payout leg remains simulated on testnet</td></tr>
 <tr><td>✅</td><td><b>Agent jobs</b> — ERC‑8004 identity + ERC‑8183 escrow, budget‑capped agent wallets, dispute protected</td></tr>
 <tr><td>✅</td><td><b>Cross‑chain pay‑in</b> — CCTP V2 + Circle Gateway routing via <code>MultiChainRouter</code></td></tr>
 <tr><td>✅</td><td><b>StableFX corridors</b> — <code>USDC ↔ EURC</code> via Circle's <code>FxEscrow</code> + Permit2</td></tr>
@@ -124,7 +124,7 @@ klaro/
 
 ## Smart contracts
 
-Twenty contracts, each scoped to one concern and audited in isolation. Deployed addresses live in [`DEPLOYMENT.md`](DEPLOYMENT.md).
+Twenty contracts, each scoped to one concern and reviewed/tested in isolation. Deployed addresses live in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
 | Money flow | Cashout + LP | Agents | Disputes + reputation | Cross-chain + FX | Privacy + config |
 | --- | --- | --- | --- | --- | --- |

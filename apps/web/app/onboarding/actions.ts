@@ -132,10 +132,9 @@ export async function saveVerificationIntentAction(
   } catch {
     return { ok: false, error: "Sign in to continue onboarding." };
   }
-  // No vendor column for KYB-state yet; the audit row in `audit_logs` is the
-  // honest record. Until the KYB schema lands, log the intent and return ok.
+  // No vendor column for KYB-state yet. Until the KYB schema lands, return an
+  // honest simulated result without writing fake verification state.
   // simulated:true keeps the UI label correct ("KYB pending real provider").
-  console.log("[onboarding·verification]", { intent: parsed.data.intent });
   return { ok: true, simulated: true };
 }
 

@@ -119,18 +119,14 @@ export default async function LPDocsPage() {
                     )}
                   </div>
                 </div>
-                <button
-                  type="button"
-                  disabled
-                  aria-disabled="true"
-                  title="Document upload is simulated in testnet mode"
-                  className="rounded border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs font-medium opacity-50 cursor-not-allowed"
+                <span
+                  className="rounded border border-[var(--color-line)] bg-[var(--color-bg)] px-3 py-1.5 text-xs font-medium text-[var(--color-ink-muted)]"
                 >
                   {docsSubmitted ? "Uploaded" : "Upload"}{" "}
                   <span className="font-mono text-[10px] text-[var(--color-ink-subtle)]">
                     SIM
                   </span>
-                </button>
+                </span>
               </li>
             ))}
           </ul>

@@ -188,14 +188,12 @@ export default async function ErpIntegrationsPage({
                   </a>
                 )
               ) : (
-                <button
-                  type="button"
-                  disabled
-                  title="Connector in development"
-                  className="mt-4 cursor-not-allowed rounded-pill bg-[var(--color-ink)] px-4 py-2 text-xs font-medium text-white opacity-50"
+                <a
+                  href={`mailto:prateek@myklaro.app?subject=${encodeURIComponent(`Klaro ERP connector request: ${c.name}`)}&body=${encodeURIComponent(`Please prioritize the ${c.name} connector for my vendor account.`)}`}
+                  className="mt-4 inline-flex rounded-pill border border-[var(--color-line)] bg-white px-4 py-2 text-xs font-medium text-[var(--color-ink)] hover:border-[var(--color-brand)]"
                 >
-                  Connect (coming soon)
-                </button>
+                  Request connector →
+                </a>
               )}
             </li>
           ))}

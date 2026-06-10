@@ -66,7 +66,6 @@ async function sendRaw(opts: {
         "RESEND_API_KEY required in production — refusing to silently simulate email send",
       );
     }
-    console.log(`[MOCK email] → ${opts.to} · "${opts.subject}"`);
     return { ok: true, id: `mock_${Date.now()}`, simulated: true };
   }
 

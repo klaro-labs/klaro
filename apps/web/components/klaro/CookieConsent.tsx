@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const STORAGE_KEY = "klaro.cookie.consent.v1";
+const OPTIONAL_ANALYTICS_ENABLED = Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY);
 
 type Decision = "accept-all" | "essential-only";
 
 export function CookieConsent() {
+  const pathname = usePathname();
   const [decided, setDecided] = useState<boolean>(true); // assume decided to avoid flash
 
   useEffect(() => {
@@ -30,7 +33,13 @@ export function CookieConsent() {
     // and the daemon's analytics adapter is no-op until M11.
   }
 
-  if (decided) return null;
+  if (
+    !OPTIONAL_ANALYTICS_ENABLED ||
+    decided ||
+    pathname === "/onboarding"
+  ) {
+    return null;
+  }
 
   return (
     <div

@@ -21,7 +21,7 @@ function buildCsp(frameAncestorsDirectives) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.circle.com https://*.arc.network https://api.resend.com https://us.i.posthog.com https://buy-sandbox.moonpay.com https://pay.google.com wss://*.supabase.co",
+    "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.circle.com https://*.arc.network https://api.resend.com https://us.i.posthog.com https://buy-sandbox.moonpay.com https://pay.google.com https://pulse.walletconnect.org https://api.web3modal.org wss://*.supabase.co",
     ...frameAncestorsDirectives,
     "form-action 'self'",
     "base-uri 'self'",
@@ -56,8 +56,33 @@ const EMBEDDABLE_HEADERS = [
 const nextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
+  allowedDevOrigins: ["127.0.0.1"],
   distDir: process.env.NEXT_DIST_DIR || ".next",
   outputFileTracingRoot: new URL("../../", import.meta.url).pathname,
+  serverExternalPackages: ["bullmq", "ioredis"],
+  webpack(config) {
+    config.resolve.alias = {
+      ...(config.resolve.alias ?? {}),
+      // Optional React Native storage dependency referenced by MetaMask SDK's
+      // browser bundle. Klaro runs in the web browser, so this module is never
+      // used; aliasing it avoids noisy production-build warnings.
+      "@react-native-async-storage/async-storage": false,
+      // Optional pretty-printer required by pino in development paths pulled in
+      // through WalletConnect logging. The production web bundle does not use it.
+      "pino-pretty": false,
+    };
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings ?? []),
+      // viem/ox ships a dynamic worker-pool import in its Tempo chain module.
+      // Klaro does not instantiate that pool; suppress the dependency warning
+      // while keeping the package code unchanged.
+      {
+        module: /node_modules[\\/]\.pnpm[\\/]ox@.*virtualMasterPool/,
+        message: /Critical dependency: the request of a dependency is an expression/,
+      },
+    ];
+    return config;
+  },
   async redirects() {
     return [
       { source: "/developers", destination: "/build", permanent: true },

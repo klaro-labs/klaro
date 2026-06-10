@@ -6,7 +6,11 @@ import { createLink } from "@/lib/repo/links";
 import { generateSlug } from "@/lib/slugs";
 import { getArcPublicClient } from "@/lib/arcClient";
 import { LINK_AUTH_EIP712_TYPES, ARC_USDC_ADDRESS } from "@/lib/abi";
-import { INVOICE_ESCROW_ADDRESS, ARC_TESTNET_CHAIN_ID } from "@/lib/env";
+import {
+  INVOICE_ESCROW_ADDRESS,
+  ARC_TESTNET_CHAIN_ID,
+  onchainLive,
+} from "@/lib/env";
 import { captureError } from "@/lib/sentry";
 import type { Hex } from "@/lib/types";
 
@@ -58,7 +62,7 @@ export async function createLinkAction(input: {
     const label = input.label?.trim() || null;
 
     // ─── On-chain authorization (live mode only) ───
-    const isLive = Boolean(INVOICE_ESCROW_ADDRESS);
+    const isLive = onchainLive();
     let linkChainId: Hex | null = null;
     let vendorAuthSig: Hex | null = null;
     let authDeadline: bigint | null = null;

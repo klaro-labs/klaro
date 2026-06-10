@@ -207,16 +207,22 @@ const spec = {
     "/v1/webauthn/assert/options": {
       post: {
         summary:
-          "Get PublicKeyCredentialRequestOptions for passkey sign-in (anonymous)",
+          "Get PublicKeyCredentialRequestOptions for passkey assertion verification",
         security: publicNoAuth,
         responses: { "200": { description: "Options" } },
       },
     },
     "/v1/webauthn/assert/verify": {
       post: {
-        summary: "Verify passkey assertion + issue session",
+        summary:
+          "Verify passkey assertion only; session issuance is not shipped yet",
         security: publicNoAuth,
-        responses: { "200": { description: "OK" } },
+        responses: {
+          "200": {
+            description:
+              "Returns { verified: true } after cryptographic verification. It does not create a login session.",
+          },
+        },
       },
     },
 

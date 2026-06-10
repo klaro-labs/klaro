@@ -64,7 +64,7 @@ const EXPLANATIONS = [
   {
     id: "audits",
     title: "External audits before mainnet",
-    body: "Slither, Mythril, and Echidna pass on the published contract set before any mainnet promotion. Halmos formal verification covers the release, mint, and dispute-decision paths. Audit reports are published.",
+    body: "Required before any mainnet promotion: static analysis, fuzz/invariant coverage, formal-verification targets for release/mint/dispute paths, and published third-party audit reports. These are not complete yet.",
     tone: "info" as const,
   },
   {

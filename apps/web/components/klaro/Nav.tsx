@@ -19,19 +19,20 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Reputation", href: "/product/reputation", desc: "On-chain financing-readiness signal." },
     ],
   },
+  { label: "Developers", href: "/developers" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Build", href: "/build" },
+  { label: "Company", href: "/company" },
+  { label: "Roadmap", href: "/roadmap" },
   {
-    label: "Resources",
-    href: "/resources",
+    label: "Trust",
+    href: "/trust",
     items: [
-      { label: "Docs", href: "/docs", desc: "API reference and guides." },
-      { label: "User flows", href: "/resources/flows", desc: "End-to-end journey diagrams." },
-      { label: "Brand kit", href: "/brand-kit", desc: "Logo, palette, voice, motion." },
       { label: "Trust center", href: "/trust", desc: "11 promises we prove." },
+      { label: "Docs", href: "/docs", desc: "API reference and testnet guides." },
+      { label: "Brand kit", href: "/brand-kit", desc: "Logo, palette, voice, motion." },
+      { label: "User flows", href: "/resources/flows", desc: "End-to-end journey diagrams." },
     ],
   },
-  { label: "Company", href: "/company" },
 ];
 
 export function Nav() {
@@ -72,27 +73,9 @@ export function Nav() {
               <MegaMenuTrigger group={g}>
                 <Link
                   href={g.href as Route}
-                  className="inline-flex items-center gap-1 text-sm text-[var(--color-ink-muted)] transition-colors hover:text-[var(--color-ink)]"
+                  className="inline-flex items-center text-sm text-[var(--color-ink)] transition-colors hover:text-[var(--color-brand)]"
                 >
                   {g.label}
-                  {g.items ? (
-                    <svg
-                      width="10"
-                      height="10"
-                      viewBox="0 0 12 12"
-                      aria-hidden
-                      className="opacity-50"
-                    >
-                      <path
-                        d="M3 5l3 3 3-3"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  ) : null}
                 </Link>
               </MegaMenuTrigger>
             </li>
@@ -205,7 +188,7 @@ export function Nav() {
                 onClick={() => setOpen(false)}
                 className={`flex-1 justify-center ${buttonVariants({ size: "lg" })}`}
               >
-                Open klaro
+                Open klaro →
               </Link>
             </div>
           </div>

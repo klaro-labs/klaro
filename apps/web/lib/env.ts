@@ -28,6 +28,10 @@ const opt = (k: string): string | undefined =>
 const pub = (v: string | undefined): string | undefined =>
   v && v.length > 0 ? v : undefined;
 
+const ALLOW_MOCK_AUTH =
+  process.env.KLARO_ALLOW_MOCK_AUTH === "1" ||
+  process.env.NEXT_PUBLIC_KLARO_DEMO_MODE === "1";
+
 // ─── Supabase (M4 auth + DB) ─────────────────────────────────────────
 // IMPORTANT — webpack DefinePlugin only inlines LITERAL public-env
 // accesses at build time. Variable-subscript helpers (opt with a string key)
@@ -53,7 +57,7 @@ export const SUPABASE_ANON_KEY =
     : undefined;
 export const SUPABASE_SERVICE_ROLE_KEY = opt("SUPABASE_SERVICE_ROLE_KEY");
 export const supabaseLive = (): boolean =>
-  Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+  !ALLOW_MOCK_AUTH && Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 /**
  * Is a licensed local-currency (fiat) payout partner wired? The on-chain USDC
@@ -215,7 +219,7 @@ export const growthbookLive = (): boolean =>
 // address), link pays fall through to the simulator like every other adapter.
 export const LINK_PUBLISHER_PRIVATE_KEY = opt("LINK_PUBLISHER_PRIVATE_KEY");
 export const linkPublisherLive = (): boolean =>
-  Boolean(LINK_PUBLISHER_PRIVATE_KEY && INVOICE_ESCROW_ADDRESS);
+  Boolean(LINK_PUBLISHER_PRIVATE_KEY && onchainLive());
 
 // ─── Cron secret ──────────────────────────────────────────────────────
 export const CRON_SECRET = opt("CRON_SECRET");
@@ -284,7 +288,16 @@ export const KLARO_RUN_QUEUE_WORKER = opt("KLARO_RUN_QUEUE_WORKER");
 // middleware.ts → 2 sites, easy to typo. Centralized here.
 // NEVER set this on a real deployment — it gives every visitor full
 // vendor session. Lib/auth and middleware re-assert IS_PROD on top.
-export const KLARO_ALLOW_MOCK_AUTH = process.env.KLARO_ALLOW_MOCK_AUTH === "1";
+export const KLARO_ALLOW_MOCK_AUTH = ALLOW_MOCK_AUTH;
+
+/**
+ * True only when the app should exercise live Arc contract flows.
+ * Mock-auth/demo builds must stay simulator-first even if a developer's
+ * .env.local contains contract addresses; otherwise the demo buyer flow gets
+ * trapped behind wallet connection and cannot complete end-to-end.
+ */
+export const onchainLive = (): boolean =>
+  !KLARO_ALLOW_MOCK_AUTH && Boolean(INVOICE_ESCROW_ADDRESS);
 
 // ─── Client-side Sentry (loop ) ─────────────────────────
 // Browser Sentry uses `NEXT_PUBLIC_*` names since Next.js only inlines
