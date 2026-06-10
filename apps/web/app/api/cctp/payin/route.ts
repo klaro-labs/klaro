@@ -92,7 +92,8 @@ export async function POST(req: NextRequest) {
   );
   await payinQueue.enqueue(
     { invoiceId, burnTxHash, sourceDomain: DOMAIN[sourceChain] },
-    { idempotencyKey: `cctp-payin:${burnTxHash}` },
+    // BullMQ jobIds cannot contain ':' — use the burn tx hash (already unique).
+    { idempotencyKey: `cctp-payin-${burnTxHash}` },
   );
 
   return Response.json({ ok: true, state: "attesting" });
