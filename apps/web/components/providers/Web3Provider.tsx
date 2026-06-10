@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { arcTestnet, base, mainnet } from "wagmi/chains";
+import { arcTestnet, base, baseSepolia, mainnet } from "wagmi/chains";
 import { injected, walletConnect } from "wagmi/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WALLETCONNECT_PROJECT_ID, PUBLIC_ORIGIN } from "@/lib/env";
@@ -51,10 +51,11 @@ function createWeb3Config() {
   ];
 
   return createConfig({
-    chains: [arcTestnet, base, mainnet],
+    chains: [arcTestnet, baseSepolia, base, mainnet],
     connectors,
     transports: {
       [arcTestnet.id]: http(),
+      [baseSepolia.id]: http(), // CCTP V2 source chain for cross-chain pay-in
       [base.id]: http(),
       [mainnet.id]: http(),
     },

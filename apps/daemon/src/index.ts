@@ -35,6 +35,7 @@ import { startDisputeResolver } from "./workers/disputeResolver.js";
 import { startDisputeDecider } from "./workers/disputeDecide.js";
 import { startReconciler } from "./workers/reconciler.js";
 import { startLifecycleReminders } from "./workers/lifecycleReminders.js";
+import { startCctpPayin } from "./workers/cctpPayin.js";
 import { watchDlq, stopDlqWatch } from "./workers/_dlq.js";
 import { startHeartbeat, stopHeartbeat } from "./heartbeat.js";
 
@@ -118,6 +119,7 @@ async function boot() {
   startDisputeDecider();
   startReconciler();
   startLifecycleReminders();
+  startCctpPayin();
 
   // Arc event subscriptions (only when contract addresses are pinned in env)
   startArcListener();

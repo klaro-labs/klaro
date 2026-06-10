@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CheckIcon } from "@/components/ui/CheckIcon";
 import { PayWithUSDC } from "@/components/klaro/PayWithUSDC";
+import { CrossChainPay } from "@/components/klaro/CrossChainPay";
 // Public invoice fetch via SECURITY DEFINER RPC (migration 0022) — anon
 // callers resolve an invoice by id without exposing the invoices table.
 // Single-row lookup, no enumeration. Returns vendor display name + wallet
@@ -248,6 +249,11 @@ export default async function HostedInvoicePage({
                 dueAt={invoice.dueAt}
                 metadataHash={invoice.metadataHash}
               />
+              {isLiveOnChain() && (
+                <div className="mt-3">
+                  <CrossChainPay invoiceId={invoice.id} amount={invoice.amount} vendorWallet={vendorWallet} />
+                </div>
+              )}
             </div>
           </>
         ) : (
@@ -459,6 +465,11 @@ export default async function HostedInvoicePage({
                   dueAt={invoice.dueAt}
                   metadataHash={invoice.metadataHash}
                 />
+              )}
+              {!isPaid && isLiveOnChain() && (
+                <div className="mt-3">
+                  <CrossChainPay invoiceId={invoice.id} amount={invoice.amount} vendorWallet={vendorWallet} />
+                </div>
               )}
             </div>
 

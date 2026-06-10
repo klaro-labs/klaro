@@ -86,19 +86,19 @@ export async function GET() {
       scope: "infra",
       status: supabaseOk ? "operational" : "outage",
     },
-    // Honesty fix (launch audit): these were hardcoded "operational" but the
-    // cross-chain integrations are SIMULATED on testnet — the inbound
-    // CCTP/Gateway settlement handler isn't wired (see /vendor/transit, which
-    // labels them "Simulated · integration pending"). Report them as `pending`
-    // so the public status page never overclaims a live integration.
-    {
-      name: "Circle Gateway",
-      scope: "integration",
-      status: "pending",
-      note: "integration pending — testnet simulated",
-    },
+    // CCTP V2 inbound pay-in is LIVE on testnet: a buyer burns USDC on Base
+    // Sepolia (domain 6), Circle's Iris attests, and the operator daemon mints
+    // native USDC on Arc (domain 26) to the vendor — proven on-chain end to end.
+    // Gateway is not yet wired (no buyer routing / inbound handler), so it stays
+    // pending and the public status page never overclaims it.
     {
       name: "CCTP V2",
+      scope: "integration",
+      status: "operational",
+      note: "live testnet — Base Sepolia → Arc burn-and-mint, operator-settled",
+    },
+    {
+      name: "Circle Gateway",
       scope: "integration",
       status: "pending",
       note: "integration pending — testnet simulated",

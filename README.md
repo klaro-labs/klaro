@@ -56,7 +56,7 @@ The protocol is open source. The testnet is live. Mainnet ships after the audit 
 <tr><td>✅</td><td><b>Audit receipt</b> — shareable receipt URL; on-chain minting is used only when the live receipt contract is configured</td></tr>
 <tr><td>✅</td><td><b>LP staking + cashout flow</b> — LP claims, proof, dispute, and slashing state machine; fiat payout leg remains simulated on testnet</td></tr>
 <tr><td>✅</td><td><b>Agent jobs</b> — ERC‑8004 identity + ERC‑8183 escrow, budget‑capped agent wallets, dispute protected</td></tr>
-<tr><td>🧪</td><td><b>Cross‑chain pay‑in</b> — <code>MultiChainRouter</code> is deployed, but the CCTP V2 + Gateway buyer routing and inbound settlement are <b>simulated on testnet</b> (integration pending; see <code>/vendor/transit</code> and <code>/api/status</code>)</td></tr>
+<tr><td>✅</td><td><b>Cross‑chain pay‑in (CCTP V2)</b> — a buyer pays a Klaro invoice from <b>Base Sepolia</b>; the operator daemon completes Circle's burn‑and‑mint so the vendor receives native USDC on Arc. <b>Live testnet, proven on‑chain end to end</b> (real burn + Iris attestation + Arc mint). Circle <b>Gateway</b> routing remains pending.</td></tr>
 <tr><td>✅</td><td><b>StableFX corridors</b> — <code>USDC ↔ EURC</code> via Circle's <code>FxEscrow</code> + Permit2</td></tr>
 <tr><td>✅</td><td><b>Disputes</b> — opener → evidence → operator review → on‑chain decision, mirrored to <code>VendorReputation</code></td></tr>
 <tr><td>✅</td><td><b>Honest mode labelling</b> — every surface tells the user whether it's live, simulated, or partner‑pending</td></tr>
