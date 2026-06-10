@@ -53,12 +53,14 @@ async function go(path, mustContain = []) {
 
 async function createInvoice() {
   await go("/vendor/invoices/new", ["Invoice"]);
-  await page.getByLabel("Amount (USD)").fill("42.50");
-  await page.getByLabel("Description").fill("Demo flow audit invoice");
-  await page.getByLabel("Customer email").fill("buyer.demo@example.com");
-  await page.getByLabel("Customer name (optional)").fill("Demo Buyer");
-  await page.getByLabel("Due in (days)").fill("14");
-  await page.getByRole("button", { name: /Create invoice/i }).click();
+  const submit = page.getByRole("button", { name: /Create invoice/i });
+  await waitEnabled(submit, "create-invoice submit");
+  await fillStable(page.getByLabel("Amount (USD)"), "42.50");
+  await fillStable(page.getByLabel("Description"), "Demo flow audit invoice");
+  await fillStable(page.getByLabel("Customer email"), "buyer.demo@example.com");
+  await fillStable(page.getByLabel("Customer name (optional)"), "Demo Buyer");
+  await fillStable(page.getByLabel("Due in (days)"), "14");
+  await submit.click();
   await page.waitForURL(/\/vendor\/invoices\/0x[0-9a-f]{64}$/i, {
     waitUntil: "domcontentloaded",
     timeout: 60_000,
@@ -73,9 +75,17 @@ async function createInvoice() {
 
 async function payHostedInvoice(invoiceId) {
   await go(`/i/${invoiceId}`, ["Amount due", "Pay invoice in USDC"]);
-  await page.getByRole("button", { name: /Pay invoice in USDC/i }).click();
-  await expectText("Payment submitted", "hosted invoice: simulated payment did not submit");
-  await page.waitForURL(new RegExp(`/receipt/${invoiceId}$`, "i"), {
+  const receiptUrl = new RegExp(`/receipt/${invoiceId}$`, "i");
+  await clickUntil(
+    page.getByRole("button", { name: /Pay invoice in USDC/i }),
+    async () => {
+      if (receiptUrl.test(page.url())) return true;
+      const body = await page.locator("body").innerText().catch(() => "");
+      return /Payment submitted/i.test(body);
+    },
+    "hosted invoice: simulated payment did not submit",
+  );
+  await page.waitForURL(receiptUrl, {
     waitUntil: "domcontentloaded",
     timeout: 60_000,
   });
@@ -92,10 +102,16 @@ async function verifyReceipt(invoiceId) {
 
 async function createCashout() {
   await go("/vendor/cashout?new=1", ["Cashout", "You receive"]);
-  await page.getByRole("spinbutton", { name: "Amount (USD)" }).first().fill("10");
-  await page.getByRole("combobox", { name: "Corridor" }).first().selectOption("INR");
+  await fillStable(page.getByRole("spinbutton", { name: "Amount (USD)" }).first(), "10");
+  await selectStable(page.getByRole("combobox", { name: "Corridor" }).first(), "INR");
   await expectText("You receive:", "cashout: quote panel missing");
-  await page.getByRole("button", { name: /Simulate .* cashout/i }).click();
+  const submit = page.getByRole("button", { name: /Simulate .* cashout/i });
+  await waitEnabled(submit, "cashout submit");
+  await clickUntil(
+    submit,
+    async () => /\/vendor\/cashout\/0x[0-9a-f]{64}$/i.test(page.url()),
+    "cashout: submit produced no order",
+  );
   await page.waitForURL(/\/vendor\/cashout\/0x[0-9a-f]{64}$/i, {
     waitUntil: "domcontentloaded",
     timeout: 60_000,
@@ -119,13 +135,14 @@ async function verifyCashoutProgress(cashoutId) {
 
 async function openCashoutDispute(cashoutId) {
   await go(`/vendor/disputes`, ["Open new case"]);
-  await page.getByLabel("Entry point").selectOption("cashout");
-  await page.getByLabel(/Reference ID/i).fill(cashoutId);
-  await page.getByLabel(/Respondent/i).fill("Demo payout partner");
-  await page.getByLabel(/Amount in dispute/i).fill("10");
-  await page
-    .getByLabel(/What happened/i)
-    .fill("Demo flow audit dispute because the simulated payout did not arrive.");
+  await selectStable(page.getByLabel("Entry point"), "cashout");
+  await fillStable(page.getByLabel(/Reference ID/i), cashoutId);
+  await fillStable(page.getByLabel(/Respondent/i), "Demo payout partner");
+  await fillStable(page.getByLabel(/Amount in dispute/i), "10");
+  await fillStable(
+    page.getByLabel(/What happened/i),
+    "Demo flow audit dispute because the simulated payout did not arrive.",
+  );
   await page.getByRole("button", { name: /Open dispute/i }).click();
   await page.waitForURL(/\/vendor\/disputes\/0x[0-9a-f]{64}$/i, {
     waitUntil: "domcontentloaded",
@@ -133,6 +150,50 @@ async function openCashoutDispute(cashoutId) {
   });
   await expectText("Case", "dispute detail: case page did not render");
   await expectNoFrameworkError("dispute detail");
+}
+
+/** Click that survives React hydration. A click before handlers attach does
+ * nothing visible — so do what a human does: wait, then press again. Each
+ * attempt gets a generous window so a slow server action is not double-fired. */
+async function clickUntil(locator, predicate, failure, attempts = 4) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    await locator.click({ timeout: 10_000 }).catch(() => {});
+    for (let tick = 0; tick < 40; tick++) {
+      await page.waitForTimeout(250);
+      if (await predicate()) return;
+    }
+  }
+  throw new Error(failure);
+}
+
+/** Fill that survives React hydration. If hydration re-renders the controlled
+ * input and wipes the value mid-flow, retype it — exactly what a human would
+ * do — and only proceed once the value sticks. */
+async function fillStable(locator, value) {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    await locator.fill(value);
+    await page.waitForTimeout(200);
+    if ((await locator.inputValue()) === value) return;
+  }
+  throw new Error(`field kept resetting (hydration race): ${value}`);
+}
+
+async function selectStable(locator, value) {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    await locator.selectOption(value);
+    await page.waitForTimeout(200);
+    if ((await locator.inputValue()) === value) return;
+  }
+  throw new Error(`select kept resetting (hydration race): ${value}`);
+}
+
+async function waitEnabled(locator, label) {
+  await locator.waitFor({ state: "visible", timeout: 20_000 });
+  for (let attempt = 0; attempt < 100; attempt++) {
+    if (!(await locator.isDisabled())) return;
+    await page.waitForTimeout(200);
+  }
+  throw new Error(`${label}: button never became enabled`);
 }
 
 async function expectText(text, failure) {

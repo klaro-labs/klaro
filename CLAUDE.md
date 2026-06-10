@@ -55,6 +55,13 @@ pnpm --filter @klaro/web e2e:smoke   # Playwright smoke (needs running app)
   Never silently downgrade the request.
 - **Intent over words**: figure out what was actually meant, not just what
   was literally typed, and finish the whole ask.
+- **Do what was asked — upward deviations only**: when Prateek asks for
+  something, do that thing. Improving on it or doing it better is welcome;
+  doing less, going low-effort, or substituting something easier is never
+  acceptable.
+- **Talk before testing**: before running any test pass (e2e, Playwright,
+  manual QA, anything that exercises the app), discuss the plan with Prateek
+  first — what will be tested, how, and why. Do not just start testing.
 - **Writing quality**: no AI slop. Every piece of copy, doc, or commit
   message should read like the best version a careful human would write.
 - **Docs knowledge**: for anything Arc or Circle related (chain params, CCTP,
