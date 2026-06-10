@@ -91,7 +91,13 @@ const nextConfig = {
   },
   async headers() {
     return [
-      { source: "/:path*", headers: SECURITY_HEADERS },
+      // Apply the default headers (incl. X-Frame-Options: DENY) to every route
+      // EXCEPT the embeddable ones. Next.js header rules MERGE, not replace —
+      // so a blanket /:path* rule would keep stamping XFO:DENY on /i, /receipt,
+      // /pay even though their EMBEDDABLE_HEADERS omit it, and XFO:DENY then
+      // overrides the permissive CSP frame-ancestors *, silently breaking the
+      // embed widgets. The negative lookahead keeps XFO off the embeddable paths.
+      { source: "/((?!i/|receipt/|pay/).*)", headers: SECURITY_HEADERS },
       // Audit fix (loop iter 56, 2026-05-25): hosted-invoice + receipt
       // pages are intentionally embeddable, but the previous overrides
       // had TWO real defects:
