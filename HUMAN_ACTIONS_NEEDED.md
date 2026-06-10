@@ -94,3 +94,51 @@ persists (these were silently failing live before 0036).
    `invoices.customer_email`, MultiChainRouter Pausable, a11y (MegaMenu
    keyboard nav, skip-link, inline form validation), CI lint gate, Dockerfile
    pin. Full list in the department files.
+
+---
+
+## 🚀 Launch-readiness (2026-06-10, session: cross-chain + auth + branding)
+
+Closed in code this session (committed + deployed): vendor branding renders on
+`/i`; onboarding hands its draft to a prefilled invoice; magic-link login
+verified end-to-end (real email click → session); webhooks + QuickBooks verified
+live; **cross-chain pay-in (CCTP V2 Base Sepolia → Arc) is now REAL** — proven
+end to end against a live daemon: buyer burns on Base → `POST /api/cctp/payin` →
+BullMQ → daemon attests (Iris) + mints on Arc + credits the invoice (multiple
+real settlements, e.g. invoices `0x1112…`, `0x138f…`).
+
+Three things still need **you** before a clean public launch:
+
+### 🔴 P0 — operator daemon must run with a valid `REDIS_URL`
+The local `apps/*/.env` `REDIS_URL` is **invalid** (`new URL()` fails — the `@`
+between password and host is corrupted), so the daemon can't boot without an
+override (I ran a local Redis to verify the cross-chain loop). Nothing settles
+without the daemon: webhooks, screening→settlement, cashout, **and cross-chain**.
+- Verify the **deploy/daemon host** has a valid `REDIS_URL` and the daemon
+  process is running (it picks up the new `cctpPayin` worker on redeploy).
+- Then set `CCTP_PAYIN_ENABLED=1` on the web env to show the buyer "Pay from
+  Base Sepolia" button (it's gated off by default so nobody burns into a flow
+  the daemon can't finish).
+
+### 🔴 P0 — magic-link email deliverability (lands in Spam today)
+Supabase's built-in SMTP sends magic links to **Spam/Promotions** (no verified
+domain). I registered `myklaro.app` in your Resend account — add these DNS
+records to `myklaro.app`, then click **Verify** in Resend:
+| Type | Name | Value | Notes |
+|---|---|---|---|
+| TXT | `resend._domainkey` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCdl5hGvk0raR1pRapGJa84mUofj2HJsxUdQ4Qyw4Xk/QA9dnJOFogxa65kYPp5ge2U0S/qH/QyDbQx0JryxScgfLDydf4DUeKo89iMNhYopNkoIhAtSQY0zaCSozjFUO3CcVQnihFZBJpQDs/8/G8hcX7JhEj9Hk/+p4c0dLbQ6wIDAQAB` | DKIM |
+| MX | `send` | `feedback-smtp.us-east-1.amazonses.com` (priority 10) | SPF |
+| TXT | `send` | `v=spf1 include:amazonses.com ~all` | SPF |
+
+Then point **Supabase Auth → SMTP Settings** at Resend: host `smtp.resend.com`,
+port `465`, user `resend`, password = your `RESEND_API_KEY`, sender
+`noreply@myklaro.app`. Magic links then land in the inbox.
+
+### 🟡 P1 — optional "go even more live" (testnet-appropriate as-is)
+- KYB: set `SUMSUB_APP_TOKEN`/`SUMSUB_SECRET_KEY` on the **daemon host** (web
+  already has them) for live KYB. Sanctions are already live via the free OFAC
+  oracle.
+- Fiat cashout: set `CASHOUT_FIAT_PARTNER` once a licensed payout LP is signed.
+- WebAuthn passkey **login** is backend-ready but intentionally doesn't issue a
+  session yet (honestly gated off on `/signin`); magic-link + Google OAuth are
+  the live login paths.
