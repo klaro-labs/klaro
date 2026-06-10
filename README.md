@@ -56,7 +56,7 @@ The protocol is open source. The testnet is live. Mainnet ships after the audit 
 <tr><td>✅</td><td><b>Audit receipt</b> — shareable receipt URL; on-chain minting is used only when the live receipt contract is configured</td></tr>
 <tr><td>✅</td><td><b>LP staking + cashout flow</b> — LP claims, proof, dispute, and slashing state machine; fiat payout leg remains simulated on testnet</td></tr>
 <tr><td>✅</td><td><b>Agent jobs</b> — ERC‑8004 identity + ERC‑8183 escrow, budget‑capped agent wallets, dispute protected</td></tr>
-<tr><td>✅</td><td><b>Cross‑chain pay‑in</b> — CCTP V2 + Circle Gateway routing via <code>MultiChainRouter</code></td></tr>
+<tr><td>🧪</td><td><b>Cross‑chain pay‑in</b> — <code>MultiChainRouter</code> is deployed, but the CCTP V2 + Gateway buyer routing and inbound settlement are <b>simulated on testnet</b> (integration pending; see <code>/vendor/transit</code> and <code>/api/status</code>)</td></tr>
 <tr><td>✅</td><td><b>StableFX corridors</b> — <code>USDC ↔ EURC</code> via Circle's <code>FxEscrow</code> + Permit2</td></tr>
 <tr><td>✅</td><td><b>Disputes</b> — opener → evidence → operator review → on‑chain decision, mirrored to <code>VendorReputation</code></td></tr>
 <tr><td>✅</td><td><b>Honest mode labelling</b> — every surface tells the user whether it's live, simulated, or partner‑pending</td></tr>
@@ -185,7 +185,7 @@ And the same labels applied to every money path in one place:
 | Buyer payment (USDC on Arc, EIP‑712 acceptance) | `live testnet` |
 | Escrow lock, settlement, refund | `live testnet` |
 | On‑chain audit receipt mint + verify | `live testnet` |
-| Cross‑chain pay‑in (CCTP V2 / Gateway routing) | `live testnet` |
+| Cross‑chain pay‑in (CCTP V2 / Gateway routing) | `simulated` — `MultiChainRouter` deployed; buyer routing + inbound settlement not yet wired |
 | Sanctions screening before release | `simulated` (OFAC list real; verdicts hold for review until a provider key is added) |
 | LP staking, order claim, proof, slashing | `live testnet` |
 | Cashout fiat leg (USDC → INR payout) | `simulated` — no real fiat moves |
@@ -202,8 +202,8 @@ Klaro is not a bank. Financing readiness is not a loan offer. No PII is stored o
 
 | Stage | What ships |
 | --- | --- |
-| Now (testnet) | Vendor invoicing, buyer payment, on‑chain receipts, LP staking, partner cashout, agent jobs, disputes, cross‑chain pay‑in |
-| Next | External contract audit, Sumsub‑gated KYB, Chainalysis live sanctions, MoonPay card on‑ramp, Apple + Google Wallet pass |
+| Now (testnet) | Vendor invoicing, buyer payment, on‑chain receipts, LP staking, partner cashout (simulated payout), agent jobs, disputes |
+| Next | Wire cross‑chain pay‑in (CCTP V2 / Gateway, currently simulated), external contract audit, Sumsub‑gated KYB, Chainalysis live sanctions, MoonPay card on‑ramp, Apple + Google Wallet pass |
 | Mainnet | Multisig ownership handover, Immunefi bounty live, real cashout corridors with Onmeta / Mudrex / TransFi |
 
 ---
