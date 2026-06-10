@@ -41,6 +41,11 @@ export default async function HostedInvoicePage({
   // mode duplicate-pay) a closed invoice. Now render a clear blocked state for
   // every non-payable status.
   const isPaid = invoice.status === "PAID" || invoice.status === "SETTLED";
+  // A receipt only exists once settlement mints it. In live mode a PAID invoice
+  // sits in screening before SETTLED, so receiptHash is null and there is no
+  // receipt to view yet — never claim "Receipt anchored" or link to one then.
+  const hasReceipt = Boolean(invoice.receiptHash);
+  const settling = isPaid && !hasReceipt;
   const blocked =
     invoice.status === "REFUNDED" || invoice.status === "CANCELLED";
   // comment at line 38 above said
@@ -250,9 +255,11 @@ export default async function HostedInvoicePage({
                 {formatUSDC(invoice.amount)}
               </p>
               <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
-                {isLiveOnChain()
-                  ? "Receipt anchored on Arc testnet"
-                  : "Simulated payment · receipt preview"}
+                {!isLiveOnChain()
+                  ? "Simulated payment · receipt preview"
+                  : settling
+                    ? "Payment received on Arc · screening before settlement"
+                    : "Receipt anchored on Arc testnet"}
               </p>
             </section>
             <section className="px-5">
@@ -268,26 +275,34 @@ export default async function HostedInvoicePage({
                 <DefRow k="Reference" v={shortRef} />
                 <DefRow
                   k="Receipt"
-                  v={shortAddress(invoice.receiptHash ?? invoice.id)}
+                  v={hasReceipt ? shortAddress(invoice.receiptHash!) : "Pending settlement"}
                   accent
                 />
               </dl>
             </section>
             <section className="mt-6 px-5 pb-10">
-              <Link
-                href={
-                  `/receipt/${invoice.receiptHash ?? invoice.id}` as `/receipt/${string}`
-                }
-                className="flex h-12 w-full items-center justify-center rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white hover:bg-black"
-              >
-                View receipt
-              </Link>
-              <a
-                href={`mailto:?subject=Klaro%20receipt&body=${encodeURIComponent(`https://www.myklaro.app/receipt/${invoice.receiptHash ?? invoice.id}`)}`}
-                className="mt-3 flex h-12 w-full items-center justify-center rounded-pill border border-[var(--color-line)] bg-white text-sm font-medium hover:bg-[var(--color-bg-elevated)]"
-              >
-                Email me a copy
-              </a>
+              {settling ? (
+                <p className="rounded-xl border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-4 py-3 text-center text-sm text-[var(--color-ink-muted)]">
+                  Your USDC is locked in escrow. Klaro screens the payment, then
+                  releases it to {vendorFirstName} and anchors your receipt —
+                  you can return to this link to view it.
+                </p>
+              ) : (
+                <>
+                  <Link
+                    href={`/receipt/${invoice.receiptHash}` as `/receipt/${string}`}
+                    className="flex h-12 w-full items-center justify-center rounded-pill bg-[var(--color-ink)] text-sm font-medium text-white hover:bg-black"
+                  >
+                    View receipt
+                  </Link>
+                  <a
+                    href={`mailto:?subject=Klaro%20receipt&body=${encodeURIComponent(`https://www.myklaro.app/receipt/${invoice.receiptHash}`)}`}
+                    className="mt-3 flex h-12 w-full items-center justify-center rounded-pill border border-[var(--color-line)] bg-white text-sm font-medium hover:bg-[var(--color-bg-elevated)]"
+                  >
+                    Email me a copy
+                  </a>
+                </>
+              )}
             </section>
           </>
         )}
@@ -378,14 +393,18 @@ export default async function HostedInvoicePage({
             </dl>
 
             <div className="mt-8 border-t border-[var(--color-line)] pt-6">
-              {isPaid ? (
+              {isPaid && settling ? (
+                <p className="flex items-center gap-1.5 rounded-md bg-[color-mix(in_oklab,var(--color-success)_8%,white)] px-3 py-2 text-sm text-[color-mix(in_oklab,var(--color-success)_75%,var(--color-ink))] ring-1 ring-inset ring-[color-mix(in_oklab,var(--color-success)_30%,transparent)]">
+                  <CheckIcon className="size-4 shrink-0" />
+                  Payment received on Arc. Klaro is screening it before
+                  releasing to the vendor — your receipt anchors once it clears.
+                </p>
+              ) : isPaid ? (
                 <p className="flex items-center gap-1.5 rounded-md bg-[color-mix(in_oklab,var(--color-success)_8%,white)] px-3 py-2 text-sm text-[color-mix(in_oklab,var(--color-success)_75%,var(--color-ink))] ring-1 ring-inset ring-[color-mix(in_oklab,var(--color-success)_30%,transparent)]">
                   <CheckIcon className="size-4 shrink-0" />
                   This invoice is already paid.{" "}
                   <Link
-                    href={
-                      `/receipt/${invoice.receiptHash ?? invoice.id}` as `/receipt/${string}`
-                    }
+                    href={`/receipt/${invoice.receiptHash}` as `/receipt/${string}`}
                     className="ml-1 underline"
                   >
                     View receipt →

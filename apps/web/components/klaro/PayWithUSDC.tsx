@@ -195,10 +195,12 @@ export function PayWithUSDC({
       });
       setHash(txHash as Hex);
       setPhase("settled");
-      // Klaro operator picks up the InvoicePaid event and mints the receipt.
-      // For UX we route to the receipt page immediately; it shows
-      // "pending settlement" until the operator confirms.
-      setTimeout(() => router.push(`/receipt/${invoiceId}`), 1800);
+      // The operator daemon picks up InvoicePaid, screens, settles, then mints
+      // the receipt — so the receipt does NOT exist yet. Route back to the
+      // hosted invoice, which shows "payment received · screening · receipt
+      // pending" and surfaces the receipt link once settlement anchors it.
+      // (Routing straight to /receipt/<id> here 404s until the mint lands.)
+      setTimeout(() => router.push(`/i/${invoiceId}`), 1800);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Payment failed.";
       // Keep the raw message in the console for support; surface calm copy.
@@ -230,7 +232,9 @@ export function PayWithUSDC({
           </p>
         ) : null}
         <p className="mt-2 text-xs text-[var(--color-ink-muted)]">
-          Redirecting to your receipt…
+          {isLive
+            ? "Taking you to your payment status…"
+            : "Redirecting to your receipt…"}
         </p>
       </div>
     );
