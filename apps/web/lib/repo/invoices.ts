@@ -94,21 +94,38 @@ export async function getInvoice(id: Hex): Promise<Invoice | null> {
  */
 export async function getPublicInvoice(
   id: Hex,
-): Promise<(Invoice & { vendorDisplayName: string | null }) | null> {
+): Promise<
+  | (Invoice & {
+      vendorDisplayName: string | null;
+      brandColor: string | null;
+      brandLogoUrl: string | null;
+    })
+  | null
+> {
   const c = await tryDb();
   if (!c) {
     const m = await mockGetInvoice(id);
-    return m ? { ...m, vendorDisplayName: null } : null;
+    return m
+      ? { ...m, vendorDisplayName: null, brandColor: null, brandLogoUrl: null }
+      : null;
   }
   const { data, error } = await c.rpc("get_public_invoice", { p_id: id });
   if (error) throw error;
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) return null;
+  // migration 0051 added vendor_brand_color + vendor_brand_logo_url to the RPC;
+  // the codegen'd Functions type lags the migration, so narrow just those two.
+  const branded = row as {
+    vendor_brand_color?: string | null;
+    vendor_brand_logo_url?: string | null;
+  };
   return {
     id: row.id as Hex,
     vendorId: row.vendor_id,
     vendorWallet: row.vendor_wallet ? (row.vendor_wallet as Hex) : null,
     vendorDisplayName: row.vendor_display_name ?? null,
+    brandColor: branded.vendor_brand_color ?? null,
+    brandLogoUrl: branded.vendor_brand_logo_url ?? null,
     token: row.token as Hex,
     // amount_usdc is null when the vendor set privacy_mode='hide_amount' (the
     // get_public_invoice RPC redacts it) — guard so the mapping doesn't crash on

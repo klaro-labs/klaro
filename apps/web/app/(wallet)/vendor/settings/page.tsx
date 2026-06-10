@@ -29,8 +29,8 @@ export default async function SettingsPage() {
             Branding
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[var(--color-ink-muted)]">
-            Logo + color show on your hosted invoice page, receipt PDF, and
-            Apple/Google Wallet passes.{" "}
+            Logo + color show on your hosted invoice page — the branded page
+            your customers open to pay.{" "}
             {session.simulated
               ? "This screen updates demo branding only; no template version is written onchain."
               : "Every save bumps the onchain template version so historical receipts keep their original branding."}
@@ -112,10 +112,10 @@ export default async function SettingsPage() {
           </button>
         </div>
         <p className="mt-4 text-xs text-[var(--color-ink-subtle)]">
-          Same primitives ship on <code className="font-mono">/i/[id]</code>{" "}
-          hosted invoice +{" "}
-          <code className="font-mono">/receipt/[hash]</code> public receipt.
-          Apple/Google Wallet passes pick up the color as the strip color.
+          The same logo + color ship on your{" "}
+          <code className="font-mono">/i/[id]</code> hosted invoice. The public{" "}
+          <code className="font-mono">/receipt/[hash]</code> stays Klaro-neutral
+          so anyone can verify it without trusting your brand.
         </p>
       </div>
 

@@ -14,6 +14,7 @@ import { getPublicInvoice } from "@/lib/repo/invoices";
 import { isLiveOnChain } from "@/lib/arcClient";
 import { formatUSDC, shortAddress } from "@/lib/money";
 import type { Hex } from "@/lib/types";
+import type { CSSProperties } from "react";
 
 /**
  * Hosted invoice page — `myklaro.app/i/<id>` equivalent.
@@ -126,6 +127,15 @@ export default async function HostedInvoicePage({
     .slice(0, 2)
     .toUpperCase();
   const shortRef = `INV-${invoice.id.slice(2, 6).toUpperCase()}`;
+  // Vendor Branding (settings → /vendor/settings) renders on the buyer-facing
+  // invoice: the brand colour drives every --color-brand accent, the logo
+  // replaces the initials avatar. Both validated on save (hex + https URL);
+  // unset falls back to Klaro blue + initials.
+  const brandColor = invoice.brandColor || null;
+  const brandLogoUrl = invoice.brandLogoUrl || null;
+  const brandStyle = brandColor
+    ? ({ "--color-brand": brandColor } as CSSProperties)
+    : undefined;
   const dueLabel = invoice.dueAt.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -137,7 +147,7 @@ export default async function HostedInvoicePage({
   );
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg)]">
+    <main className="min-h-screen bg-[var(--color-bg)]" style={brandStyle}>
       {/* ─── MOBILE (<md) — hosted invoice (default) + paid (done) states ─── */}
       <div className="flex min-h-screen flex-col md:hidden">
         {!isPaid ? (
@@ -151,9 +161,18 @@ export default async function HostedInvoicePage({
 
             <section className="flex-1 px-5 pt-6 pb-32">
               <div className="flex items-center gap-3">
-                <span className="grid size-12 place-items-center rounded-full bg-[var(--color-klaro-orange-deep)] font-display text-lg font-semibold text-white">
-                  {vendorInitials}
-                </span>
+                {brandLogoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- vendor-supplied remote logo on an arbitrary host; next/image needs allow-listed domains
+                  <img
+                    src={brandLogoUrl}
+                    alt={vendorName}
+                    className="size-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="grid size-12 place-items-center rounded-full bg-[var(--color-brand)] font-display text-lg font-semibold text-white">
+                    {vendorInitials}
+                  </span>
+                )}
                 <div>
                   <p className="text-xs text-[var(--color-ink-subtle)]">
                     Invoice from
@@ -342,6 +361,27 @@ export default async function HostedInvoicePage({
               ) : (
                 <Badge tone="neutral">Awaiting payment</Badge>
               )}
+            </div>
+
+            <div className="mt-6 flex items-center gap-3">
+              {brandLogoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- vendor-supplied remote logo on an arbitrary host; next/image needs allow-listed domains
+                <img
+                  src={brandLogoUrl}
+                  alt={vendorName}
+                  className="size-10 rounded-full object-cover"
+                />
+              ) : (
+                <span className="grid size-10 place-items-center rounded-full bg-[var(--color-brand)] font-display text-sm font-semibold text-white">
+                  {vendorInitials}
+                </span>
+              )}
+              <div>
+                <p className="text-xs text-[var(--color-ink-subtle)]">
+                  Invoice from
+                </p>
+                <p className="font-medium">{vendorName}</p>
+              </div>
             </div>
 
             <div className="mt-7">
