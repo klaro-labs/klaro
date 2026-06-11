@@ -137,3 +137,7 @@ apps/web/e2e/.playwright-data/
 tmp-visual-audit/
 council-report-*.html
 council-transcript-*.md
+
+# local redis dump (runtime, not code)
+dump.rdb
+apps/web/e2e/.qa-shots/
