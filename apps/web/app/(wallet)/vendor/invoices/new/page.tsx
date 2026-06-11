@@ -9,10 +9,17 @@ import { redirect } from "next/navigation";
  * app/vendor/layout.tsx). Mobile renders a sticky sub-header with Back +
  * Save; desktop renders the centered hero header.
  */
+const ZERO_ADDR = "0x" + "0".repeat(40);
+
 export default async function NewInvoicePage() {
   const session = await getCurrentSession();
   if (!session) redirect("/signin");
-  const { simulated } = session;
+  const { simulated, vendor } = session;
+  // Invoices pay out in USDC to the vendor's wallet, so creating one without a
+  // provisioned wallet throws server-side (assertVendorWalletProvisioned) and
+  // surfaces as an opaque 500. Gate the form behind a clear setup prompt.
+  const hasWallet =
+    Boolean(vendor.wallet) && vendor.wallet!.toLowerCase() !== ZERO_ADDR;
 
   return (
     <div>
@@ -52,7 +59,26 @@ export default async function NewInvoicePage() {
           </p>
         </header>
         <div className="md:mt-8">
-          <InvoiceForm simulated={simulated} />
+          {hasWallet ? (
+            <InvoiceForm simulated={simulated} />
+          ) : (
+            <div className="rounded-lg border border-[var(--color-line)] bg-white p-6">
+              <h2 className="font-display text-lg font-semibold">
+                Add a payout wallet first
+              </h2>
+              <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+                Invoices settle in USDC to your wallet on Arc, so you need one
+                before you can create an invoice. Set up a passkey-secured Circle
+                wallet, or connect an existing address, in onboarding.
+              </p>
+              <Link
+                href="/onboarding"
+                className="mt-4 inline-flex h-11 items-center rounded-pill bg-[var(--color-ink)] px-5 text-sm font-medium text-white hover:opacity-90"
+              >
+                Set up your wallet &rarr;
+              </Link>
+            </div>
+          )}
         </div>
       </section>
     </div>
