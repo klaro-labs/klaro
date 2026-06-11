@@ -82,11 +82,19 @@ export const cctpPayinEnabled = (): boolean =>
 export const CIRCLE_CLIENT_KEY = pub(process.env.NEXT_PUBLIC_CIRCLE_CLIENT_KEY);
 export const CIRCLE_API_KEY = opt("CIRCLE_API_KEY");
 export const CIRCLE_ENTITY_SECRET = opt("CIRCLE_ENTITY_SECRET");
-/** Circle Modular Wallets endpoint (per docs). */
+/** Circle Modular Wallets app id — the slug in the SDK RPC URL. Get it from the
+ *  Circle Console (Modular Wallets app); "buidl" is Circle's shared sample app. */
+export const CIRCLE_APP_ID = pub(process.env.NEXT_PUBLIC_CIRCLE_APP_ID);
+/** Circle Modular Wallets endpoint (per docs) — `…/w3s/<appId>`. */
 export const CIRCLE_MODULAR_URL =
   process.env.CIRCLE_MODULAR_URL ??
-  "https://modular-sdk.circle.com/v1/rpc/w3s/buidl";
+  `https://modular-sdk.circle.com/v1/rpc/w3s/${CIRCLE_APP_ID ?? "buidl"}`;
 export const circleVendorLive = (): boolean => Boolean(CIRCLE_CLIENT_KEY);
+/** Passkey wallet creation is wired + ready: it needs the client key AND the
+ *  app id. Until the app id is set, onboarding shows an honest "configure"
+ *  state instead of a button that can't complete the Circle round-trip. */
+export const circleAppKitReady = (): boolean =>
+  Boolean(CIRCLE_CLIENT_KEY && CIRCLE_APP_ID);
 export const circleOperatorLive = (): boolean =>
   Boolean(CIRCLE_API_KEY && CIRCLE_ENTITY_SECRET);
 

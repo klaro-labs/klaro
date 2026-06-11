@@ -7,6 +7,8 @@ import { Logo } from "@/components/klaro/Logo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Pill } from "@/components/ui/Pill";
+import { CircleWalletButton } from "@/components/klaro/CircleWalletButton";
+import { circleAppKitReady } from "@/lib/env";
 import {
   saveBusinessBasicsAction,
   saveWalletAction,
@@ -465,11 +467,20 @@ function WalletStep({ form, update, onBlur }: StepProps) {
           />
         </div>
       )}
-      {form.walletProvider === "circle_app_kit" && (
-        <Pill tone="default" size="sm">
-          Simulated · Circle App Kit modal lands when CIRCLE_API_KEY is configured
-        </Pill>
-      )}
+      {form.walletProvider === "circle_app_kit" &&
+        (circleAppKitReady() ? (
+          <CircleWalletButton
+            label={form.displayName}
+            current={form.walletAddress || undefined}
+            onProvisioned={(addr) => update("walletAddress", addr)}
+          />
+        ) : (
+          <Pill tone="default" size="sm">
+            Passkey wallet creation is wired — set NEXT_PUBLIC_CIRCLE_APP_ID
+            (Circle Console → Modular Wallets) to switch this on. Until then,
+            pick &ldquo;Use an existing wallet&rdquo; or &ldquo;Decide later&rdquo;.
+          </Pill>
+        ))}
     </div>
   );
 }
