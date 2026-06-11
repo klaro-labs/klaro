@@ -142,3 +142,11 @@ port `465`, user `resend`, password = your `RESEND_API_KEY`, sender
 - WebAuthn passkey **login** is backend-ready but intentionally doesn't issue a
   session yet (honestly gated off on `/signin`); magic-link + Google OAuth are
   the live login paths.
+
+### 🟡 Circle App Kit (passkey MPC wallet) — wired, needs the App ID
+Onboarding's "Create a Circle MPC wallet" now runs the real Circle Modular
+Wallets passkey flow — it's gated on `NEXT_PUBLIC_CIRCLE_APP_ID`. The API key +
+client key are already valid (W3S API returns 200). Set `NEXT_PUBLIC_CIRCLE_APP_ID`
+to your Modular Wallets app id from console.circle.com and the real
+"Create passkey-secured wallet" button replaces the honest "configure" state —
+no other code change needed.
