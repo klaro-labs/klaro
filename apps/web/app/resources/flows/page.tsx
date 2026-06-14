@@ -171,7 +171,7 @@ const FLOWS: Flow[] = [
     section: "§14·§15",
     name: "Screening & receipt mint",
     summary:
-      "On funding, Klaro runs screening against the buyer wallet and payment trail. On pass, the escrow releases to vendor and a Stenn-Proof receipt is minted with hashes of invoice + buyer acceptance + screening result.",
+      "On funding, Klaro runs screening against the buyer wallet and payment trail. On pass, the escrow releases to vendor and a Klaro Proof receipt is minted with hashes of invoice + buyer acceptance + screening result.",
     roles: ["System", "Operator"],
     states: ["Pending", "Passed", "Held", "Released", "Minted", "Verified"],
     timeline: [

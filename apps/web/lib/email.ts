@@ -193,7 +193,7 @@ export async function sendSettledEmail(opts: {
       `You got paid ${formatUSDC(opts.amount)}`,
       `
         <p><strong>${customer}</strong> just settled your invoice. USDC is in your Klaro balance.</p>
-        <p>Your Stenn-Proof receipt is live and shareable:</p>
+        <p>Your Klaro Proof receipt is live and shareable:</p>
         <p style="text-align:center;margin:24px 0;">
           <a href="${url}" style="display:inline-block;background:#1b6bff;color:#fff;padding:12px 24px;border-radius:9999px;text-decoration:none;font-weight:500;">View receipt →</a>
         </p>

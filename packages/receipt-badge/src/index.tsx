@@ -15,7 +15,7 @@ type State = "verifying" | "verified" | "not-found" | "error";
 
 /**
  * Drop-in receipt badge. Hits Klaro's public receipt API to verify the
- * receipt hash exists; renders a Stenn-Proof seal that links to the full
+ * receipt hash exists; renders a Klaro Proof seal that links to the full
  * public receipt page. Zero dependencies beyond React.
  */
 export function KlaroReceiptBadge({

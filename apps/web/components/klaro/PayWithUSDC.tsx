@@ -295,9 +295,9 @@ export function PayWithUSDC({
         <span className="text-xs text-[var(--color-ink-subtle)]">
           {isLive ? "No USDC? Buy with card via MoonPay." : "Simulator only."}
         </span>
-        {isLive ? (
+        {isLive && address ? (
           <a
-            href={`/api/moonpay/buy?amount=${Math.ceil(Number(amount) / 1_000_000)}&redirect=${encodeURIComponent("/i/" + invoiceId)}`}
+            href={`/api/moonpay/buy?amount=${Math.ceil(Number(amount) / 1_000_000)}&wallet=${address}&redirect=${encodeURIComponent("/i/" + invoiceId)}`}
             className="rounded border border-[var(--color-line)] bg-white px-3 py-1.5 text-xs font-medium hover:border-[var(--color-brand)]"
           >
             Card → USDC

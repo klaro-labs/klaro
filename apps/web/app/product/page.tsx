@@ -37,7 +37,7 @@ const SURFACES: Array<{
     num: "02",
     title: "Receipts",
     href: "/product/receipts",
-    one: "Stenn-Proof receipts.",
+    one: "Klaro Proof receipts.",
     desc:
       "Receipt pages are shareable and verifiable by hash. On-chain minting happens only in live-contract mode; simulator receipts are labelled as previews.",
     stage: "live testnet",

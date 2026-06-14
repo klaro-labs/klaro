@@ -32,7 +32,7 @@ const TIERS: Tier[] = [
     body: "All features. No caps. Testnet tokens only — no real revenue collected.",
     bullets: [
       "Hosted invoice demo · USDC display flow",
-      "Stenn-Proof receipt preview · clearly simulated",
+      "Klaro Proof receipt preview · clearly simulated",
       "Partner Cashout simulator · USDC → INR",
       "Tally, QuickBooks, Xero sandbox sync",
       "Reputation preview · contracts not deployed",

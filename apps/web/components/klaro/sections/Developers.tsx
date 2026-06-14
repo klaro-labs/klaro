@@ -29,7 +29,7 @@ const invoice = await klaro.invoices.create({
 console.log(invoice.hostedUrl);
 // → https://myklaro.app/i/cl7-d3-m0
 
-// Verify any Stenn-Proof receipt
+// Verify any Klaro Proof receipt
 const ok = await klaro.receipts.verify("0x9f8a3c5b…");
 // → { verified: true, screened: true, settledAt: 1737293728 }`;
 

@@ -25,64 +25,63 @@ interface Row {
 const ROWS: Row[] = [
   {
     feature: "Invoice creation",
-    tone: "simulated",
-    note: "Demo flow available · contract mode gated",
+    tone: "live",
+    note: "On-chain invoice on Arc testnet",
   },
   {
-    feature: "USDC / EURC payment",
-    tone: "simulated",
-    note: "Demo payment only in current UI",
-  },
-  {
-    feature: "Invoice escrow",
-    tone: "access-gated",
-    note: "Requires verified contract deployment",
-  },
-  {
-    feature: "Cross-chain intake · Gateway / CCTP V2",
-    tone: "access-gated",
-    note: "Circle integration not activated in demo",
+    feature: "USDC payment + escrow",
+    tone: "live",
+    note: "Testnet USDC · InvoiceEscrow locks + releases on Arc",
   },
   {
     feature: "Counterparty screening",
-    tone: "simulated",
-    note: "Simulation cannot settle funds",
+    tone: "live",
+    note: "OFAC sanctions list + Sumsub KYB — real",
   },
   {
-    feature: "Stenn-Proof receipts",
-    tone: "simulated",
-    note: "Public demo receipt · no proof anchor",
+    feature: "Klaro Proof receipts",
+    tone: "live",
+    note: "AuditReceipt anchored on-chain · publicly verifiable",
   },
   {
     feature: "Vendor reputation · ERC-8004",
-    tone: "simulated",
-    note: "Demo score and event history",
-  },
-  {
-    feature: "ERP sync · Tally / QBO / Xero",
-    tone: "access-gated",
-    note: "Connector access pending",
+    tone: "live",
+    note: "Signed reputation events on Arc",
   },
   {
     feature: "Buyer acceptance · EIP-712",
-    tone: "simulated",
-    note: "Demo acceptance marker only",
+    tone: "live",
+    note: "Signed acceptance recorded on settle",
   },
-  { feature: "LP staking", tone: "simulated", note: "Demo LP assignment only" },
+  {
+    feature: "ERP sync · QuickBooks",
+    tone: "live",
+    note: "QuickBooks live (sandbox) · Xero / Tally pending",
+  },
+  {
+    feature: "Cross-chain intake · CCTP V2",
+    tone: "lab",
+    note: "Outbound burn proven on Arc · inbound code-ready",
+  },
   {
     feature: "StableFX · USDC ↔ EURC",
-    tone: "access-gated",
-    note: "Live if Circle grants TEST access",
+    tone: "lab",
+    note: "MockEURC swap proven · live needs Circle TEST access",
   },
   {
     feature: "Agent escrow · ERC-8183",
     tone: "lab",
-    note: "Arc-supported lab preview",
+    note: "Arc-supported lab preview · proven on testnet",
   },
   {
     feature: "Partner Cashout · USDC → INR",
     tone: "simulated",
-    note: "Mock proof · no real INR moves",
+    note: "On-chain USDC escrow live · INR payout simulated (no licensed partner)",
+  },
+  {
+    feature: "LP staking + assignment",
+    tone: "simulated",
+    note: "Demo assignment · invite-only network not yet open",
   },
   {
     feature: "Local stables · BRL, MXN, PHP, ZAR…",
@@ -92,12 +91,12 @@ const ROWS: Row[] = [
   {
     feature: "Financing readiness",
     tone: "read-only",
-    note: "Read-only · no loans in testnet",
+    note: "Read-only signal · no loans in testnet",
   },
   {
     feature: "Real bank payout",
     tone: "not-in-testnet",
-    note: "Mainnet · partner-dependent",
+    note: "Mainnet · licensed-partner-dependent",
   },
   {
     feature: "Real lending capital",
@@ -152,7 +151,7 @@ export function TruthTable() {
                 <br /> what&rsquo;s simulated.
               </>
             }
-            lede="Klaro currently demonstrates the product flow in simulator mode. Contract, Circle, provider, and partner capabilities remain gated until they are deployed, configured, and verified."
+            lede="Klaro runs real contracts on Arc testnet today. Rows marked live work on testnet now (testnet USDC — no real money moves). Simulated marks the fiat, legal, and partner-gated legs that can only be real on mainnet."
           />
           <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-[var(--color-ink-muted)]">
             {(Object.keys(TONES) as Tone[]).map((tone) => (

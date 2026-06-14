@@ -25,7 +25,7 @@ import { Footer } from "@/components/klaro/Footer";
  * 4 How it works
  * 5 Platform OS
  * 6 Truth table
- * 7 Stenn-Proof
+ * 7 Klaro Proof
  * 8 Partner Cashout
  * 9 Corridors
  * 10 Three audiences

@@ -61,12 +61,13 @@ export function Hero() {
           </div>
 
           <ul className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[var(--color-muted)]">
-            <li className="flex items-center gap-2">
-              <span
-                aria-hidden
-                className="inline-block size-1.5 rounded-full bg-emerald-500"
-              />
-              All systems operational
+            <li>
+              <Link
+                href="/status"
+                className="underline-offset-2 hover:text-[var(--color-ink)] hover:underline"
+              >
+                Live status →
+              </Link>
             </li>
             <li aria-hidden className="font-mono text-[var(--color-ink-subtle)]">
               ·
@@ -85,13 +86,17 @@ export function Hero() {
 }
 
 /**
- * HeroDemo — the dual-card mockup (Invoice + Stenn-Proof receipt) from the
+ * HeroDemo — the dual-card mockup (Invoice + Klaro Proof receipt) from the
  * landing. Static SSR preview is explicitly labelled as simulated so it never
  * represents a completed live payment or screening result.
  */
 function HeroDemo() {
   return (
-    <div className="relative mt-16 grid gap-5 md:grid-cols-[1.08fr_0.92fr]">
+    <div className="relative mt-16">
+      <p className="mb-3 font-mono text-[11px] uppercase tracking-wider text-[var(--color-ink-subtle)]">
+        Illustration · example invoice + receipt — not a live transaction
+      </p>
+      <div className="grid gap-5 md:grid-cols-[1.08fr_0.92fr]">
       {/* Hosted invoice card */}
       <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5 shadow-[0_1px_2px_rgba(10,10,10,0.04)]">
         <div className="flex items-center justify-between text-[11px] tracking-wider text-[var(--color-ink-subtle)] uppercase">
@@ -134,10 +139,10 @@ function HeroDemo() {
         </div>
       </div>
 
-      {/* Stenn-Proof receipt card */}
+      {/* Klaro Proof receipt card */}
       <div className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-5 shadow-[0_1px_2px_rgba(10,10,10,0.04)]">
         <div className="flex items-center justify-between text-[11px] tracking-wider text-[var(--color-ink-subtle)] uppercase">
-          <span>Stenn-Proof receipt</span>
+          <span>Klaro Proof receipt</span>
           <Badge tone="verified">VERIFIED</Badge>
         </div>
         <p className="mt-3 font-mono text-xs text-[var(--color-ink-muted)]">
@@ -161,6 +166,7 @@ function HeroDemo() {
           <dt className="text-[var(--color-ink-subtle)]">tx</dt>
           <dd className="text-[var(--color-ink)]">0x9f8a3c5b…d8f0e</dd>
         </dl>
+      </div>
       </div>
     </div>
   );

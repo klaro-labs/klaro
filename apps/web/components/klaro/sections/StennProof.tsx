@@ -2,10 +2,10 @@ import { SectionHeader } from "../SectionHeader";
 import { Badge } from "@/components/ui/Badge";
 
 /**
- * §7 Stenn-Proof — the moat surface. Three blocks stacked:
+ * §7 Klaro Proof — the moat surface. Three blocks stacked:
  * (a) Public on-chain receipt sample (dark card, exhaustive row list).
  * (b) Four trust pillars in a grid.
- * (c) "Traditional PDF" vs "Stenn-Proof receipt" side-by-side.
+ * (c) "Traditional PDF" vs "Klaro Proof receipt" side-by-side.
  * (d) Why-different paragraph closing on the Stenn collapse framing.
  */
 
@@ -37,10 +37,10 @@ export function StennProof() {
     <section className="bg-[var(--color-ink)] text-white">
       <div className="mx-auto w-full max-w-[1280px] px-[clamp(20px,4vw,56px)] py-[clamp(64px,9vw,120px)]">
         <div className="max-w-3xl">
-          {/* Designer 2026-05-25 parity: eyebrow is GOLD (Stenn-Proof = gold trust
+          {/* Designer 2026-05-25 parity: eyebrow is GOLD (Klaro Proof = gold trust
               mark per brand-kit §07), not brand-blue. Bigger headline to match. */}
           <p className="font-mono text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-gold)]">
-            Stenn-Proof
+            Klaro Proof
           </p>
           <h2 className="mt-4 font-display text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] tracking-tight">
             The receipt that proves itself.
@@ -56,7 +56,7 @@ export function StennProof() {
           <ReceiptDeep />
           <div className="grid gap-5 self-start">
             {PILLARS.map((p) => (
-              // Pillar accents in gold to match Stenn-Proof brand mark.
+              // Pillar accents in gold to match Klaro Proof brand mark.
               <article
                 key={p.n}
                 className="border-l-2 border-[var(--color-gold)] pl-5"
@@ -188,7 +188,7 @@ function StennCard() {
   return (
     <article className="rounded-lg border border-white/15 bg-white/10 p-6">
       <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-white/60">
-        <span>Stenn-Proof receipt</span>
+        <span>Klaro Proof receipt</span>
         <Badge tone="sim">Preview</Badge>
       </div>
       <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">

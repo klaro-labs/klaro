@@ -9,7 +9,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 export const metadata: Metadata = {
   title: "Company · Klaro",
   description:
-    "Klaro is the Arc-native invoice and receipt rail for emerging-market vendors. We work in public, ship every week, and label every claim.",
+    "Klaro is the Arc-native payment OS for emerging-market vendors. We work in public, ship every week, and label every claim.",
 };
 
 const PRINCIPLES = [

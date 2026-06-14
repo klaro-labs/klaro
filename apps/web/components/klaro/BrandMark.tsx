@@ -31,7 +31,7 @@ export function BrandMark({
       viewBox={BRAND_MARK_VIEWBOX}
       preserveAspectRatio="xMidYMid meet"
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="Klaro"
+      role="img" aria-label="Klaro"
     >
       {/* Stem — solid ink rectangle on the left third. */}
       <rect x="2" y="2" width="4.5" height="20" rx="0.5" fill={inkFill} />

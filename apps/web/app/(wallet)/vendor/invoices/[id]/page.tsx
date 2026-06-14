@@ -265,7 +265,7 @@ export default async function InvoiceDetailPage({
           </Section>
 
           {invoice.status === "SETTLED" && invoice.receiptHash ? (
-            <Section title="Stenn-Proof receipt">
+            <Section title="Klaro Proof receipt">
               <p className="font-mono text-xs text-[var(--color-ink-muted)]">
                 {invoice.receiptHash}
               </p>

@@ -10,16 +10,16 @@ Testnet preview. No real money moves. Live mainnet target post-M12 + Circle gran
 
 ## Primary surfaces
 
-- [Landing](https://klaro.so/) — product overview, 17 sections, brand kit, footer
-- [Vendor dashboard](https://klaro.so/vendor) — sign in → 6 balance states → invoices
-- [Hosted invoice](https://klaro.so/i/[id]) — buyer-facing checkout, USDC pay-with EIP-712
-- [Public receipt](https://klaro.so/receipt/[hash]) — anyone-verifiable Stenn-Proof anchor
-- [Cashout](https://klaro.so/vendor/cashout) — vendor USDC → local currency (INR pilot live)
-- [Disputes](https://klaro.so/vendor/disputes) — open + evidence + 5 outcomes
-- [Retainer](https://klaro.so/vendor/retainer) — Sablier-style per-second streaming
-- [Financing readiness](https://klaro.so/vendor/financing) — read-only score (NOT a loan offer)
-- [LP portal](https://klaro.so/lp) — invite-only liquidity-provider onboarding (8 screens)
-- [Admin](https://klaro.so/admin/disputes) — operator queue, 5 decision routes
+- [Landing](https://www.myklaro.app/) — product overview, 17 sections, brand kit, footer
+- [Vendor dashboard](https://www.myklaro.app/vendor) — sign in → 6 balance states → invoices
+- [Hosted invoice](https://www.myklaro.app/i/[id]) — buyer-facing checkout, USDC pay-with EIP-712
+- [Public receipt](https://www.myklaro.app/receipt/[hash]) — anyone-verifiable Stenn-Proof anchor
+- [Cashout](https://www.myklaro.app/vendor/cashout) — vendor USDC → local currency (INR pilot live)
+- [Disputes](https://www.myklaro.app/vendor/disputes) — open + evidence + 5 outcomes
+- [Retainer](https://www.myklaro.app/vendor/retainer) — Sablier-style per-second streaming
+- [Financing readiness](https://www.myklaro.app/vendor/financing) — read-only score (NOT a loan offer)
+- [LP portal](https://www.myklaro.app/lp) — invite-only liquidity-provider onboarding (8 screens)
+- [Admin](https://www.myklaro.app/admin/disputes) — operator queue, 5 decision routes
 
 ## Key primitives
 
@@ -54,7 +54,7 @@ Testnet preview. No real money moves. Live mainnet target post-M12 + Circle gran
 
 ## Docs
 
-- [Trust center](https://klaro.so/trust)
-- [Developer docs](https://klaro.so/developers)
-- [Roadmap](https://klaro.so/roadmap)
-- [Security policy](https://klaro.so/.well-known/security.txt)
+- [Trust center](https://www.myklaro.app/trust)
+- [Developer docs](https://www.myklaro.app/developers)
+- [Roadmap](https://www.myklaro.app/roadmap)
+- [Security policy](https://www.myklaro.app/.well-known/security.txt)

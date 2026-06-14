@@ -65,7 +65,7 @@ export default function OpenGraphImage() {
             maxWidth: 900,
           }}
         >
-          Arc-native invoicing with Stenn-Proof receipts. Built for global SMB
+          Arc-native invoicing with Klaro Proof receipts. Built for global SMB
           vendors.
         </div>
       </div>

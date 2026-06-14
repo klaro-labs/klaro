@@ -22,7 +22,7 @@ export function MockReceipt() {
       <div className="flex items-start justify-between">
         <div>
           <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--color-muted)]">
-            Stenn-Proof receipt · Demo
+            Klaro Proof receipt · Demo
           </p>
           <p className="mt-2 font-display text-xl font-semibold tracking-tight">
             Anchored on Arc

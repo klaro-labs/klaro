@@ -43,7 +43,7 @@ const IMPROVERS = [
   },
   {
     title: "Defend disputes with proof",
-    desc: "DISPUTE_WON cancels the DISPUTE_OPENED penalty and adds positive weight. Sign every delivery; ship a Stenn-Proof receipt.",
+    desc: "DISPUTE_WON cancels the DISPUTE_OPENED penalty and adds positive weight. Sign every delivery; ship a Klaro Proof receipt.",
   },
   {
     title: "Keep KYB current",

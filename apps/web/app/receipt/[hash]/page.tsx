@@ -77,7 +77,7 @@ export default async function PublicReceiptPage({
             <span className="grid size-4 place-items-center rounded-full bg-[var(--color-gold)] text-white">
               <CheckIcon className="size-3" />
             </span>
-            Stenn-Proof · {isLive ? "Verified on Arc" : "Simulated"}
+            Klaro Proof · {isLive ? "Verified on Arc" : "Simulated"}
           </span>
         </div>
 
@@ -144,7 +144,7 @@ export default async function PublicReceiptPage({
                 <Badge tone="sim">Simulated · contracts not deployed</Badge>
               )}
               <Badge tone="verified">
-                <CheckIcon className="size-3.5" /> Stenn-Proof
+                <CheckIcon className="size-3.5" /> Klaro Proof
               </Badge>
             </div>
           </div>

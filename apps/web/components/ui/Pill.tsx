@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
  *
  * Variants:
  *   - warm: warm-soft background, terracotta-leaning copy. Default eyebrow.
- *   - gold: gold-soft background, used only for `verified` and Stenn-Proof.
+ *   - gold: gold-soft background, used only for `verified` and Klaro Proof.
  *   - dark: ink background, white copy. Used inside dark sections.
  *   - default: warm paper background, ink copy. Neutral status.
  *   - outline: transparent with subtle border. Smallest visual weight.

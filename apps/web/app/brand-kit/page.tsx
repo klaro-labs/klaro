@@ -39,7 +39,7 @@ export default function BrandKitPage() {
       <BrandSection n="06" title="Components">
         <ComponentsSection />
       </BrandSection>
-      <BrandSection n="07" title="The Stenn-Proof badge">
+      <BrandSection n="07" title="The Klaro Proof badge">
         <StennProofSection />
       </BrandSection>
       <BrandSection n="08" title="Imagery">
@@ -63,7 +63,7 @@ function BrandKitHero() {
   return (
     <section className="mx-auto w-full max-w-[1216px] px-6 pt-20 pb-12 md:pt-[120px] md:pb-16">
       <p className="inline-flex rounded-pill border border-[var(--color-brand)]/20 bg-[var(--color-brand-soft)] px-3 py-1 font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
-        Brand kit · v0.4
+        Brand kit · v1.0
       </p>
       <h1 className="mt-6 max-w-[560px] font-display text-[clamp(2.5rem,5.5vw,4.75rem)] font-semibold leading-[1.05] tracking-[-0.045em]">
         How <span className="text-[var(--color-brand)]">Klaro</span> looks, sounds, and shows up.
@@ -89,7 +89,7 @@ function BrandKitHero() {
 
       {/* Meta band */}
       <dl className="mt-12 grid gap-8 border-t border-[var(--color-line)] pt-6 text-sm sm:grid-cols-2 md:grid-cols-4">
-        <BkMeta term="Klaro Labs Inc." def="Brand owner" />
+        <BkMeta term="Klaro Labs" def="Brand owner" />
         <BkMeta term="2026" def="Established" />
         <BkMeta term="prateek@myklaro.app" def="Questions" link="mailto:prateek@myklaro.app" />
         <BkMeta term="CC-BY 4.0" def="Brand guide license" />
@@ -106,7 +106,7 @@ function BrandContents() {
     "Typography",
     "Voice & tone",
     "Components",
-    "Stenn-Proof badge",
+    "Klaro Proof badge",
     "Imagery",
     "Usage rules",
     "Downloads",
@@ -137,10 +137,10 @@ function BrandContents() {
         </div>
         <div className="flex flex-col justify-between border-t border-[var(--color-line)] pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
           <p className="font-mono text-[11px] text-[var(--color-ink-subtle)]">
-            v0.4 · 2026-05-19
+            v1.0 · 2026-06-14
           </p>
           <p className="mt-10 font-display text-2xl font-semibold tracking-tight">
-            Working draft
+            Brand guide
           </p>
         </div>
       </div>
@@ -181,7 +181,7 @@ function IdentitySection() {
   return (
     <div>
       <p className="max-w-3xl text-xl leading-relaxed text-[var(--color-ink-muted)]">
-        Klaro is the operating system for stablecoin payments. Our brand promises clarity — about money, about counterparties, about what happens after you press send.
+        Klaro is the Arc-native payment OS for emerging-market vendors. Our brand promises clarity — about money, about counterparties, about what happens after you press send.
       </p>
       <div className="mt-10 grid gap-5 md:grid-cols-2">
         <PromiseCard
@@ -342,7 +342,7 @@ function ColorTab() {
     <section>
       <TabHead
         title="Colour"
-        lede="Klaro blue carries the brand. Stenn-Proof gold is reserved exclusively for verified receipts. Everything else is warm graphite or paper."
+        lede="Klaro blue carries the brand. Klaro Proof gold is reserved exclusively for verified receipts. Everything else is warm graphite or paper."
       />
 
       <div className="space-y-5">
@@ -360,11 +360,11 @@ function ColorTab() {
           bg="#F5B100"
           fg="#0A0A0A"
           eyebrow="Accent · Reserved"
-          name="Stenn-Proof gold"
+          name="Klaro Proof gold"
           hex="#F5B100"
           rgb="245 177 0"
           oklch="0.79 0.16 76"
-          note="ONLY on verified Stenn-Proof receipts and the receipt badge. Never on buttons, links, or marketing chrome."
+          note="ONLY on verified Klaro Proof receipts and the receipt badge. Never on buttons, links, or marketing chrome."
         />
         <article className="rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] p-7">
           <p className="font-mono text-[11px] tracking-[0.18em] uppercase text-[var(--color-brand)]">
@@ -562,7 +562,7 @@ function VoiceTab() {
         />
         <VoiceCard
           title="Confident."
-          body={`"Stenn-Proof receipt" beats "best-in-class compliance solution." Show the work; don't boast about it.`}
+          body={`"Klaro Proof receipt" beats "best-in-class compliance solution." Show the work; don't boast about it.`}
         />
         <VoiceCard
           title="Multilingual-aware."
@@ -592,7 +592,7 @@ function VoiceTab() {
           items={[
             "Linking to www.myklaro.app or any subdomain.",
             "Using the Klaro logo to indicate Klaro integration in your product (with a link back).",
-            "Embedding the Stenn-Proof badge on receipts you've actually issued through Klaro.",
+            "Embedding the Klaro Proof badge on receipts you've actually issued through Klaro.",
             "Writing about Klaro in editorial / news contexts.",
             "Using brand colours and typography as visual reference in case studies.",
           ]}
@@ -601,10 +601,10 @@ function VoiceTab() {
           kind="dont"
           title="Requires prateek@myklaro.app"
           items={[
-            "Using the Stenn-Proof badge on receipts you haven't issued through Klaro.",
+            "Using the Klaro Proof badge on receipts you haven't issued through Klaro.",
             "Modifying the logo — recolouring, redrawing, adding effects, animating beyond the supplied motion files.",
             "Combining the Klaro logo with another mark in a single composite mark.",
-            'Using "Klaro" or "Stenn-Proof" as part of a product name you ship.',
+            'Using "Klaro" or "Klaro Proof" as part of a product name you ship.',
             "Selling merchandise that uses the Klaro logo.",
           ]}
         />
@@ -821,7 +821,7 @@ function StennBadge({ size = "default" }: { size?: "default" | "large" }) {
       <span className="grid size-5 place-items-center rounded-full bg-[var(--color-gold)] text-[var(--color-ink)]">
         ✓
       </span>
-      Stenn-Proof · Verified
+      Klaro Proof · Verified
     </span>
   );
 }
@@ -871,7 +871,7 @@ function UsageRulesSection() {
           items={[
             "Linking to www.myklaro.app or any subdomain.",
             "Using the Klaro logo to indicate Klaro integration in your product with a link back.",
-            "Embedding the Stenn-Proof badge on receipts you've actually issued through Klaro.",
+            "Embedding the Klaro Proof badge on receipts you've actually issued through Klaro.",
             "Writing about Klaro in editorial or news contexts.",
             "Using brand colors and typography as visual reference in case studies.",
           ]}
@@ -880,10 +880,10 @@ function UsageRulesSection() {
           kind="dont"
           title="Requires prateek@myklaro.app"
           items={[
-            "Using the Stenn-Proof badge on receipts you haven't issued through Klaro.",
+            "Using the Klaro Proof badge on receipts you haven't issued through Klaro.",
             "Modifying the logo: recoloring, redrawing, adding effects, or custom animation.",
             "Combining the Klaro logo with another mark in a single composite mark.",
-            'Using "Klaro" or "Stenn-Proof" as part of a product name you ship.',
+            'Using "Klaro" or "Klaro Proof" as part of a product name you ship.',
             "Selling merchandise that uses the Klaro logo.",
           ]}
         />

@@ -17,7 +17,7 @@ const spec = {
     title: "Klaro API",
     version: "1.0.0-testnet",
     description:
-      "Arc-native USDC invoicing, Stenn-Proof receipts, INR cashout, FX, agents.",
+      "Arc-native USDC invoicing, Klaro Proof receipts, INR cashout, FX, agents.",
     contact: {
       name: "Klaro",
       url: "https://www.myklaro.app",
@@ -83,7 +83,7 @@ const spec = {
     },
     "/v1/receipts/{hash}": {
       get: {
-        summary: "Get a public Stenn-Proof receipt by hash",
+        summary: "Get a public Klaro Proof receipt by hash",
         parameters: [
           {
             name: "hash",

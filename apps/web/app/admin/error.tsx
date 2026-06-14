@@ -6,7 +6,7 @@ export default function AdminError({
   error,
   reset,
 }: {
-  error: Error;
+  error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
@@ -16,8 +16,13 @@ export default function AdminError({
         Couldn&apos;t load that.
       </h1>
       <p className="mt-3 max-w-md text-sm text-[var(--color-ink-muted)]">
-        {error.message}
+        An error occurred loading this view. Try again, or head back to the admin home. If it persists, the reference below helps us trace it.
       </p>
+      {error.digest ? (
+        <p className="mt-2 font-mono text-xs text-[var(--color-ink-subtle)]">
+          Reference: {error.digest}
+        </p>
+      ) : null}
       <div className="mt-8 flex gap-3">
         <Button variant="primary" onClick={reset}>
           Try again

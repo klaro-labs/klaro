@@ -476,7 +476,7 @@ export default async function HostedInvoicePage({
 
             <p className="mt-6 text-xs text-[var(--color-ink-subtle)]">
               {isLiveOnChain()
-                ? "By paying you sign an EIP-712 acceptance message recorded with the Stenn-Proof receipt. Klaro never custodies your funds; USDC sits in escrow on Arc until release."
+                ? "By paying you sign an EIP-712 acceptance message recorded with the Klaro Proof receipt. Klaro never custodies your funds; USDC sits in escrow on Arc until release."
                 : "This simulator creates a receipt preview only. It does not transfer, escrow, or settle real USDC."}
             </p>
           </div>

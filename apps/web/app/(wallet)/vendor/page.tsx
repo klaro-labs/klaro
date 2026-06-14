@@ -74,7 +74,7 @@ export default async function VendorOverviewPage({
         </div>
         <Link
           href="/vendor/invoices/new"
-          className="inline-flex items-center gap-2 rounded-pill bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[color-mix(in_oklab,var(--color-ink)_88%,white)] md:hidden"
+          className="inline-flex items-center gap-2 rounded-pill bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[color-mix(in_oklab,var(--color-ink)_88%,white)]"
         >
           + New invoice
         </Link>

@@ -131,7 +131,7 @@ export default function BuildPage() {
               <li className="flex gap-2">
                 <span aria-hidden className="text-[var(--color-klaro-orange)]">→</span>
                 <span>
-                  Customer pays in USDC on Arc. We mint a Stenn-Proof receipt and POST <code className="rounded bg-[var(--color-bg-warm)] px-1.5 py-0.5 font-mono text-xs">invoice.paid</code> to your webhook URL.
+                  Customer pays in USDC on Arc. We mint a Klaro Proof receipt and POST <code className="rounded bg-[var(--color-bg-warm)] px-1.5 py-0.5 font-mono text-xs">invoice.paid</code> to your webhook URL.
                 </span>
               </li>
               <li className="flex gap-2">
