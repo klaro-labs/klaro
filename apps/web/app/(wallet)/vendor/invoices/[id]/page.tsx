@@ -8,6 +8,7 @@ import { getCurrentSession } from "@/lib/auth";
 // dual-mode via repo so live Supabase
 // reads work; previously mock-only.
 import { getInvoice } from "@/lib/repo/invoices";
+import { getInvoiceScreening, summarizeScreening } from "@/lib/repo/screening";
 import { reconcileInvoicePublished } from "@/lib/arcClient";
 import { PUBLIC_ORIGIN, onchainLive } from "@/lib/env";
 import type { Hex, InvoiceStatus } from "@/lib/types";
@@ -38,6 +39,17 @@ const STATUS_LABEL: Record<InvoiceStatus, string> = {
   CANCELLED: "Cancelled",
 };
 
+// Tone styling for the screening banner — literal class strings so Tailwind JIT
+// generates them. danger = blocked/failed leg, warn = manual review pending,
+// info = received/passing (transient, pre-settle).
+const SCREEN_BANNER_TONE = {
+  danger: { box: "border-rose-200 bg-rose-50 text-rose-900", dot: "bg-rose-500", icon: "!" },
+  warn: { box: "border-amber-200 bg-amber-50 text-amber-900", dot: "bg-amber-500", icon: "!" },
+  info: { box: "border-blue-200 bg-blue-50 text-blue-900", dot: "bg-blue-500", icon: "✓" },
+} as const;
+
+const RESULT_BADGE_TONE = { pass: "live", fail: "danger", review: "info" } as const;
+
 export default async function InvoiceDetailPage({
   params,
 }: {
@@ -58,7 +70,13 @@ export default async function InvoiceDetailPage({
   // https://www.myklaro.app so shared links remain pasteable; ops sets the
   // var explicitly on preview branches to avoid prod-link confusion.
   const shareUrl = `${PUBLIC_ORIGIN}${hostedUrl}`;
-  const isHeld = invoice.status === "ACCEPTED" || invoice.status === "PAID"; // held / re-screening
+  // Real 3-of-3 screening (OFAC sanctions, behavioral, Sumsub KYB). Drives an
+  // honest, accurate banner — replaces the old hardcoded "buyer wallet flagged
+  // in our daily sanctions refresh" line that fired on every PAID invoice
+  // regardless of the actual result.
+  const screening = await getInvoiceScreening(invoice.id);
+  const screenSummary = summarizeScreening(screening, invoice.status);
+  const isHeld = Boolean(screenSummary && screenSummary.tone !== "info");
   const shortId = `INV-${invoice.id.slice(2, 6).toUpperCase()}`;
   // QA-020: in live mode an invoice must be published to InvoiceEscrow
   // (vendor-signed) before a buyer can pay it.
@@ -108,21 +126,30 @@ export default async function InvoiceDetailPage({
         </Badge>
       </header>
 
-      {isHeld && (
-        <article className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4">
+      {screenSummary && (
+        <article
+          className={`mt-6 rounded-xl border p-4 ${SCREEN_BANNER_TONE[screenSummary.tone].box}`}
+        >
           <p className="flex items-start gap-3 text-sm">
             <span
               aria-hidden
-              className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-rose-500 text-xs font-bold text-white"
+              className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold text-white ${SCREEN_BANNER_TONE[screenSummary.tone].dot}`}
             >
-              !
+              {SCREEN_BANNER_TONE[screenSummary.tone].icon}
             </span>
             <span>
-              <span className="font-medium text-rose-900">Held for review</span>
-              <span className="mt-1 block text-rose-800/80">
-                Buyer wallet flagged in our daily sanctions refresh. We respond
-                within 24h.
+              <span className="font-medium">{screenSummary.title}</span>
+              <span className="mt-1 block opacity-80">
+                {screenSummary.message}
               </span>
+              {screenSummary.actionHref && (
+                <Link
+                  href={screenSummary.actionHref as `/${string}`}
+                  className="mt-2 inline-block font-medium underline underline-offset-2"
+                >
+                  {screenSummary.actionLabel} →
+                </Link>
+              )}
             </span>
           </p>
         </article>
@@ -188,12 +215,16 @@ export default async function InvoiceDetailPage({
               <TimelineRow
                 held={isHeld}
                 done={invoice.status === "SETTLED"}
-                label={isHeld ? "Held for review" : "Released to your balance"}
+                label={
+                  invoice.status === "SETTLED"
+                    ? "Released to your balance"
+                    : (screenSummary?.title ?? "Awaiting settlement")
+                }
                 time={
-                  isHeld
-                    ? "now"
-                    : invoice.status === "SETTLED"
-                      ? "settled"
+                  invoice.status === "SETTLED"
+                    ? "settled"
+                    : isHeld
+                      ? "now"
                       : "—"
                 }
               />
@@ -249,11 +280,33 @@ export default async function InvoiceDetailPage({
           </Section>
 
           <Section title="Screening">
-            <p className="text-xs text-[var(--color-ink-muted)]">
-              Simulated screening review only. No provider approval or on-chain{" "}
-              <code className="font-mono">screeningHash</code> is asserted in
-              demo mode.
-            </p>
+            {screening.length > 0 ? (
+              <ul className="space-y-1.5">
+                {screening.map((s) => (
+                  <li
+                    key={s.provider}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <span className="text-[var(--color-ink-muted)]">
+                      {s.label}
+                    </span>
+                    <Badge
+                      tone={RESULT_BADGE_TONE[s.result]}
+                      className="capitalize"
+                    >
+                      {s.result}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-[var(--color-ink-muted)]">
+                Screening runs when the buyer pays — sanctions (OFAC SDN),
+                behavioral, and business verification (KYB). Only the screening{" "}
+                <code className="font-mono">hash</code> is anchored on-chain at
+                settlement.
+              </p>
+            )}
             <Link
               href={{
                 pathname: `/vendor/invoices/${invoice.id}/screening`,
