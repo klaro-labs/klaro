@@ -66,7 +66,13 @@ async function walk(label, routes, page) {
     const errs = [];
     const onConsole = (m) => { if (m.type() === "error") errs.push("console: " + m.text().slice(0, 160)); };
     const onPageErr = (e) => errs.push("pageerror: " + String(e).slice(0, 160));
-    const onFail = (req) => { const u = req.url(); if (!/analytics|posthog|sentry|monitoring|growthbook|_vercel|fonts|\.(png|jpg|svg|woff)/i.test(u)) errs.push("netfail: " + u.slice(0, 120) + " " + (req.failure()?.errorText || "")); };
+    const onFail = (req) => {
+      const u = req.url();
+      const err = req.failure()?.errorText || "";
+      // Benign: Next.js cancels in-flight RSC prefetches on navigation → ERR_ABORTED.
+      if (/[?&]_rsc=/.test(u) && /ABORT/i.test(err)) return;
+      if (!/analytics|posthog|sentry|monitoring|growthbook|_vercel|fonts|\.(png|jpg|svg|woff)/i.test(u)) errs.push("netfail: " + u.slice(0, 120) + " " + err);
+    };
     page.on("console", onConsole); page.on("pageerror", onPageErr); page.on("requestfailed", onFail);
     let status = 0, finalUrl = "", digest = false, bodyErr = false;
     try {
