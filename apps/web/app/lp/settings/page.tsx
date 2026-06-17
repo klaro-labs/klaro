@@ -2,7 +2,7 @@ import { LPNav } from "@/components/klaro/LPNav";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Input } from "@/components/ui/Input";
-import { requireLp } from "@/lib/auth";
+import { requireLpPage } from "@/lib/auth";
 import { shortAddress } from "@/lib/money";
 import {
   rotateWalletAction,
@@ -51,7 +51,7 @@ const NOTIFICATIONS = [
 ];
 
 export default async function LPSettingsPage() {
-  const { lp } = await requireLp();
+  const { lp } = await requireLpPage();
   const entityName = lp.legalEntityName ?? lp.contactEmail;
   const prefs = await loadPrefs();
 

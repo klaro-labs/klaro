@@ -105,6 +105,34 @@ export async function requireLp(): Promise<LpSession> {
   return s;
 }
 
+/**
+ * Page-context guards: for server-COMPONENT pages, never `throw` an
+ * auth error — an uncaught throw in a page render surfaces as the opaque
+ * production "An error occurred in the Server Components render" digest page.
+ * These `redirect()` instead (Next handles NEXT_REDIRECT gracefully), so an
+ * unauthorized visitor lands somewhere sensible rather than on a crash.
+ * Keep `requireLp`/`requireOperator` (which throw) for actions + API routes,
+ * where lib/api.ts maps the throw to a clean 401/403.
+ */
+export async function requireLpPage(): Promise<LpSession> {
+  const lp = await getCurrentLpSession();
+  if (lp) return lp;
+  // Not an LP (or not signed in) → redirect, never throw. Pick the target by
+  // whether they're signed in at all.
+  const s = await getCurrentSession();
+  const { redirect } = await import("next/navigation");
+  redirect(s ? "/lp" : "/signin?redirectTo=/lp");
+  throw new Error("unreachable"); // redirect() throws NEXT_REDIRECT first
+}
+
+export async function requireOperatorPage(): Promise<Session> {
+  const s = await getCurrentSession();
+  if (s && s.role === "operator") return s;
+  const { redirect } = await import("next/navigation");
+  redirect(s ? "/vendor" : "/signin?redirectTo=/admin");
+  throw new Error("unreachable"); // redirect() throws NEXT_REDIRECT first
+}
+
 async function getSupabaseSession(): Promise<Session | null> {
   let supabase, user;
   try {

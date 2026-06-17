@@ -40,9 +40,9 @@ function createWeb3Config() {
               description: "USDC invoicing on Arc",
               url:
                 process.env.NEXT_PUBLIC_PUBLIC_ORIGIN ??
-                "https://klaro-peach.vercel.app",
+                "https://www.myklaro.app",
               icons: [
-                `${(PUBLIC_ORIGIN || "https://klaro-peach.vercel.app")}/icon.png`,
+                `${(PUBLIC_ORIGIN || "https://www.myklaro.app")}/icon.png`,
               ],
             },
           }),

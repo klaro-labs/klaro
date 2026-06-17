@@ -2,7 +2,7 @@ import Link from "next/link";
 import { LPNav } from "@/components/klaro/LPNav";
 import { Badge } from "@/components/ui/Badge";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { requireLp } from "@/lib/auth";
+import { requireLpPage } from "@/lib/auth";
 import { getLpReputation } from "@/lib/repo/lpReputation";
 import { formatUSDC, relativeTime } from "@/lib/money";
 import { LP_TIERS } from "@/lib/lpTiers";
@@ -10,7 +10,7 @@ import { LP_TIERS } from "@/lib/lpTiers";
 export const metadata = { title: "Reputation · Klaro LP" };
 
 export default async function LPReputationPage() {
-  const { lp } = await requireLp();
+  const { lp } = await requireLpPage();
   const rep = await getLpReputation(lp.lpId);
   const entityName = lp.legalEntityName ?? lp.contactEmail;
   const currentTier = lp.tier;
