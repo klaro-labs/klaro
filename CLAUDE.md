@@ -111,3 +111,36 @@ LP via `requireVendor` / `requireOperator` / `requireLp` in `lib/auth.ts`.
 `app/api/v1/*` uses session cookies, not API keys; `receipts/[hash]` is the
 only public endpoint. WebAuthn passkeys verify cryptographically but do not
 issue sessions yet — don't document otherwise.
+
+## Launch-readiness testing — STANDING RULE (above all else before any "done")
+
+We are launching this. Before claiming anything works, is fixed, or is
+launch-ready, you must have **actually used the product like a real human** and
+seen it work with your own eyes — not reasoned about the code.
+
+- **Drive the real product, not the code.** Use Playwright + the e2e harness
+  (`apps/web/e2e`, the `.rabby-profile` dirs, `demo-flow.mjs`) and a real/injected
+  wallet. Read `C:\Users\prate\Downloads\AI_WEB3_TESTING_GUIDE.md` and follow it.
+  You ALREADY have permission to drive wallets/extensions — never skip
+  wallet-signing or stop at the sign-in wall; authenticate for real.
+- **Act → screenshot → READ the screenshot → decide.** An unread screenshot is
+  not proof. Capture console errors, page errors, and failed network calls on
+  every page. A flow that "worked" but logged a console/server error is a defect.
+- **Be UNIVERSAL — never fixate on one error.** Cover every page, every flow,
+  every state (empty/loading/success/error), both viewports (desktop 1280×800 +
+  mobile 390×844), and every error class (runtime, server-component/digest,
+  network, validation, dead button, raw `[object Object]`/stack dump). One fixed
+  bug is not the job; the whole surface is.
+- **Reproduce before you fix; fix the root cause; re-verify on the live site.**
+  fix → rebuild → redeploy → re-test. Never take a fix on faith. For digest
+  errors, get the REAL message (Vercel function logs by digest, or local dev) —
+  never stop at "a digest is shown."
+- **HARD GATE — audit before you stop.** Before you declare the work done or
+  stop, do a final pass that explicitly asks "what did I miss?" — any page not
+  visited, any flow not completed end-to-end, any button not clicked, any
+  console/network/server error unresolved, any viewport unchecked. If ANYTHING
+  is unverified or unfixed, you are NOT done — keep going. Only stop when the
+  full product is provably smooth and error-free end to end, with evidence.
+- **No silent downgrade.** If truly blocked (locked wallet, dead RPC, dry
+  faucet, another agent colliding on `main`/the working dir), STOP and say
+  exactly what's blocking — never weaken a check or call partial work "done".
