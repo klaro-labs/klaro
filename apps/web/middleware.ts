@@ -18,8 +18,11 @@ const CSP_DEFAULT =
   // Klaro talks to). Was 'self' https: wss:' — a wildcard that let
   // middleware-minted responses (429/302/rewrites) exfiltrate to any HTTPS
   // host. Keep in lockstep with next.config's list.
-  "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.circle.com https://*.arc.network https://api.resend.com https://us.i.posthog.com https://buy-sandbox.moonpay.com https://pay.google.com https://pulse.walletconnect.org https://api.web3modal.org wss://*.supabase.co; " +
-  "frame-src 'self' https://buy.moonpay.com https://buy-sandbox.moonpay.com; " +
+  "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.circle.com https://*.arc.network https://api.resend.com https://us.i.posthog.com https://buy-sandbox.moonpay.com https://pay.google.com https://pulse.walletconnect.org https://api.web3modal.org https://*.sumsub.com wss://*.sumsub.com wss://*.supabase.co; " +
+  // Sumsub KYB WebSDK loads its verification flow in an iframe from
+  // api.sumsub.com. Without it here, frame-src blocked the iframe and KYB never
+  // loaded (broke business verification → invoices could never auto-settle).
+  "frame-src 'self' https://buy.moonpay.com https://buy-sandbox.moonpay.com https://*.sumsub.com; " +
   "frame-ancestors 'none'; " +
   "base-uri 'self'; " +
   "form-action 'self'";

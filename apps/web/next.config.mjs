@@ -21,7 +21,7 @@ function buildCsp(frameAncestorsDirectives) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.circle.com https://*.arc.network https://api.resend.com https://us.i.posthog.com https://buy-sandbox.moonpay.com https://pay.google.com https://pulse.walletconnect.org https://api.web3modal.org wss://*.supabase.co",
+    "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.circle.com https://*.arc.network https://api.resend.com https://us.i.posthog.com https://buy-sandbox.moonpay.com https://pay.google.com https://pulse.walletconnect.org https://api.web3modal.org https://*.sumsub.com wss://*.sumsub.com wss://*.supabase.co",
     ...frameAncestorsDirectives,
     "form-action 'self'",
     "base-uri 'self'",
