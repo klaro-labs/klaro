@@ -5,7 +5,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Input } from "@/components/ui/Input";
 import { getCurrentSession } from "@/lib/auth";
 import { mockListRecurring } from "@/lib/mockData";
-import { formatUSDC, relativeTime } from "@/lib/money";
+import { formatUSDC } from "@/lib/money";
 import { getT } from "@/lib/i18n";
 import { createRecurringAction } from "./actions";
 
@@ -86,12 +86,27 @@ export default async function RecurringPage() {
           </div>
         </form>
 
+        <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-[var(--color-line)] bg-[var(--color-bg-elevated)] px-4 py-3 text-xs text-[var(--color-ink-muted)]">
+          <span
+            aria-hidden
+            className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-[var(--color-ink-subtle)] text-[10px] font-bold text-white"
+          >
+            i
+          </span>
+          <span>
+            Recurring billing is coming soon. Schedules added here are a preview
+            to set up the cadence — Klaro doesn&rsquo;t send invoices on them
+            yet, and they aren&rsquo;t saved across sessions. You&rsquo;ll be
+            notified when it goes live.
+          </span>
+        </div>
+
         <h2 className="mt-10 mb-3 font-display text-xl font-semibold">
-          Active schedules
+          Schedule preview
         </h2>
         {items.length === 0 ? (
           <p className="text-sm text-[var(--color-ink-muted)]">
-            No recurring schedules yet. Add one above.
+            No schedules previewed yet. Add one above to see how it&rsquo;ll look.
           </p>
         ) : (
           <ul className="divide-y divide-[var(--color-line)] rounded-lg border border-[var(--color-line)] bg-white">
@@ -111,7 +126,7 @@ export default async function RecurringPage() {
                   {r.frequency}
                 </div>
                 <div className="text-xs text-[var(--color-ink-subtle)]">
-                  next {relativeTime(r.nextRunAt)}
+                  not yet sending
                 </div>
               </li>
             ))}
