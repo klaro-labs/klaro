@@ -20,7 +20,7 @@ type State = "verifying" | "verified" | "not-found" | "error";
  */
 export function KlaroReceiptBadge({
   receiptHash,
-  klaroBase = "https://klaro.so/receipt",
+  klaroBase = "https://www.myklaro.app/receipt",
   size = "md",
   forceState,
 }: KlaroReceiptBadgeProps) {
@@ -29,7 +29,10 @@ export function KlaroReceiptBadge({
   useEffect(() => {
     if (forceState) return;
     let cancelled = false;
-    fetch(`${klaroBase}/${receiptHash}.json`)
+    // Verify against the public JSON API (200=anchored, 404=missing). The old
+    // `${klaroBase}/${receiptHash}.json` hit the receipt PAGE, which returns
+    // 200 HTML for ANY hash → false "verified" for nonexistent receipts.
+    fetch(`${klaroBase.replace(/\/receipt\/?$/, "")}/api/v1/receipts/${receiptHash}`)
       .then((r) => {
         if (cancelled) return;
         if (r.ok) setState("verified");
@@ -47,7 +50,7 @@ export function KlaroReceiptBadge({
 
   const color =
     state === "verified"
-      ? "#1B6BFF"
+      ? "#C7522A"
       : state === "not-found"
         ? "#737373"
         : state === "error"

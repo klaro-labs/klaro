@@ -7,7 +7,7 @@
  * attributes can never inject script.
  */
 
-const BASE_DEFAULT = "https://klaro.so/receipt";
+const BASE_DEFAULT = "https://www.myklaro.app/receipt";
 const HASH_RE = /^0x[0-9a-fA-F]{64}$/;
 
 function safeBase(input: string | null): string {
@@ -83,12 +83,17 @@ class KlaroReceiptBadge extends HTMLElement {
 
     if (!hash) return;
 
-    fetch(`${base}/${hash}.json`)
+    // Verify against the public JSON API (200 = anchored, 404 = missing). The
+    // previous `${base}/${hash}.json` resolved to the receipt PAGE, which
+    // returns 200 HTML for ANY hash — so the badge falsely showed "Verified"
+    // for receipts that don't exist. Derive the origin from the /receipt base.
+    const verifyUrl = `${base.replace(/\/receipt\/?$/, "")}/api/v1/receipts/${hash}`;
+    fetch(verifyUrl)
       .then((r) => {
         if (r.ok) {
           label.textContent = "Verified · Klaro";
           check.setAttribute("opacity", "1");
-          a.style.color = "#1B6BFF";
+          a.style.color = "#C7522A";
         } else if (r.status === 404) {
           label.textContent = "Klaro receipt missing";
         } else {
