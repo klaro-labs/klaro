@@ -29,8 +29,14 @@ function fromRow(row: DbReceiptWithVendor): ReceiptAnchor {
 }
 
 // Nested PostgREST select pulls the vendor wallet alongside the receipt row
-// in one round trip.
-const RECEIPT_SELECT = "*, invoices!inner(vendors!inner(wallet))";
+// in one round trip. Non-inner join: a receipt is PUBLIC (anon hits
+// /api/v1/receipts/[hash] + the receipt-badge/SDK use it), but `invoices` is
+// RLS-protected — an inner join made every anon receipt fetch return null → the
+// public API 404'd for valid receipts. With a left join the receipt always
+// returns; the vendor wallet hydrates only when the caller can read
+// invoices→vendors (authenticated vendor) and is null for anon (the wallet is
+// on-chain-public anyway). fromRow already tolerates null invoices/vendors.
+const RECEIPT_SELECT = "*, invoices(vendors(wallet))";
 
 export async function getByHash(hash: Hex): Promise<ReceiptAnchor | null> {
   const c = await tryDb();
