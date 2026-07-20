@@ -308,6 +308,132 @@
       "title": "Receipt",
       "caption": "Settled, anchored, publicly verifiable — verify=true",
       "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-09-agents.png",
+      "title": "Agents",
+      "caption": "Agent payments / jobs (public)",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-18-invoices-list.png",
+      "title": "All invoices",
+      "caption": "Every invoice + status",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-19-agents.png",
+      "title": "Agents",
+      "caption": "Agent payments / escrow jobs",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-20-disputes.png",
+      "title": "Disputes",
+      "caption": "Open + resolve disputes",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-21-exports.png",
+      "title": "Exports",
+      "caption": "Data exports (CSV / API)",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-22-financing.png",
+      "title": "Financing",
+      "caption": "Invoice financing",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-23-transit.png",
+      "title": "Transit",
+      "caption": "In-flight payments",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-24-trust-center.png",
+      "title": "Trust center",
+      "caption": "Public vendor trust profile",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-25-link-new.png",
+      "title": "New payment link",
+      "caption": "Create a shareable pay link",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-06-apply.png",
+      "title": "LP apply",
+      "caption": "Become a liquidity provider",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-07-disputes.png",
+      "title": "LP disputes",
+      "caption": "LP dispute cases",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-08-walkthrough.png",
+      "title": "LP walkthrough",
+      "caption": "How LP works",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-09-docs.png",
+      "title": "LP docs",
+      "caption": "LP documentation",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-10-audit-log.png",
+      "title": "Audit log",
+      "caption": "Every operator action, logged",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-11-case-management.png",
+      "title": "Case management",
+      "caption": "Screening / dispute cases",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-12-limits.png",
+      "title": "Limits",
+      "caption": "Caps + risk limits",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-13-manual-review.png",
+      "title": "Manual review",
+      "caption": "Held items awaiting review",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-14-risk-holds.png",
+      "title": "Risk holds",
+      "caption": "RISK_HOLD queue",
+      "tx": null
     }
   ]
 }

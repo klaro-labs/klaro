@@ -29,7 +29,11 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-a
 .group .lede{font-size:16px;color:var(--muted);line-height:1.55;max-width:800px;margin:10px 0 24px}
 .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-.card img{display:block;width:100%;height:auto;background:#0b0b0d}
+.card img{display:block;width:100%;height:auto;background:#0b0b0d;cursor:zoom-in}
+#lb{position:fixed;inset:0;background:rgba(8,8,10,.92);display:none;align-items:center;justify-content:center;z-index:999;cursor:zoom-out;padding:24px}
+#lb.open{display:flex}
+#lb img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 12px 48px rgba(0,0,0,.5)}
+#lb .x{position:absolute;top:14px;right:22px;color:#fff;font-size:15px;font-weight:600;background:rgba(255,255,255,.12);border-radius:999px;padding:8px 14px}
 .card .cap{padding:12px 14px;border-top:1px solid var(--border)}
 .card .t{font-size:14px;font-weight:600}
 .card .d{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
@@ -119,6 +123,8 @@ footer{margin-top:90px;padding-top:24px;border-top:1px solid var(--border);font-
 
 </div>
 
+<div id="lb"><span class="x">Close ✕</span><img alt="full-size proof screenshot"></div>
+
 <script src="/proof-deck/shots-data.js"></script>
 <script>
 const GROUPS = {
@@ -140,7 +146,7 @@ order.forEach(g => {
   toc.insertAdjacentHTML("beforeend", `<a href="#g-${g}">${meta.title} · ${shots.length}</a>`);
   const cards = shots.map(s => `
     <figure class="card">
-      <img src="/proof-deck/shots/${s.file}" alt="${s.title}" loading="lazy">
+      <img src="/proof-deck/shots/${s.file}" alt="${s.title}" loading="lazy" data-full="/proof-deck/shots/${s.file}">
       <div class="cap">
         <div class="t">${s.title}</div>
         <div class="d">${s.caption}</div>
@@ -154,6 +160,16 @@ order.forEach(g => {
       <div class="grid">${cards}</div>
     </section>`);
 });
+
+// click any screenshot to open it full-size
+const lb = document.getElementById("lb");
+const lbImg = lb.querySelector("img");
+document.addEventListener("click", (e) => {
+  const img = e.target.closest(".card img");
+  if (img) { lbImg.src = img.dataset.full || img.src; lb.classList.add("open"); }
+});
+lb.addEventListener("click", () => { lb.classList.remove("open"); lbImg.src = ""; });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") lb.classList.remove("open"); });
 </script>
 
 </body>
