@@ -1,0 +1,313 @@
+{
+  "generated": "2026-07-20T15:59:08.110Z",
+  "shots": [
+    {
+      "group": "Product",
+      "file": "pub-01-landing.png",
+      "title": "Landing",
+      "caption": "Arc-native USDC invoicing — 'Get paid in seconds. Not weeks.'",
+      "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-02-product.png",
+      "title": "Product overview",
+      "caption": "Feature surfaces",
+      "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-03-fx.png",
+      "title": "Cross-chain / FX",
+      "caption": "Pay from any chain — CCTP V2",
+      "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-04-status.png",
+      "title": "Status",
+      "caption": "Live system health — web, daemon, Arc RPC, CCTP",
+      "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-05-developers.png",
+      "title": "Developers",
+      "caption": "SDK + embeddable receipt badge + API",
+      "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-06-pricing.png",
+      "title": "Pricing",
+      "caption": "Transparent, honest labels",
+      "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-07-trust.png",
+      "title": "Trust / receipts",
+      "caption": "On-chain verifiable receipts",
+      "tx": null
+    },
+    {
+      "group": "Product",
+      "file": "pub-08-signin.png",
+      "title": "Sign in",
+      "caption": "Magic link + Google OAuth",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-01-dashboard.png",
+      "title": "Dashboard",
+      "caption": "Invoices, balances, reputation",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-02-create.png",
+      "title": "Create invoice",
+      "caption": "Amount, customer, description",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-03-invoice-detail.png",
+      "title": "Invoice created",
+      "caption": "Hosted page + on-chain publish",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-04-published.png",
+      "title": "Published on-chain",
+      "caption": "InvoiceEscrow.createInvoice → CREATED",
+      "tx": "0x49c6a275b702af707f34e4f83f7e1c622a53a8bf3d0a51bcf8ac0af978cf5e70"
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-05-recurring.png",
+      "title": "Recurring",
+      "caption": "Schedule preview (honest 'coming soon')",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-06-bills.png",
+      "title": "Bills",
+      "caption": "Vendor bills",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-07-cashout.png",
+      "title": "Cashout",
+      "caption": "USDC → local currency, on-chain lock",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-08-reputation.png",
+      "title": "Reputation",
+      "caption": "Verifiable vendor reputation",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-09-links.png",
+      "title": "Payment links",
+      "caption": "Shareable /pay/<slug> links",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-10-branding.png",
+      "title": "Branding",
+      "caption": "Hosted-invoice brand",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-11-webhooks.png",
+      "title": "Webhooks",
+      "caption": "HMAC-signed live delivery",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-12-team.png",
+      "title": "Team",
+      "caption": "Roles — owner / admin / finance / viewer",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-13-delegations.png",
+      "title": "Delegations",
+      "caption": "Session keys / ERC-6900 scope",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-13b-delegation-issued.png",
+      "title": "Session key issued",
+      "caption": "Scoped delegation (DB-confirmed)",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-13c-delegation-revoked.png",
+      "title": "Session key revoked",
+      "caption": "revoked_at set",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-14-retainer.png",
+      "title": "Retainer",
+      "caption": "Streaming vesting",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-14b-retainer-stream.png",
+      "title": "Retainer stream live",
+      "caption": "Vesting counter ticking",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-15-import.png",
+      "title": "Import",
+      "caption": "Import invoices (CSV / external)",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-16-erp.png",
+      "title": "ERP sync",
+      "caption": "QuickBooks (Intuit OAuth)",
+      "tx": null
+    },
+    {
+      "group": "Vendor",
+      "file": "ven-17-settings.png",
+      "title": "Settings",
+      "caption": "Workspace + KYB (Sumsub)",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-01-dashboard.png",
+      "title": "LP dashboard",
+      "caption": "Stake, tiers, earnings",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-02-queue.png",
+      "title": "Cashout queue",
+      "caption": "Claimable cashout orders",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-03-stake.png",
+      "title": "Stake",
+      "caption": "LP staking",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-04-reputation.png",
+      "title": "LP reputation",
+      "caption": "Slashing history / reliability",
+      "tx": null
+    },
+    {
+      "group": "LP",
+      "file": "lp-05-settings.png",
+      "title": "LP settings",
+      "caption": "LP profile",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-01-console.png",
+      "title": "Admin console",
+      "caption": "Operator overview",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-02-invoices.png",
+      "title": "Invoices",
+      "caption": "All invoices + screening state",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-03-screening.png",
+      "title": "Screening",
+      "caption": "OFAC / KYB screening queue",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-04-disputes.png",
+      "title": "Disputes",
+      "caption": "Dispute resolution",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-05-sanctions.png",
+      "title": "Sanctions",
+      "caption": "Sanctions refresh runs",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-06-lps.png",
+      "title": "Liquidity providers",
+      "caption": "LP registry + stakes",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-07-vendors.png",
+      "title": "Vendors",
+      "caption": "Vendor registry + KYB",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-08-audits.png",
+      "title": "Audits",
+      "caption": "Audit log",
+      "tx": null
+    },
+    {
+      "group": "Admin",
+      "file": "adm-09-governance.png",
+      "title": "Governance",
+      "caption": "Pause / limits / params",
+      "tx": null
+    },
+    {
+      "group": "Buyer",
+      "file": "buy-01-hosted-invoice.png",
+      "title": "Hosted invoice",
+      "caption": "Buyer pays in USDC on Arc (mobile)",
+      "tx": null
+    },
+    {
+      "group": "Buyer",
+      "file": "buy-02-receipt.png",
+      "title": "Receipt",
+      "caption": "Settled, anchored, publicly verifiable — verify=true",
+      "tx": null
+    }
+  ]
+}
