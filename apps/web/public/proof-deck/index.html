@@ -119,7 +119,7 @@ footer{margin-top:90px;padding-top:24px;border-top:1px solid var(--border);font-
 
 </div>
 
-<script src="shots-data.js"></script>
+<script src="/proof-deck/shots-data.js"></script>
 <script>
 const GROUPS = {
   "Product": { title: "Product", lede: "The public surfaces a visitor or buyer sees — marketing, hosted invoice, FX, status, trust, and sign-in." },
@@ -140,7 +140,7 @@ order.forEach(g => {
   toc.insertAdjacentHTML("beforeend", `<a href="#g-${g}">${meta.title} · ${shots.length}</a>`);
   const cards = shots.map(s => `
     <figure class="card">
-      <img src="shots/${s.file}" alt="${s.title}" loading="lazy">
+      <img src="/proof-deck/shots/${s.file}" alt="${s.title}" loading="lazy">
       <div class="cap">
         <div class="t">${s.title}</div>
         <div class="d">${s.caption}</div>
