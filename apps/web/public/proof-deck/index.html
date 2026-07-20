@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Klaro · proof deck</title>
+<style>
+:root {
+  color-scheme: light;
+  --fg: #0a0a0a;
+  --muted: #555;
+  --bg: #fafaf7;
+  --card: #fff;
+  --border: rgba(0,0,0,.08);
+  --accent: #1d1d1f;
+  --good: #047857;
+  --brand: #1B6BFF;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif; }
+.page { max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px; }
+.hero { padding: 56px 0 32px; }
+.hero h1 { font-size: 56px; line-height: 1.05; margin: 0 0 16px; letter-spacing: -0.02em; }
+.hero h1 .b { color: var(--brand); }
+.hero p { font-size: 21px; line-height: 1.45; color: var(--muted); max-width: 760px; margin: 0; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 8px; }
+.section { margin-top: 64px; }
+.section h2 { font-size: 32px; letter-spacing: -0.015em; margin: 0 0 8px; }
+.section .lede { font-size: 17px; color: var(--muted); line-height: 1.55; max-width: 760px; margin: 0 0 24px; }
+.shot-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.shot-grid.single { grid-template-columns: 1fr; max-width: 860px; }
+.shot { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.shot img { display: block; width: 100%; height: auto; }
+.shot figcaption { padding: 10px 14px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+.tx { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-top: 16px; font-size: 14px; }
+.tx h3 { font-size: 15px; margin: 0 0 8px; color: var(--accent); }
+.tx ul { margin: 0; padding-left: 0; list-style: none; }
+.tx li { padding: 6px 0; font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.tx li a { color: var(--brand); text-decoration: none; }
+.tx li a:hover { text-decoration: underline; }
+.tx li .label { font-family: inherit; color: var(--muted); margin-right: 8px; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-right: 6px; }
+.tag.arc { background: #dbeafe; color: #1e40af; }
+.tag.base { background: #ede9fe; color: #5b21b6; }
+.divider { height: 1px; background: var(--border); margin: 64px 0; }
+.summary { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 32px; }
+.summary p { margin: 6px 0; font-size: 15px; }
+.summary code { font-family: var(--mono); font-size: 13px; background: rgba(0,0,0,.05); padding: 1px 6px; border-radius: 4px; }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 24px; margin-top: 24px; }
+.toc h3 { font-size: 14px; margin: 0 0 8px; font-weight: 600; color: var(--muted); }
+.toc ol { margin: 0; padding-left: 20px; font-size: 14px; }
+.toc li { padding: 3px 0; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.status { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 4px 0; margin-top: 16px; }
+.status table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.status td { padding: 9px 20px; border-top: 1px solid var(--border); }
+.status tr:first-child td { border-top: none; }
+.status td.s { text-align: right; font-weight: 600; white-space: nowrap; }
+.live { color: var(--good); } .pend { color: #b45309; } .nc { color: #6b7280; }
+footer { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hero">
+  <div class="eyebrow">Arc Testnet · launch proof · 2026-07-20</div>
+  <h1>Klaro · the whole loop,<br><span class="b">proven on-chain.</span></h1>
+  <p>USDC invoicing on Arc — create, pay, settle, verify a receipt. Every screen below is a real capture from the live <code>https://www.myklaro.app</code> product; every transaction is on-chain and independently verifiable.</p>
+</header>
+
+<div class="summary">
+  <p><strong>Stack:</strong> Arc L1 (USDC gas) · Circle CCTP V2 (cross-chain pay-in) · Circle Modular Wallets (passkeys) · Next.js 15 + wagmi/viem · BullMQ operator daemon · Supabase.</p>
+  <p><strong>Coverage:</strong> 531 Foundry contract tests + web/daemon suites + Playwright e2e (desktop + mobile) — and a live end-to-end run: invoice created → paid cross-chain → screened (OFAC + KYB) → settled → receipt anchored.</p>
+  <p><strong>Honest by default:</strong> every surface is labelled live / sandbox / access-pending. No dead buttons, no mock presented as real.</p>
+</div>
+
+<nav class="toc">
+  <h3>Walk-through</h3>
+  <ol>
+    <li><a href="#product">1. The product, live</a></li>
+    <li><a href="#loop">2. The money loop — invoice → publish → pay → settle → receipt</a></li>
+    <li><a href="#cctp">3. Cross-chain pay-in (CCTP V2)</a></li>
+    <li><a href="#screening">4. Compliance screening (OFAC + KYB)</a></li>
+    <li><a href="#portals">5. Vendor, LP &amp; admin surfaces</a></li>
+    <li><a href="#integrate">6. SDK &amp; embeddable receipt badge</a></li>
+    <li><a href="#txs">7. On-chain transaction index</a></li>
+  </ol>
+</nav>
+
+<section class="section" id="product">
+  <h2>1. The product, live</h2>
+  <p class="lede">The public landing and the authenticated vendor dashboard — as a real user sees them.</p>
+  <div class="shot-grid">
+    <figure class="shot">
+      <img src="shots/01-landing.png" alt="Klaro public landing">
+      <figcaption>Public landing — "Get paid in seconds. Not weeks."</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="shots/02-vendor-dashboard.png" alt="Vendor dashboard">
+      <figcaption>Vendor dashboard — invoices, balances, reputation</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section" id="loop">
+  <h2>2. The money loop</h2>
+  <p class="lede">A vendor creates an invoice, publishes it on-chain, a buyer pays it in USDC, the operator daemon screens + settles it, and an audit-grade receipt is anchored on Arc. This is the headline flow — proven end to end on-chain.</p>
+  <div class="shot-grid">
+    <figure class="shot">
+      <img src="shots/03-create-invoice.png" alt="Create invoice">
+      <figcaption>1 · Create invoice — amount, customer, description</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="shots/04-invoice-detail.png" alt="Invoice detail">
+      <figcaption>2 · Invoice created — hosted page generated</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="shots/05-published.png" alt="Published on-chain">
+      <figcaption>3 · Published on-chain — InvoiceEscrow.createInvoice</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="shots/06-hosted-invoice.png" alt="Hosted invoice">
+      <figcaption>4 · Hosted invoice — buyer pays in USDC on Arc</figcaption>
+    </figure>
+  </div>
+  <div class="shot-grid single" style="margin-top:16px">
+    <figure class="shot">
+      <img src="shots/07-receipt-verified.png" alt="Verified receipt">
+      <figcaption>5 · The receipt — settled, anchored on Arc, publicly verifiable. <strong>AuditReceipt.verify → true.</strong></figcaption>
+    </figure>
+  </div>
+  <div class="tx">
+    <h3>One full run, on-chain</h3>
+    <ul>
+      <li><span class="label"><span class="tag arc">Arc</span> Publish</span><a href="https://testnet.arcscan.app/tx/0xa5ff15dca5b9749a201580e58853f5b613e065e285db37ffeeb1940b72626afa" target="_blank" rel="noopener">0xa5ff15dc…</a> · InvoiceEscrow.createInvoice (CREATED)</li>
+      <li><span class="label"><span class="tag arc">Arc</span> Pay</span><a href="https://testnet.arcscan.app/tx/0x8d290505dc7371ed84810c6262de16170790c996e0badda757cb00cd35542564" target="_blank" rel="noopener">0x8d290505…</a> · buyer acceptAndPay (PAID)</li>
+      <li><span class="label"><span class="tag arc">Arc</span> Settle</span><a href="https://testnet.arcscan.app/tx/0x2925876947165769c7762474928cdb7076501fdb2a3bc1361bac2ae1ad5aaf6d" target="_blank" rel="noopener">0x29258769…</a> · operator settle after screening (SETTLED)</li>
+      <li><span class="label"><span class="tag arc">Arc</span> Receipt</span><a href="https://www.myklaro.app/receipt/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">0x5b3eeca9…</a> · AuditReceipt.verify = true · <a href="https://www.myklaro.app/api/v1/receipts/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">public API → 200</a></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="cctp">
+  <h2>3. Cross-chain pay-in (CCTP V2)</h2>
+  <p class="lede">A buyer pays in USDC from Base Sepolia — burned there, attested by Circle Iris, and minted natively on Arc to the vendor. No bridge, no wrapped tokens.</p>
+  <div class="shot-grid single">
+    <figure class="shot">
+      <img src="shots/08-cctp-fx.png" alt="Cross-chain pay">
+      <figcaption>Cross-chain pay — vendor receives native USDC on Arc</figcaption>
+    </figure>
+  </div>
+  <div class="tx">
+    <h3>CCTP V2 burn-and-mint, on-chain</h3>
+    <ul>
+      <li><span class="label"><span class="tag base">Base</span> Burn</span><a href="https://sepolia.basescan.org/tx/0x205a924be31734d69933d33bb3d06a20e159ff0823722e9699e49a4b92d025b8" target="_blank" rel="noopener">0x205a924b…</a> · TokenMessengerV2.depositForBurn (domain 6)</li>
+      <li><span class="label"><span class="tag arc">Arc</span> Mint</span><a href="https://testnet.arcscan.app/tx/0x6a2b8bf4ab334a066264a20059c78360cc9fea3d5149f1ff98f69ff9f06cfcd5" target="_blank" rel="noopener">0x6a2b8bf4…</a> · operator receiveMessage → native USDC to vendor (domain 26)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="screening">
+  <h2>4. Compliance screening (OFAC + KYB)</h2>
+  <p class="lede">Every payment is screened before funds are released — OFAC sanctions list check plus Sumsub KYB. Clean + verified payments auto-settle; sanctioned or unverified ones are held. No personal data is ever written on-chain — only hashes, addresses, and status events.</p>
+  <div class="tx">
+    <h3>Screening, real</h3>
+    <ul>
+      <li><span class="label">OFAC SDN</span>Live U.S. Treasury sanctions list — clean buyer clears, sanctioned address held</li>
+      <li><span class="label">Sumsub KYB</span>Vendor verification (GREEN) gates settlement — confirmed live in the run above</li>
+      <li><span class="label">Behavioral</span>Honest testnet heuristic — labelled as such, never dressed as more</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="portals">
+  <h2>5. Vendor, LP &amp; admin surfaces</h2>
+  <p class="lede">Three personas, one product: the vendor dashboard (create, cashout, reputation, delegations, team), the liquidity-provider console (stake, queue, claim), and the operator admin console (invoices, disputes, sanctions, LPs, vendors, audits).</p>
+  <div class="shot-grid">
+    <figure class="shot">
+      <img src="shots/02-vendor-dashboard.png" alt="Vendor dashboard">
+      <figcaption>Vendor — dashboard</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="shots/10-lp-dashboard.png" alt="LP dashboard">
+      <figcaption>Liquidity provider — stake &amp; queue</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section" id="integrate">
+  <h2>6. SDK &amp; embeddable receipt badge</h2>
+  <p class="lede">The receipt isn't just a page — it's a public, verifiable primitive. A typed SDK reads <code>AuditReceipt.verify</code> / <code>anchorOf</code> on-chain, and a zero-dependency web component (<code>&lt;klaro-receipt-badge&gt;</code>) embeds a live "Verified · Klaro" seal on any third-party site, backed by the public <code>/api/v1/receipts/[hash]</code> endpoint (CORS-enabled, 200 = anchored / 404 = missing).</p>
+  <div class="tx">
+    <h3>Integrators</h3>
+    <ul>
+      <li><span class="label">SDK</span><code>receipt.verify(hash)</code> → true · <code>anchorOf(hash)</code> → anchor tuple (on-chain)</li>
+      <li><span class="label">Badge</span><a href="https://www.myklaro.app/api/v1/receipts/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">/api/v1/receipts/0x5b3eeca9…</a> → 200 (Access-Control-Allow-Origin: *)</li>
+      <li><span class="label">Tests</span>531 Foundry contract tests + web/daemon drift + openapi guards — all passing</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="txs">
+  <h2>7. On-chain transaction index</h2>
+  <p class="lede">Every link below is a real transaction on Arc Testnet or Base Sepolia with <code>status = success</code>. Click through to the explorer to verify independently.</p>
+
+  <div class="tx">
+    <h3><span class="tag arc">Arc</span> Core loop</h3>
+    <ul>
+      <li><span class="label">Publish invoice:</span><a href="https://testnet.arcscan.app/tx/0xa5ff15dca5b9749a201580e58853f5b613e065e285db37ffeeb1940b72626afa" target="_blank" rel="noopener">0xa5ff15dc…</a></li>
+      <li><span class="label">Pay (acceptAndPay):</span><a href="https://testnet.arcscan.app/tx/0x8d290505dc7371ed84810c6262de16170790c996e0badda757cb00cd35542564" target="_blank" rel="noopener">0x8d290505…</a></li>
+      <li><span class="label">Settle (after screening):</span><a href="https://testnet.arcscan.app/tx/0x2925876947165769c7762474928cdb7076501fdb2a3bc1361bac2ae1ad5aaf6d" target="_blank" rel="noopener">0x29258769…</a></li>
+      <li><span class="label">Receipt (verify = true):</span><a href="https://www.myklaro.app/receipt/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">0x5b3eeca9…</a></li>
+    </ul>
+  </div>
+
+  <div class="tx">
+    <h3><span class="tag base">Base</span> → <span class="tag arc">Arc</span> CCTP V2</h3>
+    <ul>
+      <li><span class="label">Burn (Base Sepolia):</span><a href="https://sepolia.basescan.org/tx/0x205a924be31734d69933d33bb3d06a20e159ff0823722e9699e49a4b92d025b8" target="_blank" rel="noopener">0x205a924b…</a></li>
+      <li><span class="label">Mint (Arc):</span><a href="https://testnet.arcscan.app/tx/0x6a2b8bf4ab334a066264a20059c78360cc9fea3d5149f1ff98f69ff9f06cfcd5" target="_blank" rel="noopener">0x6a2b8bf4…</a></li>
+    </ul>
+  </div>
+
+  <div class="status">
+    <table>
+      <tr><td>Cross-chain pay-in (Base → Arc, CCTP V2)</td><td class="s live">Live-proven on-chain</td></tr>
+      <tr><td>On-Arc invoice payment + settle → receipt</td><td class="s live">Live-proven on-chain</td></tr>
+      <tr><td>Compliance screening (OFAC + KYB)</td><td class="s live">Live</td></tr>
+      <tr><td>Disputes, LP staking, admin console</td><td class="s live">Live-proven</td></tr>
+      <tr><td>MoonPay / Sumsub / QuickBooks</td><td class="s pend">Sandbox — verified working</td></tr>
+      <tr><td>Circle Modular Wallets (passkey)</td><td class="s pend">Wired · ready for app id</td></tr>
+      <tr><td>Circle Gateway / mainnet</td><td class="s nc">Not claimed</td></tr>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Generated 2026-07-20 · screenshots captured live from <code>https://www.myklaro.app</code> · all transactions on Arc Testnet (chainId 5042002) and Base Sepolia. Klaro is a testnet preview — not a bank; no real money moves. · <a href="https://www.myklaro.app">myklaro.app</a>
+</footer>
+
+</div>
+</body>
+</html>

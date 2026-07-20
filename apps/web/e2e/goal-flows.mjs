@@ -95,7 +95,7 @@ const shot = async (l) => { try { await page.screenshot({ path: path.join(shots,
 await page.goto(await login("/vendor/invoices/new"), { waitUntil: "domcontentloaded", timeout: 60000 });
 await page.waitForTimeout(2500);
 log("on:", page.url());
-const amount = "37";
+const amount = process.env.KLARO_INV_AMOUNT || "37";
 const desc = "QA goal-flow invoice " + (process.env.KLARO_RUN_TAG || "live");
 await page.locator('input[type="number"], input[inputmode="decimal"], [name="amount"]').first().fill(amount).catch(async () => { await page.locator("spinbutton").first().fill(amount); });
 await page.getByPlaceholder(/Backend dev|sprint/i).fill(desc).catch(() => {});
