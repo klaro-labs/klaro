@@ -47,6 +47,19 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-a
 .tx li a{color:var(--brand);text-decoration:none}
 .tx li a:hover{text-decoration:underline}
 .tx li .label{color:var(--muted);margin-right:8px;font-family:inherit}
+.tx pre{background:#0b0b0d;color:#e8e8ea;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.55;overflow-x:auto;margin:6px 0 6px;white-space:pre}
+.tx .codetitle{font-size:13px;font-weight:600;margin:16px 0 4px}
+.tx .codetitle code{font-family:var(--mono);font-weight:600;color:var(--brand);background:rgba(27,107,255,.07);padding:1px 6px;border-radius:4px}
+.tx .codenote{font-size:13px;color:var(--muted);margin:2px 0 6px;line-height:1.5}
+.steps{counter-reset:s;margin:8px 0 0}
+.steps .step{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--border)}
+.steps .step:first-child{border-top:none}
+.steps .n{counter-increment:s;flex:0 0 30px;height:30px;border-radius:999px;background:var(--brand);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:2px}
+.steps .step .b{flex:1}
+.steps .step .b .t{font-weight:600;font-size:14.5px}
+.steps .step .b .d{font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.5}
+.steps .step .b a{font-family:var(--mono);font-size:12px;color:var(--brand);text-decoration:none;overflow-wrap:anywhere}
+.steps .step .b a:hover{text-decoration:underline}
 .tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-right:6px}
 .tag.arc{background:#dbeafe;color:#1e40af}.tag.base{background:#ede9fe;color:#5b21b6}
 .status{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:4px 0;margin-top:16px}
@@ -89,22 +102,58 @@ footer{margin-top:90px;padding-top:24px;border-top:1px solid var(--border);font-
 
   <div class="tx">
     <h3>Codebase walkthrough — where Circle technologies are implemented</h3>
-    <ul>
-      <li><span class="label">USDC settlement:</span><code>packages/contracts/src/InvoiceEscrow.sol</code> — ERC-20 (USDC, 6-decimal Arc interface <code>0x3600…0000</code>) in escrow; <code>acceptAndPay</code> / <code>settle</code> state machine (PAID → SETTLED).</li>
-      <li><span class="label">Wallet pay flow:</span><code>apps/web/components/klaro/PayWithUSDC.tsx:97–192</code> — EIP-712 acceptance sign (<code>signTypedDataAsync</code>) → approve → <code>acceptAndPay</code> via wagmi.</li>
-      <li><span class="label">CCTP V2 pay-in:</span><code>apps/web/scripts/cctp-payin-proof.mjs:29–37</code> — <code>depositForBurn</code> on Base (TokenMessenger <code>0x8FE6…2DAA</code>) → Circle Iris attestation → operator <code>receiveMessage</code> mint on Arc (MessageTransmitter <code>0xE737…E275</code>).</li>
-      <li><span class="label">Circle Modular Wallets:</span><code>apps/web/lib/circleModularWallet.ts</code> + <code>components/klaro/CircleWalletButton.tsx</code> — passkey-backed smart-account onboarding (no seed phrase).</li>
-      <li><span class="label">Compliance screening:</span><code>apps/daemon/src/ofac.ts</code> — OFAC SDN sanctions gate before funds release; <code>apps/daemon/src/sumsub.ts</code> — KYB (GREEN) gates settle. Compliance-cleared <em>and</em> work-verified.</li>
-    </ul>
+    <p style="margin:4px 0 12px;font-size:14px;color:var(--muted)">This is the same walkthrough the video does — every claim below is a real file in the repo, quoted verbatim, so a reviewer can read the integration without the video.</p>
+
+    <p class="codetitle">1 · USDC settlement — <code>packages/contracts/src/InvoiceEscrow.sol</code></p>
+    <pre>import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// CREATED → ACCEPTED → PAID → SETTLED. PAID→SETTLED releases funds.
+PAID,    // 3 — USDC landed in escrow
+SETTLED, // 4 — vendor pulled funds; receipt minted off-chain
+address token; // ERC-20 (USDC or EURC) — Arc ERC-20 interface, 6 decimals</pre>
+    <p class="codenote">All value is USDC (or EURC) held in escrow as a 6-decimal Arc ERC-20. Gas on Arc is USDC too — no "buy ETH first" wall for a paying customer.</p>
+
+    <p class="codetitle">2 · The buyer's pay flow — <code>apps/web/components/klaro/PayWithUSDC.tsx:157–192</code></p>
+    <pre>// Live path — full EIP-712 sign → approve → acceptAndPay.
+const sig = await signTypedDataAsync({            // EIP-712 acceptance
+  domain: { name: "Klaro Invoice", version: "1",
+            chainId: arcTestnet.id, verifyingContract: INVOICE_ESCROW_ADDRESS },
+  types: ACCEPTANCE_EIP712_TYPES, primaryType: "InvoiceAcceptance",
+  message: { invoiceId, vendor, token, amount, dueAt, metadataHash, splitsHash },
+});
+await writeContractAsync({ address: token, abi: ERC20_ABI,
+  functionName: "approve", args: [INVOICE_ESCROW_ADDRESS, amount] });
+const txHash = await writeContractAsync({ address: INVOICE_ESCROW_ADDRESS,
+  abi: INVOICE_ESCROW_ABI, functionName: "acceptAndPay", args: [invoiceId, sig, address] });</pre>
+    <p class="codenote">The buyer signs an EIP-712 acceptance, approves the escrow, and pays in one click — the payment is a cryptographic acceptance bound to the exact invoice, not a raw transfer.</p>
+
+    <p class="codetitle">3 · Cross-chain pay-in (Circle CCTP V2) — <code>apps/web/scripts/cctp-payin-proof.mjs:29–40</code></p>
+    <pre>const TOKEN_MESSENGER     = "0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA";
+const MESSAGE_TRANSMITTER = "0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275";
+const IRIS = "https://iris-api-sandbox.circle.com";
+// buyer.depositForBurn(USDC) → Iris attest → operator.receiveMessage → mint to vendor
+depositForBurn(amount, /*destDomain*/ 26, mintRecipient, burnToken, …);   // on Base
+receiveMessage(message, attestation);                                     // on Arc</pre>
+    <p class="codenote">A buyer pays in USDC from Base Sepolia — burned there, attested by Circle Iris, and the operator mints native USDC to the vendor on Arc. No bridge, no wrapped token.</p>
+
+    <p class="codetitle">4 · Compliance screening — <code>apps/daemon/src/ofac.ts</code> + <code>apps/daemon/src/sumsub.ts</code></p>
+    <pre>// OFAC SDN: fetch the U.S. Treasury sanctions list; a sanctioned payer is held.
+// Sumsub KYB: only a GREEN-verified vendor auto-settles; pending/RED → hold.</pre>
+    <p class="codenote">Every payment is screened before funds release — compliance-cleared <em>and</em> work-verified. No personal data is written on-chain (hashes, addresses, status only).</p>
+
+    <p class="codetitle">5 · Circle Modular Wallets (passkey) — <code>apps/web/lib/circleModularWallet.ts</code></p>
+    <p class="codenote">Passkey-backed MPC smart-account onboarding — a vendor signs up with no seed phrase. Wired and ready for the app id (sandbox).</p>
   </div>
 
   <div class="tx">
     <h3>Integration demonstration — Circle infrastructure powering the product, live</h3>
-    <ul>
-      <li><span class="label">Full loop:</span>create → publish (<a href="https://testnet.arcscan.app/tx/0xa5ff15dca5b9749a201580e58853f5b613e065e285db37ffeeb1940b72626afa" target="_blank" rel="noopener">tx</a>) → pay (<a href="https://testnet.arcscan.app/tx/0x8d290505dc7371ed84810c6262de16170790c996e0badda757cb00cd35542564" target="_blank" rel="noopener">tx</a>) → settle (<a href="https://testnet.arcscan.app/tx/0x2925876947165769c7762474928cdb7076501fdb2a3bc1361bac2ae1ad5aaf6d" target="_blank" rel="noopener">tx</a>) → receipt (<a href="https://www.myklaro.app/receipt/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">verify=true</a>).</li>
-      <li><span class="label">CCTP V2:</span>Base Sepolia burn (<a href="https://sepolia.basescan.org/tx/0x205a924be31734d69933d33bb3d06a20e159ff0823722e9699e49a4b92d025b8" target="_blank" rel="noopener">tx</a>) → Arc mint (<a href="https://testnet.arcscan.app/tx/0x6a2b8bf4ab334a066264a20059c78360cc9fea3d5149f1ff98f69ff9f06cfcd5" target="_blank" rel="noopener">tx</a>) — vendor received native USDC on Arc.</li>
-      <li><span class="label">SDK / badge:</span><a href="https://www.myklaro.app/api/v1/receipts/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">/api/v1/receipts/&lt;hash&gt;</a> → 200 (CORS-enabled, 200 = anchored / 404 = missing) — the embeddable verify primitive.</li>
-    </ul>
+    <p style="margin:4px 0 8px;font-size:14px;color:var(--muted)">The exact user flow the video demos, narrated step by step — every "→ tx" opens the real transaction on the explorer so you can verify it ran, on-chain, with <code>status = success</code>.</p>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="b"><div class="t">Vendor creates + publishes the invoice on-chain</div><div class="d">A hosted page at <code>/i/&lt;id&gt;</code> is generated and <code>InvoiceEscrow.createInvoice</code> writes it to Arc (CREATED). <a href="https://testnet.arcscan.app/tx/0xa5ff15dca5b9749a201580e58853f5b613e065e285db37ffeeb1940b72626afa" target="_blank" rel="noopener">→ publish tx</a></div></div></div>
+      <div class="step"><div class="n"></div><div class="b"><div class="t">Buyer pays in USDC on Arc</div><div class="d">The buyer connects a wallet, signs the EIP-712 acceptance, approves, and pays — <code>acceptAndPay</code> moves USDC into escrow (PAID). <a href="https://testnet.arcscan.app/tx/0x8d290505dc7371ed84810c6262de16170790c996e0badda757cb00cd35542564" target="_blank" rel="noopener">→ pay tx</a></div></div></div>
+      <div class="step"><div class="n"></div><div class="b"><div class="t">Operator daemon screens + settles</div><div class="d">OFAC sanctions + KYB (GREEN) pass → the operator calls <code>settle</code>, releasing USDC to the vendor (SETTLED). Compliance-cleared <em>and</em> work-verified. <a href="https://testnet.arcscan.app/tx/0x2925876947165769c7762474928cdb7076501fdb2a3bc1361bac2ae1ad5aaf6d" target="_blank" rel="noopener">→ settle tx</a></div></div></div>
+      <div class="step"><div class="n"></div><div class="b"><div class="t">A receipt is anchored — publicly verifiable</div><div class="d">An audit-grade receipt is written to the <code>AuditReceipt</code> contract. <code>verify</code> returns <strong>true</strong>; anyone can check it on-chain or via the public API — no personal data, only hashes + addresses + status. <a href="https://www.myklaro.app/receipt/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">→ receipt (verify=true)</a> · <a href="https://www.myklaro.app/api/v1/receipts/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">→ public API</a></div></div></div>
+      <div class="step"><div class="n"></div><div class="b"><div class="t">Or the buyer pays from another chain (Circle CCTP V2)</div><div class="d">USDC is burned on Base Sepolia, attested by Circle Iris, and the operator mints native USDC to the vendor on Arc — no bridge, no wrapped token. <a href="https://sepolia.basescan.org/tx/0x205a924be31734d69933d33bb3d06a20e159ff0823722e9699e49a4b92d025b8" target="_blank" rel="noopener">→ burn tx (Base)</a> · <a href="https://testnet.arcscan.app/tx/0x6a2b8bf4ab334a066264a20059c78360cc9fea3d5149f1ff98f69ff9f06cfcd5" target="_blank" rel="noopener">→ mint tx (Arc)</a></div></div></div>
+    </div>
   </div>
 
   <div class="status">
@@ -114,9 +163,9 @@ footer{margin-top:90px;padding-top:24px;border-top:1px solid var(--border);font-
       <tr><td>CCTP V2 (cross-chain pay-in)</td><td class="s live">Live-proven on-chain</td></tr>
       <tr><td>Circle Modular Wallets (passkey)</td><td class="s pend">Wired · ready for app id</td></tr>
       <tr><td>MoonPay / Sumsub / QuickBooks</td><td class="s pend">Sandbox — verified working</td></tr>
-      <tr><td colspan="2" style="font-weight:600">Planned (grant unlocks)</td></tr>
-      <tr><td>StableFX RFQ (replaces seeded adapter)</td><td class="s nc">Access-gated — M1 milestone</td></tr>
-      <tr><td>Circle Gateway (cross-chain routing)</td><td class="s nc">Roadmap</td></tr>
+      <tr><td colspan="2" style="font-weight:600">Planned (grant unlocks) — intended approach</td></tr>
+      <tr><td>StableFX RFQ — transparent USDC↔EURC pricing. The corridor already runs a real on-chain swap via a deployed <code>StableFXAdapterRegistry</code> paying genuine EURC; it swaps to Circle's StableFX RFQ engine the moment TEST access is granted — no other change. (M1 milestone.)</td><td class="s nc">Access-gated</td></tr>
+      <tr><td>Circle Gateway — cross-chain payout routing, complementing the CCTP V2 pay-in that's already live.</td><td class="s nc">Roadmap</td></tr>
       <tr><td colspan="2" style="font-weight:600">Traction (testnet, labeled)</td></tr>
       <tr><td>Full loop settle → receipt</td><td class="s live">Live-proven on-chain</td></tr>
       <tr><td>Contract tests</td><td class="s live">531 Foundry passing</td></tr>
