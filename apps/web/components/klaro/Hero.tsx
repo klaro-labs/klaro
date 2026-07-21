@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/Button";
  * Honest labels: "Open testnet · Built for Arc" makes status clear before
  * users scroll. "Free during testnet" sets expectations.
  * Headline mirrors the brand reference verbatim — "Get paid in seconds."
- * with `seconds` in Klaro blue, then "Not weeks." on its own line.
+ * with `seconds` in Klaro terracotta, then "Not weeks." on its own line.
  */
 export function Hero() {
   return (
@@ -30,7 +30,7 @@ export function Hero() {
                 aria-hidden
                 className="inline-block size-1.5 rounded-full bg-[var(--color-brand)]"
               />
-              Open testnet · live on Arc
+              Open testnet · live on Arc Network
             </Badge>
             <Badge tone="neutral">USDC · EURC · CCTP V2</Badge>
           </div>
