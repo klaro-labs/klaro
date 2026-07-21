@@ -81,7 +81,69 @@ footer{margin-top:90px;padding-top:24px;border-top:1px solid var(--border);font-
   <p><strong>Honest by default:</strong> every surface is labelled live / sandbox / access-pending. No dead buttons, no mock presented as real.</p>
 </div>
 
-<div class="toc" id="toc"></div>
+<div class="toc" id="toc"><a href="#grant">Grant package</a><a href="#chain">On-chain proof</a></div>
+
+<section class="group" id="grant">
+  <div class="group-h"><h2>Grant package</h2><span class="n">everything the application asks for</span></div>
+  <p class="lede">The evidence the Circle Developer Grant application requires — the codebase walkthrough, the integration demonstration, the Circle-product map, milestones, and traction — all in one place, each item verifiable.</p>
+
+  <div class="tx">
+    <h3>Codebase walkthrough — where Circle technologies are implemented</h3>
+    <ul>
+      <li><span class="label">USDC settlement:</span><code>packages/contracts/src/InvoiceEscrow.sol</code> — ERC-20 (USDC, 6-decimal Arc interface <code>0x3600…0000</code>) in escrow; <code>acceptAndPay</code> / <code>settle</code> state machine (PAID → SETTLED).</li>
+      <li><span class="label">Wallet pay flow:</span><code>apps/web/components/klaro/PayWithUSDC.tsx:97–192</code> — EIP-712 acceptance sign (<code>signTypedDataAsync</code>) → approve → <code>acceptAndPay</code> via wagmi.</li>
+      <li><span class="label">CCTP V2 pay-in:</span><code>apps/web/scripts/cctp-payin-proof.mjs:29–37</code> — <code>depositForBurn</code> on Base (TokenMessenger <code>0x8FE6…2DAA</code>) → Circle Iris attestation → operator <code>receiveMessage</code> mint on Arc (MessageTransmitter <code>0xE737…E275</code>).</li>
+      <li><span class="label">Circle Modular Wallets:</span><code>apps/web/lib/circleModularWallet.ts</code> + <code>components/klaro/CircleWalletButton.tsx</code> — passkey-backed smart-account onboarding (no seed phrase).</li>
+      <li><span class="label">Compliance screening:</span><code>apps/daemon/src/ofac.ts</code> — OFAC SDN sanctions gate before funds release; <code>apps/daemon/src/sumsub.ts</code> — KYB (GREEN) gates settle. Compliance-cleared <em>and</em> work-verified.</li>
+    </ul>
+  </div>
+
+  <div class="tx">
+    <h3>Integration demonstration — Circle infrastructure powering the product, live</h3>
+    <ul>
+      <li><span class="label">Full loop:</span>create → publish (<a href="https://testnet.arcscan.app/tx/0xa5ff15dca5b9749a201580e58853f5b613e065e285db37ffeeb1940b72626afa" target="_blank" rel="noopener">tx</a>) → pay (<a href="https://testnet.arcscan.app/tx/0x8d290505dc7371ed84810c6262de16170790c996e0badda757cb00cd35542564" target="_blank" rel="noopener">tx</a>) → settle (<a href="https://testnet.arcscan.app/tx/0x2925876947165769c7762474928cdb7076501fdb2a3bc1361bac2ae1ad5aaf6d" target="_blank" rel="noopener">tx</a>) → receipt (<a href="https://www.myklaro.app/receipt/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">verify=true</a>).</li>
+      <li><span class="label">CCTP V2:</span>Base Sepolia burn (<a href="https://sepolia.basescan.org/tx/0x205a924be31734d69933d33bb3d06a20e159ff0823722e9699e49a4b92d025b8" target="_blank" rel="noopener">tx</a>) → Arc mint (<a href="https://testnet.arcscan.app/tx/0x6a2b8bf4ab334a066264a20059c78360cc9fea3d5149f1ff98f69ff9f06cfcd5" target="_blank" rel="noopener">tx</a>) — vendor received native USDC on Arc.</li>
+      <li><span class="label">SDK / badge:</span><a href="https://www.myklaro.app/api/v1/receipts/0x5b3eeca94a0a1b0541036835ba0a0b5e62926b57a6af173cf10466dd4ebcd1a5" target="_blank" rel="noopener">/api/v1/receipts/&lt;hash&gt;</a> → 200 (CORS-enabled, 200 = anchored / 404 = missing) — the embeddable verify primitive.</li>
+    </ul>
+  </div>
+
+  <div class="status">
+    <table>
+      <tr><td colspan="2" style="border-top:none;font-weight:600">Circle products — integrated now (video-validated)</td></tr>
+      <tr><td>USDC on Arc (gas + settlement)</td><td class="s live">Live — every invoice</td></tr>
+      <tr><td>CCTP V2 (cross-chain pay-in)</td><td class="s live">Live-proven on-chain</td></tr>
+      <tr><td>Circle Modular Wallets (passkey)</td><td class="s pend">Wired · ready for app id</td></tr>
+      <tr><td>MoonPay / Sumsub / QuickBooks</td><td class="s pend">Sandbox — verified working</td></tr>
+      <tr><td colspan="2" style="font-weight:600">Planned (grant unlocks)</td></tr>
+      <tr><td>StableFX RFQ (replaces seeded adapter)</td><td class="s nc">Access-gated — M1 milestone</td></tr>
+      <tr><td>Circle Gateway (cross-chain routing)</td><td class="s nc">Roadmap</td></tr>
+      <tr><td colspan="2" style="font-weight:600">Traction (testnet, labeled)</td></tr>
+      <tr><td>Full loop settle → receipt</td><td class="s live">Live-proven on-chain</td></tr>
+      <tr><td>Contract tests</td><td class="s live">531 Foundry passing</td></tr>
+      <tr><td>Cross-chain pay-in</td><td class="s live">Real CCTP V2 burn + mint</td></tr>
+    </table>
+  </div>
+
+  <div class="tx">
+    <h3>Milestones (grant disbursement)</h3>
+    <ul>
+      <li><span class="label">M1:</span><strong>StableFX RFQ live</strong> — transparent on-chain USDC↔EURC pricing on Arc (replaces the seeded adapter). Unlock: Circle StableFX TEST access.</li>
+      <li><span class="label">M2:</span><strong>First fiat corridor</strong> — real local-currency out to a bank account, end to end with UTR proof. Unlock: a signed licensed money-transmitter partner.</li>
+      <li><span class="label">M3:</span><strong>Production + expand</strong> — EUR/SEPA, more corridors, live oracle pricing, mainnet.</li>
+    </ul>
+  </div>
+
+  <div class="tx">
+    <h3>≤5-minute video storyboard (codebase walkthrough + integration demo)</h3>
+    <ul>
+      <li><span class="label">0:00–0:25</span>Cold open — create → pay → settle → verified receipt, on the live site.</li>
+      <li><span class="label">0:25–1:20</span>Codebase: <code>InvoiceEscrow.sol</code> (USDC/acceptAndPay), <code>PayWithUSDC.tsx</code> (EIP-712), <code>cctp-payin-proof.mjs</code> (CCTP V2).</li>
+      <li><span class="label">1:20–3:00</span>Live demo — publish + pay + settle txs on ArcScan; CCTP burn on BaseScan + mint on ArcScan.</li>
+      <li><span class="label">3:00–4:00</span>Circle stack — SDK/badge, /status health strip, honest-mode labels (live/sandbox/pending).</li>
+      <li><span class="label">4:00–4:30</span>Close — the on-chain tx index; "every claim maps to a verifiable transaction."</li>
+    </ul>
+  </div>
+</section>
 
 <div id="groups"></div>
 
