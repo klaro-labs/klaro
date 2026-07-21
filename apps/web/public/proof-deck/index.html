@@ -50,6 +50,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-a
 .tx pre{background:#0b0b0d;color:#e8e8ea;border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.55;overflow-x:auto;margin:6px 0 6px;white-space:pre}
 .tx .codetitle{font-size:13px;font-weight:600;margin:16px 0 4px}
 .tx .codetitle code{font-family:var(--mono);font-weight:600;color:var(--brand);background:rgba(27,107,255,.07);padding:1px 6px;border-radius:4px}
+.tx .srclink{font-family:var(--mono);font-weight:600;font-size:12.5px;color:var(--brand);text-decoration:none;background:rgba(27,107,255,.07);padding:1px 6px;border-radius:4px}
+.tx .srclink:hover{text-decoration:underline}
 .tx .codenote{font-size:13px;color:var(--muted);margin:2px 0 6px;line-height:1.5}
 .steps{counter-reset:s;margin:8px 0 0}
 .steps .step{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--border)}
@@ -104,7 +106,7 @@ footer{margin-top:90px;padding-top:24px;border-top:1px solid var(--border);font-
     <h3>Codebase walkthrough — where Circle technologies are implemented</h3>
     <p style="margin:4px 0 12px;font-size:14px;color:var(--muted)">This is the same walkthrough the video does — every claim below is a real file in the repo, quoted verbatim, so a reviewer can read the integration without the video.</p>
 
-    <p class="codetitle">1 · USDC settlement — <code>packages/contracts/src/InvoiceEscrow.sol</code></p>
+    <p class="codetitle">1 · USDC settlement — <a class="srclink" href="https://github.com/klaro-labs/klaro/blob/main/packages/contracts/src/InvoiceEscrow.sol" target="_blank" rel="noopener">packages/contracts/src/InvoiceEscrow.sol ↗</a></p>
     <pre>import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 // CREATED → ACCEPTED → PAID → SETTLED. PAID→SETTLED releases funds.
 PAID,    // 3 — USDC landed in escrow
@@ -112,7 +114,7 @@ SETTLED, // 4 — vendor pulled funds; receipt minted off-chain
 address token; // ERC-20 (USDC or EURC) — Arc ERC-20 interface, 6 decimals</pre>
     <p class="codenote">All value is USDC (or EURC) held in escrow as a 6-decimal Arc ERC-20. Gas on Arc is USDC too — no "buy ETH first" wall for a paying customer.</p>
 
-    <p class="codetitle">2 · The buyer's pay flow — <code>apps/web/components/klaro/PayWithUSDC.tsx:157–192</code></p>
+    <p class="codetitle">2 · The buyer's pay flow — <a class="srclink" href="https://github.com/klaro-labs/klaro/blob/main/apps/web/components/klaro/PayWithUSDC.tsx#L157-L192" target="_blank" rel="noopener">apps/web/components/klaro/PayWithUSDC.tsx:157–192 ↗</a></p>
     <pre>// Live path — full EIP-712 sign → approve → acceptAndPay.
 const sig = await signTypedDataAsync({            // EIP-712 acceptance
   domain: { name: "Klaro Invoice", version: "1",
@@ -126,7 +128,7 @@ const txHash = await writeContractAsync({ address: INVOICE_ESCROW_ADDRESS,
   abi: INVOICE_ESCROW_ABI, functionName: "acceptAndPay", args: [invoiceId, sig, address] });</pre>
     <p class="codenote">The buyer signs an EIP-712 acceptance, approves the escrow, and pays in one click — the payment is a cryptographic acceptance bound to the exact invoice, not a raw transfer.</p>
 
-    <p class="codetitle">3 · Cross-chain pay-in (Circle CCTP V2) — <code>apps/web/scripts/cctp-payin-proof.mjs:29–40</code></p>
+    <p class="codetitle">3 · Cross-chain pay-in (Circle CCTP V2) — <a class="srclink" href="https://github.com/klaro-labs/klaro/blob/main/apps/web/scripts/cctp-payin-proof.mjs#L29-L40" target="_blank" rel="noopener">apps/web/scripts/cctp-payin-proof.mjs:29–40 ↗</a></p>
     <pre>const TOKEN_MESSENGER     = "0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA";
 const MESSAGE_TRANSMITTER = "0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275";
 const IRIS = "https://iris-api-sandbox.circle.com";
@@ -135,12 +137,12 @@ depositForBurn(amount, /*destDomain*/ 26, mintRecipient, burnToken, …);   // o
 receiveMessage(message, attestation);                                     // on Arc</pre>
     <p class="codenote">A buyer pays in USDC from Base Sepolia — burned there, attested by Circle Iris, and the operator mints native USDC to the vendor on Arc. No bridge, no wrapped token.</p>
 
-    <p class="codetitle">4 · Compliance screening — <code>apps/daemon/src/ofac.ts</code> + <code>apps/daemon/src/sumsub.ts</code></p>
+    <p class="codetitle">4 · Compliance screening — <a class="srclink" href="https://github.com/klaro-labs/klaro/blob/main/apps/daemon/src/ofac.ts" target="_blank" rel="noopener">apps/daemon/src/ofac.ts ↗</a> + <a class="srclink" href="https://github.com/klaro-labs/klaro/blob/main/apps/daemon/src/sumsub.ts" target="_blank" rel="noopener">apps/daemon/src/sumsub.ts ↗</a></p>
     <pre>// OFAC SDN: fetch the U.S. Treasury sanctions list; a sanctioned payer is held.
 // Sumsub KYB: only a GREEN-verified vendor auto-settles; pending/RED → hold.</pre>
     <p class="codenote">Every payment is screened before funds release — compliance-cleared <em>and</em> work-verified. No personal data is written on-chain (hashes, addresses, status only).</p>
 
-    <p class="codetitle">5 · Circle Modular Wallets (passkey) — <code>apps/web/lib/circleModularWallet.ts</code></p>
+    <p class="codetitle">5 · Circle Modular Wallets (passkey) — <a class="srclink" href="https://github.com/klaro-labs/klaro/blob/main/apps/web/lib/circleModularWallet.ts" target="_blank" rel="noopener">apps/web/lib/circleModularWallet.ts ↗</a></p>
     <p class="codenote">Passkey-backed MPC smart-account onboarding — a vendor signs up with no seed phrase. Wired and ready for the app id (sandbox).</p>
   </div>
 
@@ -179,17 +181,6 @@ receiveMessage(message, attestation);                                     // on 
       <li><span class="label">M1:</span><strong>StableFX RFQ live</strong> — transparent on-chain USDC↔EURC pricing on Arc (replaces the seeded adapter). Unlock: Circle StableFX TEST access.</li>
       <li><span class="label">M2:</span><strong>First fiat corridor</strong> — real local-currency out to a bank account, end to end with UTR proof. Unlock: a signed licensed money-transmitter partner.</li>
       <li><span class="label">M3:</span><strong>Production + expand</strong> — EUR/SEPA, more corridors, live oracle pricing, mainnet.</li>
-    </ul>
-  </div>
-
-  <div class="tx">
-    <h3>≤5-minute video storyboard (codebase walkthrough + integration demo)</h3>
-    <ul>
-      <li><span class="label">0:00–0:25</span>Cold open — create → pay → settle → verified receipt, on the live site.</li>
-      <li><span class="label">0:25–1:20</span>Codebase: <code>InvoiceEscrow.sol</code> (USDC/acceptAndPay), <code>PayWithUSDC.tsx</code> (EIP-712), <code>cctp-payin-proof.mjs</code> (CCTP V2).</li>
-      <li><span class="label">1:20–3:00</span>Live demo — publish + pay + settle txs on ArcScan; CCTP burn on BaseScan + mint on ArcScan.</li>
-      <li><span class="label">3:00–4:00</span>Circle stack — SDK/badge, /status health strip, honest-mode labels (live/sandbox/pending).</li>
-      <li><span class="label">4:00–4:30</span>Close — the on-chain tx index; "every claim maps to a verifiable transaction."</li>
     </ul>
   </div>
 </section>
